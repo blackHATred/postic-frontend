@@ -4,12 +4,12 @@ import DialogBox from "../../widgets/dialog_box/dialog_box";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import { mockComments } from "../../../models/Comment/types";
-
+import ButtonHeader from "../../widgets/Header/Header";
 
 const CommentsPage: React.FC = () => {
   return (
-    <div className={styles["comments-page"]}>
-      <h1>Календарик</h1>
+    <div>
+      <ButtonHeader />
       <CommentList comments={mockComments} />
       <DialogBox 
         title="Суммаризация комментариев" 

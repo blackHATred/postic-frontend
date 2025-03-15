@@ -3,15 +3,19 @@ import { Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { BlueButtonInterface } from "../../../models/Button/client";
 
-const BlueButton: React.FC<BlueButtonInterface> = ({onButtonClick}) => {
+interface BlueButtonProps {
+  text: string;
+  icon?: React.ReactNode; // Опциональная иконка
+}
+
+const BlueButton: React.FC<BlueButtonProps> = ({ text, icon }) => {
   return (
     <Button
       type="primary"
-      icon={<DownloadOutlined />}
-      style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }} // Настройте цвет кнопки
-      onClick={onButtonClick}
+      icon={icon}
+      style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
     >
-      Суммаризация
+      {text}
     </Button>
   );
 };
