@@ -67,9 +67,7 @@ const WebSocketComponent: React.FC = () => {
 
   const sendMessage = () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
-      const newMessage = {
-        "оооооооо"
-      };
+      const newMessage = {};
 
       socket.send(JSON.stringify(newMessage));
       setMessage("");
