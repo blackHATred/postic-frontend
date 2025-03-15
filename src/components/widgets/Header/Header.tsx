@@ -6,15 +6,13 @@ import styles from "./styles.module.scss";
 interface ButtonHeaderProps{
   OnClick1 : (...args: any) => any,
   OnClick2 : (...args: any) => any,
-  OnClick3 : (...args: any) => any;
 }
 
-const ButtonHeader: React.FC<ButtonHeaderProps> = ({OnClick1, OnClick2, OnClick3}) => {
+const ButtonHeader: React.FC<ButtonHeaderProps> = ({OnClick1, OnClick2}) => {
   return (
     <div className={styles.headerContainer}>
-      <BlueButton text="api key tg" icon={<CommentOutlined />} onButtonClick={OnClick1}/>
+      <BlueButton text="api keys" icon={<CommentOutlined />} onButtonClick={OnClick1}/>
       <BlueButton text="Суммаризация" icon={<CommentOutlined />} onButtonClick={OnClick2}/>
-      <BlueButton text="api key vk" icon={<CommentOutlined />} onButtonClick={OnClick3}/>
     </div>
   );
 };

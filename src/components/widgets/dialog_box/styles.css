@@ -25,7 +25,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 650px;
-  height: 240px;
   border-radius: 8px;
   background: white;
 }
@@ -34,6 +33,10 @@
   width: 50%;
   margin-left: 50%;
   transform: translate(-50%);
+  padding-top: 10px;
+}
+.ant-layout > .ant-layout-content *{
+  margin-top: 10px;
 }
 
 .blur {
