@@ -4,4 +4,5 @@ export interface DialogBoxModel{
     input_placeholder: string;
     button_text: string;
     onDialogClick: (value: string) => string;
+    OnCloseClick: () => void;
 }
