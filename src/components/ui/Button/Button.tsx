@@ -3,7 +3,7 @@ import { Button } from "antd";
 
 interface BlueButtonProps {
   text: string;
-  icon?: React.ReactNode; // Опциональная иконка
+  icon?: React.ReactNode;
 }
 
 const BlueButton: React.FC<BlueButtonProps> = ({ text, icon }) => {
