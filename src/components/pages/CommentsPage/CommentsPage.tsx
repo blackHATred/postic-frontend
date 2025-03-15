@@ -5,6 +5,7 @@ import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import { mockComments } from "../../../models/Comment/types";
 import ButtonHeader from "../../widgets/Header/Header";
+import styles from "./styles.module.scss";
 
 const CommentsPage: React.FC = () => {
   const [showDia1, setShowDia1] = useState(false);
@@ -31,9 +32,11 @@ const CommentsPage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className={styles.commentPage}>
       <ButtonHeader OnClick1={makeVisibleDialog1} OnClick2={makeVisibleDialog2} OnClick3={makeVisibleDialog3}/>
-      <CommentList comments={mockComments} />
+      <div className={styles.comments}>
+        <CommentList comments={mockComments} />
+      </div>
       {showDia1 ? 
       <DialogBox title={"Api key Tg"} text={"Введите ключи"} input_placeholder={"Ключ"} button_text={"Задать"} 
                         onDialogClick={(value: string) =>{console.log("test"); return "";}} OnCloseClick={makeInvisibleDialog1}/>  

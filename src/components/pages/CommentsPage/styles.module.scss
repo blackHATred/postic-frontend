@@ -1,10 +1,14 @@
-.comments-page {
-  padding: 100px;
-
- 
-  .ant-picker {
-    width: 100%;
-  }
+.comment-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.comments {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .comments-page > h1 {
