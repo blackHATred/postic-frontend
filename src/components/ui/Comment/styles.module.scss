@@ -1,0 +1,54 @@
+.comment {
+  //border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #fff;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 7px;
+}
+
+.comment-author {
+  margin-left: 12px;
+}
+
+.comment-time {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.comment-reply-to {
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #8c8c8c;
+
+  a {
+    color: #1890ff; // Цвет ссылки
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.comment-content {
+  margin-bottom: 12px;
+}
+
+.comment-author .comment-time {
+  margin: 7px;
+}
+
+.comment-reply-to {
+  margin: 7px;
+}
+
+.comment-content {
+  margin: 7px;
+}

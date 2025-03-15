@@ -13,9 +13,9 @@ const App: React.FC = () => {
           algorithm: theme.defaultAlgorithm,
         }}
       >
-      <Routes>
-        <Route path="/" element={<CommentsPage />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<CommentsPage />} />
+        </Routes>
       </ConfigProvider>
     </Router>
   );
