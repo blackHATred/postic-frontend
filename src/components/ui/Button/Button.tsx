@@ -1,15 +1,20 @@
 import React from "react";
 import { Button } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 
-const BlueButton: React.FC = () => {
+interface BlueButtonProps {
+  text: string;
+  icon?: React.ReactNode; // Опциональная иконка
+}
+
+const BlueButton: React.FC<BlueButtonProps> = ({ text, icon }) => {
   return (
     <Button
       type="primary"
-      icon={<DownloadOutlined />}
-      style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }} // Настройте цвет кнопки
+      icon={icon}
+      style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
     >
-      Суммаризация
+      {text}
     </Button>
   );
 };
