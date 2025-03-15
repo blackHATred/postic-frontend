@@ -1,19 +1,25 @@
 import React from "react";
-import { Layout } from "antd";
+import { FC } from "react";
+import { Layout, Typography } from "antd";
 import { Header, Footer, Content } from "antd/es/layout/layout";
 import styles from "./styles.module.scss";
+import { DialogBoxModel } from "../../../models/dialog_box/client";
+import { Input } from "antd";
 
-const DialogBox = () => {
+const { Text, Title } = Typography;
+
+const DialogBox: FC<DialogBoxModel> =({title, text, input_placeholder}) => {
   return(
     <div className={styles["blur"]}>
       <Layout className={styles["ant-layout"]}>
-          <Header > 
-              Заголовок
-          </Header>
-          <Content>
-
+          <Header className={styles["ant-layout-header"]}> 
+              <Title level={4}>{title}</Title>
+          </Header >
+          <Content className={styles["ant-layout-content"]}>
+            <Text>{text}</Text>
+            <Input placeholder={input_placeholder} variant="filled" />
           </Content>
-          <Footer>
+          <Footer className={styles["ant-layout-footer"]}>
               Низ
           </Footer>
       </Layout>
