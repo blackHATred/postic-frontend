@@ -5,10 +5,11 @@ import { Header, Footer, Content } from "antd/es/layout/layout";
 import styles from "./styles.module.scss";
 import { DialogBoxModel } from "../../../models/dialog_box/client";
 import { Input } from "antd";
+import BlueButton from "../../ui/Button/Button";
 
 const { Text, Title } = Typography;
 
-const DialogBox: FC<DialogBoxModel> =({title, text, input_placeholder}) => {
+const DialogBox: FC<DialogBoxModel> =({title, text, input_placeholder, onDialogClick}) => {
   return(
     <div className={styles["blur"]}>
       <Layout className={styles["ant-layout"]}>
@@ -20,7 +21,7 @@ const DialogBox: FC<DialogBoxModel> =({title, text, input_placeholder}) => {
             <Input placeholder={input_placeholder} variant="filled" />
           </Content>
           <Footer className={styles["ant-layout-footer"]}>
-              Низ
+              <BlueButton onButtonClick={onDialogClick}/>
           </Footer>
       </Layout>
     </div>

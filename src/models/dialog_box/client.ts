@@ -3,5 +3,5 @@ export interface DialogBoxModel{
     text: string;
     input_placeholder: string;
     button_text: string;
-    onClick: (value: string) => string;
+    onDialogClick: (value: string) => string;
 }
