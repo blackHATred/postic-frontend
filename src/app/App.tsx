@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CommentsPage from "../components/pages/CommentsPage/CommentsPage";
 import { ConfigProvider, theme } from "antd";
+import WebSocketComponent from "../api/comments";
 
 const App: React.FC = () => {
   return (

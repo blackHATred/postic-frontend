@@ -13,10 +13,11 @@ interface Comment {
 
 const WebSocketComponent: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
+  let socket: WebSocket;
 
   useEffect(() => {
     // Создаем WebSocket-соединение
-    const socket = new WebSocket("ws://localhost:8080");
+    socket = new WebSocket("ws://localhost:8080/api/comments/ws");
 
     // Обработчик открытия соединения
     socket.onopen = () => {
@@ -26,7 +27,9 @@ const WebSocketComponent: React.FC = () => {
     // Обработчик входящих сообщений
     socket.onmessage = (event) => {
       try {
+        console.log(event.data);
         const newComment = JSON.parse(event.data); // Парсим JSON
+
         console.log("Новый комментарий:", newComment);
 
         // Проверяем, что newComment соответствует интерфейсу Comment
