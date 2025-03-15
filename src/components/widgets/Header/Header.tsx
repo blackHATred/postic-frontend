@@ -1,18 +1,14 @@
 import React from "react";
 import BlueButton from "../../ui/Button/Button";
-import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
+import { CommentOutlined } from "@ant-design/icons";
+import styles from "./styles.module.scss";
 
 const ButtonHeader: React.FC = () => {
   return (
-    <div>
-      {/* Кнопка с текстом и иконкой */}
-      <BlueButton text="Скачать" icon={<DownloadOutlined />} />
-
-      {/* Кнопка с текстом и другой иконкой */}
-      <BlueButton text="Загрузить" icon={<UploadOutlined />} />
-
-      {/* Кнопка только с текстом (без иконки) */}
-      <BlueButton text="Без иконки" />
+    <div className={styles.headerContainer}>
+      <BlueButton text="api key tg" icon={<CommentOutlined />} />
+      <BlueButton text="Суммаризация" icon={<CommentOutlined />} />
+      <BlueButton text="api key vk" icon={<CommentOutlined />} />
     </div>
   );
 };

@@ -6,25 +6,39 @@ import styles from "./styles.module.scss";
 
 interface CommentListProps {
   comments: Comment[];
+  isLoading?: boolean;
+  hasMore?: boolean;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments }) => {
+const CommentList: React.FC<CommentListProps> = ({
+  comments,
+  isLoading,
+  hasMore,
+}) => {
   return (
-    <div className="comment-list">
-      <Spin></Spin>
-      <div className={styles.commentListContainer} title="Комментарии">
-        <div className={styles.commentList}>
-          <List
-            dataSource={comments}
-            renderItem={(comment) => (
-              <List.Item>
-                <CommentComponent comment={comment} />
-              </List.Item>
-            )}
-          />
+    <div className={styles.commentListContainer} title="Комментарии">
+      {isLoading && (
+        <div className={styles.spinnerContainer}>
+          <Spin />
         </div>
+      )}
+
+      <div className={styles.commentList}>
+        <List
+          dataSource={comments}
+          renderItem={(comment) => (
+            <List.Item>
+              <CommentComponent comment={comment} />
+            </List.Item>
+          )}
+        />
       </div>
-      <Spin></Spin>
+
+      {hasMore && (
+        <div className={styles.spinnerContainer}>
+          <Spin />
+        </div>
+      )}
     </div>
   );
 };

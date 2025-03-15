@@ -1,0 +1,10 @@
+.headerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: raw;
+}
+
+.headerContainer > * {
+  margin: 20px;
+}

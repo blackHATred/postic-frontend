@@ -1,6 +1,5 @@
 import React from "react";
 import { Button } from "antd";
-import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 
 interface BlueButtonProps {
   text: string;
