@@ -5,9 +5,10 @@ import styles from "./styles.module.scss";
 
 interface ButtonHeaderProps {
   SendKeys: (...args: any) => any;
+  Summarise: (...args: any) => any;
 }
 
-const ButtonHeader: React.FC<ButtonHeaderProps> = ({ SendKeys }) => {
+const ButtonHeader: React.FC<ButtonHeaderProps> = ({ SendKeys, Summarise }) => {
   return (
     <div className={styles.headerContainer}>
       <BlueButton
@@ -18,7 +19,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ SendKeys }) => {
       <BlueButton
         text="Суммаризация"
         icon={<CommentOutlined />}
-        onButtonClick={SendKeys}
+        onButtonClick={Summarise}
       />
     </div>
   );

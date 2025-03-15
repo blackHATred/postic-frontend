@@ -3,25 +3,27 @@ import { FC } from "react";
 import { Button, Layout, Typography } from "antd";
 import { Header, Footer, Content } from "antd/es/layout/layout";
 import "./styles.css";
-import { Input } from "antd";
+import { Input, ConfigProvider } from "antd";
 import BlueButton from "../../ui/Button/Button";
 import { CloseOutlined } from "@ant-design/icons";
-import { DialogBoxModelWith1 } from "../../../models/dialog_box/clients";
+import { DialogBoxModelWith2 } from "../../../models/dialog_box/clients";
 const { Text, Title } = Typography;
 
-const DialogBox1: FC<DialogBoxModelWith1> = ({
+const DialogBox2: FC<DialogBoxModelWith2> = ({
   title,
   text,
-  input_placeholder,
+  input_placeholder1,
+  input_placeholder2,
   onDialogClick,
   button_text,
   OnCloseClick,
 }) => {
-  const [input_data, SetInputData] = useState("");
+  const [input_data1, SetInputData1] = useState("");
+  const [input_data2, SetInputData2] = useState("");
   const [error_data, SetErrorData] = useState("");
 
   const handleClick = () => {
-    let res = onDialogClick(input_data);
+    let res = onDialogClick(input_data1 + "\n" + input_data2);
     if (res === "") {
       OnCloseClick();
     } else {
@@ -40,13 +42,8 @@ const DialogBox1: FC<DialogBoxModelWith1> = ({
         </Header>
         <Content>
           <Text>{text}</Text>
-          <Input
-            placeholder={input_placeholder}
-            variant="filled"
-            onChange={(e) => {
-              SetInputData(e.target.value);
-            }}
-          />
+          <Input placeholder={input_placeholder1} variant="filled" />
+          <Input placeholder={input_placeholder2} variant="filled" />
           <Text>{error_data}</Text>
         </Content>
         <Footer>
@@ -61,4 +58,4 @@ const DialogBox1: FC<DialogBoxModelWith1> = ({
   );
 };
 
-export default DialogBox1;
+export default DialogBox2;

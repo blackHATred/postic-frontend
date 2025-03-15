@@ -8,7 +8,10 @@ const CommentsPage: React.FC = () => {
 
   return (
     <div className={styles.commentPage}>
-      <ButtonHeader SendKeys={makeVisibleDialog1} />
+      <ButtonHeader
+        SendKeys={makeVisibleDialog1}
+        Summarise={makeVisibleDialog1}
+      />
       <div className={styles.comments}>
         <WebSocketComponent />
       </div>
