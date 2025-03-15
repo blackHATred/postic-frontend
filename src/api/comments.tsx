@@ -13,6 +13,7 @@ interface Comment {
 
 const WebSocketComponent: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [message, setMessage] = useState<string>("");
   let socket: WebSocket;
 
   useEffect(() => {
@@ -64,11 +65,34 @@ const WebSocketComponent: React.FC = () => {
     };
   }, []);
 
+  const sendMessage = () => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      const newMessage = {
+        "оооооооо"
+      };
+
+      socket.send(JSON.stringify(newMessage));
+      setMessage("");
+      console.log("send keys");
+    } else {
+      console.error("WebSocket соединение не установлено");
+    }
+  };
+
   return (
     <div>
       <h1>WebSocket Тест</h1>
       <h2>Комментарии:</h2>
       <CommentList comments={comments} />
+      <div>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Введите сообщение"
+        />
+        <button onClick={sendMessage}>Отправить</button>
+      </div>
     </div>
   );
 };
