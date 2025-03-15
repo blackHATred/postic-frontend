@@ -7,6 +7,8 @@ import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import { mockComments } from "../../../models/Comment/types";
 import ButtonHeader from "../../widgets/Header/Header";
+import styles from "./styles.module.scss";
+import WebSocketComponent from "../../../api/comments";
 
 const CommentsPage: React.FC = () => {
   const [showDia1, setShowDia1] = useState(false);
@@ -29,7 +31,7 @@ const CommentsPage: React.FC = () => {
     <div className={styles.commentPage}>
       <ButtonHeader OnClick1={makeVisibleDialog1} OnClick2={makeVisibleDialog2}/>
       <div className={styles.comments}>
-        <CommentList comments={mockComments} />
+        <WebSocketComponent />
       </div>
       {showDia1 ? 
       <DialogBox2 title={"Api keys"} text={"Введите ключи"} input_placeholder1={"Ключ тг"} input_placeholder2={"Ключ dr"} button_text={"Задать"} 
