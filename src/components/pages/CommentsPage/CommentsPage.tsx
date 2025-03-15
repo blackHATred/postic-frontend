@@ -1,15 +1,14 @@
 import React from "react";
-import CommentList from "../../widgets/CommentList/CommentList";
-import { mockComments } from "../../../models/Comment/types";
 import ButtonHeader from "../../widgets/Header/Header";
 import styles from "./styles.module.scss";
+import WebSocketComponent from "../../../api/comments";
 
 const CommentsPage: React.FC = () => {
   return (
     <div className={styles.commentPage}>
       <ButtonHeader />
       <div className={styles.comments}>
-        <CommentList comments={mockComments} />
+        <WebSocketComponent />
       </div>
     </div>
   );

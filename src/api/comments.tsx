@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
+import CommentList from "../components/widgets/CommentList/CommentList";
+
+interface Comment {
+  type: string;
+  username: string;
+  time: string;
+  platform: string;
+  avatarUrl: string;
+  text: string;
+  replyToUrl?: string;
+}
 
 const WebSocketComponent: React.FC = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     // Создаем WebSocket-соединение
@@ -10,13 +21,28 @@ const WebSocketComponent: React.FC = () => {
     // Обработчик открытия соединения
     socket.onopen = () => {
       console.log("WebSocket соединение установлено");
-      socket.send("Привет, сервер!"); // Отправляем сообщение на сервер
     };
 
     // Обработчик входящих сообщений
     socket.onmessage = (event) => {
-      console.log("Сообщение от сервера:", event.data);
-      setMessages((prev) => [...prev, event.data]); // Добавляем сообщение в состояние
+      try {
+        const newComment = JSON.parse(event.data); // Парсим JSON
+        console.log("Новый комментарий:", newComment);
+
+        // Проверяем, что newComment соответствует интерфейсу Comment
+        if (
+          newComment &&
+          newComment.type &&
+          newComment.username &&
+          newComment.text
+        ) {
+          setComments((prev) => [...prev, newComment]);
+        } else {
+          console.error("Получен некорректный комментарий:", newComment);
+        }
+      } catch (error) {
+        console.error("Ошибка при парсинге JSON:", error);
+      }
     };
 
     // Обработчик закрытия соединения
@@ -38,12 +64,8 @@ const WebSocketComponent: React.FC = () => {
   return (
     <div>
       <h1>WebSocket Тест</h1>
-      <h2>Сообщения от сервера:</h2>
-      <ul>
-        {messages.map((message, index) => (
-          <li key={index}>{message}</li>
-        ))}
-      </ul>
+      <h2>Комментарии:</h2>
+      <CommentList comments={comments} />
     </div>
   );
 };

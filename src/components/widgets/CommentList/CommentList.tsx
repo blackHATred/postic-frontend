@@ -17,7 +17,7 @@ const CommentList: React.FC<CommentListProps> = ({
 }) => {
   return (
     <div className={styles.commentListContainer} title="Комментарии">
-      {1 && (
+      {isLoading && (
         <div className={styles.spinnerContainer}>
           <Spin />
         </div>
