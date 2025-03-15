@@ -7,12 +7,19 @@ import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import { mockComments } from "../../../models/Comment/types";
 import ButtonHeader from "../../widgets/Header/Header";
-import styles from "./styles.module.scss";
 import WebSocketComponent from "../../../api/comments";
+import { Comment } from "../../../models/Comment/types";
 
-const CommentsPage: React.FC = () => {
+
+export interface commentsPageProps{
+  comments : Comment[];
+  sendMessage: any;
+}
+
+const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
   const [showDia1, setShowDia1] = useState(false);
   const [showDia2, setShowDia2] = useState(false);
+    const [message, setMessage] = useState<string>("");
 
   const makeVisibleDialog1 = () => {
     setShowDia1(true);
@@ -30,12 +37,9 @@ const CommentsPage: React.FC = () => {
   return (
     <div className={styles.commentPage}>
       <ButtonHeader OnClick1={makeVisibleDialog1} OnClick2={makeVisibleDialog2}/>
-      <div className={styles.comments}>
-        <WebSocketComponent />
-      </div>
       {showDia1 ? 
-      <DialogBox2 title={"Api keys"} text={"Введите ключи"} input_placeholder1={"Ключ тг"} input_placeholder2={"Ключ dr"} button_text={"Задать"} 
-                        onDialogClick={(value: string) =>{return "";}} OnCloseClick={makeInvisibleDialog1}/>  
+      <DialogBox2 title={"Api keys"} text={"Введите ключи"} input_placeholder1={"id тг"} input_placeholder2={"id vk"} input_placeholder3={"Ключ vk"} button_text={"Задать"} 
+                        onDialogClick={sendMessage} OnCloseClick={makeInvisibleDialog1}/>  
           
       : null }
       {showDia2 ? 
@@ -43,6 +47,19 @@ const CommentsPage: React.FC = () => {
                         onDialogClick={(value: string) =>{return "";}} OnCloseClick={makeInvisibleDialog2}/>  
           
       : null }
+
+    <h1>WebSocket Тест</h1>
+      <h2>Комментарии:</h2>
+      <CommentList comments={comments} />
+      <div>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Введите сообщение"
+        />
+        <button onClick={sendMessage}>Отправить</button>
+      </div>
     </div>
   );
 };

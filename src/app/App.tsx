@@ -14,7 +14,7 @@ const App: React.FC = () => {
         }}
       >
         <Routes>
-          <Route path="/" element={<CommentsPage />} />
+          <Route path="/" element={<WebSocketComponent />} />
         </Routes>
       </ConfigProvider>
     </Router>

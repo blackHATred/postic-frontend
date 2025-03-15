@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import CommentList from "../components/widgets/CommentList/CommentList";
+import CommentsPage from "../components/pages/CommentsPage/CommentsPage";
 
 interface Comment {
   type: string;
@@ -13,12 +14,12 @@ interface Comment {
 
 const WebSocketComponent: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [message, setMessage] = useState<string>("");
+
   let socket: WebSocket;
 
   useEffect(() => {
     // Создаем WebSocket-соединение
-    socket = new WebSocket("ws://localhost:8080/api/comments/ws");
+    socket = new WebSocket("ws://localhost:8080");
 
     // Обработчик открытия соединения
     socket.onopen = () => {
@@ -65,34 +66,24 @@ const WebSocketComponent: React.FC = () => {
     };
   }, []);
 
-  const sendMessage = () => {
+  const sendMessage = (v1:string, v2:string, v3:string) => {
     if (socket && socket.readyState === WebSocket.OPEN) {
       const newMessage = {
-        "оооооооо"
+        "tg_chat_id": v1,
+        "vk_group_id" : v2,
+        "vk_key": v3
       };
 
       socket.send(JSON.stringify(newMessage));
-      setMessage("");
-      console.log("send keys");
+      return "";
     } else {
-      console.error("WebSocket соединение не установлено");
+      return "bad";
     }
   };
 
   return (
     <div>
-      <h1>WebSocket Тест</h1>
-      <h2>Комментарии:</h2>
-      <CommentList comments={comments} />
-      <div>
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Введите сообщение"
-        />
-        <button onClick={sendMessage}>Отправить</button>
-      </div>
+      <CommentsPage comments={comments} sendMessage={sendMessage}/>
     </div>
   );
 };

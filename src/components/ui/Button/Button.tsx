@@ -3,7 +3,7 @@ import { Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { BlueButtonProps } from "../../../models/Button/client";
 
-
+const BlueButton: React.FC<BlueButtonProps> = ({ text, icon, onButtonClick, className }) => {
   return (
     <Button
       className={className}

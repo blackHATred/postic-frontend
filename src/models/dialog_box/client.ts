@@ -12,7 +12,8 @@ export interface DialogBoxModelWith2{
     text: string;
     input_placeholder1: string;
     input_placeholder2: string;
+    input_placeholder3: string;
     button_text: string;
-    onDialogClick: (value: string) => string;
+    onDialogClick: (value1: string, value2: string, value3: string) => string;
     OnCloseClick: () => void;
 }
