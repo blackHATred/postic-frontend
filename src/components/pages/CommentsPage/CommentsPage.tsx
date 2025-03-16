@@ -1,17 +1,11 @@
 import React, { useState } from "react";
-import { DatePicker } from "antd";
-import DialogBox1 from "../../widgets/dialogBoxes/dialogBoxOneInput";
-import DialogBox2 from "../../widgets/dialogBoxes/dialog_box_two";
-
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
-import { mockComments } from "../../../models/Comment/types";
 import ButtonHeader from "../../widgets/Header/Header";
-import WebSocketComponent from "../../../api/comments";
 import { Comment } from "../../../models/Comment/types";
 import DialogBoxOneInput from "../../widgets/dialogBoxes/dialogBoxOneInput";
 import DialogBoxThreeInput from "../../widgets/dialogBoxes/dialog_box_two";
-
+import axios from "axios";
 
 export interface commentsPageProps{
   comments : Comment[];
@@ -40,21 +34,7 @@ const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
                            input_placeholder_three={"Ключ vk"} 
                            buttonText={"Задать"} 
                            onOk={sendMessage} 
-                           onCancel={(value: string) => {
-					            axios
-					              .get("http://localhost:8080/api/comments/summary", {
-					                params: {
-					                  url: value,
-					                },
-					              })
-					              .then((response) => {
-					                return response.toString();
-					              })
-					              .catch((error) => {
-					                console.error("Error:", error);
-					              });
-					            return "Request sent";
-				            }}
+                           onCancel={()=>{}}
                            setOpen={setShowDia1}
                            isOpen={showDia1}/>  
           
@@ -62,7 +42,21 @@ const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
                          text={"Ссылка на пост"} 
                          input_placeholder={"Пост"} 
                          buttonText={"Открыть"} 
-                         onOk={(value: string) =>{return "";}} 
+                         onOk={(value: string) => {
+                          axios
+                            .get("http://localhost:8080/api/comments/summary", {
+                              params: {
+                                url: value,
+                              },
+                            })
+                            .then((response) => {
+                              return response.toString();
+                            })
+                            .catch((error) => {
+                              console.error("Error:", error);
+                            });
+                          return "Request sent";
+                        }} 
                          onCancel={()=>{}}
                          setOpen={setShowDia2}
                          isOpen={showDia2}/>  
