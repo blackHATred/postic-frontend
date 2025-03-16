@@ -34,7 +34,7 @@ const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
                            input_placeholder_three={"Ключ vk"} 
                            buttonText={"Задать"} 
                            onOk={sendMessage} 
-                           onCancel={()=>{}}
+                           onCancel={async ()=>{return "";}}
                            setOpen={setShowDia1}
                            isOpen={showDia1}/>  
           
@@ -42,8 +42,8 @@ const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
                          text={"Ссылка на пост"} 
                          input_placeholder={"Пост"} 
                          buttonText={"Открыть"} 
-                         onOk={(value: string) => {
-                          axios
+                         onOk={async (value: string) => {
+                          return axios
                             .get("http://localhost:8080/api/comments/summary", {
                               params: {
                                 url: value,
@@ -53,11 +53,10 @@ const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
                               return response.toString();
                             })
                             .catch((error) => {
-                              console.error("Error:", error);
+                              return "Error:" + error;
                             });
-                          return "Request sent";
                         }} 
-                         onCancel={()=>{}}
+                         onCancel={ async ()=>{return "";}}
                          setOpen={setShowDia2}
                          isOpen={showDia2}/>  
 

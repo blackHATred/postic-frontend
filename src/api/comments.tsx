@@ -76,7 +76,7 @@ const WebSocketComponent: React.FC = () => {
       socket.send(JSON.stringify(newMessage));
       return "";
     } else {
-      return "bad";
+      return "Произошла нержиданная ошибка подключения";
     }
   };
 

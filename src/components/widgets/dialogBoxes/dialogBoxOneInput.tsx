@@ -10,6 +10,8 @@ export interface DialogBoxOneInputProps extends DialogBoxModelOneButtonProps{
   setOpen : Function;
   text: string;
   input_placeholder: string;
+  onOk: (arg0: string) => Promise<string> 
+  onCancel: () => Promise<string> 
 }
 
 const DialogBoxOneInput: FC<DialogBoxOneInputProps> =(props: DialogBoxOneInputProps) => {
@@ -17,8 +19,8 @@ const DialogBoxOneInput: FC<DialogBoxOneInputProps> =(props: DialogBoxOneInputPr
   const [input_data, SetInputData] = useState("");
   const [error_data, SetErrorData] = useState("");
 
-  const onOk = ()=>{
-    let res = props.onOk(input_data);
+  const onOk = async ()=>{
+    let res = await props.onOk(input_data);
     if (res === ""){
       props.setOpen(false);
     }else{
@@ -26,9 +28,13 @@ const DialogBoxOneInput: FC<DialogBoxOneInputProps> =(props: DialogBoxOneInputPr
     }
   }
 
-  const onCancel = ()=>{
-    props.onCancel();
-    props.setOpen(false);
+  const onCancel = async ()=>{
+    let res = await props.onCancel();
+    if (res === ""){
+      props.setOpen(false);
+    }else{
+      SetErrorData(res);
+    }
   }
   
   return(

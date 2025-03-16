@@ -14,6 +14,8 @@ export interface DialogBoxThreeInputProps extends DialogBoxModelOneButtonProps{
   input_placeholder_one: string;
   input_placeholder_two: string;
   input_placeholder_three: string;
+  onOk: (arg0: string, arg1: string, arg2: string) => Promise<string>;
+  onCancel: () => Promise<string>
 }
 
 
@@ -24,8 +26,8 @@ const DialogBoxThreeInput: FC<DialogBoxThreeInputProps> =(props: DialogBoxThreeI
   const [input_data3, SetInputData3] = useState("");
   const [error_data, SetErrorData] = useState("");
 
-  const onOk = ()=>{
-    let res = props.onOk(input_data1, input_data2, input_data3);
+  const onOk = async ()=>{
+    let res = await props.onOk(input_data1, input_data2, input_data3);
     if (res === ""){
       props.setOpen(false);
     }else{
@@ -33,9 +35,13 @@ const DialogBoxThreeInput: FC<DialogBoxThreeInputProps> =(props: DialogBoxThreeI
     }
   }
 
-  const onCancel = ()=>{
-    props.onCancel();
-    props.setOpen(false);
+  const onCancel = async ()=>{
+    let res = await props.onCancel();
+    if (res === ""){
+      props.setOpen(false);
+    }else{
+      SetErrorData(res);
+    }
   }
   
   return(
