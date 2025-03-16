@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CommentsPage from "../components/pages/CommentsPage/CommentsPage";
 import { ConfigProvider, theme } from "antd";
+import WebSocketComponent from "../api/comments";
+import "./App.css";
 
 const App: React.FC = () => {
   return (
@@ -12,7 +14,7 @@ const App: React.FC = () => {
         }}
       >
         <Routes>
-          <Route path="/" element={<CommentsPage />} />
+          <Route path="/" element={<WebSocketComponent />} />
         </Routes>
       </ConfigProvider>
     </Router>

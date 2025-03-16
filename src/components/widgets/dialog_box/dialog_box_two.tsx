@@ -14,16 +14,18 @@ const DialogBox2: FC<DialogBoxModelWith2> = ({
   text,
   input_placeholder1,
   input_placeholder2,
+  input_placeholder3,
   onDialogClick,
   button_text,
   OnCloseClick,
 }) => {
   const [input_data1, SetInputData1] = useState("");
   const [input_data2, SetInputData2] = useState("");
+  const [input_data3, SetInputData3] = useState("");
   const [error_data, SetErrorData] = useState("");
 
   const handleClick = () => {
-    let res = onDialogClick(input_data1 + "\n" + input_data2);
+    let res = onDialogClick(input_data1, input_data2, input_data3);
     if (res === "") {
       OnCloseClick();
     } else {
@@ -42,8 +44,27 @@ const DialogBox2: FC<DialogBoxModelWith2> = ({
         </Header>
         <Content>
           <Text>{text}</Text>
-          <Input placeholder={input_placeholder1} variant="filled" />
-          <Input placeholder={input_placeholder2} variant="filled" />
+          <Input
+            placeholder={input_placeholder1}
+            variant="filled"
+            onChange={(e) => {
+              SetInputData1(e.target.value);
+            }}
+          />
+          <Input
+            placeholder={input_placeholder2}
+            variant="filled"
+            onChange={(e) => {
+              SetInputData2(e.target.value);
+            }}
+          />
+          <Input
+            placeholder={input_placeholder3}
+            variant="filled"
+            onChange={(e) => {
+              SetInputData3(e.target.value);
+            }}
+          />
           <Text>{error_data}</Text>
         </Content>
         <Footer>

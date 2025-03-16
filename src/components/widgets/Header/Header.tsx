@@ -4,22 +4,22 @@ import { CommentOutlined } from "@ant-design/icons";
 import styles from "./styles.module.scss";
 
 interface ButtonHeaderProps {
-  SendKeys: (...args: any) => any;
-  Summarise: (...args: any) => any;
+  OnClick1: (...args: any) => any;
+  OnClick2: (...args: any) => any;
 }
 
-const ButtonHeader: React.FC<ButtonHeaderProps> = ({ SendKeys, Summarise }) => {
+const ButtonHeader: React.FC<ButtonHeaderProps> = ({ OnClick1, OnClick2 }) => {
   return (
     <div className={styles.headerContainer}>
       <BlueButton
         text="api keys"
         icon={<CommentOutlined />}
-        onButtonClick={SendKeys}
+        onButtonClick={OnClick1}
       />
       <BlueButton
         text="Суммаризация"
         icon={<CommentOutlined />}
-        onButtonClick={Summarise}
+        onButtonClick={OnClick2}
       />
     </div>
   );
