@@ -18,7 +18,7 @@ const WebSocketComponent: React.FC = () => {
 
   useEffect(() => {
     // Создаем WebSocket-соединение
-    socket = new WebSocket("ws://localhost:8080");
+    socket = new WebSocket("ws://localhost:8080/api/comments/ws");
 
     // Обработчик открытия соединения
     socket.onopen = () => {
@@ -65,12 +65,12 @@ const WebSocketComponent: React.FC = () => {
     };
   }, []);
 
-  const sendMessage = (v1:string, v2:string, v3:string) => {
+  const sendMessage = (v1: string, v2: string, v3: string) => {
     if (socket && socket.readyState === WebSocket.OPEN) {
       const newMessage = {
-        "tg_chat_id": v1,
-        "vk_group_id" : v2,
-        "vk_key": v3
+        tg_chat_id: parseInt(v1),
+        vk_group_id: parseInt(v2),
+        vk_key: v3,
       };
 
       socket.send(JSON.stringify(newMessage));
@@ -82,7 +82,7 @@ const WebSocketComponent: React.FC = () => {
 
   return (
     <div>
-      <CommentsPage comments={comments} sendMessage={sendMessage}/>
+      <CommentsPage comments={comments} sendMessage={sendMessage} />
     </div>
   );
 };

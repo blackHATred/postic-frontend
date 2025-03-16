@@ -40,7 +40,21 @@ const CommentsPage: React.FC<commentsPageProps> = ({comments, sendMessage}) => {
                            input_placeholder_three={"Ключ vk"} 
                            buttonText={"Задать"} 
                            onOk={sendMessage} 
-                           onCancel={()=>{}}
+                           onCancel={(value: string) => {
+					            axios
+					              .get("http://localhost:8080/api/comments/summary", {
+					                params: {
+					                  url: value,
+					                },
+					              })
+					              .then((response) => {
+					                return response.toString();
+					              })
+					              .catch((error) => {
+					                console.error("Error:", error);
+					              });
+					            return "Request sent";
+				            }}
                            setOpen={setShowDia1}
                            isOpen={showDia1}/>  
           
