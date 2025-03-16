@@ -1,6 +1,6 @@
 import React from "react";
 import { List, Spin } from "antd";
-import CommentComponent from "../../ui/Comment/Comment";
+import CommentComponent from "../../ui/comment/Comment";
 import { Comment } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
 

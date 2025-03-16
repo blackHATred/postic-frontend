@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import CommentList from "../components/widgets/CommentList/CommentList";
 import CommentsPage from "../components/pages/CommentsPage/CommentsPage";
 
 interface Comment {

@@ -1,16 +1,20 @@
 import React from "react";
 import { Button } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
-import { BlueButtonProps } from "../../../models/Button/client";
+import styles from './styles.module.scss'
 
-const BlueButton: React.FC<BlueButtonProps> = ({ text, icon, onButtonClick, className }) => {
+export interface BlueButtonProps {
+  text: string;
+  icon?: React.ReactNode; // Опциональная иконка
+  onButtonClick? : (...args: any) => any;
+}
+
+const BlueButton: React.FC<BlueButtonProps> = ({ text, icon, onButtonClick }) => {
   return (
     <Button
-      className={className}
       type="primary"
       icon={icon}
-      style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
       onClick={onButtonClick}
+      className={styles['blueButton']}
     >
       {text}
     </Button>
