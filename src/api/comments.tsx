@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import CommentsPage from "../components/pages/CommentsPage/CommentsPage";
+import BasePage from "../components/pages/CommentsPage/BasePage";
 
 interface Comment {
   type: string;
@@ -82,7 +82,7 @@ const WebSocketComponent: React.FC = () => {
 
   return (
     <div>
-      <CommentsPage comments={comments} sendMessage={sendMessage} />
+      <BasePage comments={comments} sendMessage={sendMessage} />
     </div>
   );
 };
