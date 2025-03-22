@@ -51,6 +51,7 @@ const DialogBoxThreeInput: FC<DialogBoxThreeInputProps> = (
       onCancel={onCancel}
       buttonText={props.buttonText}
       title={props.title}
+      headerSubtext={props.headerSubtext}
     >
       <Text>{props.text}</Text>
       <Input

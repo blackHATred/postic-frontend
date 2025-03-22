@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject } from "react";
 import { List, Spin } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
@@ -8,6 +8,7 @@ interface PostListProps {
   posts: Post[];
   isLoading?: boolean;
   hasMore?: boolean;
+  summaryBoxRef?: RefObject<Element>;
 }
 
 const CommentList: React.FC<PostListProps> = ({

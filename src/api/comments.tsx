@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BasePage from "../components/pages/CommentsPage/BasePage";
+import { mockComments } from "../models/Comment/types";
+import useWebSocket, { ReadyState } from "react-use-websocket"
 
 interface Comment {
   type: string;
@@ -12,27 +14,34 @@ interface Comment {
 }
 
 const WebSocketComponent: React.FC = () => {
-  const [comments, setComments] = useState<Comment[]>([]);
-
-  let socket: WebSocket;
+  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const WS_URL = "ws://127.0.0.1:8090/api/comments/ws"
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket<string>(
+    WS_URL,
+    {
+      share: false,
+      shouldReconnect: () => true,
+    },
+  )
 
   useEffect(() => {
-    // Создаем WebSocket-соединение
-    socket = new WebSocket("ws://localhost:8080/api/comments/ws");
-
-    // Обработчик открытия соединения
-    socket.onopen = () => {
+    console.log("Connection state changed")
+    if (readyState === ReadyState.OPEN) {
       console.log("WebSocket соединение установлено");
-    };
+    }
+    if (readyState === ReadyState.CLOSED) {
+      console.log("WebSocket соединение закрыто");
+    }
+    
+  }, [readyState])
 
-    // Обработчик входящих сообщений
-    socket.onmessage = (event) => {
+  useEffect(() => {
+    if (lastJsonMessage != null){
       try {
-        console.log(event.data);
-        const newComment = JSON.parse(event.data); // Парсим JSON
-
+        const newComment = JSON.parse(lastJsonMessage); // Парсим JSON
+  
         console.log("Новый комментарий:", newComment);
-
+  
         // Проверяем, что newComment соответствует интерфейсу Comment
         if (
           newComment &&
@@ -47,33 +56,19 @@ const WebSocketComponent: React.FC = () => {
       } catch (error) {
         console.error("Ошибка при парсинге JSON:", error);
       }
-    };
-
-    // Обработчик закрытия соединения
-    socket.onclose = () => {
-      console.log("WebSocket соединение закрыто");
-    };
-
-    // Обработчик ошибок
-    socket.onerror = (error) => {
-      console.error("WebSocket ошибка:", error);
-    };
-
-    // Очистка при размонтировании компонента
-    return () => {
-      socket.close();
-    };
-  }, []);
+    }
+    
+  }, [lastJsonMessage])
 
   const sendMessage = (v1: string, v2: string, v3: string) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (readyState === ReadyState.OPEN) {
       const newMessage = {
         tg_chat_id: parseInt(v1),
         vk_group_id: parseInt(v2),
         vk_key: v3,
       };
 
-      socket.send(JSON.stringify(newMessage));
+      sendJsonMessage(JSON.stringify(newMessage));
       return "";
     } else {
       return "Произошла нержиданная ошибка подключения";

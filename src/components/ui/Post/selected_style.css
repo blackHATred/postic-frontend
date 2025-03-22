@@ -1,0 +1,18 @@
+.selected{
+    animation: highlight 3s;
+  }
+
+@keyframes highlight {
+    0% {
+        background: none
+    }
+    25% {
+        background: #e6f4ff
+    }
+    75% {
+        background: #e6f4ff
+    }
+    100% {
+        background: none;
+    }
+}

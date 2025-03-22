@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties, useContext, useRef} from "react";
 import { Avatar, Divider, Tag, Typography } from "antd";
 import styles from "./styles.module.scss"; // Импортируем стили
 import { Post } from "../../../models/Post/types";
@@ -8,6 +8,9 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
+import { SummaryBoxContext } from "../../pages/CommentsPage/BasePage";
+import "./selected_style.css"
+import axios from "axios";
 
 const { Text } = Typography;
 
@@ -27,12 +30,22 @@ const PostComponent: React.FC<PostProps> = ({ post }) => {
     pub_date,
   } = post;
 
+  const context = useContext(SummaryBoxContext)
+
+  const refer = useRef<HTMLDivElement>(null);
   const tags = [];
   if (action_post_vk_id) tags.push(<Tag key="vk">VK</Tag>);
   if (action_post_tg_id) tags.push(<Tag key="tg">TG</Tag>);
 
+  const onCommentSummary = async () =>{
+    if (context.PostRef)
+      context.PostRef.current = refer.current;
+    context.setActive(true);
+    context.setPostID(action_post_tg_id) //!!!!! Здесь задается id поста
+  }
+
   return (
-    <div className={styles.post}>
+    <div ref={refer} className={styles["post"]}>
       {/* хедер*/}
       <div className={styles["post-header"]}>
         {/* Левая часть */}
@@ -59,6 +72,7 @@ const PostComponent: React.FC<PostProps> = ({ post }) => {
             text="Суммаризация"
             variant="dashed"
             color="primary"
+            onButtonClick={onCommentSummary}
           />
         </div>
       </div>

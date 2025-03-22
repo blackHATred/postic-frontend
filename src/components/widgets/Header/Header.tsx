@@ -32,8 +32,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
-        <Image>
-          <img src={logo} alt="logo" />
+        <Image src={logo} alt="logo" height={50}>
         </Image>
         <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
         <div className={styles.headerIcons}>
