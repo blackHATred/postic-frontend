@@ -5,6 +5,7 @@ import DialogBoxOneButton, {
   DialogBoxModelOneButtonProps,
 } from "../../ui/dialogBoxOneButton/DialogBoxOneButton";
 import styles from "./styles.module.scss";
+import {red} from '@ant-design/colors'
 
 const { Text } = Typography;
 
@@ -12,8 +13,10 @@ export interface DialogBoxXInputsProps extends DialogBoxModelOneButtonProps {
   setOpen: Function;
   text: string;
   input_placeholders: {[key: string] : string};
+  styles: {[key: string] : "" | "warning" | "error"};
   onOkClick: (args: {[key: string] : string}) => void;
   onCancelClick: (args: {[key: string] : string}) => void;
+  errortext?: string
 }
 
 const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
@@ -25,7 +28,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
     <DialogBoxOneButton
       onOkClick={() => {props.onOkClick(input_data)}}
       isOpen={props.isOpen}
-      onCancelClick={() => {props.onOkClick(input_data)}}
+      onCancelClick={() => {props.onCancelClick(input_data)}}
       buttonText={props.buttonText}
       title={props.title}
       headerSubtext={props.headerSubtext}
@@ -33,6 +36,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
       <Text>{props.text}</Text>
       {Object.entries(props.input_placeholders).map(([key, value]) =>(
         <Input
+        status= {props.styles[key]}
         className={styles["input"]}
         placeholder={value}
         variant="filled"
@@ -43,6 +47,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
         }}
       />
       ))}
+      <Text type="danger">{props.errortext}</Text>
     </DialogBoxOneButton>
   );
 };

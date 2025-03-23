@@ -1,7 +1,8 @@
-import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from "react";
 import BasePage from "../components/pages/CommentsPage/BasePage";
 import { mockComments } from "../models/Comment/types";
 import useWebSocket, { ReadyState } from "react-use-websocket"
+import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 
 interface Comment {
   type: string;
@@ -13,8 +14,22 @@ interface Comment {
   replyToUrl?: string;
 }
 
+interface WebSocketContent {
+  sendJsonMessage : (args: {[key: string] : any}) => void, 
+  lastJsonMessage : string, 
+  readyState : ReadyState
+}
+
+export const WebSocketContext = createContext<WebSocketContent>(
+  {
+    lastJsonMessage: "",
+    readyState: ReadyState.UNINSTANTIATED,
+    sendJsonMessage: () => {}
+  }
+)
+
 const WebSocketComponent: React.FC<PropsWithChildren> = (props: PropsWithChildren) => {
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+
   const WS_URL = "ws://127.0.0.1:8090/api/comments/ws"
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket<string>(
     WS_URL,
@@ -35,30 +50,7 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (props: PropsWithChildre
     
   }, [readyState])
 
-  useEffect(() => {
-    if (lastJsonMessage != null){
-      try {
-        const newComment = JSON.parse(lastJsonMessage); // Парсим JSON
   
-        console.log("Новый комментарий:", newComment);
-  
-        // Проверяем, что newComment соответствует интерфейсу Comment
-        if (
-          newComment &&
-          newComment.type &&
-          newComment.username &&
-          newComment.text
-        ) {
-          setComments((prev) => [...prev, newComment]);
-        } else {
-          console.error("Получен некорректный комментарий:", newComment);
-        }
-      } catch (error) {
-        console.error("Ошибка при парсинге JSON:", error);
-      }
-    }
-    
-  }, [lastJsonMessage])
 
   const sendMessage = (args: {[key: string] : string}) => {
     if (readyState === ReadyState.OPEN) {
@@ -70,7 +62,9 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (props: PropsWithChildre
 
   return (
     <div>
-      <BasePage comments={comments} sendMessage={sendMessage} />
+      <WebSocketContext.Provider value={{lastJsonMessage : lastJsonMessage, sendJsonMessage: sendMessage, readyState: readyState}}>
+      <BasePage />
+      </WebSocketContext.Provider>
     </div>
   );
 };
