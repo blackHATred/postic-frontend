@@ -15,7 +15,14 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   return (
     <div className={styles.comment}>
       <div className={styles["comment-header"]}>
-        <Avatar src={avatarUrl} alt={username} onError={()=>{console.log("img-error");return true;}}/>
+        <Avatar
+          src={avatarUrl}
+          alt={username}
+          onError={() => {
+            console.log("img-error");
+            return true;
+          }}
+        />
         <div className={styles["comment-author"]}>
           <Text strong>{username}</Text>
           <Text type="secondary" className={styles["comment-time"]}>

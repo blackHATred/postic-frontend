@@ -5,15 +5,13 @@ import ButtonHeader from "../../widgets/Header/Header";
 import axios from "axios";
 import { mockPosts } from "../../../models/Post/types";
 import PostList from "../../widgets/PostList/PostList";
-import DialogBoxSummary, { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
+import DialogBoxSummary, {
+  SummaryBoxContext,
+} from "../../widgets/dialogBoxes/dialogBoxSummary";
 import ApiKeyBox from "../../widgets/ApiKeyBox/ApiKeyBox";
 import { Breadcrumb } from "antd";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
-
-
-
-
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
@@ -27,7 +25,6 @@ const BasePage: React.FC = () => {
 
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [postSummaryID, setPostSummaryID] = useState("");
-
 
   const [postId, setPostId] = useState<string | null>(null);
 
@@ -57,11 +54,14 @@ const BasePage: React.FC = () => {
     }
   };
 
-  
-
   return (
     <SummaryBoxContext.Provider
-      value={{setActive: setShowDiaSummary, PostRef: PostRef, setLoading:setSummaryLoading, setPostID: setPostSummaryID}}
+      value={{
+        setActive: setShowDiaSummary,
+        PostRef: PostRef,
+        setLoading: setSummaryLoading,
+        setPostID: setPostSummaryID,
+      }}
     >
       <div className={styles.commentPage}>
         <ButtonHeader
@@ -74,24 +74,24 @@ const BasePage: React.FC = () => {
 
         {activeTab === "1" ? (
           <div>
-            <PostList posts={mockPosts} onCommentClick={handlePostCommentClick}/>
+            <PostList
+              posts={mockPosts}
+              onCommentClick={handlePostCommentClick}
+            />
           </div>
         ) : (
           <div>
-          <Breadcrumb>
-            {postId && (
-              <Breadcrumb.Item>Комментарии поста {postId}</Breadcrumb.Item>
-            )}
-          </Breadcrumb>
+            <Breadcrumb>
+              {postId && (
+                <Breadcrumb.Item>Комментарии поста {postId}</Breadcrumb.Item>
+              )}
+            </Breadcrumb>
 
-          <CommentList
-            isLoading={false}
-            postId={postId}
-          />
-        </div>
+            <CommentList isLoading={false} postId={postId} />
+          </div>
         )}
 
-        <ApiKeyBox showBox= {showDiaAPI} setShowBox={setShowDiaAPI} />
+        <ApiKeyBox showBox={showDiaAPI} setShowBox={setShowDiaAPI} />
 
         <DialogBoxSummary
           title={"Суммаризация комментариев"}
@@ -103,7 +103,7 @@ const BasePage: React.FC = () => {
           postId={postSummaryID}
         />
       </div>
-    
+
       <PostStatusDialog
         title={"Публикация поста"}
         buttonText={"Открыть"}

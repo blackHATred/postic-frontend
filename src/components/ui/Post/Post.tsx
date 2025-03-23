@@ -1,4 +1,4 @@
-import React, { CSSProperties, useContext, useRef} from "react";
+import React, { CSSProperties, useContext, useRef } from "react";
 import { Avatar, Divider, Tag, Typography } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
@@ -10,7 +10,7 @@ import Icon, {
   PaperClipOutlined,
 } from "@ant-design/icons";
 import { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
-import "./selected_style.css"
+import "./selected_style.css";
 import axios from "axios";
 
 const { Text } = Typography;
@@ -33,19 +33,18 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
     id,
   } = post;
 
-  const context = useContext(SummaryBoxContext)
+  const context = useContext(SummaryBoxContext);
 
   const refer = useRef<HTMLDivElement>(null);
   const tags = [];
   if (action_post_vk_id) tags.push(<Tag key="vk">VK</Tag>);
   if (action_post_tg_id) tags.push(<Tag key="tg">TG</Tag>);
 
-  const onCommentSummary = async () =>{
-    if (context.PostRef)
-      context.PostRef.current = refer.current;
+  const onCommentSummary = async () => {
+    if (context.PostRef) context.PostRef.current = refer.current;
     context.setActive(true);
-    context.setPostID(action_post_tg_id) //!!!!! Здесь задается id поста
-  }
+    context.setPostID(action_post_tg_id); //!!!!! Здесь задается id поста
+  };
 
   return (
     <div ref={refer} className={styles["post"]}>

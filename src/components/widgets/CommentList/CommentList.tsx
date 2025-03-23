@@ -11,25 +11,27 @@ interface CommentListProps {
 }
 
 const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
-   const webSocketmanager = useContext(WebSocketContext);
-   const [comments, setComments] = useState<Comment[]>(mockComments);
-   const pageSize = 5; // комменты
-   const [currentPage, setCurrentPage] = useState<number>(1);
+  const webSocketmanager = useContext(WebSocketContext);
+  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const pageSize = 5; // комменты
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
-   const filteredComments = props.postId ? comments.filter((comment) => comment.postId === props.postId) : comments;
-   
-    const paginatedComments = filteredComments.slice(
-      (currentPage - 1) * pageSize,
-      currentPage * pageSize
-    );
+  const filteredComments = props.postId
+    ? comments.filter((comment) => comment.postId === props.postId)
+    : comments;
+
+  const paginatedComments = filteredComments.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   useEffect(() => {
-    if (webSocketmanager.lastJsonMessage != null){
+    if (webSocketmanager.lastJsonMessage != null) {
       try {
         const newComment = JSON.parse(webSocketmanager.lastJsonMessage); // Парсим JSON
-  
+
         console.log("Новый комментарий:", newComment);
-  
+
         // Проверяем, что newComment соответствует интерфейсу Comment
         if (
           newComment &&
@@ -45,9 +47,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
         console.error("Ошибка при парсинге JSON:", error);
       }
     }
-    
-  }, [webSocketmanager.lastJsonMessage])
-
+  }, [webSocketmanager.lastJsonMessage]);
 
   return (
     <div className={styles.commentListContainer} title="Комментарии">
@@ -70,7 +70,9 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
       {filteredComments.length > currentPage * pageSize && (
         <div className={styles.spinnerContainer}>
-          <Button onClick={() => setCurrentPage(currentPage + 1)}>Загрузить еще</Button>
+          <Button onClick={() => setCurrentPage(currentPage + 1)}>
+            Загрузить еще
+          </Button>
         </div>
       )}
     </div>
