@@ -18,7 +18,9 @@ const App: React.FC = () => {
           
             <Route path="/" element={
               <NotificationManager>
-                <WebSocketComponent />
+                <WebSocketComponent>
+                  <BasePage />
+                </WebSocketComponent>
               </NotificationManager>
             } />
           

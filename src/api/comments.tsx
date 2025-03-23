@@ -63,7 +63,7 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (props: PropsWithChildre
   return (
     <div>
       <WebSocketContext.Provider value={{lastJsonMessage : lastJsonMessage, sendJsonMessage: sendMessage, readyState: readyState}}>
-      <BasePage />
+        {props.children}
       </WebSocketContext.Provider>
     </div>
   );
