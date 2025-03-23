@@ -1,0 +1,44 @@
+.input {
+  margin-top: 10px;
+}
+
+.post {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 400px;
+  margin: 0 auto;
+}
+
+.post-icons {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-text {
+  display: flex;
+  flex-direction: row;
+}
+
+.post-time {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.images {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.filename {
+  color: #1890ff;
+}
+
+.dragger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

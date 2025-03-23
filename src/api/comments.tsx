@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import BasePage from "../components/pages/CommentsPage/BasePage";
+import { mockComments } from "../models/Comment/types";
 
 interface Comment {
   type: string;
@@ -82,7 +83,7 @@ const WebSocketComponent: React.FC = () => {
 
   return (
     <div>
-      <BasePage comments={comments} sendMessage={sendMessage} />
+      <BasePage comments={mockComments} sendMessage={sendMessage} />
     </div>
   );
 };

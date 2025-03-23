@@ -62,6 +62,16 @@
   display: flex;
 }
 
+.post-content-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.primaryText {
+  color: #1890ff;
+}
+
 .post-author .post-time {
   margin: 7px;
 }

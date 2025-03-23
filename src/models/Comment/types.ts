@@ -1,4 +1,5 @@
 export interface Comment {
+  postId?: string;
   type: string;
   username: string;
   time: string;
@@ -10,6 +11,7 @@ export interface Comment {
 
 export const mockComments: Comment[] = [
   {
+    postId: "11",
     type: "comment",
     username: "john_doe",
     time: "2025-03-15T10:00:00Z",
@@ -20,6 +22,7 @@ export const mockComments: Comment[] = [
   },
   {
     type: "reply",
+    postId: "22",
     username: "jane_smith",
     time: "2025-03-15T10:05:00Z",
     platform: "tg",
@@ -28,6 +31,7 @@ export const mockComments: Comment[] = [
     replyToUrl: "https://example.com/comments/1",
   },
   {
+    postId: "11",
     type: "comment",
     username: "alice_jones",
     time: "2025-03-15T10:10:00Z",
@@ -37,6 +41,7 @@ export const mockComments: Comment[] = [
     replyToUrl: "",
   },
   {
+    postId: "11",
     type: "comment",
     username: "alice_jones",
     time: "2025-03-15T10:10:00Z",
@@ -46,6 +51,7 @@ export const mockComments: Comment[] = [
     replyToUrl: "",
   },
   {
+    postId: "11",
     type: "comment",
     username: "alice_jones",
     time: "2025-03-15T10:10:00Z",
@@ -55,6 +61,7 @@ export const mockComments: Comment[] = [
     replyToUrl: "",
   },
   {
+    postId: "11",
     type: "comment",
     username: "alice_jones",
     time: "2025-03-15T10:10:00Z",
@@ -64,6 +71,7 @@ export const mockComments: Comment[] = [
     replyToUrl: "",
   },
   {
+    postId: "11",
     type: "comment",
     username: "alice_jones",
     time: "2025-03-15T10:10:00Z",
@@ -73,6 +81,7 @@ export const mockComments: Comment[] = [
     replyToUrl: "",
   },
   {
+    postId: "11",
     type: "comment",
     username: "alice_jones",
     time: "2025-03-15T10:10:00Z",

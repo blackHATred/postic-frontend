@@ -7,6 +7,7 @@ export interface ButtonProps {
   text?: string;
   icon?: React.ReactNode;
   variant?: "dashed" | "text" | "link" | "outlined" | "solid" | "filled";
+  size?: "large" | "middle" | "small";
   color?:
     | "primary"
     | "default"
@@ -33,6 +34,7 @@ const ClickableButton: React.FC<ButtonProps> = ({
   icon,
   color,
   variant,
+  size,
   onButtonClick,
 }) => {
   return (
@@ -42,6 +44,7 @@ const ClickableButton: React.FC<ButtonProps> = ({
       color={color}
       variant={variant}
       onClick={onButtonClick}
+      size={size}
       className={styles["blueButton"]}
     >
       {text}
