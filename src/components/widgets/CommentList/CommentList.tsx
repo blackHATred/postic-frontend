@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { List, Spin } from "antd";
+import { List, Spin, Button } from "antd";
 import CommentComponent from "../../ui/comment/Comment";
 import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
@@ -8,6 +8,7 @@ import { WebSocketContext } from "../../../api/comments";
 interface CommentListProps {
   isLoading?: boolean;
   hasMore?: boolean;
+  onLoadMore?: () => void;
 }
 
 const CommentList: React.FC<CommentListProps> = ({isLoading,hasMore,}) => {
@@ -61,7 +62,7 @@ const CommentList: React.FC<CommentListProps> = ({isLoading,hasMore,}) => {
 
       {hasMore && (
         <div className={styles.spinnerContainer}>
-          <Spin />
+          <Button onClick={onLoadMore}>Загрузить еще</Button>
         </div>
       )}
     </div>

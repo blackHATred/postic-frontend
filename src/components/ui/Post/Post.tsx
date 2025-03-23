@@ -1,12 +1,13 @@
 import React, { CSSProperties, useContext, useRef} from "react";
 import { Avatar, Divider, Tag, Typography } from "antd";
-import styles from "./styles.module.scss"; // Импортируем стили
+import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
-import {
+import Icon, {
   CommentOutlined,
   DeleteOutlined,
   EditOutlined,
+  PaperClipOutlined,
 } from "@ant-design/icons";
 import { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
 import "./selected_style.css"
@@ -16,9 +17,10 @@ const { Text } = Typography;
 
 interface PostProps {
   post: Post;
+  onCommentClick: (postId: string) => void;
 }
 
-const PostComponent: React.FC<PostProps> = ({ post }) => {
+const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
   const {
     action_post_vk_id,
     action_post_tg_id,
@@ -28,6 +30,7 @@ const PostComponent: React.FC<PostProps> = ({ post }) => {
     text,
     attachments,
     pub_date,
+    id,
   } = post;
 
   const context = useContext(SummaryBoxContext)
@@ -48,25 +51,21 @@ const PostComponent: React.FC<PostProps> = ({ post }) => {
     <div ref={refer} className={styles["post"]}>
       {/* хедер*/}
       <div className={styles["post-header"]}>
-        {/* Левая часть */}
         <div className={styles["post-header-info"]}>
-          {/* верхняя часть */}
           <div className={styles["post-header-info-text"]}>
             <Text strong>{user_id}</Text>
-
             <Text type="secondary" className={styles["post-time"]}>
               {time}
             </Text>
           </div>
           <div className={styles["post-tags"]}>{tags}</div>
         </div>
-
-        {/* Правая часть */}
         <div className={styles["post-header-buttons"]}>
           <ClickableButton
             text="Комментарии"
             type="link"
             icon={<CommentOutlined />}
+            onButtonClick={() => onCommentClick(id)}
           />
           <ClickableButton
             text="Суммаризация"
@@ -76,11 +75,18 @@ const PostComponent: React.FC<PostProps> = ({ post }) => {
           />
         </div>
       </div>
-      {/* тело*/}
       <Divider className={styles.customDivider} />
       <div className={styles["post-content"]}>
         <div className={styles["post-content-text"]}>
           <Text>{text}</Text>
+        </div>
+        <div className={styles["post-content-attachments"]}>
+          {attachments.map((attachment, index) => (
+            <div className={styles["post-content-attachment"]} key={index}>
+              <Icon component={PaperClipOutlined} />
+              <Text className={styles.primaryText}>{attachment}</Text>
+            </div>
+          ))}
         </div>
         <div className={styles["post-content-buttons"]}>
           <ClickableButton

@@ -8,11 +8,12 @@ interface PostListProps {
   posts: Post[];
   isLoading?: boolean;
   hasMore?: boolean;
-  summaryBoxRef?: RefObject<Element>;
+  onCommentClick: (postId: string) => void;
 }
 
 const CommentList: React.FC<PostListProps> = ({
   posts,
+  onCommentClick,
   isLoading,
   hasMore,
 }) => {
@@ -29,7 +30,7 @@ const CommentList: React.FC<PostListProps> = ({
           dataSource={posts}
           renderItem={(post) => (
             <List.Item>
-              <PostComponent post={post} />
+              <PostComponent post={post} onCommentClick={onCommentClick} />
             </List.Item>
           )}
         />

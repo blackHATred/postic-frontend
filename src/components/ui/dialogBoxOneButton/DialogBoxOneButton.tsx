@@ -59,4 +59,3 @@ const DialogBoxOneButton: FC<PropsWithChildren<DialogBoxModelOneButtonProps>> = 
 };
 
 export default DialogBoxOneButton;
-
