@@ -7,13 +7,21 @@ import { WebSocketContext } from "../../../api/comments";
 
 interface CommentListProps {
   isLoading?: boolean;
-  hasMore?: boolean;
-  onLoadMore?: () => void;
+  postId: string | null;
 }
 
-const CommentList: React.FC<CommentListProps> = ({isLoading,hasMore,}) => {
+const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
    const webSocketmanager = useContext(WebSocketContext);
    const [comments, setComments] = useState<Comment[]>(mockComments);
+   const pageSize = 5; // комменты
+   const [currentPage, setCurrentPage] = useState<number>(1);
+
+   const filteredComments = props.postId ? comments.filter((comment) => comment.postId === props.postId) : comments;
+   
+    const paginatedComments = filteredComments.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
 
   useEffect(() => {
     if (webSocketmanager.lastJsonMessage != null){
@@ -43,7 +51,7 @@ const CommentList: React.FC<CommentListProps> = ({isLoading,hasMore,}) => {
 
   return (
     <div className={styles.commentListContainer} title="Комментарии">
-      {isLoading && (
+      {props.isLoading && (
         <div className={styles.spinnerContainer}>
           <Spin />
         </div>
@@ -51,7 +59,7 @@ const CommentList: React.FC<CommentListProps> = ({isLoading,hasMore,}) => {
 
       <div className={styles.commentList}>
         <List
-          dataSource={comments}
+          dataSource={paginatedComments}
           renderItem={(comment) => (
             <List.Item>
               <CommentComponent comment={comment} />
@@ -60,9 +68,9 @@ const CommentList: React.FC<CommentListProps> = ({isLoading,hasMore,}) => {
         />
       </div>
 
-      {hasMore && (
+      {filteredComments.length > currentPage * pageSize && (
         <div className={styles.spinnerContainer}>
-          <Button onClick={onLoadMore}>Загрузить еще</Button>
+          <Button onClick={() => setCurrentPage(currentPage + 1)}>Загрузить еще</Button>
         </div>
       )}
     </div>

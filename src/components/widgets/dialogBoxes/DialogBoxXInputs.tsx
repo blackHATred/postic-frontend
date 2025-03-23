@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { FC } from "react";
 import { Typography, Input } from "antd";
-import DialogBoxOneButton, {
-  DialogBoxModelOneButtonProps,
-} from "../../ui/dialogBoxOneButton/DialogBoxOneButton";
+import DialogBox, {
+  DialogBoxProps,
+} from "../../ui/dialogBoxOneButton/DialogBox";
 import styles from "./styles.module.scss";
 import {red} from '@ant-design/colors'
 
 const { Text } = Typography;
 
-export interface DialogBoxXInputsProps extends DialogBoxModelOneButtonProps {
+export interface DialogBoxXInputsProps extends DialogBoxProps {
   setOpen: Function;
   text: string;
   input_placeholders: {[key: string] : string};
@@ -25,7 +25,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
   const [input_data, SetInputData] = useState<{[key: string] : string}>({});
 
   return (
-    <DialogBoxOneButton
+    <DialogBox
       onOkClick={() => {props.onOkClick(input_data)}}
       isOpen={props.isOpen}
       onCancelClick={() => {props.onCancelClick(input_data)}}
@@ -48,7 +48,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
       />
       ))}
       <Text type="danger">{props.errortext}</Text>
-    </DialogBoxOneButton>
+    </DialogBox>
   );
 };
 

@@ -2,9 +2,6 @@ import React, { useRef, useState } from "react";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import ButtonHeader from "../../widgets/Header/Header";
-import { Comment } from "../../../models/Comment/types";
-import DialogBoxOneInput from "../../widgets/dialogBoxes/dialogBoxOneInput";
-import DialogBoxThreeInput from "../../widgets/dialogBoxes/dialog_box_two";
 import axios from "axios";
 import { mockPosts } from "../../../models/Post/types";
 import PostList from "../../widgets/PostList/PostList";
@@ -12,7 +9,6 @@ import DialogBoxSummary, { SummaryBoxContext } from "../../widgets/dialogBoxes/d
 import ApiKeyBox from "../../widgets/ApiKeyBox/ApiKeyBox";
 import { Breadcrumb } from "antd";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
-import { SendOutlined } from "@ant-design/icons";
 import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
 
 
@@ -20,11 +16,13 @@ import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
 
 
 const BasePage: React.FC = () => {
-  const [showDia1, setShowDia1] = useState(false);
+  const [showDiaAPI, setShowDiaAPI] = useState(false);
+  const [showDiaSummary, setShowDiaSummary] = useState(false);
   const [showDialogStatusPost, setShowDialogStatusPost] = useState(false);
   const [showDiaCreatePost, setShowDiaCreatePost] = useState(false);
-  const [message, setMessage] = useState<string>("");
+
   const [activeTab, setActiveTab] = useState<string>("1");
+
   const PostRef = useRef<HTMLDivElement>(null);
 
   const [summaryLoading, setSummaryLoading] = useState(false);
@@ -32,12 +30,11 @@ const BasePage: React.FC = () => {
 
 
   const [postId, setPostId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 5; // комменты
+
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // чтоб передавать соц сети от создания поста к статусу публикации
 
   const makeVisibleDialog1 = () => {
-    setShowDia1(true);
+    setShowDiaAPI(true);
   };
   const makeVisibleDialogStatusPost = () => {
     setShowDialogStatusPost(true);
@@ -57,22 +54,14 @@ const BasePage: React.FC = () => {
     setActiveTab(key);
     if (key === "1") {
       setPostId(null);
-      setCurrentPage(1);
     }
   };
 
-  const filteredComments = postId
-    ? comments.filter((comment) => comment.postId === postId)
-    : comments;
-
-  const paginatedComments = filteredComments.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  
 
   return (
     <SummaryBoxContext.Provider
-      value={{setActive: setShowDia2, PostRef: PostRef, setLoading:setSummaryLoading, setPostID: setPostSummaryID}}
+      value={{setActive: setShowDiaSummary, PostRef: PostRef, setLoading:setSummaryLoading, setPostID: setPostSummaryID}}
     >
       <div className={styles.commentPage}>
         <ButtonHeader
@@ -85,7 +74,7 @@ const BasePage: React.FC = () => {
 
         {activeTab === "1" ? (
           <div>
-            <PostList posts={mockPosts}/>
+            <PostList posts={mockPosts} onCommentClick={handlePostCommentClick}/>
           </div>
         ) : (
           <div>
@@ -96,34 +85,32 @@ const BasePage: React.FC = () => {
           </Breadcrumb>
 
           <CommentList
-            comments={paginatedComments}
             isLoading={false}
-            hasMore={filteredComments.length > currentPage * pageSize}
-            onLoadMore={() => setCurrentPage(currentPage + 1)}
+            postId={postId}
           />
         </div>
         )}
 
-        <ApiKeyBox showBox= {showDia1} setShowBox={setShowDia1} />
+        <ApiKeyBox showBox= {showDiaAPI} setShowBox={setShowDiaAPI} />
 
         <DialogBoxSummary
           title={"Суммаризация комментариев"}
           buttonText={"Повторная суммаризация"}
-          setOpen={setShowDia2}
-          isOpen={showDia2}
+          setOpen={setShowDiaSummary}
+          isOpen={showDiaSummary}
           postRef={PostRef}
           isLoading={summaryLoading}
           postId={postSummaryID}
         />
       </div>
-    </SummaryBoxContext.Provider>
+    
       <PostStatusDialog
         title={"Публикация поста"}
         buttonText={"Открыть"}
-        onOk={() => {
+        onOkClick={() => {
           console.log("Create post dialog confirmed");
         }}
-        onCancel={async () => {
+        onCancelClick={async () => {
           console.log("Create post dialog canceled");
           return "";
         }}
@@ -134,11 +121,11 @@ const BasePage: React.FC = () => {
 
       <CreatePostDialog
         title={"Создать пост"}
-        onOk={() => {
+        onOkClick={() => {
           console.log("Create post dialog confirmed");
           setShowDialogStatusPost(true); // открытие окна статуса
         }}
-        onCancel={async () => {
+        onCancelClick={async () => {
           console.log("Create post dialog canceled");
           return "";
         }}
@@ -148,7 +135,7 @@ const BasePage: React.FC = () => {
         selectedPlatforms={selectedPlatforms} // выбранные платформы
         setSelectedPlatforms={setSelectedPlatforms}
       />
-    </div>
+    </SummaryBoxContext.Provider>
   );
 };
 

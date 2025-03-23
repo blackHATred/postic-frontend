@@ -2,13 +2,13 @@ import  { RefObject, useImperativeHandle, useState, useEffect, useContext } from
 import React, { createContext, Dispatch, SetStateAction } from "react";
 import { FC } from "react";
 import { Typography, Spin } from "antd";
-import DialogBoxOneButton, { DialogBoxModelOneButtonProps } from "../../ui/dialogBoxOneButton/DialogBoxOneButton";
+import DialogBox, { DialogBoxProps } from "../../ui/dialogBoxOneButton/DialogBox";
 import {blue} from '@ant-design/colors';
 import { NotificationContext} from "../../../api/notification";
 
 const { Text} = Typography;
 
-export interface DialogBoxSummaryProps extends Omit<DialogBoxModelOneButtonProps, 'onOkClick' | 'onCancelClick' | 'headerSubtext'>{
+export interface DialogBoxSummaryProps extends Omit<DialogBoxProps, 'onOkClick' | 'onCancelClick' | 'headerSubtext'>{
   setOpen : Function,
   postRef?: RefObject<HTMLDivElement | null>,
   isLoading : Boolean,
@@ -78,7 +78,7 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> =(props: DialogBoxSummaryProps
   }
   
   return(
-    <DialogBoxOneButton onOkClick={onRefresh} isOpen={props.isOpen} onCancelClick={onCancel} 
+    <DialogBox onOkClick={onRefresh} isOpen={props.isOpen} onCancelClick={onCancel} 
                         buttonText={props.buttonText} title={props.title} headerSubtext={"Пост #" + props.postId}
                         headerSubtextOnClick={onHeaderClick}>
             <div style={BackgroundStyle}>
@@ -89,7 +89,7 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> =(props: DialogBoxSummaryProps
                     {summaryText}
                 </Text>
             </div>
-    </DialogBoxOneButton>
+    </DialogBox>
   )
 };
 

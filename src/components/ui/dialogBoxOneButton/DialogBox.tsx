@@ -3,11 +3,11 @@ import { FC, RefObject } from 'react';
 import { PropsWithChildren } from 'react';
 import { Typography } from 'antd';
 
-export interface DialogBoxModelOneButtonProps{
+export interface DialogBoxProps{
   isOpen :  boolean,
   onOkClick: (...args: any) => void,
   onCancelClick: (...args: any) => void,
-  buttonText: string,
+  buttonText?: string,
   title: string,
   headerSubtext?: string,
   headerSubtextOnClick?: (...args: any) => void,
@@ -30,7 +30,7 @@ const styles  = {
 
 const { Text, Title } = Typography;
 
-const DialogBoxOneButton: FC<PropsWithChildren<DialogBoxModelOneButtonProps>> = (props: PropsWithChildren<DialogBoxModelOneButtonProps>) => {
+const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (props: PropsWithChildren<DialogBoxProps>) => {
     return (
       
         <Modal open={props.isOpen}
@@ -48,14 +48,19 @@ const DialogBoxOneButton: FC<PropsWithChildren<DialogBoxModelOneButtonProps>> = 
           }
           styles={styles}
           footer={
-            
+            <div>
+             {props.buttonText &&
             <Button key="submit" type="primary" onClick={props.onOkClick}>
               {props.buttonText}
             </Button>}
+            {!props.buttonText &&
+              <span></span>}
+            </div>
+          }
         >
           {props.children}
         </Modal>
     )
 };
 
-export default DialogBoxOneButton;
+export default DialogBox;

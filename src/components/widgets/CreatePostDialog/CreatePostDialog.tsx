@@ -9,9 +9,9 @@ import {
   TimePicker,
   message,
 } from "antd";
-import DialogBoxOneButton, {
-  DialogBoxModelOneButtonProps,
-} from "../../ui/dialogBoxOneButton/DialogBoxOneButton";
+import DialogBox, {
+  DialogBoxProps,
+} from "../../ui/dialogBoxOneButton/DialogBox";
 import styles from "./styles.module.scss";
 import ClickableButton from "../../ui/Button/Button";
 import {
@@ -24,9 +24,9 @@ import FileUploader from "./FileUploader";
 
 const { Text } = Typography;
 
-export interface CreatePostDialogProps extends DialogBoxModelOneButtonProps {
+export interface CreatePostDialogProps extends DialogBoxProps {
   setOpen: Function;
-  onCancel: () => Promise<string>;
+  onCancelClick: () => Promise<string>;
   selectedPlatforms: string[];
   setSelectedPlatforms: (platforms: string[]) => void;
 }
@@ -60,11 +60,11 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
 
     // Если ошибок нет, сбрасываем их и вызываем onOk
     setValidationErrors([]);
-    props.onOk();
+    props.onOkClick();
   };
 
   const onCancel = async () => {
-    let res = await props.onCancel();
+    let res = await props.onCancelClick();
     if (res === "") {
       props.setOpen(false);
     } else {
@@ -73,10 +73,10 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
   };
 
   return (
-    <DialogBoxOneButton
-      onOk={onOk}
+    <DialogBox
+      onOkClick={onOk}
       isOpen={props.isOpen}
-      onCancel={onCancel}
+      onCancelClick={onCancel}
       buttonText={props.buttonText}
       title={props.title}
     >
@@ -145,7 +145,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
       )}
 
       <Text>{error_data}</Text>
-    </DialogBoxOneButton>
+    </DialogBox>
   );
 };
 

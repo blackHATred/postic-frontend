@@ -1,8 +1,8 @@
 import { FC, useState } from "react";
 import { Typography, Divider, Steps } from "antd";
-import DialogBoxOneButton, {
-  DialogBoxModelOneButtonProps,
-} from "../../ui/dialogBoxOneButton/DialogBoxOneButton";
+import DialogBox, {
+  DialogBoxProps,
+} from "../../ui/dialogBoxOneButton/DialogBox";
 import Icon, {
   WhatsAppOutlined,
   FacebookOutlined,
@@ -13,9 +13,9 @@ import Icon, {
 } from "@ant-design/icons";
 import styles from "./styles.module.scss";
 
-export interface PostStatusDialogProps extends DialogBoxModelOneButtonProps {
+export interface PostStatusDialogProps extends DialogBoxProps {
   setOpen: Function;
-  onCancel: () => Promise<string>;
+  onCancelClick: () => Promise<string>;
   selectedPlatforms: string[];
 }
 
@@ -36,7 +36,7 @@ const PostStatusDialog: FC<PostStatusDialogProps> = (
   };
 
   const onCancel = async () => {
-    let res = await props.onCancel();
+    let res = await props.onCancelClick();
     if (res === "") {
       props.setOpen(false);
     } else {
@@ -77,11 +77,10 @@ const PostStatusDialog: FC<PostStatusDialogProps> = (
   };
 
   return (
-    <DialogBoxOneButton
-      onOk={onOk}
+    <DialogBox
+      onOkClick={onOk}
       isOpen={props.isOpen}
-      onCancel={onCancel}
-      buttonText={props.buttonText}
+      onCancelClick={onCancel}
       title={props.title}
     >
       <Divider>Статус публикации</Divider>
@@ -105,7 +104,7 @@ const PostStatusDialog: FC<PostStatusDialogProps> = (
       </div>
 
       <Text>{error_data}</Text>
-    </DialogBoxOneButton>
+    </DialogBox>
   );
 };
 
