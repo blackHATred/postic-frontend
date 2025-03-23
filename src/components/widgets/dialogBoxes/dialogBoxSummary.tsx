@@ -1,22 +1,40 @@
-import  { RefObject, useImperativeHandle, useState, useEffect } from "react";
+import  { RefObject, useImperativeHandle, useState, useEffect, useContext } from "react";
+import React, { createContext, Dispatch, SetStateAction } from "react";
 import { FC } from "react";
-import { Typography, Input, Layout, Spin } from "antd";
+import { Typography, Spin } from "antd";
 import DialogBoxOneButton, { DialogBoxModelOneButtonProps } from "../../ui/dialogBoxOneButton/DialogBoxOneButton";
-import { theme } from 'antd';
 import {blue} from '@ant-design/colors';
+import { NotificationContext} from "../../../api/notification";
 
 const { Text} = Typography;
 
-export interface DialogBoxSummaryProps extends Omit<DialogBoxModelOneButtonProps, 'onOk' | 'onCancel' | 'headerSubtext'>{
+export interface DialogBoxSummaryProps extends Omit<DialogBoxModelOneButtonProps, 'onOkClick' | 'onCancelClick' | 'headerSubtext'>{
   setOpen : Function,
   postRef?: RefObject<HTMLDivElement | null>,
   isLoading : Boolean,
   postId: string
 }
 
+interface SummaryBoxContent {
+  setActive: Dispatch<SetStateAction<boolean>>
+  PostRef: RefObject<HTMLDivElement | null> | null
+  setLoading: Dispatch<SetStateAction<boolean>>
+  setPostID: Dispatch<SetStateAction<string>>
+}
+
+export const SummaryBoxContext = createContext<SummaryBoxContent>(
+  {
+    setActive: () => {},
+    PostRef: null,
+    setLoading: () => {},
+    setPostID:() => {}
+  }
+)
+
 
 
 const DialogBoxSummary: FC<DialogBoxSummaryProps> =(props: DialogBoxSummaryProps) => {
+    const NotificationManager = useContext(NotificationContext);
     const [summaryText, setSummaryText] = useState("");
 
     const BackgroundStyle: React.CSSProperties = {
@@ -36,6 +54,7 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> =(props: DialogBoxSummaryProps
     }, [props.postId])
 
   const onRefresh = async ()=>{
+    NotificationManager.createNotification("error", "Ошибка подключения к серверу", "")
     setSummaryText("refreshed" + props.postId); // При нажатии повторного запроса
   }
 
@@ -59,7 +78,7 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> =(props: DialogBoxSummaryProps
   }
   
   return(
-    <DialogBoxOneButton onOk={onRefresh} isOpen={props.isOpen} onCancel={onCancel} 
+    <DialogBoxOneButton onOkClick={onRefresh} isOpen={props.isOpen} onCancelClick={onCancel} 
                         buttonText={props.buttonText} title={props.title} headerSubtext={"Пост #" + props.postId}
                         headerSubtextOnClick={onHeaderClick}>
             <div style={BackgroundStyle}>

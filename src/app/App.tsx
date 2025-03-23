@@ -4,6 +4,7 @@ import BasePage from "../components/pages/CommentsPage/BasePage";
 import { ConfigProvider, theme } from "antd";
 import WebSocketComponent from "../api/comments";
 import "./App.css";
+import NotificationManager from "../api/notification";
 
 const App: React.FC = () => {
   return (
@@ -14,7 +15,13 @@ const App: React.FC = () => {
         }}
       >
         <Routes>
-          <Route path="/" element={<WebSocketComponent />} />
+          
+            <Route path="/" element={
+              <NotificationManager>
+                <WebSocketComponent />
+              </NotificationManager>
+            } />
+          
         </Routes>
       </ConfigProvider>
     </Router>

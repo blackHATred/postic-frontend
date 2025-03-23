@@ -8,7 +8,7 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import { SummaryBoxContext } from "../../pages/CommentsPage/BasePage";
+import { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
 import "./selected_style.css"
 import axios from "axios";
 
