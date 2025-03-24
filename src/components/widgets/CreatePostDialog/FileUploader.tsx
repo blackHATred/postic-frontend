@@ -28,7 +28,6 @@ const FileUploader: React.FC = () => {
   }, [files, maxFiles]);
 
   const handleFileUpload = async (file: any) => {
-    console.log(file);
     if (!isFileAlreadyAdded(files, file)) {
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
