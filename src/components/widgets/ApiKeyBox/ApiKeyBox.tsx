@@ -30,8 +30,8 @@ const ApiKeyBox: React.FC<ApiKeyBoxProps> = (props: ApiKeyBoxProps) => {
         try {
           if (!args.id_tg || !args.id_vk || !args.vk_key) {
             setStyleInp1(args.id_tg ? "" : "error");
-            setStyleInp2(args.id_tg ? "" : "error");
-            setStyleInp3(args.id_tg ? "" : "error");
+            setStyleInp2(args.id_vk ? "" : "error");
+            setStyleInp3(args.vk_key ? "" : "error");
             setErrorText("введите все три поля");
             return;
           }
@@ -52,13 +52,21 @@ const ApiKeyBox: React.FC<ApiKeyBoxProps> = (props: ApiKeyBoxProps) => {
             vk_key: args.vk_key,
           };
 
-          webSocketmanager.sendJsonMessage(args_int);
-          NotificationManager.createNotification(
-            "success",
-            "Данные успешно сохранены",
-            ""
-          );
-          props.setShowBox(false);
+          try {
+            webSocketmanager.sendJsonMessage(args_int);
+            NotificationManager.createNotification(
+              "success",
+              "Подключение установленно",
+              ""
+            );
+            props.setShowBox(false);
+          } catch (error) {
+            NotificationManager.createNotification(
+              "error",
+              "Ошибка подключения",
+              ""
+            );
+          }
         } catch (error: unknown) {
           NotificationManager.createNotification(
             "error",

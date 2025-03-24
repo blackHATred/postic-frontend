@@ -9,7 +9,10 @@ export interface Comment {
   replyToUrl?: string;
 }
 
-export interface SummarizeResult {}
+export interface GetSummarizeResult {
+  summary: string;
+  lastUpdate: string;
+}
 
 export const mockComments: Comment[] = [
   {

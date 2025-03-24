@@ -1,6 +1,6 @@
 import axios from "axios";
 import { UploadResult } from "../models/Post/types";
-import { SummarizeResult } from "../models/Comment/types";
+import { GetSummarizeResult } from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
 
@@ -37,22 +37,28 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
 
 export const getSummarize = async (
   postId: string
-): Promise<SummarizeResult | null> => {
-  const response = await axios.get<SummarizeResult>(
-    `${config.api.baseURL}/get_summarize`,
-    {
-      params: {
-        post_id: postId,
-      },
-    }
-  );
-  return response.data;
+): Promise<GetSummarizeResult> => {
+  try {
+    const response = await axios.get<GetSummarizeResult>(
+      `${config.api.baseURL}/get_summarize`,
+      {
+        params: {
+          post_id: postId,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (isAxiosError(error))
+      console.log("Error getting summarize: " + (error as AxiosError).status);
+    throw error;
+  }
 };
 
 export const Summarize = async (
   postId: string
-): Promise<SummarizeResult | null> => {
-  const response = await axios.post<SummarizeResult>(
+): Promise<GetSummarizeResult | null> => {
+  const response = await axios.post<GetSummarizeResult>(
     `${config.api.baseURL}/summarize`,
     {
       post_id: postId,

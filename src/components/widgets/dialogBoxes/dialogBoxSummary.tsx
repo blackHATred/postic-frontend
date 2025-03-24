@@ -14,6 +14,8 @@ import DialogBox, {
 import { blue } from "@ant-design/colors";
 import { NotificationContext } from "../../../api/notification";
 import { publish } from "../../logic/event";
+import { getSummarize, Summarize } from "../../../api/api";
+import { GetSummarizeResult } from "../../../models/Comment/types";
 
 const { Text } = Typography;
 
@@ -59,16 +61,34 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> = (
   };
 
   useEffect(() => {
+    if (props.isOpen) {
+      getSummarize(props.postId)
+        .then((summary: GetSummarizeResult) => {
+          setSummaryText(summary.summary);
+        })
+        .catch((error) => {
+          NotificationManager.createNotification(
+            "error",
+            "Ошибка получения суммаризации",
+            "ошибка подключения к серверу"
+          );
+        });
+    }
     //Получили id от комментария, делаем Get и потом можно async Post
   }, [props.postId]);
 
   const onRefresh = async () => {
-    NotificationManager.createNotification(
-      "error",
-      "Ошибка подключения к серверу",
-      ""
-    );
-    setSummaryText("refreshed" + props.postId); // При нажатии повторного запроса
+    if (props.isOpen) {
+      const summary = Summarize(props.postId)
+        .then(() => {})
+        .catch((error) => {
+          NotificationManager.createNotification(
+            "error",
+            "Ошибка запроса суммарищации",
+            "ошибка подключения к серверу"
+          );
+        });
+    }
   };
 
   const onCancel = async () => {
