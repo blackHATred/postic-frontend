@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import ButtonHeader from "../../widgets/Header/Header";
-import axios from "axios";
 import { mockPosts } from "../../../models/Post/types";
 import PostList from "../../widgets/PostList/PostList";
 import DialogBoxSummary, {
@@ -12,6 +11,7 @@ import ApiKeyBox from "../../widgets/ApiKeyBox/ApiKeyBox";
 import { Breadcrumb } from "antd";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
+import { publish } from "../../logic/event";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
@@ -21,12 +21,9 @@ const BasePage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<string>("1");
 
-  const PostRef = useRef<HTMLDivElement>(null);
-
   const [summaryLoading, setSummaryLoading] = useState(false);
-  const [postSummaryID, setPostSummaryID] = useState("");
 
-  const [postId, setPostId] = useState<string | null>(null);
+  const [postId, setPostId] = useState<string>("");
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // чтоб передавать соц сети от создания поста к статусу публикации
 
@@ -50,7 +47,7 @@ const BasePage: React.FC = () => {
   const handleTabChange = (key: string) => {
     setActiveTab(key);
     if (key === "1") {
-      setPostId(null);
+      setPostId("");
     }
   };
 
@@ -58,9 +55,8 @@ const BasePage: React.FC = () => {
     <SummaryBoxContext.Provider
       value={{
         setActive: setShowDiaSummary,
-        PostRef: PostRef,
         setLoading: setSummaryLoading,
-        setPostID: setPostSummaryID,
+        setPostID: setPostId,
       }}
     >
       <div className={styles.commentPage}>
@@ -81,11 +77,31 @@ const BasePage: React.FC = () => {
           </div>
         ) : (
           <div>
-            <Breadcrumb>
-              {postId && (
-                <Breadcrumb.Item>Комментарии поста {postId}</Breadcrumb.Item>
-              )}
-            </Breadcrumb>
+            {postId && (
+              <Breadcrumb
+                className={styles["breadcrumb"]}
+                items={[
+                  {
+                    title: (
+                      <div
+                        className={styles["Post"]}
+                        onClick={async () => {
+                          setActiveTab("1");
+                          await new Promise((res) => setTimeout(res, 1));
+                          publish("PostSelected", { id: postId });
+                          setPostId("");
+                        }}
+                      >
+                        {"Пост #" + postId}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "Комментарии",
+                  },
+                ]}
+              ></Breadcrumb>
+            )}
 
             <CommentList isLoading={false} postId={postId} />
           </div>
@@ -98,9 +114,8 @@ const BasePage: React.FC = () => {
           buttonText={"Повторная суммаризация"}
           setOpen={setShowDiaSummary}
           isOpen={showDiaSummary}
-          postRef={PostRef}
           isLoading={summaryLoading}
-          postId={postSummaryID}
+          postId={postId}
         />
       </div>
 

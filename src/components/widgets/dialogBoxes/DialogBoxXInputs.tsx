@@ -40,6 +40,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
       <Text>{props.text}</Text>
       {Object.entries(props.input_placeholders).map(([key, value]) => (
         <Input
+          key={key}
           status={props.styles[key]}
           className={styles["input"]}
           placeholder={value}

@@ -16,7 +16,8 @@ export const mockComments: Comment[] = [
     username: "john_doe",
     time: "2025-03-15T10:00:00Z",
     platform: "tg",
-    avatarUrl: "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
+    avatarUrl:
+      "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
     text: "This is a sample comment.",
     replyToUrl: "ляляля",
   },

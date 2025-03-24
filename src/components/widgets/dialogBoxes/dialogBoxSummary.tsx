@@ -13,6 +13,7 @@ import DialogBox, {
 } from "../../ui/dialogBoxOneButton/DialogBox";
 import { blue } from "@ant-design/colors";
 import { NotificationContext } from "../../../api/notification";
+import { publish } from "../../logic/event";
 
 const { Text } = Typography;
 
@@ -29,14 +30,12 @@ export interface DialogBoxSummaryProps
 
 interface SummaryBoxContent {
   setActive: Dispatch<SetStateAction<boolean>>;
-  PostRef: RefObject<HTMLDivElement | null> | null;
   setLoading: Dispatch<SetStateAction<boolean>>;
   setPostID: Dispatch<SetStateAction<string>>;
 }
 
 export const SummaryBoxContext = createContext<SummaryBoxContent>({
   setActive: () => {},
-  PostRef: null,
   setLoading: () => {},
   setPostID: () => {},
 });
@@ -78,16 +77,8 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> = (
   };
 
   const onHeaderClick = async () => {
-    if (props.postRef?.current) {
-      props.setOpen(false);
-      props.postRef.current.scrollIntoView({ behavior: "smooth" });
-      props.postRef.current.className += " selected";
-      await setTimeout(() => {
-        if (props.postRef?.current)
-          props.postRef.current.className =
-            props.postRef.current.className.replace(" selected", "");
-      }, 3000);
-    }
+    props.setOpen(false);
+    publish("PostSelected", { id: props.postId });
   };
 
   return (

@@ -1,5 +1,5 @@
-import React, { CSSProperties, useContext, useRef } from "react";
-import { Avatar, Divider, Tag, Typography } from "antd";
+import React, { useContext, useEffect, useRef } from "react";
+import { Divider, Tag, Typography } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
@@ -11,7 +11,7 @@ import Icon, {
 } from "@ant-design/icons";
 import { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
 import "./selected_style.css";
-import axios from "axios";
+import { subscribe, unsubscribe } from "../../logic/event";
 
 const { Text } = Typography;
 
@@ -41,10 +41,32 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
   if (action_post_tg_id) tags.push(<Tag key="tg">TG</Tag>);
 
   const onCommentSummary = async () => {
-    if (context.PostRef) context.PostRef.current = refer.current;
     context.setActive(true);
-    context.setPostID(action_post_tg_id); //!!!!! Здесь задается id поста
+    context.setPostID(id); //!!!!! Здесь задается id поста
   };
+
+  const PostSelected = async (event: any) => {
+    console.log(event.detail);
+    if (id === event.detail["id"] && refer.current) {
+      refer.current.scrollIntoView({ behavior: "smooth" });
+      refer.current.className += " selected";
+      await setTimeout(() => {
+        if (refer.current)
+          refer.current.className = refer.current.className.replace(
+            " selected",
+            ""
+          );
+      }, 3000);
+    }
+  };
+
+  useEffect(() => {
+    subscribe("PostSelected", PostSelected);
+
+    return () => {
+      unsubscribe("PostSelected", PostSelected);
+    };
+  }, []);
 
   return (
     <div ref={refer} className={styles["post"]}>
@@ -64,7 +86,9 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
             text="Комментарии"
             type="link"
             icon={<CommentOutlined />}
-            onButtonClick={() => onCommentClick(id)}
+            onButtonClick={() => {
+              onCommentClick(id);
+            }}
           />
           <ClickableButton
             text="Суммаризация"

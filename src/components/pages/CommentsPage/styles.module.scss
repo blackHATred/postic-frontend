@@ -16,3 +16,12 @@
   font-size: 50px;
   margin-bottom: 16px;
 }
+
+.breadcrumb {
+  margin-top: 20px;
+  margin-left: 25vw;
+  padding-left: 16px;
+  .Post {
+    cursor: pointer;
+  }
+}

@@ -3,27 +3,34 @@ import { List, Spin, Button } from "antd";
 import CommentComponent from "../../ui/comment/Comment";
 import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
-import { WebSocketContext } from "../../../api/comments";
+import { CommentListContext, WebSocketContext } from "../../../api/comments";
 
 interface CommentListProps {
   isLoading?: boolean;
   postId: string | null;
 }
 
+const unloadedComment: Comment = {
+  type: "",
+  username: "",
+  time: "",
+  platform: "",
+  avatarUrl: "",
+  text: "",
+};
+
 const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
   const webSocketmanager = useContext(WebSocketContext);
-  const [comments, setComments] = useState<Comment[]>(mockComments);
-  const pageSize = 5; // комменты
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const commentManager = useContext(CommentListContext);
+  const requestSize = 1; // комменты
+
+  const [loading, setLoading] = useState(false);
 
   const filteredComments = props.postId
-    ? comments.filter((comment) => comment.postId === props.postId)
-    : comments;
-
-  const paginatedComments = filteredComments.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+    ? commentManager.comments.filter(
+        (comment) => comment.postId === props.postId
+      )
+    : commentManager.comments;
 
   useEffect(() => {
     if (webSocketmanager.lastJsonMessage != null) {
@@ -39,7 +46,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
           newComment.username &&
           newComment.text
         ) {
-          setComments((prev) => [...prev, newComment]);
+          commentManager.setComments((prev) => [...prev, newComment]);
         } else {
           console.error("Получен некорректный комментарий:", newComment);
         }
@@ -48,6 +55,60 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
       }
     }
   }, [webSocketmanager.lastJsonMessage]);
+
+  const onLoadMore = () => {
+    setLoading(true);
+    const newData = commentManager.comments.concat(
+      {
+        postId: "11",
+        type: "comment",
+        username: "john_doe",
+        time: "2025-03-15T10:00:00Z",
+        platform: "tg",
+        avatarUrl:
+          "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
+        text: "This is a sample comment.",
+        replyToUrl: "ляляля",
+      },
+      {
+        type: "reply",
+        postId: "22",
+        username: "jane_smith",
+        time: "2025-03-15T10:05:00Z",
+        platform: "tg",
+        avatarUrl: "https://example.com/avatars/jane_smith.png",
+        text: "This is a reply to the sample comment.",
+        replyToUrl: "https://example.com/comments/1",
+      }
+    );
+    commentManager.setComments(newData);
+    setLoading(false);
+    window.dispatchEvent(new Event("resize"));
+    // fetch(fakeDataUrl)
+    //   .then((res) => res.json())
+    //   .then((res) => {
+    //     const newData = data.concat(res.results);
+    //     setList(newData);
+    //     setLoading(false);
+    //     // Resetting window's offsetTop so as to display react-virtualized demo underfloor.
+    //     // In real scene, you can using public method of react-virtualized:
+    //     // https://stackoverflow.com/questions/46700726/how-to-use-public-method-updateposition-of-react-virtualized
+    //     window.dispatchEvent(new Event('resize'));
+    //   });
+  };
+
+  const loadMore = !loading ? (
+    <div
+      style={{
+        textAlign: "center",
+        marginTop: 12,
+        height: 32,
+        lineHeight: "32px",
+      }}
+    >
+      <Button onClick={onLoadMore}>Больше</Button>
+    </div>
+  ) : null;
 
   return (
     <div className={styles.commentListContainer} title="Комментарии">
@@ -59,7 +120,8 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
       <div className={styles.commentList}>
         <List
-          dataSource={paginatedComments}
+          dataSource={filteredComments}
+          loadMore={loadMore}
           renderItem={(comment) => (
             <List.Item>
               <CommentComponent comment={comment} />
@@ -67,14 +129,6 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
           )}
         />
       </div>
-
-      {filteredComments.length > currentPage * pageSize && (
-        <div className={styles.spinnerContainer}>
-          <Button onClick={() => setCurrentPage(currentPage + 1)}>
-            Загрузить еще
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
