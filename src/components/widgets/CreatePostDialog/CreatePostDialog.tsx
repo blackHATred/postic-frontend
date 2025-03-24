@@ -1,14 +1,5 @@
 import { FC, useState } from "react";
-import {
-  Typography,
-  Input,
-  Divider,
-  Select,
-  Collapse,
-  Switch,
-  TimePicker,
-  message,
-} from "antd";
+import { Typography, Input, Divider, Select, Switch, TimePicker } from "antd";
 import DialogBox, {
   DialogBoxProps,
 } from "../../ui/dialogBoxOneButton/DialogBox";
@@ -21,8 +12,13 @@ import {
 } from "@ant-design/icons";
 import PlatformSettings from "./PlatformSettings";
 import FileUploader from "./FileUploader";
+import { validateMinLength } from "../../../utils/validation";
+import dayjs, { Dayjs } from "dayjs";
+import CustCalendar from "../../ui/Calendar/Calendar";
+import Picker from "emoji-picker-react";
 
 const { Text } = Typography;
+const format = "HH:mm";
 
 export interface CreatePostDialogProps extends DialogBoxProps {
   setOpen: Function;
@@ -38,18 +34,26 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [postText, setPostText] = useState(""); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // Состояние для выбранной даты
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
 
   const onOk = () => {
-    const errors = [];
+    const errors: string[] = [];
 
-    // Проверка текста поста
-    if (!postText.trim()) {
-      errors.push("Текст поста не может быть пустым.");
+    // Валидация текста поста
+    const postTextError = validateMinLength(postText, 3);
+    if (postTextError) {
+      errors.push(postTextError);
     }
 
-    // Проверка выбранных платформ
-    if (props.selectedPlatforms.length === 0) {
-      errors.push("Выберите хотя бы одну платформу для публикации.");
+    if (!selectedDate) {
+      setSelectedDate(dayjs());
+    }
+
+    // Валидация выбранных платформ
+    const platformsError = validateNotEmptyArray(props.selectedPlatforms);
+    if (platformsError !== null) {
+      errors.push(platformsError);
     }
 
     // Если есть ошибки, отображаем их и не закрываем диалог
@@ -72,6 +76,11 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
     }
   };
 
+  const onEmojiClick = (emojiObject: any) => {
+    setPostText((prevText) => prevText + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
   return (
     <DialogBox
       onOkClick={onOk}
@@ -87,8 +96,8 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
           <Input.TextArea
             rows={3}
             placeholder="Введите текст поста"
-            value={postText} // Привязываем значение к состоянию
-            onChange={(e) => setPostText(e.target.value)} // Обновляем состояние
+            value={postText}
+            onChange={(e) => setPostText(e.target.value)}
           />
           <div className={styles["post-icons"]}>
             <ClickableButton
@@ -105,9 +114,15 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
               icon={<SmileOutlined />}
               type="default"
               size="small"
+              onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)} //панель смайликов
             />
           </div>
         </div>
+        {showEmojiPicker && (
+          <div className={styles.emojiPicker}>
+            <Picker onEmojiClick={onEmojiClick} />
+          </div>
+        )}
         <Select
           size="middle"
           placeholder="Выберите платформы для публикации"
@@ -116,8 +131,8 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
             { value: "vk", label: "VK" },
             { value: "tg", label: "Telegram" },
           ]}
-          value={props.selectedPlatforms} // Используем переданные платформы
-          onChange={(values) => props.setSelectedPlatforms(values)} // Обновляем платформы
+          value={props.selectedPlatforms}
+          onChange={(values) => props.setSelectedPlatforms(values)}
         />
         <PlatformSettings selectedPlatforms={props.selectedPlatforms} />
         <div className={styles["post-time"]}>
@@ -128,7 +143,31 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
           <Text> Настроить время публикации </Text>
         </div>
         {isTimePickerVisible && (
-          <TimePicker placeholder="Выберите время для публикации" />
+          <div className={styles["time-and-data"]}>
+            <TimePicker
+              placeholder="Выберите время для публикации"
+              defaultValue={selectedDate}
+              format={format}
+              onChange={(time) => {
+                if (selectedDate) {
+                  setSelectedDate(
+                    selectedDate
+                      .hour(time?.hour() || 0)
+                      .minute(time?.minute() || 0)
+                  );
+                } else {
+                  setSelectedDate(
+                    dayjs()
+                      .hour(time?.hour() || 0)
+                      .minute(time?.minute() || 0)
+                  );
+                }
+              }}
+            />
+            <CustCalendar
+              onPanelChange={(date: Dayjs | null) => setSelectedDate(date)}
+            />
+          </div>
         )}
         <FileUploader />
       </div>
@@ -150,3 +189,8 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
 };
 
 export default CreatePostDialog;
+function validateNotEmptyArray(selectedPlatforms: string[]): string | null {
+  return selectedPlatforms.length > 0
+    ? null
+    : "Не выбраны платформы для публикации.";
+}

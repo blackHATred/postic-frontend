@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { List, Spin, Button } from "antd";
-import CommentComponent from "../../ui/comment/Comment";
+import CommentComponent from "../../ui/Comment/Comment";
 import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
 import { CommentListContext, WebSocketContext } from "../../../api/comments";
@@ -39,7 +39,6 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
         console.log("Новый комментарий:", newComment);
 
-        // Проверяем, что newComment соответствует интерфейсу Comment
         if (
           newComment &&
           newComment.type &&

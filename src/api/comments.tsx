@@ -46,7 +46,7 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (
   );
 
   useEffect(() => {
-    console.log("Connection state changed");
+    //console.log("Connection state changed")
     if (readyState === ReadyState.OPEN) {
       console.log("WebSocket соединение установлено");
     }

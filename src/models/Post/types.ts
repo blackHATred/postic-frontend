@@ -3,11 +3,18 @@ export interface Post {
   action_post_vk_id: string;
   action_post_tg_id: string;
   time: string;
-  team_id: string;
+  team_id?: string;
   user_id: string;
   text: string;
   attachments: string[];
   pub_date: string;
+}
+
+export interface UploadResult {
+  id: string;
+  // filename: string;
+  // size: number;
+  // url: string;
 }
 
 export const mockPosts: Post[] = [
