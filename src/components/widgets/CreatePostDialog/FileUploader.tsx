@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Upload, message, List, Typography, Carousel, Image } from "antd";
 import {
   CloseOutlined,
@@ -8,6 +8,7 @@ import {
 import styles from "./styles.module.scss";
 import ClickableButton from "../../ui/Button/Button";
 import { exceedsMaxFiles, isFileAlreadyAdded } from "../../../utils/validation";
+import { uploadFile } from "../../../api/api";
 
 const { Dragger } = Upload;
 const { Text } = Typography;
@@ -16,7 +17,6 @@ const FileUploader: React.FC = () => {
   const [files, setFiles] = useState<any[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const maxFiles = 10;
-  const previewRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (exceedsMaxFiles(files, maxFiles)) {
@@ -24,7 +24,7 @@ const FileUploader: React.FC = () => {
     }
   }, [files, maxFiles]);
 
-  const handleFileUpload = (info: any) => {
+  const handleFileUpload = async (info: any) => {
     const { file } = info;
 
     if (
@@ -33,7 +33,7 @@ const FileUploader: React.FC = () => {
     ) {
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
           setFiles((prevFiles) => [...prevFiles, file]);
           setImagePreviews((prevPreviews) => [
             ...prevPreviews,
@@ -44,6 +44,12 @@ const FileUploader: React.FC = () => {
       } else {
         setFiles((prevFiles) => [...prevFiles, file]);
       }
+
+      //  (для всех файлов)
+      const uploadResult = await uploadFile(file.originFileObj);
+      if (uploadResult) {
+        console.log("ID файла:", uploadResult.id);
+      }
     } else if (file.status === "error") {
       message.error(
         `Файл ${file.name} не загружен. Нельзя загружать одинаковые файлы`
@@ -51,7 +57,6 @@ const FileUploader: React.FC = () => {
     }
   };
 
-  // мы обираем фотки их 2х мест: из списка файлов и их списка
   const handleFileRemove = (file: any) => {
     setFiles((prevFiles) => prevFiles.filter((f) => f.uid !== file.uid));
     if (file.type.startsWith("image/")) {
