@@ -9,6 +9,8 @@ export interface Comment {
   replyToUrl?: string;
 }
 
+export interface SummarizeResult {}
+
 export const mockComments: Comment[] = [
   {
     postId: "11",
