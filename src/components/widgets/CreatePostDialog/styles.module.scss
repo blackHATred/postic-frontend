@@ -42,3 +42,35 @@
   align-items: center;
   justify-content: center;
 }
+
+.carouselContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 300px;
+  background-color: #e6f4ff; /* Фон для пустых областей */
+}
+
+.carouselImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.time-and-data {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emojiPicker {
+  position: absolute;
+  top: 50px;
+  right: -320px; //смещение
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
