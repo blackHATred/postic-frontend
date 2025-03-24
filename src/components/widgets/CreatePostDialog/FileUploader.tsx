@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Upload, message, List, Typography, Carousel, Image } from "antd";
 import {
   CloseOutlined,
@@ -9,6 +9,8 @@ import styles from "./styles.module.scss";
 import ClickableButton from "../../ui/Button/Button";
 import { exceedsMaxFiles, isFileAlreadyAdded } from "../../../utils/validation";
 import { uploadFile } from "../../../api/api";
+import { NotificationContext } from "../../../api/notification";
+import { isAxiosError } from "axios";
 
 const { Dragger } = Upload;
 const { Text } = Typography;
@@ -16,6 +18,7 @@ const { Text } = Typography;
 const FileUploader: React.FC = () => {
   const [files, setFiles] = useState<any[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const NotificationManager = useContext(NotificationContext);
   const maxFiles = 10;
 
   useEffect(() => {
@@ -24,13 +27,9 @@ const FileUploader: React.FC = () => {
     }
   }, [files, maxFiles]);
 
-  const handleFileUpload = async (info: any) => {
-    const { file } = info;
-
-    if (
-      (file.status === "done" || file.status === "uploading") &&
-      !isFileAlreadyAdded(files, file)
-    ) {
+  const handleFileUpload = async (file: any) => {
+    console.log(file);
+    if (!isFileAlreadyAdded(files, file)) {
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = async () => {
@@ -46,15 +45,32 @@ const FileUploader: React.FC = () => {
       }
 
       //  (для всех файлов)
-      const uploadResult = await uploadFile(file.originFileObj);
-      if (uploadResult) {
+      try {
+        const uploadResult = await uploadFile(file.originFileObj);
         console.log("ID файла:", uploadResult.id);
+      } catch (error) {
+        if (isAxiosError(error)) {
+          NotificationManager.createNotification(
+            "error",
+            `Файл ${file.name} не загружен.`,
+            "Ошибка подключения сети"
+          );
+        } else {
+          NotificationManager.createNotification(
+            "error",
+            `Файл ${file.name} не загружен.`,
+            "Ошибка обработки файла"
+          );
+        }
       }
-    } else if (file.status === "error") {
-      message.error(
-        `Файл ${file.name} не загружен. Нельзя загружать одинаковые файлы`
+    } else {
+      NotificationManager.createNotification(
+        "error",
+        `Файл ${file.name} не загружен.`,
+        "Дубликаты файлов не разрешены"
       );
     }
+    return false;
   };
 
   const handleFileRemove = (file: any) => {
@@ -76,8 +92,7 @@ const FileUploader: React.FC = () => {
         name="file"
         multiple={true}
         showUploadList={false}
-        beforeUpload={() => true}
-        onChange={handleFileUpload}
+        beforeUpload={handleFileUpload}
       >
         <p className="ant-upload-drag-icon">
           <InboxOutlined />

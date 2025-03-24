@@ -140,7 +140,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
             size="default"
             onChange={(checked) => setIsTimePickerVisible(checked)}
           />
-          <Text> Настроить время публикации </Text>
+          <Text> Настроить дату и время публикации </Text>
         </div>
         {isTimePickerVisible && (
           <div className={styles["time-and-data"]}>
