@@ -7,17 +7,24 @@ import PostList from "../../widgets/PostList/PostList";
 import DialogBoxSummary, {
   SummaryBoxContext,
 } from "../../widgets/dialogBoxes/dialogBoxSummary";
-import ApiKeyBox from "../../widgets/ApiKeyBox/ApiKeyBox";
+import ApiKeyBox from "../../widgets/auth/ApiKeyBox";
 import { Breadcrumb } from "antd";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
 import { publish } from "../../logic/event";
+import WelcomeDialog from "../../widgets/auth/WelcomeDialog";
+import LoginDialog from "../../widgets/auth/LoginDialog";
+import RegisterDialog from "../../widgets/auth/RegisterDialog";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
   const [showDiaSummary, setShowDiaSummary] = useState(false);
   const [showDialogStatusPost, setShowDialogStatusPost] = useState(false);
   const [showDiaCreatePost, setShowDiaCreatePost] = useState(false);
+
+  const [showDiaWelcome, setShowDiaWelcome] = useState(false);
+  const [showDiaLogin, setShowDiaLogin] = useState(false);
+  const [showDiaRegister, setShowDiaRegister] = useState(false);
 
   const [activeTab, setActiveTab] = useState<string>("1");
 
@@ -27,8 +34,8 @@ const BasePage: React.FC = () => {
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // чтоб передавать соц сети от создания поста к статусу публикации
 
-  const makeVisibleDialog1 = () => {
-    setShowDiaAPI(true);
+  const makeVisibleDialogLogin = () => {
+    setShowDiaWelcome(true);
   };
   const makeVisibleDialogStatusPost = () => {
     setShowDialogStatusPost(true);
@@ -57,11 +64,13 @@ const BasePage: React.FC = () => {
         setActive: setShowDiaSummary,
         setLoading: setSummaryLoading,
         setPostID: setPostId,
+        postId: postId,
+        isLoading: summaryLoading,
       }}
     >
       <div className={styles.commentPage}>
         <ButtonHeader
-          OnClick1={makeVisibleDialog1}
+          OnClick1={makeVisibleDialogLogin}
           OnClick2={makeVisibleDialogStatusPost}
           OnClickCreatePost={makeVisibleDialogCreatePost}
           activeTab={activeTab}
@@ -111,20 +120,19 @@ const BasePage: React.FC = () => {
 
         <DialogBoxSummary
           title={"Суммаризация комментариев"}
-          buttonText={"Повторная суммаризация"}
-          setOpen={setShowDiaSummary}
+          buttonText={["Повторная суммаризация"]}
           isOpen={showDiaSummary}
-          isLoading={summaryLoading}
-          postId={postId}
         />
       </div>
 
       <PostStatusDialog
         title={"Публикация поста"}
-        buttonText={"Открыть"}
-        onOkClick={() => {
-          console.log("Create post dialog confirmed");
-        }}
+        buttonText={["Открыть"]}
+        onOkClick={[
+          () => {
+            console.log("Create post dialog confirmed");
+          },
+        ]}
         onCancelClick={async () => {
           console.log("Create post dialog canceled");
           return "";
@@ -136,19 +144,46 @@ const BasePage: React.FC = () => {
 
       <CreatePostDialog
         title={"Создать пост"}
-        onOkClick={() => {
-          console.log("Create post dialog confirmed");
-          setShowDialogStatusPost(true); // открытие окна статуса
-        }}
+        onOkClick={[
+          () => {
+            console.log("Create post dialog confirmed");
+            setShowDialogStatusPost(true); // открытие окна статуса
+          },
+        ]}
         onCancelClick={async () => {
           console.log("Create post dialog canceled");
           return "";
         }}
-        buttonText={"Опубликовать"}
+        buttonText={["Опубликовать"]}
         setOpen={setShowDiaCreatePost}
         isOpen={showDiaCreatePost}
         selectedPlatforms={selectedPlatforms} // выбранные платформы
         setSelectedPlatforms={setSelectedPlatforms}
+      />
+
+      <LoginDialog
+        showBox={showDiaLogin}
+        setShowBox={setShowDiaLogin}
+        onOkClick={[]}
+      />
+      <RegisterDialog
+        showBox={showDiaRegister}
+        setShowBox={setShowDiaRegister}
+        onOkClick={[]}
+      />
+      <WelcomeDialog
+        showBox={showDiaWelcome}
+        setShowBox={setShowDiaWelcome}
+        onOkClick={[
+          () => {
+            setShowDiaWelcome(false);
+            setShowDiaLogin(true);
+          },
+          () => {
+            setShowDiaWelcome(false);
+            setShowDiaRegister(true);
+          },
+        ]}
       />
     </SummaryBoxContext.Provider>
   );

@@ -5,37 +5,38 @@ import { Typography } from "antd";
 
 export interface DialogBoxProps {
   isOpen: boolean;
-  onOkClick: (...args: any) => void;
+  onOkClick: ((...args: any) => void)[];
   onCancelClick: (...args: any) => void;
-  buttonText?: string;
+  buttonText?: string[];
   title: string;
   headerSubtext?: string;
   headerSubtextOnClick?: (...args: any) => void;
+  isCenter?: boolean;
 }
-
-const styles = {
-  mask: {
-    backdropFilter: "blur(5px)",
-    boxShadow: `inset 0 0 15px #fff`,
-  },
-  content: {
-    padding: "14px",
-  },
-  footer: {
-    display: "flex",
-    justifyContent: "center",
-  },
-};
 
 const { Text, Title } = Typography;
 
 const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
   props: PropsWithChildren<DialogBoxProps>
 ) => {
+  const styles = {
+    mask: {
+      backdropFilter: "blur(5px)",
+      boxShadow: `inset 0 0 15px #fff`,
+    },
+    content: {
+      padding: "14px",
+    },
+
+    footer: {
+      display: (props.isCenter && "flex") || "",
+      justifyContent: (props.isCenter && "center") || "",
+    },
+  };
+
   return (
     <Modal
       open={props.isOpen}
-      onOk={props.onOkClick}
       onCancel={props.onCancelClick}
       title={
         <div
@@ -62,11 +63,17 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
       styles={styles}
       footer={
         <div>
-          {props.buttonText && (
-            <Button key="submit" type="primary" onClick={props.onOkClick}>
-              {props.buttonText}
-            </Button>
-          )}
+          {props.buttonText &&
+            props.buttonText.map((object, i: number) => (
+              <Button
+                key={object}
+                type="primary"
+                onClick={props.onOkClick[i]}
+                style={{ marginRight: "10px" }}
+              >
+                {object}
+              </Button>
+            ))}
           {!props.buttonText && <span></span>}
         </div>
       }

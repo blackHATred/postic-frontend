@@ -16,55 +16,42 @@ import { NotificationContext } from "../../../api/notification";
 import { publish } from "../../logic/event";
 import { getSummarize, Summarize } from "../../../api/api";
 import { GetSummarizeResult } from "../../../models/Comment/types";
+import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
 
 const { Text } = Typography;
-
-export interface DialogBoxSummaryProps
-  extends Omit<
-    DialogBoxProps,
-    "onOkClick" | "onCancelClick" | "headerSubtext"
-  > {
-  setOpen: Function;
-  postRef?: RefObject<HTMLDivElement | null>;
-  isLoading: Boolean;
-  postId: string;
-}
 
 interface SummaryBoxContent {
   setActive: Dispatch<SetStateAction<boolean>>;
   setLoading: Dispatch<SetStateAction<boolean>>;
   setPostID: Dispatch<SetStateAction<string>>;
+  isLoading: boolean;
+  postId: string;
 }
 
 export const SummaryBoxContext = createContext<SummaryBoxContent>({
   setActive: () => {},
   setLoading: () => {},
   setPostID: () => {},
+  isLoading: false,
+  postId: "",
 });
 
-const DialogBoxSummary: FC<DialogBoxSummaryProps> = (
-  props: DialogBoxSummaryProps
+const DialogBoxSummary: FC<
+  Omit<DialogBoxProps, "onOkClick" | "onCancelClick" | "headerSubtext">
+> = (
+  props: Omit<DialogBoxProps, "onOkClick" | "onCancelClick" | "headerSubtext">
 ) => {
   const NotificationManager = useContext(NotificationContext);
+  const SummaryBoxManager = useContext(SummaryBoxContext);
   const [summaryText, setSummaryText] = useState("");
 
-  const BackgroundStyle: React.CSSProperties = {
-    background: blue[0],
-    borderStyle: "dashed",
-    borderColor: blue[2],
-    borderRadius: "5px",
-    textAlign: "center",
-    minHeight: "100px",
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column",
-  };
-
   useEffect(() => {
+    SummaryBoxManager.setLoading(true);
     if (props.isOpen) {
-      getSummarize(props.postId)
+      getSummarize(SummaryBoxManager.postId)
         .then((summary: GetSummarizeResult) => {
           setSummaryText(summary.summary);
+          SummaryBoxManager.setLoading(false);
         })
         .catch((error) => {
           NotificationManager.createNotification(
@@ -72,14 +59,15 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> = (
             "Ошибка получения суммаризации",
             "ошибка подключения к серверу"
           );
+          SummaryBoxManager.setLoading(false);
         });
     }
     //Получили id от комментария, делаем Get и потом можно async Post
-  }, [props.postId]);
+  }, [SummaryBoxManager.postId]);
 
   const onRefresh = async () => {
     if (props.isOpen) {
-      const summary = Summarize(props.postId)
+      const summary = Summarize(SummaryBoxManager.postId)
         .then(() => {})
         .catch((error) => {
           NotificationManager.createNotification(
@@ -93,32 +81,28 @@ const DialogBoxSummary: FC<DialogBoxSummaryProps> = (
 
   const onCancel = async () => {
     setSummaryText("");
-    props.setOpen(false);
+    SummaryBoxManager.setActive(false);
   };
 
   const onHeaderClick = async () => {
-    props.setOpen(false);
-    publish("PostSelected", { id: props.postId });
+    SummaryBoxManager.setActive(false);
+    publish("PostSelected", { id: SummaryBoxManager.postId });
   };
 
   return (
     <DialogBox
-      onOkClick={onRefresh}
+      onOkClick={[onRefresh]}
       isOpen={props.isOpen}
       onCancelClick={onCancel}
       buttonText={props.buttonText}
       title={props.title}
-      headerSubtext={"Пост #" + props.postId}
+      headerSubtext={"Пост #" + SummaryBoxManager.postId}
       headerSubtextOnClick={onHeaderClick}
+      isCenter={true}
     >
-      <div style={BackgroundStyle}>
-        {props.isLoading && <Spin />}
-        <Text
-          style={{ color: blue[6], marginTop: "auto", marginBottom: "auto" }}
-        >
-          {summaryText}
-        </Text>
-      </div>
+      <BlueDashedTextBox isLoading={SummaryBoxManager.isLoading}>
+        {summaryText}
+      </BlueDashedTextBox>
     </DialogBox>
   );
 };

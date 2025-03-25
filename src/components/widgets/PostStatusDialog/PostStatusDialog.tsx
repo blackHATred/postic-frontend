@@ -78,7 +78,7 @@ const PostStatusDialog: FC<PostStatusDialogProps> = (
 
   return (
     <DialogBox
-      onOkClick={onOk}
+      onOkClick={[onOk]}
       isOpen={props.isOpen}
       onCancelClick={onCancel}
       title={props.title}

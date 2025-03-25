@@ -64,7 +64,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
 
     // Если ошибок нет, сбрасываем их и вызываем onOk
     setValidationErrors([]);
-    props.onOkClick();
+    props.onOkClick[0]();
   };
 
   const onCancel = async () => {
@@ -83,11 +83,12 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
 
   return (
     <DialogBox
-      onOkClick={onOk}
+      onOkClick={[onOk]}
       isOpen={props.isOpen}
       onCancelClick={onCancel}
       buttonText={props.buttonText}
       title={props.title}
+      isCenter={true}
     >
       <Divider>Содержание поста</Divider>
 
