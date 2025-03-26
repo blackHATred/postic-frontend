@@ -50,7 +50,6 @@ const BasePage: React.FC = () => {
       })
       .catch(() => {
         console.log("Error getting posts");
-        setPosts(mockPosts);
       });
   }, []);
 

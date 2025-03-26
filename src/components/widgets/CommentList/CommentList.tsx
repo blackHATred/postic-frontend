@@ -53,17 +53,24 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
     if (webSocketmanager.lastJsonMessage) {
       try {
         console.log(webSocketmanager.lastJsonMessage.data);
-        const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data); // Парсим JSON
+        const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data)
+          .comments as Comment[]; // Парсим JSON
 
         console.log("Новый комментарий:", newComment);
 
-        if (
-          newComment &&
-          newComment.type &&
-          newComment.username &&
-          newComment.text
-        ) {
-          commentManager.setComments((prev) => [...prev, newComment]);
+        let comm: Comment[] = [];
+        if (newComment) {
+          newComment.forEach((element) => {
+            if (
+              !commentManager.comments.some(
+                (comment) => comment.id === element.id
+              )
+            ) {
+              comm.push(element);
+            }
+          });
+          console.log(comm);
+          commentManager.setComments((prev) => [...prev, ...comm]);
         } else {
           console.error("Получен некорректный комментарий:", newComment);
         }
