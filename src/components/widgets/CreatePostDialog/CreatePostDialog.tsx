@@ -16,13 +16,15 @@ import { validateMinLength } from "../../../utils/validation";
 import dayjs, { Dayjs } from "dayjs";
 import CustCalendar from "../../ui/Calendar/Calendar";
 import Picker from "emoji-picker-react";
+import { OmitProps } from "antd/es/transfer/ListBody";
+import { sendPostRequest } from "../../../api/api";
 
 const { Text } = Typography;
 const format = "HH:mm";
 
-export interface CreatePostDialogProps extends DialogBoxProps {
+export interface CreatePostDialogProps
+  extends Omit<DialogBoxProps, "onCancelClick"> {
   setOpen: Function;
-  onCancelClick: () => Promise<string>;
   selectedPlatforms: string[];
   setSelectedPlatforms: (platforms: string[]) => void;
 }
@@ -36,6 +38,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // Состояние для выбранной даты
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
+  const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
 
   const onOk = () => {
     const errors: string[] = [];
@@ -64,16 +67,17 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
 
     // Если ошибок нет, сбрасываем их и вызываем onOk
     setValidationErrors([]);
+    sendPostRequest({
+      text: postText,
+      attachments: fileIDs,
+      pub_time: selectedDate ? selectedDate.valueOf() : 0,
+      platforms: props.selectedPlatforms,
+    });
     props.onOkClick[0]();
   };
 
   const onCancel = async () => {
-    let res = await props.onCancelClick();
-    if (res === "") {
-      props.setOpen(false);
-    } else {
-      SetErrorData(res);
-    }
+    props.setOpen(false);
   };
 
   const onEmojiClick = (emojiObject: any) => {
@@ -170,7 +174,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
             />
           </div>
         )}
-        <FileUploader />
+        <FileUploader fileIDs={fileIDs} setFileIDs={setFilesIDs} />
       </div>
 
       {/* Отображение ошибок валидации */}

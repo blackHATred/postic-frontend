@@ -10,6 +10,18 @@ export interface Post {
   pub_date: string;
 }
 
+export interface sendPost {
+  text: string;
+  attachments: string[];
+  pub_time: number;
+  platforms: string[];
+}
+
+export interface sendPostResult {
+  post_id: string;
+  status: string;
+}
+
 export interface UploadResult {
   id: string;
   // filename: string;

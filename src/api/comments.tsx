@@ -10,6 +10,7 @@ import { mockComments } from "../models/Comment/types";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import { Comment } from "../models/Comment/types";
+import config from "../constants/appConfig";
 
 interface CommentContent {
   comments: Comment[];
@@ -36,9 +37,8 @@ export const WebSocketContext = createContext<WebSocketContent>({
 const WebSocketComponent: React.FC<PropsWithChildren> = (
   props: PropsWithChildren
 ) => {
-  const WS_URL = "http://localhost:80/api/comments/ws";
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket<string>(
-    WS_URL,
+    config.api.socketUrl,
     {
       share: false,
       shouldReconnect: () => true,

@@ -1,5 +1,10 @@
 import axios from "axios";
-import { Post, UploadResult } from "../models/Post/types";
+import {
+  Post,
+  sendPost,
+  sendPostResult,
+  UploadResult,
+} from "../models/Post/types";
 import { GetSummarizeResult } from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
@@ -46,6 +51,20 @@ export const getPosts = async (): Promise<{ posts: Post[] }> => {
     }
   );
   console.log("Посты:", response.data);
+  return response.data;
+};
+
+export const sendPostRequest = async (
+  post: sendPost
+): Promise<sendPostResult> => {
+  const response = await axios.post<sendPostResult>(
+    `${config.api.baseURL}/posts/add`,
+    post,
+    {
+      withCredentials: true,
+    }
+  );
+  console.log("Результат:", response.data);
   return response.data;
 };
 
