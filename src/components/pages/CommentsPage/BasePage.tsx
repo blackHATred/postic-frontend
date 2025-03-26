@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import ButtonHeader from "../../widgets/Header/Header";
-import { mockPosts } from "../../../models/Post/types";
+import { mockPosts, Post } from "../../../models/Post/types";
 import PostList from "../../widgets/PostList/PostList";
 import DialogBoxSummary, {
   SummaryBoxContext,
@@ -15,6 +15,7 @@ import { publish } from "../../logic/event";
 import WelcomeDialog from "../../widgets/auth/WelcomeDialog";
 import LoginDialog from "../../widgets/auth/LoginDialog";
 import RegisterDialog from "../../widgets/auth/RegisterDialog";
+import { getPosts } from "../../../api/api";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
@@ -33,6 +34,23 @@ const BasePage: React.FC = () => {
   const [postId, setPostId] = useState<string>("");
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // чтоб передавать соц сети от создания поста к статусу публикации
+
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    getPosts()
+      .then((res: { posts: Post[] }) => {
+        if (res.posts) {
+          setPosts(res.posts);
+        } else {
+          setPosts(mockPosts);
+        }
+      })
+      .catch(() => {
+        console.log("Error getting posts");
+        setPosts(mockPosts);
+      });
+  }, []);
 
   const makeVisibleDialogLogin = () => {
     setShowDiaWelcome(true);
@@ -79,10 +97,7 @@ const BasePage: React.FC = () => {
 
         {activeTab === "1" ? (
           <div>
-            <PostList
-              posts={mockPosts}
-              onCommentClick={handlePostCommentClick}
-            />
+            <PostList posts={posts} onCommentClick={handlePostCommentClick} />
           </div>
         ) : (
           <div>

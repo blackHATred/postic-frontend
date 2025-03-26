@@ -1,16 +1,19 @@
 import axios from "axios";
-import { UploadResult } from "../models/Post/types";
+import { Post, UploadResult } from "../models/Post/types";
 import { GetSummarizeResult } from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
+import { RegisterResult } from "../models/User/types";
+import Cookies from "universal-cookie";
 
 export const uploadFile = async (file: File): Promise<UploadResult> => {
   try {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("type", "photo");
 
     const response = await axios.post<UploadResult>(
-      `${config.api.baseURL}/upload`,
+      `${config.api.baseURL}/upload/`,
       formData,
       {
         headers: {
@@ -33,6 +36,38 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
       throw error;
     }
   }
+};
+
+export const getPosts = async (): Promise<{ posts: Post[] }> => {
+  const response = await axios.get<{ posts: Post[] }>(
+    `${config.api.baseURL}/posts/list`,
+    {
+      withCredentials: true,
+    }
+  );
+  console.log("Посты:", response.data);
+  return response.data;
+};
+
+export const Register = async (): Promise<RegisterResult> => {
+  const response = await axios.post<RegisterResult>(
+    `${config.api.baseURL}/user/register`,
+    { withCredentials: true }
+  );
+
+  return response.data;
+};
+
+export const Login = async (id: number): Promise<RegisterResult> => {
+  const response = await axios.post<RegisterResult>(
+    `${config.api.baseURL}/user/login`,
+    {
+      user_id: id,
+    },
+    { withCredentials: true }
+  );
+
+  return response.data;
 };
 
 export const getSummarize = async (

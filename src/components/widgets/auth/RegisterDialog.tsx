@@ -5,17 +5,32 @@ import { WebSocketContext } from "../../../api/comments";
 import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
 import { SimpleBoxProps } from "./WelcomeDialog";
+import { Register } from "../../../api/api";
+import { RegisterResult } from "../../../models/User/types";
+import Cookies from "universal-cookie";
 
 const RegisterDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
   const [id, setID] = useState("");
-  const [secKey, setSecKey] = useState("");
   const [loading, setLoading] = useState(true);
+  const notificationManager = useContext(NotificationContext);
 
   useEffect(() => {
     setLoading(true);
     if (props.showBox) {
-      console.log("close/open");
-      setTimeout(() => setLoading(false), 1000);
+      Register()
+        .then((res: RegisterResult) => {
+          setID(res.user_id.toString());
+          const cookies = new Cookies();
+          cookies.set("session", res.user_id.toString(), { path: "/" });
+        })
+        .catch(() => {
+          notificationManager.createNotification(
+            "error",
+            "Ошибка регистрации",
+            ""
+          );
+        });
+      setLoading(false);
     }
   }, [props.showBox]);
 
@@ -31,7 +46,6 @@ const RegisterDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
     >
       <BlueDashedTextBox isLoading={loading}>
         <div>Ваш ID: {id}</div>
-        <div>Ваш секретный ключ: {secKey}</div>
       </BlueDashedTextBox>
     </DialogBox>
   );

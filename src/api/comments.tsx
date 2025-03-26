@@ -36,7 +36,7 @@ export const WebSocketContext = createContext<WebSocketContent>({
 const WebSocketComponent: React.FC<PropsWithChildren> = (
   props: PropsWithChildren
 ) => {
-  const WS_URL = "ws://127.0.0.1:8090/api/comments/ws";
+  const WS_URL = "http://localhost:80/api/comments/ws";
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket<string>(
     WS_URL,
     {

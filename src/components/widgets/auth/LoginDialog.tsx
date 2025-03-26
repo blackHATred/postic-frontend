@@ -5,15 +5,37 @@ import { WebSocketContext } from "../../../api/comments";
 import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
 import { SimpleBoxProps } from "./WelcomeDialog";
+import Cookies from "universal-cookie";
+import { RegisterResult } from "../../../models/User/types";
+import { Login } from "../../../api/api";
 
 const LoginDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
+  const notificationManager = useContext(NotificationContext);
   return (
     <DialogBoxXInputs
       text={"Введите ID"}
       title={"Вход"}
       input_placeholders={{ id: "ID" }}
       buttonText={["Ок"]}
-      onOkClick={[() => {}]}
+      onOkClick={[
+        (args) => {
+          if (args["id"])
+            Login(parseInt(args["id"]))
+              .then((res: RegisterResult) => {
+                const cookies = new Cookies();
+                cookies.set("session", res.user_id.toString(), { path: "/" });
+              })
+              .catch(() => {
+                notificationManager.createNotification(
+                  "error",
+                  "Ошибка регистрации",
+                  ""
+                );
+              });
+          else {
+          }
+        },
+      ]}
       onCancelClick={async () => {
         props.setShowBox(false);
       }}

@@ -28,23 +28,29 @@ const FileUploader: React.FC = () => {
   }, [files, maxFiles]);
 
   const handleFileUpload = async (file: any) => {
+    console.log("a");
     if (!isFileAlreadyAdded(files, file)) {
+      console.log("b");
       if (file.type.startsWith("image/")) {
+        console.log("c");
         const reader = new FileReader();
         reader.onloadend = async () => {
+          console.log("d");
           setFiles((prevFiles) => [...prevFiles, file]);
           setImagePreviews((prevPreviews) => [
             ...prevPreviews,
             reader.result as string,
           ]);
         };
-        reader.readAsDataURL(file.originFileObj);
+        console.log(file);
+        reader.readAsDataURL(file);
       } else {
         setFiles((prevFiles) => [...prevFiles, file]);
       }
 
       //  (для всех файлов)
       try {
+        console.log("e");
         const uploadResult = await uploadFile(file.originFileObj);
         console.log("ID файла:", uploadResult.id);
       } catch (error) {
