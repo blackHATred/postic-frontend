@@ -24,20 +24,24 @@ export const CommentListContext = createContext<CommentContent>({
 
 interface WebSocketContent {
   sendJsonMessage: (args: { [key: string]: any }) => void;
-  lastJsonMessage: string;
+  lastJsonMessage: any;
   readyState: ReadyState;
 }
 
 export const WebSocketContext = createContext<WebSocketContent>({
-  lastJsonMessage: "",
+  lastJsonMessage: null,
   readyState: ReadyState.UNINSTANTIATED,
   sendJsonMessage: () => {},
 });
 
+interface commentWebsocket {
+  comment: any;
+}
+
 const WebSocketComponent: React.FC<PropsWithChildren> = (
   props: PropsWithChildren
 ) => {
-  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket<string>(
+  const { sendMessage, lastMessage, readyState } = useWebSocket<string>(
     config.api.socketUrl,
     {
       share: false,
@@ -55,9 +59,15 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (
     }
   }, [readyState]);
 
-  const sendMessage = (args: { [key: string]: string }) => {
+  useEffect(() => {
+    //console.log("Connection state changed")
+    console.log(lastMessage);
+  }, [lastMessage]);
+
+  const sendmessage = (args: { [key: string]: any }) => {
     if (readyState === ReadyState.OPEN) {
-      sendJsonMessage(JSON.stringify(args));
+      console.log(JSON.stringify(args));
+      sendMessage(JSON.stringify(args));
     } else {
       throw new Error("Connection not Established");
     }
@@ -67,8 +77,8 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (
     <div>
       <WebSocketContext.Provider
         value={{
-          lastJsonMessage: lastJsonMessage,
-          sendJsonMessage: sendMessage,
+          lastJsonMessage: lastMessage,
+          sendJsonMessage: sendmessage,
           readyState: readyState,
         }}
       >

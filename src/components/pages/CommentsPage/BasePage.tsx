@@ -17,6 +17,7 @@ import LoginDialog from "../../widgets/auth/LoginDialog";
 import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
+import Cookies from "universal-cookie";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
@@ -80,6 +81,28 @@ const BasePage: React.FC = () => {
     if (key === "1") {
       setPostId("");
     }
+  };
+
+  const getMenuButtonsFunc = () => {
+    const cookies = new Cookies();
+    const session = cookies.get("session");
+    if (session) {
+      return [
+        () => {
+          cookies.remove("session");
+        },
+      ];
+    }
+    return [
+      () => {
+        setShowDiaWelcome(false);
+        setShowDiaLogin(true);
+      },
+      () => {
+        setShowDiaWelcome(false);
+        setShowDiaRegister(true);
+      },
+    ];
   };
 
   return (
@@ -195,16 +218,7 @@ const BasePage: React.FC = () => {
       <WelcomeDialog
         showBox={showDiaWelcome}
         setShowBox={setShowDiaWelcome}
-        onOkClick={[
-          () => {
-            setShowDiaWelcome(false);
-            setShowDiaLogin(true);
-          },
-          () => {
-            setShowDiaWelcome(false);
-            setShowDiaRegister(true);
-          },
-        ]}
+        onOkClick={getMenuButtonsFunc()}
       />
     </SummaryBoxContext.Provider>
   );

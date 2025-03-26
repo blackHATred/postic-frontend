@@ -4,6 +4,7 @@ import CommentComponent from "../../ui/Comment/Comment";
 import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
 import { CommentListContext, WebSocketContext } from "../../../api/comments";
+import { ReadyState } from "react-use-websocket";
 
 interface CommentListProps {
   isLoading?: boolean;
@@ -49,9 +50,10 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
     : commentManager.comments;
 
   useEffect(() => {
-    if (webSocketmanager.lastJsonMessage != null) {
+    if (webSocketmanager.lastJsonMessage) {
       try {
-        const newComment = JSON.parse(webSocketmanager.lastJsonMessage); // Парсим JSON
+        console.log(webSocketmanager.lastJsonMessage.data);
+        const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data); // Парсим JSON
 
         console.log("Новый комментарий:", newComment);
 
@@ -70,6 +72,19 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
       }
     }
   }, [webSocketmanager.lastJsonMessage]);
+
+  useEffect(() => {
+    if (webSocketmanager.readyState == ReadyState.OPEN) {
+      webSocketmanager.sendJsonMessage({
+        type: "get_comments",
+        get_comments: {
+          post_union_id: 2,
+          offset: "2020-03-26T13:55:57+03:00",
+        },
+      });
+      console.log("sent");
+    }
+  }, [webSocketmanager.readyState]);
 
   const onLoadMore = () => {
     setLoading(true);

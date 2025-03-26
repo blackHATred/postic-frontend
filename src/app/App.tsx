@@ -8,7 +8,7 @@ import NotificationManager from "../api/notification";
 import { Comment, mockComments } from "../models/Comment/types";
 
 const App: React.FC = () => {
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   return (
     <Router>

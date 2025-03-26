@@ -4,6 +4,7 @@ import { NotificationContext } from "../../../api/notification";
 import { WebSocketContext } from "../../../api/comments";
 import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
+import Cookies from "universal-cookie";
 
 export interface SimpleBoxProps {
   showBox: boolean;
@@ -12,10 +13,19 @@ export interface SimpleBoxProps {
 }
 
 const WelcomeDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
+  const getButtons = () => {
+    const cookies = new Cookies();
+    const session = cookies.get("session");
+    if (session) {
+      return ["Выход"];
+    }
+    return ["Вход", "Регистраиция"];
+  };
+
   return (
     <DialogBox
       title={"Добро Пожаловать!"}
-      buttonText={["Вход", "Регистраиция"]}
+      buttonText={getButtons()}
       onOkClick={props.onOkClick}
       onCancelClick={async () => {
         props.setShowBox(false);
