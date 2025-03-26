@@ -15,9 +15,17 @@ import { isAxiosError } from "axios";
 const { Dragger } = Upload;
 const { Text } = Typography;
 
-const FileUploader: React.FC = () => {
+interface fileUploaderProps {
+  fileIDs: string[];
+  setFileIDs: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+const FileUploader: React.FC<fileUploaderProps> = (
+  props: fileUploaderProps
+) => {
   const [files, setFiles] = useState<any[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   const NotificationManager = useContext(NotificationContext);
   const maxFiles = 10;
 
@@ -28,14 +36,10 @@ const FileUploader: React.FC = () => {
   }, [files, maxFiles]);
 
   const handleFileUpload = async (file: any) => {
-    console.log("a");
     if (!isFileAlreadyAdded(files, file)) {
-      console.log("b");
       if (file.type.startsWith("image/")) {
-        console.log("c");
         const reader = new FileReader();
         reader.onloadend = async () => {
-          console.log("d");
           setFiles((prevFiles) => [...prevFiles, file]);
           setImagePreviews((prevPreviews) => [
             ...prevPreviews,
@@ -50,9 +54,9 @@ const FileUploader: React.FC = () => {
 
       //  (для всех файлов)
       try {
-        console.log("e");
-        const uploadResult = await uploadFile(file.originFileObj);
-        console.log("ID файла:", uploadResult.id);
+        const uploadResult = await uploadFile(file);
+        console.log("ID файла:", uploadResult.file_id);
+        props.setFileIDs([...props.fileIDs, uploadResult.file_id]);
       } catch (error) {
         if (isAxiosError(error)) {
           NotificationManager.createNotification(

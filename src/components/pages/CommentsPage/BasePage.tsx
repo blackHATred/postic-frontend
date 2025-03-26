@@ -45,7 +45,6 @@ const BasePage: React.FC = () => {
         if (res.posts) {
           setPosts(res.posts);
         } else {
-          setPosts(mockPosts);
         }
       })
       .catch(() => {
@@ -173,10 +172,6 @@ const BasePage: React.FC = () => {
             setShowDialogStatusPost(true); // открытие окна статуса
           },
         ]}
-        onCancelClick={async () => {
-          console.log("Create post dialog canceled");
-          return "";
-        }}
         buttonText={["Опубликовать"]}
         setOpen={setShowDiaCreatePost}
         isOpen={showDiaCreatePost}
