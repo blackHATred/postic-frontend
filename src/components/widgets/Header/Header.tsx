@@ -15,6 +15,7 @@ interface ButtonHeaderProps {
   OnClick1: (...args: any) => any;
   OnClick2: (...args: any) => any;
   OnClickCreatePost: (...args: any) => any;
+  OnClickMe: (...args: any) => any;
   activeTab: string;
   onTabChange: (key: string) => void;
 }
@@ -23,6 +24,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   OnClick1,
   OnClick2,
   OnClickCreatePost,
+  OnClickMe,
   activeTab,
   onTabChange,
 }) => {
@@ -64,6 +66,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
             type="default"
             onButtonClick={OnClick1}
           />
+          <ClickableButton type="default" text="me" onButtonClick={OnClickMe} />
         </div>
       </div>
     </div>

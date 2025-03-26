@@ -3,7 +3,7 @@ import { Post, UploadResult } from "../models/Post/types";
 import { GetSummarizeResult } from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
-import { RegisterResult } from "../models/User/types";
+import { MeInfo, RegisterResult } from "../models/User/types";
 import Cookies from "universal-cookie";
 
 export const uploadFile = async (file: File): Promise<UploadResult> => {
@@ -55,6 +55,13 @@ export const Register = async (): Promise<RegisterResult> => {
     { withCredentials: true }
   );
 
+  return response.data;
+};
+
+export const Me = async (): Promise<MeInfo> => {
+  const response = await axios.get<MeInfo>(`${config.api.baseURL}/user/me`, {
+    withCredentials: true,
+  });
   return response.data;
 };
 

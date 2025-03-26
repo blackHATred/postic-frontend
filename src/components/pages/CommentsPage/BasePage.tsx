@@ -16,12 +16,14 @@ import WelcomeDialog from "../../widgets/auth/WelcomeDialog";
 import LoginDialog from "../../widgets/auth/LoginDialog";
 import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
+import MeDialog from "../../widgets/auth/MeDialog";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
   const [showDiaSummary, setShowDiaSummary] = useState(false);
   const [showDialogStatusPost, setShowDialogStatusPost] = useState(false);
   const [showDiaCreatePost, setShowDiaCreatePost] = useState(false);
+  const [showDiaMe, setShowDiaMe] = useState(false);
 
   const [showDiaWelcome, setShowDiaWelcome] = useState(false);
   const [showDiaLogin, setShowDiaLogin] = useState(false);
@@ -55,6 +57,11 @@ const BasePage: React.FC = () => {
   const makeVisibleDialogLogin = () => {
     setShowDiaWelcome(true);
   };
+
+  const makeVisibleDialogMe = () => {
+    setShowDiaMe(true);
+  };
+
   const makeVisibleDialogStatusPost = () => {
     setShowDialogStatusPost(true);
   };
@@ -91,6 +98,7 @@ const BasePage: React.FC = () => {
           OnClick1={makeVisibleDialogLogin}
           OnClick2={makeVisibleDialogStatusPost}
           OnClickCreatePost={makeVisibleDialogCreatePost}
+          OnClickMe={makeVisibleDialogMe}
           activeTab={activeTab}
           onTabChange={handleTabChange} // для изменения вкладки
         />
@@ -186,6 +194,9 @@ const BasePage: React.FC = () => {
         setShowBox={setShowDiaRegister}
         onOkClick={[]}
       />
+
+      <MeDialog showBox={showDiaMe} setShowBox={setShowDiaMe} onOkClick={[]} />
+
       <WelcomeDialog
         showBox={showDiaWelcome}
         setShowBox={setShowDiaWelcome}
