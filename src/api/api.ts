@@ -5,7 +5,10 @@ import {
   sendPostResult,
   UploadResult,
 } from "../models/Post/types";
-import { GetSummarizeResult } from "../models/Comment/types";
+import {
+  GetSummarizeMarkdownResponse,
+  GetSummarizeResult,
+} from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
 import { MeInfo, RegisterResult } from "../models/User/types";
@@ -119,9 +122,9 @@ export const getSummarize = async (
 
 export const Summarize = async (
   postId: string
-): Promise<GetSummarizeResult | null> => {
-  const response = await axios.post<GetSummarizeResult>(
-    `${config.api.baseURL}/summarize`,
+): Promise<GetSummarizeMarkdownResponse | null> => {
+  const response = await axios.post<GetSummarizeMarkdownResponse>(
+    `${config.api.baseURL}/comment/summarize`,
     {
       post_id: postId,
     }

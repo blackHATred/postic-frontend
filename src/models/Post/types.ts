@@ -2,10 +2,18 @@ export interface Post {
   ID: string;
   Text: string;
   userID: string;
-  Attachments: Int16Array[];
+  Attachments: PostAttachment[];
   Platforms?: string[];
   CreatedAt?: string;
   PubDate: string;
+}
+
+interface PostAttachment {
+  id: string;
+  file_path: string;
+  file_type: string;
+  uploaded_by_user_id: string;
+  created_at: string;
 }
 
 export interface sendPost {

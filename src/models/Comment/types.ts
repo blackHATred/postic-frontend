@@ -30,6 +30,11 @@ export interface GetSummarizeResult {
   lastUpdate: string;
 }
 
+export interface GetSummarizeMarkdownResponse {
+  markdown: string;
+  post_union_id: number;
+}
+
 export const mockComments: Comment[] = [
   {
     id: 2,

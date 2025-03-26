@@ -102,10 +102,10 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
           <Text>{postText}</Text>
         </div>
         <div className={styles["post-content-attachments"]}>
-          {Attachments.map((attachment, index) => (
+          {Attachments?.map((attachment, index) => (
             <div className={styles["post-content-attachment"]} key={index}>
               <Icon component={PaperClipOutlined} />
-              <Text className={styles.primaryText}>{attachment}</Text>
+              <Text className={styles.primaryText}>{attachment.file_path}</Text>
             </div>
           ))}
         </div>
