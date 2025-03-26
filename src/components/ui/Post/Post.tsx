@@ -72,7 +72,7 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
       <div className={styles["post-header"]}>
         <div className={styles["post-header-info"]}>
           <div className={styles["post-header-info-text"]}>
-            <Text strong>{userID}</Text>
+            <Text strong>Модератор {userID}</Text>
             <Text type="secondary" className={styles["post-time"]}>
               {formatPubDate}
             </Text>

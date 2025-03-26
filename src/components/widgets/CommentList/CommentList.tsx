@@ -11,12 +11,28 @@ interface CommentListProps {
 }
 
 const unloadedComment: Comment = {
-  type: "",
-  username: "",
-  time: "",
-  platform: "",
-  avatarUrl: "",
-  text: "",
+  id: 0,
+  post_tg_id: 0,
+  comment_id: 0,
+  user_id: 0,
+  user: {
+    id: 0,
+    username: "Loading...",
+    first_name: "Loading...",
+    last_name: "Loading...",
+    photo_file_id: "",
+  },
+  text: "Загрузка...",
+  created_at: "0000-00-00 00:00:00",
+  attachments: [
+    {
+      id: 0,
+      comment_id: 0,
+      file_type: "unknown",
+      file_id: "",
+      RawBytes: null,
+    },
+  ],
 };
 
 const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
@@ -28,7 +44,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
   const filteredComments = props.postId
     ? commentManager.comments.filter(
-        (comment) => comment.postId === props.postId
+        (comment) => comment.id === Number(props.postId)
       )
     : commentManager.comments;
 
@@ -59,25 +75,36 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
     setLoading(true);
     const newData = commentManager.comments.concat(
       {
-        postId: "11",
-        type: "comment",
-        username: "john_doe",
-        time: "2025-03-15T10:00:00Z",
-        platform: "tg",
-        avatarUrl:
-          "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg",
+        id: 11,
+        post_tg_id: 1,
+        comment_id: 1,
+        user_id: 1,
+        user: {
+          id: 1,
+          username: "john_doe",
+          first_name: "John",
+          last_name: "Doe",
+          photo_file_id: "",
+        },
         text: "This is a sample comment.",
-        replyToUrl: "ляляля",
+        created_at: "2025-03-15T10:00:00Z",
+        attachments: [],
       },
       {
-        type: "reply",
-        postId: "22",
-        username: "jane_smith",
-        time: "2025-03-15T10:05:00Z",
-        platform: "tg",
-        avatarUrl: "https://example.com/avatars/jane_smith.png",
+        id: 12,
+        post_tg_id: 1,
+        comment_id: 2,
+        user_id: 2,
+        user: {
+          id: 2,
+          username: "jane_smith",
+          first_name: "Jane",
+          last_name: "Smith",
+          photo_file_id: "",
+        },
         text: "This is a reply to the sample comment.",
-        replyToUrl: "https://example.com/comments/1",
+        created_at: "2025-03-15T10:05:00Z",
+        attachments: [],
       }
     );
     commentManager.setComments(newData);
