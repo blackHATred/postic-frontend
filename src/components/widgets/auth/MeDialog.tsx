@@ -19,12 +19,12 @@ const MeDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
     if (props.showBox) {
       Me()
         .then((res: MeInfo) => {
-          setSecretKey(res.secret_key);
+          setSecretKey(res.secret);
         })
         .catch(() => {
           notificationManager.createNotification(
             "error",
-            "Ошибка полечения личной информации",
+            "Ошибка пулечения личной информации",
             ""
           );
         });

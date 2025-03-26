@@ -11,6 +11,7 @@ import Icon, {
 } from "@ant-design/icons";
 import { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
 import "./selected_style.css";
+import dayjs from "dayjs";
 import { subscribe, unsubscribe } from "../../logic/event";
 
 const { Text } = Typography;
@@ -22,23 +23,20 @@ interface PostProps {
 
 const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
   const {
-    action_post_vk_id,
-    action_post_tg_id,
-    time,
-    team_id,
-    user_id,
-    text,
-    attachments,
-    pub_date,
-    id,
+    CreatedAt,
+    userID,
+    Text: postText,
+    Attachments,
+    PubDate,
+    Platforms,
+    ID: id,
   } = post;
 
   const context = useContext(SummaryBoxContext);
 
   const refer = useRef<HTMLDivElement>(null);
-  const tags = [];
-  if (action_post_vk_id) tags.push(<Tag key="vk">VK</Tag>);
-  if (action_post_tg_id) tags.push(<Tag key="tg">TG</Tag>);
+
+  const formatPubDate = dayjs(PubDate).format("DD.MM.YYYY HH:mm");
 
   const onCommentSummary = async () => {
     context.setActive(true);
@@ -74,12 +72,12 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
       <div className={styles["post-header"]}>
         <div className={styles["post-header-info"]}>
           <div className={styles["post-header-info-text"]}>
-            <Text strong>{user_id}</Text>
+            <Text strong>{userID}</Text>
             <Text type="secondary" className={styles["post-time"]}>
-              {time}
+              {formatPubDate}
             </Text>
+            <Text type="secondary"> | {Platforms}</Text>
           </div>
-          <div className={styles["post-tags"]}>{tags}</div>
         </div>
         <div className={styles["post-header-buttons"]}>
           <ClickableButton
@@ -101,10 +99,10 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
       <Divider className={styles.customDivider} />
       <div className={styles["post-content"]}>
         <div className={styles["post-content-text"]}>
-          <Text>{text}</Text>
+          <Text>{postText}</Text>
         </div>
         <div className={styles["post-content-attachments"]}>
-          {attachments.map((attachment, index) => (
+          {Attachments.map((attachment, index) => (
             <div className={styles["post-content-attachment"]} key={index}>
               <Icon component={PaperClipOutlined} />
               <Text className={styles.primaryText}>{attachment}</Text>
