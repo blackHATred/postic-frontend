@@ -45,35 +45,57 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
   const filteredComments = props.postId
     ? commentManager.comments.filter(
-        (comment) => comment.id === Number(props.postId)
+        (comment) => comment.post_tg_id === Number(props.postId)
       )
     : commentManager.comments;
 
   useEffect(() => {
     if (webSocketmanager.lastJsonMessage) {
       try {
-        console.log(webSocketmanager.lastJsonMessage.data);
         const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data)
           .comments as Comment[]; // Парсим JSON
 
-        console.log("Новый комментарий:", newComment);
-
         let comm: Comment[] = [];
-        if (newComment) {
+        if (newComment !== undefined) {
           newComment.forEach((element) => {
             if (
               !commentManager.comments.some(
                 (comment) => comment.id === element.id
               )
             ) {
+              
               comm.push(element);
+              
             }
           });
-          console.log(comm);
+          console.log("Comm: ", comm);
           commentManager.setComments((prev) => [...prev, ...comm]);
+          return
         } else {
           console.error("Получен некорректный комментарий:", newComment);
         }
+        
+      } catch (error) {
+        console.error("Ошибка при парсинге JSON:", error);
+      }
+      try {
+        const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data) as Comment; // Парсим JSON
+
+        console.log("Новый комментарий:", newComment);
+
+        if (newComment != undefined) {
+            if (
+              !commentManager.comments.some(
+                (comment) => comment.id === newComment.id
+              )
+            ) {
+              console.log("Adding comment");
+              commentManager.setComments((prev) => [...prev, newComment]);
+            }
+          } else {
+          console.error("Получен некорректный комментарий:", newComment);
+        }
+        return
       } catch (error) {
         console.error("Ошибка при парсинге JSON:", error);
       }
@@ -85,7 +107,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
       webSocketmanager.sendJsonMessage({
         type: "get_comments",
         get_comments: {
-          post_union_id: 2,
+          post_union_id: props.postId ? props.postId : 0,
           offset: "2020-03-26T13:55:57+03:00",
         },
       });
