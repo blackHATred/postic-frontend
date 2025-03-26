@@ -24,6 +24,7 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       }
     );
 

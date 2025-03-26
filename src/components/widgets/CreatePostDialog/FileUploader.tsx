@@ -54,9 +54,9 @@ const FileUploader: React.FC<fileUploaderProps> = (
 
       //  (для всех файлов)
       try {
-        const uploadResult = await uploadFile(file.originFileObj);
-        console.log("ID файла:", uploadResult.id);
-        props.setFileIDs([...props.fileIDs, uploadResult.id]);
+        const uploadResult = await uploadFile(file);
+        console.log("ID файла:", uploadResult.file_id);
+        props.setFileIDs([...props.fileIDs, uploadResult.file_id]);
       } catch (error) {
         if (isAxiosError(error)) {
           NotificationManager.createNotification(

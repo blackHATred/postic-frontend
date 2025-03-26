@@ -23,7 +23,7 @@ export interface sendPostResult {
 }
 
 export interface UploadResult {
-  id: string;
+  file_id: string;
   // filename: string;
   // size: number;
   // url: string;
