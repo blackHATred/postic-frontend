@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import ButtonHeader from "../../widgets/Header/Header";
@@ -18,6 +18,8 @@ import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import Cookies from "universal-cookie";
+import { WebSocketContext } from "../../../api/comments";
+import { ReadyState } from "react-use-websocket";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
@@ -40,6 +42,8 @@ const BasePage: React.FC = () => {
 
   const [posts, setPosts] = useState<Post[]>([]);
 
+  const webSocketmanager = useContext(WebSocketContext);
+
   useEffect(() => {
     getPosts()
       .then((res: { posts: Post[] }) => {
@@ -52,6 +56,20 @@ const BasePage: React.FC = () => {
         console.log("Error getting posts");
       });
   }, []);
+
+  useEffect(() => {
+    if (webSocketmanager.readyState == ReadyState.OPEN) {
+      webSocketmanager.sendJsonMessage({
+        type: "get_comments",
+        get_comments: {
+          post_union_id:  0,
+          offset: "2020-03-26T13:55:57+03:00",
+          max_count: 10
+        },
+      });
+      console.log("sent");
+    }
+  }, [webSocketmanager.readyState]);
 
   const makeVisibleDialogLogin = () => {
     setShowDiaWelcome(true);

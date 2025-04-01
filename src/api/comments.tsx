@@ -60,13 +60,11 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (
   }, [readyState]);
 
   useEffect(() => {
-    //console.log("Connection state changed")
-    console.log(lastMessage);
+    console.log("Recieved messgae:" + lastMessage);
   }, [lastMessage]);
 
   const sendmessage = (args: { [key: string]: any }) => {
     if (readyState === ReadyState.OPEN) {
-      console.log(JSON.stringify(args));
       sendMessage(JSON.stringify(args));
     } else {
       throw new Error("Connection not Established");

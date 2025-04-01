@@ -5,6 +5,7 @@ import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
 import { CommentListContext, WebSocketContext } from "../../../api/comments";
 import { ReadyState } from "react-use-websocket";
+import dayjs from "dayjs"
 
 interface CommentListProps {
   isLoading?: boolean;
@@ -13,7 +14,7 @@ interface CommentListProps {
 
 const unloadedComment: Comment = {
   id: 0,
-  post_tg_id: 0,
+  post_union_id: 0,
   comment_id: 0,
   user_id: 0,
   user: {
@@ -24,7 +25,7 @@ const unloadedComment: Comment = {
     photo_file_id: "",
   },
   text: "Загрузка...",
-  created_at: "0000-00-00 00:00:00",
+  created_at: dayjs("0000-00-00 00:00:00"),
   attachments: [
     {
       id: 0,
@@ -39,25 +40,32 @@ const unloadedComment: Comment = {
 const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
   const webSocketmanager = useContext(WebSocketContext);
   const commentManager = useContext(CommentListContext);
-  const requestSize = 1; // комменты
+  const requestSize = 20; // комменты
 
   const [loading, setLoading] = useState(false);
 
   const filteredComments = props.postId
     ? commentManager.comments.filter(
-        (comment) => comment.post_tg_id === Number(props.postId)
+        (comment) => comment.post_union_id === Number(props.postId)
       )
     : commentManager.comments;
 
   useEffect(() => {
     if (webSocketmanager.lastJsonMessage) {
-      try {
-        const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data)
-          .comments as Comment[]; // Парсим JSON
+        const recievedJSON = JSON.parse(webSocketmanager.lastJsonMessage.data); // Парсим JSON
 
-        let comm: Comment[] = [];
-        if (newComment !== undefined) {
-          newComment.forEach((element) => {
+        if (recievedJSON.hasOwnProperty("comments")){ //recieved multiple comments
+          console.log("Comments" + JSON.stringify(recievedJSON))
+
+          const comments = recievedJSON.comments as Comment[]; // recieve comments
+
+          if (comments == null){
+            console.log("Комментариев 0");
+            return;
+          }
+
+          let comm: Comment[] = [];
+          comments.forEach((element) => {
             if (
               !commentManager.comments.some(
                 (comment) => comment.id === element.id
@@ -68,92 +76,52 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
               
             }
           });
-          console.log("Comm: ", comm);
+          console.log(comm);
           commentManager.setComments((prev) => [...prev, ...comm]);
+          setLoading(false)
           return
-        } else {
-          console.error("Получен некорректный комментарий:", newComment);
-        }
-        
-      } catch (error) {
-        console.error("Ошибка при парсинге JSON:", error);
-      }
-      try {
-        const newComment = JSON.parse(webSocketmanager.lastJsonMessage.data) as Comment; // Парсим JSON
+        }else{ //recieved one comment
+          console.log("comment" + JSON.stringify(recievedJSON))
 
-        console.log("Новый комментарий:", newComment);
-
-        if (newComment != undefined) {
-            if (
-              !commentManager.comments.some(
-                (comment) => comment.id === newComment.id
-              )
-            ) {
-              console.log("Adding comment");
-              commentManager.setComments((prev) => [...prev, newComment]);
-            }
-          } else {
-          console.error("Получен некорректный комментарий:", newComment);
+          const comment = recievedJSON as Comment; // recieve comment
+          if (!commentManager.comments.some(
+            (el) => el.id === comment.id
+          )) {
+            
+            commentManager.setComments((prev) => [...prev, comment]);
+            
+          }
+          setLoading(false)
         }
-        return
-      } catch (error) {
-        console.error("Ошибка при парсинге JSON:", error);
-      }
     }
+        
   }, [webSocketmanager.lastJsonMessage]);
 
   useEffect(() => {
-    if (webSocketmanager.readyState == ReadyState.OPEN) {
-      webSocketmanager.sendJsonMessage({
-        type: "get_comments",
-        get_comments: {
-          post_union_id: props.postId ? props.postId : 0,
-          offset: "2020-03-26T13:55:57+03:00",
-        },
-      });
-      console.log("sent");
-    }
-  }, [webSocketmanager.readyState]);
+      if (props.postId != "" && filteredComments.length < requestSize){
+        if (webSocketmanager.readyState == ReadyState.OPEN) {
+          webSocketmanager.sendJsonMessage({
+            type: "get_comments",
+            get_comments: {
+              post_union_id:  props.postId,
+              offset: "2020-03-26T13:55:57+03:00",
+              max_count : requestSize
+            },
+          });
+        }
+      }
+    }, []);
 
   const onLoadMore = () => {
     setLoading(true);
-    const newData = commentManager.comments.concat(
-      {
-        id: 11,
-        post_tg_id: 1,
-        comment_id: 1,
-        user_id: 1,
-        user: {
-          id: 1,
-          username: "john_doe",
-          first_name: "John",
-          last_name: "Doe",
-          photo_file_id: "",
-        },
-        text: "This is a sample comment.",
-        created_at: "2025-03-15T10:00:00Z",
-        attachments: [],
+    webSocketmanager.sendJsonMessage({
+      type: "get_comments",
+      get_comments: {
+        post_union_id: props.postId ? props.postId : 0,
+        offset: "2020-03-26T13:55:57+03:00",
+        max_count : requestSize
       },
-      {
-        id: 12,
-        post_tg_id: 1,
-        comment_id: 2,
-        user_id: 2,
-        user: {
-          id: 2,
-          username: "jane_smith",
-          first_name: "Jane",
-          last_name: "Smith",
-          photo_file_id: "",
-        },
-        text: "This is a reply to the sample comment.",
-        created_at: "2025-03-15T10:05:00Z",
-        attachments: [],
-      }
-    );
-    commentManager.setComments(newData);
-    setLoading(false);
-    window.dispatchEvent(new Event("resize"));
+    });
     // fetch(fakeDataUrl)
     //   .then((res) => res.json())
     //   .then((res) => {

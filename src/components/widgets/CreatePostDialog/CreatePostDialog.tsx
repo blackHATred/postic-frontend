@@ -70,7 +70,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
     sendPostRequest({
       text: postText,
       attachments: fileIDs,
-      pub_time: selectedDate ? selectedDate.valueOf() : 0,
+      pub_time: selectedDate?.valueOf() ? selectedDate.valueOf() : 0,
       platforms: props.selectedPlatforms,
     });
     props.onOkClick[0]();

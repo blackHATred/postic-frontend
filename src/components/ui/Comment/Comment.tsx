@@ -2,6 +2,7 @@ import React from "react";
 import { Avatar, Typography } from "antd";
 import styles from "./styles.module.scss"; // Импортируем стили
 import { Comment } from "../../../models/Comment/types";
+import dayjs from "dayjs";
 
 const { Text } = Typography;
 
@@ -12,12 +13,12 @@ interface CommentProps {
 const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const {
     id,
-    post_tg_id,
+    post_union_id,
     comment_id,
     user_id,
     user,
     text = "Загрузка...",
-    created_at = "0000-00-00 00:00:00",
+    created_at = dayjs("0000-00-00 00:00:00"),
     attachments = [],
   } = comment;
 
@@ -35,7 +36,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
         <div className={styles["comment-author"]}>
           <Text strong>{user.username}</Text>
           <Text type="secondary" className={styles["comment-time"]}>
-            {created_at} | tg
+            {dayjs(created_at).format("DD.MM.YYYY HH:mm")} | tg
           </Text>
         </div>
         {/* Условный для replyToUrl 

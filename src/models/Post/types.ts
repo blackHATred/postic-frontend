@@ -1,11 +1,14 @@
+// @ts-ignore
+import dayjs from 'dayjs'
+
 export interface Post {
   ID: string;
   Text: string;
   userID: string;
   Attachments: PostAttachment[];
   Platforms?: string[];
-  CreatedAt?: string;
-  PubDate: string;
+  CreatedAt?: dayjs.Dayjs;
+  PubDate: dayjs.Dayjs;
 }
 
 interface PostAttachment {
@@ -38,20 +41,20 @@ export interface UploadResult {
 export const mockPosts: Post[] = [
   {
     ID: "11",
-    CreatedAt: "2025-03-15T10:00:00Z",
+    CreatedAt: dayjs("2025-03-15T10:00:00Z"),
     userID: "1 Moderator",
     Text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
     Attachments: [],
     Platforms: ["tg", "vk"],
-    PubDate: "2025-03-15T10:00:00Z",
+    PubDate: dayjs("2025-03-15T10:00:00Z"),
   },
   {
     ID: "22",
-    CreatedAt: "2025-03-15T10:00:00Z",
+    CreatedAt: dayjs("2025-03-15T10:00:00Z"),
     userID: "1 Moderator",
     Text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
     Attachments: [],
     Platforms: ["tg"],
-    PubDate: "2025-03-15T10:00:00Z",
+    PubDate: dayjs("2025-03-15T10:00:00Z"),
   },
 ];

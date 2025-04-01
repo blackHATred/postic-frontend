@@ -1,11 +1,13 @@
+import dayjs, {Dayjs, isDayjs} from 'dayjs'
+
 export interface Comment {
   id: number;
-  post_tg_id?: number;
+  post_union_id?: number;
   comment_id: number;
   user_id: number;
   user: UserProf;
   text: string;
-  created_at: string;
+  created_at: Dayjs;
   attachments: CommentAttachments[];
 }
 
@@ -27,7 +29,7 @@ interface CommentAttachments {
 
 export interface GetSummarizeResult {
   summary: string;
-  lastUpdate: string;
+  lastUpdate: Dayjs;
 }
 
 export interface GetSummarizeMarkdownResponse {
@@ -38,7 +40,7 @@ export interface GetSummarizeMarkdownResponse {
 export const mockComments: Comment[] = [
   {
     id: 2,
-    post_tg_id: 1,
+    post_union_id: 1,
     comment_id: 96,
     user_id: 1087968824,
     user: {
@@ -50,7 +52,7 @@ export const mockComments: Comment[] = [
         "AgACAgEAAxUAAWfj3Q3mvhWkn-KwWnrmNCBWG4_zAAKqqDEbI4uZRx5gN0uMmlfkAQADAgADYQADNgQ",
     },
     text: "",
-    created_at: "2025-03-26T13:55:57+03:00",
+    created_at: dayjs("2025-03-26T13:55:57+03:00"),
     attachments: [
       {
         id: 0,
