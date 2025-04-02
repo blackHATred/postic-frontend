@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Comment } from "../models/Comment/types";
 import { RootState } from "./store";
+import dayjs from "dayjs";
 
 export interface CounterState {
   comments: Comment[];
@@ -26,20 +27,22 @@ export const commentsSlice = createSlice({
           (a, b) => a.created_at.unix() - b.created_at.unix()
         );
       }
+      console.log(state.comments);
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
       let modif = false;
       action.payload.forEach((element) => {
         if (!state.comments.some((comment) => comment.id === element.id)) {
-          modif = true;
-          state.comments.push(element);
+          state.comments = [...state.comments, element];
         }
       });
       if (modif) {
         state.comments.sort(
-          (a, b) => a.created_at.unix() - b.created_at.unix()
+          (a: Comment, b: Comment) =>
+            dayjs(a.created_at).unix() - dayjs(b.created_at).unix()
         );
       }
+      console.log(state.comments);
     },
   },
 });
@@ -47,16 +50,13 @@ export const commentsSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const { addComment, addComments } = commentsSlice.actions;
 
-export const getComments = (post_id: string | null) => (state: RootState) => {
-  return post_id
-    ? state.comments.comments.filter(
-        (comment) => comment.post_union_id === Number(post_id)
-      )
-    : state.comments.comments;
-};
+export const getComments = (state: RootState) => state.comments.comments;
 
 export const getLastDate = (state: RootState) => {
-  return state.comments.comments[state.comments.comments.length - 1];
+  if (state.comments.comments.length > 0)
+    return state.comments.comments[state.comments.comments.length - 1]
+      .created_at;
+  return 0;
 };
 
 export default commentsSlice.reducer;

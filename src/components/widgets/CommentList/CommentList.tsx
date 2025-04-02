@@ -20,10 +20,16 @@ interface CommentListProps {
 
 const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
   const webSocketManager = useContext(WebSocketContext);
-  const comments = useAppSelector((state) => getComments(props.postId)(state));
+  const comments_store = useAppSelector(getComments);
   const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
+
+  const filteredComments = props.postId
+    ? comments_store.filter(
+        (comment) => comment.post_union_id === Number(props.postId)
+      )
+    : comments_store; //WARNING: CURRENTLY NOT FILTERING PROPERLY
 
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +55,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
   }, [webSocketManager.lastJsonMessage]);
 
   useEffect(() => {
-    if (props.postId !== "" && comments.length < requestSize) {
+    if (props.postId !== "" && filteredComments.length < requestSize) {
       if (webSocketManager.readyState === ReadyState.OPEN) {
         webSocketManager.sendJsonMessage({
           type: "get_comments",
@@ -98,7 +104,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
       <div className={styles.commentList}>
         <List
-          dataSource={comments}
+          dataSource={filteredComments}
           loadMore={loadMore}
           renderItem={(comment) => (
             <List.Item>

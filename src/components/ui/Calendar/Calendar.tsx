@@ -1,6 +1,5 @@
 import React from "react";
 import { Calendar, theme } from "antd";
-import type { CalendarProps } from "antd";
 import type { Dayjs } from "dayjs";
 
 interface CustCalendarProps {
