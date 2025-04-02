@@ -18,7 +18,7 @@ import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import Cookies from "universal-cookie";
-import { WebSocketContext } from "../../../api/comments";
+import { WebSocketContext } from "../../../api/WebSocket";
 import { ReadyState } from "react-use-websocket";
 
 const BasePage: React.FC = () => {
@@ -62,9 +62,9 @@ const BasePage: React.FC = () => {
       webSocketmanager.sendJsonMessage({
         type: "get_comments",
         get_comments: {
-          post_union_id:  0,
+          post_union_id: 0,
           offset: "2020-03-26T13:55:57+03:00",
-          max_count: 10
+          max_count: 10,
         },
       });
       console.log("sent");

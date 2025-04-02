@@ -1,26 +1,6 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import BasePage from "../components/pages/CommentsPage/BasePage";
-import { mockComments } from "../models/Comment/types";
+import { createContext, PropsWithChildren, useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { SendJsonMessage } from "react-use-websocket/dist/lib/types";
-import { Comment } from "../models/Comment/types";
 import config from "../constants/appConfig";
-
-interface CommentContent {
-  comments: Comment[];
-  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
-}
-
-export const CommentListContext = createContext<CommentContent>({
-  comments: [],
-  setComments: () => {},
-});
 
 interface WebSocketContent {
   sendJsonMessage: (args: { [key: string]: any }) => void;

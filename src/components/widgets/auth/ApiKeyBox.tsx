@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from "react";
 import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
 import { NotificationContext } from "../../../api/notification";
-import { WebSocketContext } from "../../../api/comments";
+import { WebSocketContext } from "../../../api/WebSocket";
 import { SimpleBoxProps } from "./WelcomeDialog";
 
 const ApiKeyBox: React.FC<Omit<SimpleBoxProps, "onOkClick">> = (
