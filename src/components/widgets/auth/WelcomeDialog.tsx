@@ -1,40 +1,72 @@
-import React, { useContext, useRef, useState } from "react";
-import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
-import { NotificationContext } from "../../../api/notification";
-import { WebSocketContext } from "../../../api/WebSocket";
-import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
+import React, { useEffect } from "react";
+import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import Cookies from "universal-cookie";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import {
+  setLoginDialog,
+  setRegiserDialog,
+  setWelcomeDialog,
+} from "../../../stores/basePageDialogsSlice";
+import { ClickableButtonProps } from "../../ui/Button/Button";
+import { useCookies } from "react-cookie";
 
-export interface SimpleBoxProps {
-  showBox: boolean;
-  setShowBox: React.Dispatch<React.SetStateAction<boolean>>;
-  onOkClick: ((...args: any) => void)[];
-}
+const WelcomeDialog: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector(
+    (state) => state.basePageDialogs.welcomeDialog.isOpen
+  );
+  const [cookies, _, removeCookie] = useCookies();
 
-const WelcomeDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
-  const getButtons = () => {
-    const cookies = new Cookies();
-    const session = cookies.get("session");
-    if (session) {
-      return ["Выход"];
+  useEffect(() => {
+    console.log(cookies["session"]);
+  }, [cookies]);
+
+  const getButtons = (): ClickableButtonProps[] => {
+    if (cookies["session"]) {
+      //NOTE: Есть информация об аккаунте
+      //TODO: Добавить проверку на бекэнд правильности логина
+      return [
+        {
+          text: "Выход",
+          onButtonClick: () => {
+            removeCookie("session");
+          },
+        },
+      ];
     }
-    return ["Вход", "Регистраиция"];
+    return [
+      {
+        text: "Вход",
+        onButtonClick: () => {
+          dispatch(setWelcomeDialog(false));
+          dispatch(setLoginDialog(true));
+        },
+      },
+      {
+        text: "Регистраиция",
+        onButtonClick: () => {
+          dispatch(setWelcomeDialog(false));
+          dispatch(setRegiserDialog(true));
+        },
+      },
+    ];
   };
 
   return (
     <DialogBox
       title={"Добро Пожаловать!"}
-      buttonText={getButtons()}
-      onOkClick={props.onOkClick}
+      bottomButtons={getButtons()}
       onCancelClick={async () => {
-        props.setShowBox(false);
+        dispatch(setWelcomeDialog(false));
       }}
-      isOpen={props.showBox}
+      isOpen={isOpen}
     >
       <BlueDashedTextBox isLoading={false}>
-        <div>Вход - для пользователей с ID</div>
-        <div>Регистрация - для новых пользователей</div>
+        {!cookies["session"] && <div>Вход - для пользователей с ID</div>}
+        {!cookies["session"] && (
+          <div>Регистрация - для новых пользователей</div>
+        )}
+        {cookies["session"] && <div>User ID : {cookies["session"]}</div>}
       </BlueDashedTextBox>
     </DialogBox>
   );

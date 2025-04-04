@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef } from "react";
-import { Divider, Tag, Typography } from "antd";
+import React, { useEffect, useRef } from "react";
+import { Divider, Typography } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
@@ -9,19 +9,18 @@ import Icon, {
   EditOutlined,
   PaperClipOutlined,
 } from "@ant-design/icons";
-import { SummaryBoxContext } from "../../widgets/dialogBoxes/dialogBoxSummary";
 import "./selected_style.css";
 import dayjs from "dayjs";
-import { subscribe, unsubscribe } from "../../logic/event";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import {
+  setActiveTab,
+  setSummaryDialog,
+} from "../../../stores/basePageDialogsSlice";
+import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
 
 const { Text } = Typography;
 
-interface PostProps {
-  post: Post;
-  onCommentClick: (postId: string) => void;
-}
-
-const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
+const PostComponent: React.FC<Post> = (props: Post) => {
   const {
     CreatedAt,
     userID,
@@ -30,22 +29,27 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
     PubDate,
     Platforms,
     ID: id,
-  } = post;
+  } = props;
 
-  const context = useContext(SummaryBoxContext);
-
+  const dispatch = useAppDispatch();
+  const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
+  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
 
-  const formatPubDate = dayjs(PubDate).format("DD.MM.YYYY HH:mm");
+  useEffect(() => {
+    if (scrollToPost && id === selectedPostId) {
+      setSelected();
+    }
+  }, []);
 
-  const onCommentSummary = async () => {
-    context.setActive(true);
-    context.setPostID(id); //!!!!! Здесь задается id поста
-  };
+  useEffect(() => {
+    if (scrollToPost && id === selectedPostId) {
+      setSelected();
+    }
+  }, [scrollToPost]);
 
-  const PostSelected = async (event: any) => {
-    console.log(event.detail);
-    if (id === event.detail["id"] && refer.current) {
+  const setSelected = async () => {
+    if (refer.current) {
       refer.current.scrollIntoView({ behavior: "smooth" });
       refer.current.className += " selected";
       await setTimeout(() => {
@@ -55,16 +59,21 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
             ""
           );
       }, 3000);
+      dispatch(setScrollToPost(false));
+      dispatch(setSelectedPostId(""));
     }
   };
 
-  useEffect(() => {
-    subscribe("PostSelected", PostSelected);
+  const onCommentClick = () => {
+    dispatch(setSelectedPostId(id));
+    dispatch(setActiveTab("2"));
+  };
 
-    return () => {
-      unsubscribe("PostSelected", PostSelected);
-    };
-  }, []);
+  const onSummaryClick = async () => {
+    // При нажатии кнопки суммаризации
+    dispatch(setSummaryDialog(true));
+    dispatch(setSelectedPostId(id));
+  };
 
   return (
     <div ref={refer} className={styles["post"]}>
@@ -74,7 +83,7 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
           <div className={styles["post-header-info-text"]}>
             <Text strong>Модератор {userID}</Text>
             <Text type="secondary" className={styles["post-time"]}>
-              {formatPubDate}
+              {dayjs(PubDate).format("DD.MM.YYYY HH:mm")}
             </Text>
             <Text type="secondary"> | {Platforms}</Text>
           </div>
@@ -85,14 +94,14 @@ const PostComponent: React.FC<PostProps> = ({ post, onCommentClick }) => {
             type="link"
             icon={<CommentOutlined />}
             onButtonClick={() => {
-              onCommentClick(id);
+              onCommentClick();
             }}
           />
           <ClickableButton
             text="Суммаризация"
             variant="dashed"
             color="primary"
-            onButtonClick={onCommentSummary}
+            onButtonClick={onSummaryClick}
           />
         </div>
       </div>

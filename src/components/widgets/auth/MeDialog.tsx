@@ -1,22 +1,24 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
+import React, { useContext, useEffect, useState } from "react";
 import { NotificationContext } from "../../../api/notification";
-import { WebSocketContext } from "../../../api/WebSocket";
-import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import { SimpleBoxProps } from "./WelcomeDialog";
-import { Me, Register } from "../../../api/api";
-import { MeInfo, RegisterResult } from "../../../models/User/types";
-import Cookies from "universal-cookie";
+import { Me } from "../../../api/api";
+import { MeInfo } from "../../../models/User/types";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { setPersonalInfoDialog } from "../../../stores/basePageDialogsSlice";
 
-const MeDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
+const MeDialog: React.FC = (props) => {
+  const dispatch = useAppDispatch();
   const [secretKey, setSecretKey] = useState("");
   const [loading, setLoading] = useState(true);
+  const isOpen = useAppSelector(
+    (state) => state.basePageDialogs.personalInfoDialog.isOpen
+  );
   const notificationManager = useContext(NotificationContext);
 
   useEffect(() => {
     setLoading(true);
-    if (props.showBox) {
+    if (isOpen) {
       Me()
         .then((res: MeInfo) => {
           setSecretKey(res.secret);
@@ -30,17 +32,23 @@ const MeDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
         });
       setLoading(false);
     }
-  }, [props.showBox]);
+  }, [isOpen]);
 
   return (
     <DialogBox
       title={"Личная информация"}
-      buttonText={["Ок"]}
-      onOkClick={[() => {}]}
+      bottomButtons={[
+        {
+          text: "Ok",
+          onButtonClick: () => {
+            dispatch(setPersonalInfoDialog(false));
+          },
+        },
+      ]}
       onCancelClick={async () => {
-        props.setShowBox(false);
+        dispatch(setPersonalInfoDialog(false));
       }}
-      isOpen={props.showBox}
+      isOpen={isOpen}
     >
       <BlueDashedTextBox isLoading={loading}>
         <div>Ваш секретный ключ: {secretKey}</div>

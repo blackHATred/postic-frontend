@@ -1,8 +1,6 @@
 import { FC, useState } from "react";
 import { Typography, Input, Divider, Select, Switch, TimePicker } from "antd";
-import DialogBox, {
-  DialogBoxProps,
-} from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import ClickableButton from "../../ui/Button/Button";
 import {
@@ -16,29 +14,31 @@ import { validateMinLength } from "../../../utils/validation";
 import dayjs, { Dayjs } from "dayjs";
 import CustCalendar from "../../ui/Calendar/Calendar";
 import Picker from "emoji-picker-react";
-import { OmitProps } from "antd/es/transfer/ListBody";
 import { sendPostRequest } from "../../../api/api";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import {
+  setCreatePostDialog,
+  setCreatePostDialogSelectedPlatforms,
+  setPostStatusDialog,
+} from "../../../stores/basePageDialogsSlice";
 
 const { Text } = Typography;
 const format = "HH:mm";
 
-export interface CreatePostDialogProps
-  extends Omit<DialogBoxProps, "onCancelClick"> {
-  setOpen: Function;
-  selectedPlatforms: string[];
-  setSelectedPlatforms: (platforms: string[]) => void;
-}
-
-const CreatePostDialog: FC<CreatePostDialogProps> = (
-  props: CreatePostDialogProps
-) => {
-  const [error_data, SetErrorData] = useState("");
+const CreatePostDialog: FC = () => {
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [postText, setPostText] = useState(""); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // Состояние для выбранной даты
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
   const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector(
+    (state) => state.basePageDialogs.createPostDialog.isOpen
+  );
+  const selectedPlatforms = useAppSelector(
+    (state) => state.basePageDialogs.createPostDialog.selectedPlatforms
+  );
 
   const onOk = () => {
     const errors: string[] = [];
@@ -54,7 +54,7 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
     }
 
     // Валидация выбранных платформ
-    const platformsError = validateNotEmptyArray(props.selectedPlatforms);
+    const platformsError = validateNotEmptyArray(selectedPlatforms);
     if (platformsError !== null) {
       errors.push(platformsError);
     }
@@ -71,13 +71,14 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
       text: postText,
       attachments: fileIDs,
       pub_time: selectedDate?.valueOf() ? selectedDate.valueOf() : 0,
-      platforms: props.selectedPlatforms,
+      platforms: selectedPlatforms,
     });
-    props.onOkClick[0]();
+    dispatch(setPostStatusDialog(true));
+    dispatch(setCreatePostDialog(false));
   };
 
   const onCancel = async () => {
-    props.setOpen(false);
+    dispatch(setCreatePostDialog(false));
   };
 
   const onEmojiClick = (emojiObject: any) => {
@@ -87,11 +88,15 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
 
   return (
     <DialogBox
-      onOkClick={[onOk]}
-      isOpen={props.isOpen}
+      bottomButtons={[
+        {
+          text: "Опубликовать",
+          onButtonClick: onOk,
+        },
+      ]}
+      isOpen={isOpen}
       onCancelClick={onCancel}
-      buttonText={props.buttonText}
-      title={props.title}
+      title={"Создать пост"}
       isCenter={true}
     >
       <Divider>Содержание поста</Divider>
@@ -136,10 +141,12 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
             { value: "vk", label: "VK" },
             { value: "tg", label: "Telegram" },
           ]}
-          value={props.selectedPlatforms}
-          onChange={(values) => props.setSelectedPlatforms(values)}
+          value={selectedPlatforms}
+          onChange={(values) =>
+            dispatch(setCreatePostDialogSelectedPlatforms(values))
+          }
         />
-        <PlatformSettings selectedPlatforms={props.selectedPlatforms} />
+        <PlatformSettings selectedPlatforms={selectedPlatforms} />
         <div className={styles["post-time"]}>
           <Switch
             size="default"
@@ -187,8 +194,6 @@ const CreatePostDialog: FC<CreatePostDialogProps> = (
           ))}
         </div>
       )}
-
-      <Text>{error_data}</Text>
     </DialogBox>
   );
 };

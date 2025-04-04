@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import commentsReducer from "./commentSlice";
 import postsReducer from "./postsSlice";
+import basePageDialogsReducer from "./basePageDialogsSlice";
 // ...
 
 export const store = configureStore({
   reducer: {
     posts: postsReducer,
     comments: commentsReducer,
+    basePageDialogs: basePageDialogsReducer,
   },
 });
 

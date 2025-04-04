@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "antd";
 import styles from "./styles.module.scss";
 
-export interface ButtonProps {
+export interface ClickableButtonProps {
   type?: "primary" | "default" | "dashed" | "text" | "link"; // Ограничиваем типы
   text?: string;
   icon?: React.ReactNode;
@@ -28,7 +28,7 @@ export interface ButtonProps {
   onButtonClick?: (...args: any) => any;
 }
 
-const ClickableButton: React.FC<ButtonProps> = ({
+const ClickableButton: React.FC<ClickableButtonProps> = ({
   type = "primary",
   text,
   icon,

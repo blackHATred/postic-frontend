@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { FC } from "react";
 import { Typography, Input } from "antd";
-import DialogBox, {
-  DialogBoxProps,
-} from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
-import { red } from "@ant-design/colors";
+import { ClickableButtonProps } from "../../ui/Button/Button";
 
 const { Text } = Typography;
 
@@ -13,8 +11,6 @@ export interface DialogBoxXInputsProps extends DialogBoxProps {
   text: string;
   input_placeholders: { [key: string]: string };
   styles?: { [key: string]: "" | "warning" | "error" };
-  onOkClick: ((args: { [key: string]: string }) => void)[];
-  onCancelClick: (args: { [key: string]: string }) => void;
   errortext?: string;
 }
 
@@ -25,19 +21,19 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
 
   return (
     <DialogBox
-      onOkClick={[
-        () => {
-          props.onOkClick[0](input_data);
-        },
-      ]}
-      isOpen={props.isOpen}
+      {...props}
       onCancelClick={() => {
         props.onCancelClick(input_data);
       }}
-      buttonText={props.buttonText}
-      title={props.title}
-      headerSubtext={props.headerSubtext}
-      isCenter={props.isCenter}
+      bottomButtons={
+        props.bottomButtons &&
+        props.bottomButtons.map((button: ClickableButtonProps) => {
+          if (button.onButtonClick) {
+            button.onButtonClick = button.onButtonClick(input_data);
+          }
+          return button;
+        })
+      }
     >
       <Text>{props.text}</Text>
       {Object.entries(props.input_placeholders).map(([key, value]) => (

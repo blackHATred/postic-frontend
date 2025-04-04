@@ -9,9 +9,7 @@ import {
 import React, { createContext, Dispatch, SetStateAction } from "react";
 import { FC } from "react";
 import { Typography, Spin } from "antd";
-import DialogBox, {
-  DialogBoxProps,
-} from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox, { DialogBoxProps } from "../dialogBox/DialogBox";
 import { blue } from "@ant-design/colors";
 import { NotificationContext } from "../../../api/notification";
 import { publish } from "../../logic/event";
@@ -33,10 +31,11 @@ const BlueDashedTextBox: FC<PropsWithChildren<BlueDashedTextBoxProps>> = (
     borderColor: blue[2],
     borderRadius: "5px",
     textAlign: "center",
-    minHeight: "100px",
+    minHeight: "50px",
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
+    width: "100%",
   };
 
   return (

@@ -3,20 +3,16 @@ import { List, Spin } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import PostComponent from "../../ui/Post/Post";
+import { useAppSelector } from "../../../stores/hooks";
+import { getPostsStore } from "../../../stores/postsSlice";
 
 interface PostListProps {
-  posts: Post[];
   isLoading?: boolean;
   hasMore?: boolean;
-  onCommentClick: (postId: string) => void;
 }
 
-const CommentList: React.FC<PostListProps> = ({
-  posts,
-  onCommentClick,
-  isLoading,
-  hasMore,
-}) => {
+const CommentList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
+  const posts = useAppSelector(getPostsStore);
   return (
     <div className={styles.postListContainer} title="Комментарии">
       {isLoading && (
@@ -30,7 +26,7 @@ const CommentList: React.FC<PostListProps> = ({
           dataSource={posts}
           renderItem={(post) => (
             <List.Item>
-              <PostComponent post={post} onCommentClick={onCommentClick} />
+              <PostComponent {...post} />
             </List.Item>
           )}
         />

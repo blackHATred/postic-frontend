@@ -12,7 +12,6 @@ import {
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
 import { MeInfo, RegisterResult } from "../models/User/types";
-import Cookies from "universal-cookie";
 
 export const uploadFile = async (file: File): Promise<UploadResult> => {
   try {

@@ -1,13 +1,13 @@
-import { Button, Flex, Modal } from "antd";
-import { FC, RefObject } from "react";
+import { Modal } from "antd";
+import ClickableButton, { ClickableButtonProps } from "../Button/Button";
+import { FC } from "react";
 import { PropsWithChildren } from "react";
 import { Typography } from "antd";
 
 export interface DialogBoxProps {
   isOpen: boolean;
-  onOkClick: ((...args: any) => void)[];
+  bottomButtons?: ClickableButtonProps[];
   onCancelClick: (...args: any) => void;
-  buttonText?: string[];
   title: string;
   headerSubtext?: string;
   headerSubtextOnClick?: (...args: any) => void;
@@ -62,19 +62,12 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
       }
       styles={styles}
       footer={
-        <div>
-          {props.buttonText &&
-            props.buttonText.map((object, i: number) => (
-              <Button
-                key={object}
-                type="primary"
-                onClick={props.onOkClick[i]}
-                style={{ marginRight: "10px" }}
-              >
-                {object}
-              </Button>
+        <div style={{ marginRight: "10px" }}>
+          {props.bottomButtons &&
+            props.bottomButtons.map((object, i: number) => (
+              <ClickableButton key={object.text} type="primary" {...object} />
             ))}
-          {!props.buttonText && <span></span>}
+          {!props.bottomButtons && <span></span>}
         </div>
       }
     >

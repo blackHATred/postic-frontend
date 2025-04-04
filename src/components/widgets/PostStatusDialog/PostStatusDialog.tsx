@@ -1,8 +1,6 @@
 import { FC, useState } from "react";
-import { Typography, Divider, Steps } from "antd";
-import DialogBox, {
-  DialogBoxProps,
-} from "../../ui/dialogBoxOneButton/DialogBox";
+import { Typography, Divider } from "antd";
+import DialogBox from "../../ui/dialogBox/DialogBox";
 import Icon, {
   WhatsAppOutlined,
   FacebookOutlined,
@@ -12,12 +10,8 @@ import Icon, {
   CloseCircleOutlined,
 } from "@ant-design/icons";
 import styles from "./styles.module.scss";
-
-export interface PostStatusDialogProps extends DialogBoxProps {
-  setOpen: Function;
-  onCancelClick: () => Promise<string>;
-  selectedPlatforms: string[];
-}
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { setPostStatusDialog } from "../../../stores/basePageDialogsSlice";
 
 const { Text } = Typography;
 
@@ -26,38 +20,32 @@ interface SocialStatus {
   icon: React.ReactNode;
   status: "wait" | "process" | "finish" | "error";
 }
-const PostStatusDialog: FC<PostStatusDialogProps> = (
-  props: PostStatusDialogProps
-) => {
+const PostStatusDialog: FC = () => {
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector(
+    (state) => state.basePageDialogs.postStatusDialog.isOpen
+  );
+  const selectedPlatforms = useAppSelector(
+    (state) => state.basePageDialogs.createPostDialog.selectedPlatforms
+  );
   const [error_data, SetErrorData] = useState("");
 
-  const onOk = () => {
-    console.log("Ok button clicked");
-  };
-
   const onCancel = async () => {
-    let res = await props.onCancelClick();
-    if (res === "") {
-      props.setOpen(false);
-    } else {
-      SetErrorData(res);
-    }
+    dispatch(setPostStatusDialog(false));
   };
 
-  const socialStatuses: SocialStatus[] = props.selectedPlatforms.map(
-    (platform) => ({
-      platform,
-      icon:
-        platform === "vk" ? (
-          <Icon component={WhatsAppOutlined} />
-        ) : platform === "tg" ? (
-          <Icon component={FacebookOutlined} />
-        ) : (
-          <Icon component={TwitterOutlined} />
-        ),
-      status: "wait", // Начальный статус
-    })
-  );
+  const socialStatuses: SocialStatus[] = selectedPlatforms.map((platform) => ({
+    platform,
+    icon:
+      platform === "vk" ? (
+        <Icon component={WhatsAppOutlined} />
+      ) : platform === "tg" ? (
+        <Icon component={FacebookOutlined} />
+      ) : (
+        <Icon component={TwitterOutlined} />
+      ),
+    status: "wait", // Начальный статус
+  }));
 
   const getStatusIcon = (status: "wait" | "process" | "finish" | "error") => {
     switch (status) {
@@ -78,10 +66,10 @@ const PostStatusDialog: FC<PostStatusDialogProps> = (
 
   return (
     <DialogBox
-      onOkClick={[onOk]}
-      isOpen={props.isOpen}
+      bottomButtons={[{}]}
+      isOpen={isOpen}
       onCancelClick={onCancel}
-      title={props.title}
+      title={"Публикация поста"}
     >
       <Divider>Статус публикации</Divider>
       <div className={styles.socialList}>

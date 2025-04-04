@@ -10,24 +10,24 @@ import {
 import styles from "./styles.module.scss";
 import { Image, Tabs } from "antd";
 import logo from "../../../styles/images/logo.png";
+import { useAppDispatch } from "../../../stores/hooks";
+import {
+  setCreatePostDialog,
+  setPersonalInfoDialog,
+  setPostStatusDialog,
+  setWelcomeDialog,
+} from "../../../stores/basePageDialogsSlice";
 
 interface ButtonHeaderProps {
-  OnClick1: (...args: any) => any;
-  OnClick2: (...args: any) => any;
-  OnClickCreatePost: (...args: any) => any;
-  OnClickMe: (...args: any) => any;
   activeTab: string;
   onTabChange: (key: string) => void;
 }
 
 const ButtonHeader: React.FC<ButtonHeaderProps> = ({
-  OnClick1,
-  OnClick2,
-  OnClickCreatePost,
-  OnClickMe,
   activeTab,
   onTabChange,
 }) => {
+  const dispatch = useAppDispatch();
   const tabItems = [
     {
       key: "1",
@@ -54,19 +54,23 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
           <ClickableButton
             icon={<PlusOutlined />}
             type="default"
-            onButtonClick={OnClickCreatePost}
+            onButtonClick={() => dispatch(setCreatePostDialog(true))}
           />
           <ClickableButton
             icon={<BellOutlined />}
             type="default"
-            onButtonClick={OnClick2}
+            onButtonClick={() => dispatch(setPostStatusDialog(true))}
           />
           <ClickableButton
             icon={<UserOutlined />}
             type="default"
-            onButtonClick={OnClick1}
+            onButtonClick={() => dispatch(setWelcomeDialog(true))}
           />
-          <ClickableButton type="default" text="me" onButtonClick={OnClickMe} />
+          <ClickableButton
+            type="default"
+            text="me"
+            onButtonClick={() => dispatch(setPersonalInfoDialog(true))}
+          />
         </div>
       </div>
     </div>

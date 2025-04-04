@@ -9,27 +9,23 @@ import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   addComment,
   addComments,
-  getComments,
+  getCommentsStore,
   getLastDate,
 } from "../../../stores/commentSlice";
 
-interface CommentListProps {
-  isLoading?: boolean;
-  postId: string | null;
-}
-
-const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
+const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
-  const comments_store = useAppSelector(getComments);
+  const comments = useAppSelector(getCommentsStore);
   const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
+  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
 
-  const filteredComments = props.postId
-    ? comments_store.filter(
-        (comment) => comment.post_union_id === Number(props.postId)
+  const filteredComments = selectedPostId
+    ? comments.filter(
+        (comment) => comment.post_union_id === Number(selectedPostId)
       )
-    : comments_store; //WARNING: CURRENTLY NOT FILTERING PROPERLY
+    : comments; //WARNING: CURRENTLY NOT FILTERING PROPERLY
 
   const [loading, setLoading] = useState(false);
 
@@ -55,12 +51,12 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
   }, [webSocketManager.lastJsonMessage]);
 
   useEffect(() => {
-    if (props.postId !== "" && filteredComments.length < requestSize) {
+    if (selectedPostId !== "" && filteredComments.length < requestSize) {
       if (webSocketManager.readyState === ReadyState.OPEN) {
         webSocketManager.sendJsonMessage({
           type: "get_comments",
           get_comments: {
-            post_union_id: props.postId,
+            post_union_id: selectedPostId,
             offset: "2020-03-26T13:55:57+03:00",
             max_count: requestSize,
           },
@@ -74,7 +70,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
     webSocketManager.sendJsonMessage({
       type: "get_comments",
       get_comments: {
-        post_union_id: props.postId ? props.postId : 0,
+        post_union_id: selectedPostId ? selectedPostId : 0,
         offset: last_date,
         max_count: requestSize,
       },
@@ -96,7 +92,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
 
   return (
     <div className={styles.commentListContainer} title="Комментарии">
-      {props.isLoading && (
+      {loading && (
         <div className={styles.spinnerContainer}>
           <Spin />
         </div>

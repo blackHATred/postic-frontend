@@ -1,27 +1,30 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
+import React, { useContext, useEffect, useState } from "react";
 import { NotificationContext } from "../../../api/notification";
-import { WebSocketContext } from "../../../api/WebSocket";
-import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import { SimpleBoxProps } from "./WelcomeDialog";
 import { Register } from "../../../api/api";
 import { RegisterResult } from "../../../models/User/types";
-import Cookies from "universal-cookie";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { setPersonalInfoDialog } from "../../../stores/basePageDialogsSlice";
+import { useCookies } from "react-cookie";
 
-const RegisterDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
+const RegisterDialog: React.FC = () => {
+  const dispatch = useAppDispatch();
   const [id, setID] = useState("");
   const [loading, setLoading] = useState(true);
   const notificationManager = useContext(NotificationContext);
+  const isOpen = useAppSelector(
+    (state) => state.basePageDialogs.registerDialog.isOpen
+  );
+  const [cookies, setCookie, removeCookie] = useCookies();
 
   useEffect(() => {
     setLoading(true);
-    if (props.showBox) {
+    if (isOpen) {
       Register()
         .then((res: RegisterResult) => {
           setID(res.user_id.toString());
-          const cookies = new Cookies();
-          cookies.set("session", res.user_id.toString(), { path: "/" });
+          setCookie("session", res.user_id.toString());
         })
         .catch(() => {
           notificationManager.createNotification(
@@ -32,17 +35,23 @@ const RegisterDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
         });
       setLoading(false);
     }
-  }, [props.showBox]);
+  }, [isOpen]);
 
   return (
     <DialogBox
       title={"Регистрация"}
-      buttonText={["Ок"]}
-      onOkClick={[() => {}]}
+      bottomButtons={[
+        {
+          text: "Ok",
+          onButtonClick: () => {
+            dispatch(setPersonalInfoDialog(false));
+          },
+        },
+      ]}
       onCancelClick={async () => {
-        props.setShowBox(false);
+        dispatch(setPersonalInfoDialog(false));
       }}
-      isOpen={props.showBox}
+      isOpen={isOpen}
     >
       <BlueDashedTextBox isLoading={loading}>
         <div>Ваш ID: {id}</div>

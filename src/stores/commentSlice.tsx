@@ -3,12 +3,12 @@ import { Comment } from "../models/Comment/types";
 import { RootState } from "./store";
 import dayjs from "dayjs";
 
-export interface CounterState {
+export interface CommentSliceState {
   comments: Comment[];
 }
 
 // Define the initial state using that type
-const initialState: CounterState = {
+const initialState: CommentSliceState = {
   comments: [],
 };
 
@@ -50,7 +50,7 @@ export const commentsSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const { addComment, addComments } = commentsSlice.actions;
 
-export const getComments = (state: RootState) => state.comments.comments;
+export const getCommentsStore = (state: RootState) => state.comments.comments;
 
 export const getLastDate = (state: RootState) => {
   if (state.comments.comments.length > 0)

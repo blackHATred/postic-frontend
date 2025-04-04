@@ -5,13 +5,10 @@ import { ConfigProvider, theme } from "antd";
 import WebSocketComponent from "../api/WebSocket";
 import "./App.css";
 import NotificationManager from "../api/notification";
-import { Comment } from "../models/Comment/types";
 import { Provider } from "react-redux";
 import { store } from "../stores/store";
 
 const App: React.FC = () => {
-  const [comments, setComments] = useState<Comment[]>([]);
-
   return (
     <Router>
       <ConfigProvider

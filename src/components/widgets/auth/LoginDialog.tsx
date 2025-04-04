@@ -1,45 +1,51 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext } from "react";
 import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
 import { NotificationContext } from "../../../api/notification";
-import { WebSocketContext } from "../../../api/WebSocket";
-import DialogBox from "../../ui/dialogBoxOneButton/DialogBox";
-import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import { SimpleBoxProps } from "./WelcomeDialog";
-import Cookies from "universal-cookie";
+
 import { RegisterResult } from "../../../models/User/types";
 import { Login } from "../../../api/api";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { setLoginDialog } from "../../../stores/basePageDialogsSlice";
+import { useCookies } from "react-cookie";
 
-const LoginDialog: React.FC<SimpleBoxProps> = (props: SimpleBoxProps) => {
+const LoginDialog: React.FC = () => {
+  const dispatch = useAppDispatch();
   const notificationManager = useContext(NotificationContext);
+  const isOpen = useAppSelector(
+    (state) => state.basePageDialogs.loginDialog.isOpen
+  );
+  const [cookies, setCookie, removeCookie] = useCookies();
   return (
     <DialogBoxXInputs
       text={"Введите ID"}
       title={"Вход"}
       input_placeholders={{ id: "ID" }}
-      buttonText={["Ок"]}
-      onOkClick={[
-        (args) => {
-          if (args["id"])
-            Login(parseInt(args["id"]))
-              .then((res: RegisterResult) => {
-                const cookies = new Cookies();
-                cookies.set("session", res.user_id.toString(), { path: "/" });
-              })
-              .catch(() => {
-                notificationManager.createNotification(
-                  "error",
-                  "Ошибка регистрации",
-                  ""
-                );
-              });
-          else {
-          }
+      bottomButtons={[
+        {
+          text: "Ok",
+          onButtonClick: (args) => {
+            if (args["id"])
+              Login(parseInt(args["id"]))
+                .then((res: RegisterResult) => {
+                  setCookie("session", res.user_id.toString());
+                  dispatch(setLoginDialog(false));
+                })
+                .catch(() => {
+                  notificationManager.createNotification(
+                    "error",
+                    "Ошибка регистрации",
+                    ""
+                  );
+                });
+            else {
+            }
+          },
         },
       ]}
       onCancelClick={async () => {
-        props.setShowBox(false);
+        dispatch(setLoginDialog(false));
       }}
-      isOpen={props.showBox}
+      isOpen={isOpen}
     />
   );
 };
