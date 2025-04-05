@@ -14,6 +14,11 @@ import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import { WebSocketContext } from "../../../api/WebSocket";
+import TeamList from "../../widgets/TeamList/TeamList";
+import { mockTeams } from "../../../models/Team/types";
+import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
+import TeamAddMemberDialog from "../../widgets/TeamDialog/TeamAddMemberDialog";
+import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
 import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
@@ -28,6 +33,7 @@ const BasePage: React.FC = () => {
   const webSocketmanager = useContext(WebSocketContext);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+  const [showDiaTeamCreate, setShowDiaTeamCreate] = useState(false);
 
   useEffect(() => {
     getPosts()
@@ -56,6 +62,10 @@ const BasePage: React.FC = () => {
     }
   }, [webSocketmanager.readyState]);
 
+  const makeVisibleDialogCreateTeam = () => {
+    setShowDiaTeamCreate(true);
+  };
+
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
     dispatch(setActiveTab(key));
@@ -74,6 +84,10 @@ const BasePage: React.FC = () => {
       {activeTab === "1" ? (
         <div>
           <PostList />
+          <TeamList // для теста
+              team={mockTeams}
+              onCommentClick={handlePostCommentClick}
+          />
         </div>
       ) : (
         <div>
@@ -114,6 +128,17 @@ const BasePage: React.FC = () => {
       <MeDialog />
 
       <WelcomeDialog />
+      <TeamAddMemberDialog
+        title={"Добавление участника"}
+        buttonText={["Добавить"]}
+        setOpen={setShowDiaTeamCreate}
+        isOpen={showDiaTeamCreate}
+        onOkClick={[
+          () => {
+            console.log("Клик на окно команды");
+          },
+        ]}
+      />
     </div>
   );
 };
