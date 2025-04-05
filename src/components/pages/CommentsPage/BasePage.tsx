@@ -14,7 +14,6 @@ import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import { WebSocketContext } from "../../../api/WebSocket";
 import TeamList from "../../widgets/TeamList/TeamList";
-import { mockTeams } from "../../../models/Team/types";
 import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
 import TeamAddMemberDialog from "../../widgets/TeamDialog/TeamAddMemberDialog";
 import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
@@ -84,9 +83,10 @@ const BasePage: React.FC = () => {
       {activeTab === "1" ? (
         <div>
           <PostList />
-          <TeamList // для теста
-            team={mockTeams}
-          />
+          {
+            //Для тестa
+            <TeamList />
+          }
         </div>
       ) : (
         <div>

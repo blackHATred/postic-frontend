@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Typography, Input, Divider, Select, Switch, TimePicker } from "antd";
+import { Typography, Input, Divider, Select, Switch, DatePicker } from "antd";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import ClickableButton from "../../ui/Button/Button";
@@ -12,7 +12,6 @@ import PlatformSettings from "./PlatformSettings";
 import FileUploader from "./FileUploader";
 import { validateMinLength } from "../../../utils/validation";
 import dayjs, { Dayjs } from "dayjs";
-import CustCalendar from "../../ui/Calendar/Calendar";
 import Picker from "emoji-picker-react";
 import { sendPostRequest } from "../../../api/api";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
@@ -21,15 +20,25 @@ import {
   setCreatePostDialogSelectedPlatforms,
   setPostStatusDialog,
 } from "../../../stores/basePageDialogsSlice";
+import ru from "antd/es/date-picker/locale/ru_RU";
 
 const { Text } = Typography;
-const format = "HH:mm";
+
+const buddhistLocale: typeof ru = {
+  ...ru,
+  lang: {
+    ...ru.lang,
+    fieldDateTimeFormat: "DD-MM-YYYY HH:mm:ss",
+    yearFormat: "YYYY",
+    cellYearFormat: "YYYY",
+  },
+};
 
 const CreatePostDialog: FC = () => {
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [postText, setPostText] = useState(""); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // Состояние для выбранной даты
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Состояние для выбранной даты
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
   const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
   const dispatch = useAppDispatch();
@@ -156,28 +165,14 @@ const CreatePostDialog: FC = () => {
         </div>
         {isTimePickerVisible && (
           <div className={styles["time-and-data"]}>
-            <TimePicker
-              placeholder="Выберите время для публикации"
+            <DatePicker
+              placeholder="Выберите дату и время"
+              showTime
+              locale={buddhistLocale}
               defaultValue={selectedDate}
-              format={format}
-              onChange={(time) => {
-                if (selectedDate) {
-                  setSelectedDate(
-                    selectedDate
-                      .hour(time?.hour() || 0)
-                      .minute(time?.minute() || 0)
-                  );
-                } else {
-                  setSelectedDate(
-                    dayjs()
-                      .hour(time?.hour() || 0)
-                      .minute(time?.minute() || 0)
-                  );
-                }
+              onChange={(date: Dayjs | null) => {
+                setSelectedDate(date);
               }}
-            />
-            <CustCalendar
-              onPanelChange={(date: Dayjs | null) => setSelectedDate(date)}
             />
           </div>
         )}

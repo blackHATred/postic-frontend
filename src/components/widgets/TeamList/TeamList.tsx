@@ -5,18 +5,16 @@ import { Post } from "../../../models/Post/types";
 import PostComponent from "../../ui/Post/Post";
 import TeamCard from "../../ui/TeamCard/TeamCard";
 import { Team } from "../../../models/Team/types";
+import { useAppSelector } from "../../../stores/hooks";
+import { getTeamsFromStore } from "../../../stores/teamSlice";
 
 interface TeamListProps {
-  team: Team[];
   isLoading?: boolean;
   hasMore?: boolean;
 }
 
-const TeamList: React.FC<TeamListProps> = ({
-  team: teams,
-  isLoading,
-  hasMore,
-}) => {
+const TeamList: React.FC<TeamListProps> = ({ isLoading, hasMore }) => {
+  const teams = useAppSelector(getTeamsFromStore);
   return (
     <div className={styles.teamList} title="Команды">
       {isLoading && (

@@ -22,11 +22,12 @@ interface SocialStatus {
 }
 const PostStatusDialog: FC = () => {
   const dispatch = useAppDispatch();
+  const postId = useAppSelector((state) => state.posts.selectedPostId);
   const isOpen = useAppSelector(
     (state) => state.basePageDialogs.postStatusDialog.isOpen
   );
   const selectedPlatforms = useAppSelector(
-    (state) => state.basePageDialogs.createPostDialog.selectedPlatforms
+    (state) => state.posts.posts.find((post) => post.ID == postId)?.Platforms
   );
   const [error_data, SetErrorData] = useState("");
 
@@ -34,18 +35,20 @@ const PostStatusDialog: FC = () => {
     dispatch(setPostStatusDialog(false));
   };
 
-  const socialStatuses: SocialStatus[] = selectedPlatforms.map((platform) => ({
-    platform,
-    icon:
-      platform === "vk" ? (
-        <Icon component={WhatsAppOutlined} />
-      ) : platform === "tg" ? (
-        <Icon component={FacebookOutlined} />
-      ) : (
-        <Icon component={TwitterOutlined} />
-      ),
-    status: "wait", // Начальный статус
-  }));
+  const socialStatuses: SocialStatus[] = selectedPlatforms
+    ? selectedPlatforms.map((platform) => ({
+        platform,
+        icon:
+          platform === "vk" ? (
+            <Icon component={WhatsAppOutlined} />
+          ) : platform === "tg" ? (
+            <Icon component={FacebookOutlined} />
+          ) : (
+            <Icon component={TwitterOutlined} />
+          ),
+        status: "wait", // Начальный статус
+      }))
+    : [];
 
   const getStatusIcon = (status: "wait" | "process" | "finish" | "error") => {
     switch (status) {
@@ -66,7 +69,14 @@ const PostStatusDialog: FC = () => {
 
   return (
     <DialogBox
-      bottomButtons={[{}]}
+      bottomButtons={[
+        {
+          text: "Ок",
+          onButtonClick: () => {
+            dispatch(setPostStatusDialog(false));
+          },
+        },
+      ]}
       isOpen={isOpen}
       onCancelClick={onCancel}
       title={"Публикация поста"}
