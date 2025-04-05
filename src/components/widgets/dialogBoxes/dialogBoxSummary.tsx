@@ -68,7 +68,9 @@ const DialogBoxSummary: FC<
   const onRefresh = async () => {
     if (props.isOpen) {
       const summary = Summarize(SummaryBoxManager.postId)
-        .then(() => {})
+        .then(() => {
+          
+        })
         .catch((error) => {
           NotificationManager.createNotification(
             "error",

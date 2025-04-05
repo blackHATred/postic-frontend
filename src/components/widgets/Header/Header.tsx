@@ -5,11 +5,14 @@ import {
   CommentOutlined,
   PlusCircleOutlined,
   PlusOutlined,
+  SettingOutlined,
+  TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import styles from "./styles.module.scss";
-import { Image, Tabs } from "antd";
+import { Image, Menu, MenuProps, Tabs, Select, SelectProps } from "antd";
 import logo from "../../../styles/images/logo.png";
+import { mockTeams } from "../../../models/Team/types";
 
 interface ButtonHeaderProps {
   OnClick1: (...args: any) => any;
@@ -35,22 +38,44 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     },
     {
       key: "2",
-      label: "Лента",
+      label: "Комментарии",
     },
   ];
+
+  const handleChange = (value: string) => {
+    console.log(`selected ${value}`);
+  };
+
+  interface TeamOption {
+    value: string;
+    label: React.ReactNode;
+    icon: React.ReactNode;
+  }
+
+  const teamOptions = mockTeams.map((team) => ({
+    value: team.team_id.toString(),
+    label: team.team_name,
+  }));
 
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
-        <Image
-          src={logo}
-          alt="logo"
-          height={40}
-          width={40}
-          preview={false}
-        ></Image>
+        <Image src={logo} alt="logo" height={40} width={40} preview={false} />
         <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
         <div className={styles.headerIcons}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <TeamOutlined style={{ color: "#1890ff" }} />{" "}
+            <Select
+              defaultValue={teamOptions[0]?.value}
+              style={{
+                width: 150,
+                margin: 5,
+              }}
+              variant="borderless"
+              onChange={handleChange}
+              options={teamOptions}
+            />
+          </div>
           <ClickableButton
             icon={<PlusOutlined />}
             type="default"

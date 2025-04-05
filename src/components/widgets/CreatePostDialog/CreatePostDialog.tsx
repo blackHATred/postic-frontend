@@ -32,7 +32,7 @@ export interface CreatePostDialogProps
 const CreatePostDialog: FC<CreatePostDialogProps> = (
   props: CreatePostDialogProps
 ) => {
-  const [error_data, SetErrorData] = useState("");
+  const [error_data] = useState("");
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [postText, setPostText] = useState(""); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации

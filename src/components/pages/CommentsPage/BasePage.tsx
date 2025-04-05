@@ -18,6 +18,11 @@ import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import Cookies from "universal-cookie";
+import TeamList from "../../widgets/TeamList/TeamList";
+import { mockTeams } from "../../../models/Team/types";
+import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
+import TeamAddMemberDialog from "../../widgets/TeamDialog/TeamAddMemberDialog";
+import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
 
 const BasePage: React.FC = () => {
   const [showDiaAPI, setShowDiaAPI] = useState(false);
@@ -39,6 +44,7 @@ const BasePage: React.FC = () => {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // чтоб передавать соц сети от создания поста к статусу публикации
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [showDiaTeamCreate, setShowDiaTeamCreate] = useState(false);
 
   useEffect(() => {
     getPosts()
@@ -72,6 +78,10 @@ const BasePage: React.FC = () => {
   const handlePostCommentClick = (postId: string) => {
     setPostId(postId);
     setActiveTab("2");
+  };
+
+  const makeVisibleDialogCreateTeam = () => {
+    setShowDiaTeamCreate(true);
   };
 
   // для того, чтоб сбрасывать состояние ленты и миниленты
@@ -127,6 +137,11 @@ const BasePage: React.FC = () => {
         {activeTab === "1" ? (
           <div>
             <PostList posts={posts} onCommentClick={handlePostCommentClick} />
+            <TeamList // для теста
+              team={mockTeams}
+              onCommentClick={handlePostCommentClick}
+            />
+            */
           </div>
         ) : (
           <div>
@@ -218,6 +233,18 @@ const BasePage: React.FC = () => {
         showBox={showDiaWelcome}
         setShowBox={setShowDiaWelcome}
         onOkClick={getMenuButtonsFunc()}
+      />
+
+      <TeamAddMemberDialog
+        title={"Добавление участника"}
+        buttonText={["Добавить"]}
+        setOpen={setShowDiaTeamCreate}
+        isOpen={showDiaTeamCreate}
+        onOkClick={[
+          () => {
+            console.log("Клик на окно команды");
+          },
+        ]}
       />
     </SummaryBoxContext.Provider>
   );

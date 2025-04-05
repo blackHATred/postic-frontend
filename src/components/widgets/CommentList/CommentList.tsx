@@ -70,7 +70,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
             }
           });
           console.log(comm);
-          commentManager.setComments((prev) => [...prev, ...comm]);
+          commentManager.setComments((prev) => [...prev, ...newComment]);
         } else {
           console.error("Получен некорректный комментарий:", newComment);
         }
@@ -85,7 +85,7 @@ const CommentList: React.FC<CommentListProps> = (props: CommentListProps) => {
       webSocketmanager.sendJsonMessage({
         type: "get_comments",
         get_comments: {
-          post_union_id: 2,
+          post_union_id: 1,
           offset: "2020-03-26T13:55:57+03:00",
         },
       });
