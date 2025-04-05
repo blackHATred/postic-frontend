@@ -12,13 +12,14 @@ import {
 import styles from "./styles.module.scss";
 import { Image, Menu, MenuProps, Tabs, Select, SelectProps } from "antd";
 import logo from "../../../styles/images/logo.png";
-import { useAppDispatch } from "../../../stores/hooks";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   setCreatePostDialog,
   setPersonalInfoDialog,
   setPostStatusDialog,
   setWelcomeDialog,
 } from "../../../stores/basePageDialogsSlice";
+import { getTeamsFromStore } from "../../../stores/teamSlice";
 
 interface ButtonHeaderProps {
   activeTab: string;
@@ -30,6 +31,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   onTabChange,
 }) => {
   const dispatch = useAppDispatch();
+  const teams = useAppSelector(getTeamsFromStore);
   const tabItems = [
     {
       key: "1",
@@ -51,7 +53,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     icon: React.ReactNode;
   }
 
-  const teamOptions = mockTeams.map((team) => ({
+  const teamOptions = teams.map((team) => ({
     value: team.team_id.toString(),
     label: team.team_name,
   }));

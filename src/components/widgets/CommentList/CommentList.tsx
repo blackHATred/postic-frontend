@@ -9,13 +9,13 @@ import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   addComment,
   addComments,
-  getCommentsStore,
+  getCommentsFromStore,
   getLastDate,
 } from "../../../stores/commentSlice";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
-  const comments = useAppSelector(getCommentsStore);
+  const comments = useAppSelector(getCommentsFromStore);
   const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты

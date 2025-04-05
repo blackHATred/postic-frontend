@@ -8,9 +8,7 @@ import {
   TimePicker,
   Form,
 } from "antd";
-import DialogBox, {
-  DialogBoxProps,
-} from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 
 const { Text } = Typography;
@@ -31,10 +29,14 @@ const TeamCreateDialog: FC<TeamCreateDialogProps> = (
 
   return (
     <DialogBox
-      onOkClick={[onOk]}
+      bottomButtons={[
+        {
+          text: "",
+          onButtonClick: onOk,
+        },
+      ]}
       isOpen={props.isOpen}
       onCancelClick={onCancel}
-      buttonText={props.buttonText}
       title={props.title}
       isCenter={true}
     >

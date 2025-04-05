@@ -4,7 +4,6 @@ import CommentList from "../../widgets/CommentList/CommentList";
 import ButtonHeader from "../../widgets/Header/Header";
 import { Post } from "../../../models/Post/types";
 import PostList from "../../widgets/PostList/PostList";
-import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
 import { Breadcrumb } from "antd";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
@@ -27,6 +26,7 @@ import {
   setSelectedPostId,
 } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
+import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
 
 const BasePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -85,8 +85,7 @@ const BasePage: React.FC = () => {
         <div>
           <PostList />
           <TeamList // для теста
-              team={mockTeams}
-              onCommentClick={handlePostCommentClick}
+            team={mockTeams}
           />
         </div>
       ) : (
@@ -130,14 +129,8 @@ const BasePage: React.FC = () => {
       <WelcomeDialog />
       <TeamAddMemberDialog
         title={"Добавление участника"}
-        buttonText={["Добавить"]}
         setOpen={setShowDiaTeamCreate}
         isOpen={showDiaTeamCreate}
-        onOkClick={[
-          () => {
-            console.log("Клик на окно команды");
-          },
-        ]}
       />
     </div>
   );

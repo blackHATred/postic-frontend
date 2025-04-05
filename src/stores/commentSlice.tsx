@@ -50,7 +50,8 @@ export const commentsSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const { addComment, addComments } = commentsSlice.actions;
 
-export const getCommentsStore = (state: RootState) => state.comments.comments;
+export const getCommentsFromStore = (state: RootState) =>
+  state.comments.comments;
 
 export const getLastDate = (state: RootState) => {
   if (state.comments.comments.length > 0)

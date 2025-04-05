@@ -1,8 +1,6 @@
 import { FC, useState } from "react";
 import { Typography, Input, Divider, Form, Checkbox } from "antd";
-import DialogBox, {
-  DialogBoxProps,
-} from "../../ui/dialogBoxOneButton/DialogBox";
+import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 
 const { Text } = Typography;
@@ -45,10 +43,14 @@ const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
 
   return (
     <DialogBox
-      onOkClick={[onOk]}
+      bottomButtons={[
+        {
+          text: "Добавить",
+          onButtonClick: onOk,
+        },
+      ]}
       isOpen={props.isOpen}
       onCancelClick={onCancel}
-      buttonText={props.buttonText}
       title={props.title}
       isCenter={true}
     >

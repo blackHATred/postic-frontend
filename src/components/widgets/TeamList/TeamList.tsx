@@ -10,12 +10,10 @@ interface TeamListProps {
   team: Team[];
   isLoading?: boolean;
   hasMore?: boolean;
-  onCommentClick: (postId: string) => void;
 }
 
 const TeamList: React.FC<TeamListProps> = ({
   team: teams,
-  onCommentClick,
   isLoading,
   hasMore,
 }) => {
