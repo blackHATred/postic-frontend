@@ -17,18 +17,20 @@ import {
   setWelcomeDialog,
 } from "../../../stores/basePageDialogsSlice";
 import { getTeamsFromStore } from "../../../stores/teamSlice";
-
 interface ButtonHeaderProps {
-  activeTab: string;
-  onTabChange: (key: string) => void;
+  activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
+  onTabChange?: (key: string) => void; // Сделаем необязательным
+  isAuthorized: boolean; // Новый проп для определения авторизации
 }
 
 const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   activeTab,
   onTabChange,
+  isAuthorized,
 }) => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
+
   const tabItems = [
     {
       key: "1",
@@ -44,12 +46,6 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     console.log(`selected ${value}`);
   };
 
-  interface TeamOption {
-    value: string;
-    label: React.ReactNode;
-    icon: React.ReactNode;
-  }
-
   const teamOptions = teams.map((team) => ({
     value: team.id.toString(),
     label: team.name,
@@ -59,7 +55,18 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
         <Image src={logo} alt="logo" height={40} width={40} preview={false} />
-        <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
+
+        {/* Рендерим вкладки только для авторизованных пользователей */}
+        {isAuthorized && (
+          <div className={styles.tabs}>
+            <Tabs
+              activeKey={activeTab}
+              items={tabItems}
+              onChange={onTabChange}
+            />
+          </div>
+        )}
+
         <div className={styles.headerIcons}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <TeamOutlined style={{ color: "#1890ff" }} />{" "}

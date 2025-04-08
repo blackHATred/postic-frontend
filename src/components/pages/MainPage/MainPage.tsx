@@ -56,6 +56,7 @@ const MainPage: React.FC = () => {
   return (
     <div className={styles["main-page"]}>
       <ButtonHeader
+        isAuthorized={false}
         activeTab={activeTab}
         onTabChange={handleTabChange} // для изменения вкладки
       />
