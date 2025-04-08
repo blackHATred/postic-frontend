@@ -37,8 +37,6 @@ const LoginDialog: React.FC = () => {
                     ""
                   );
                 });
-            else {
-            }
           },
         },
       ]}

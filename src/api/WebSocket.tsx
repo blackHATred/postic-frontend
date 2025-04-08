@@ -11,7 +11,9 @@ interface WebSocketContent {
 export const WebSocketContext = createContext<WebSocketContent>({
   lastJsonMessage: null,
   readyState: ReadyState.UNINSTANTIATED,
-  sendJsonMessage: () => {},
+  sendJsonMessage: () => {
+    throw new Error("WebSocket еще не инициализирован");
+  },
 });
 
 interface commentWebsocket {

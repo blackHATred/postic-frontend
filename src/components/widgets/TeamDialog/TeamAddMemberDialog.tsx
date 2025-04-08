@@ -7,7 +7,7 @@ const { Text } = Typography;
 
 export interface TeamAddMemberDialogProps
   extends Omit<DialogBoxProps, "onCancelClick"> {
-  setOpen: Function;
+  setOpen: (value: boolean) => void;
 }
 
 const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
@@ -35,7 +35,10 @@ const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
     setPermissions((prev) => ({ ...prev, [key]: checked }));
   };
 
-  const onOk = () => {};
+  const onOk = () => {
+    // TODO: сделать отправку запроса апи
+    console.log("Сделать АПИ - Добавление участника выполнено");
+  };
 
   const onCancel = async () => {
     props.setOpen(false);

@@ -47,7 +47,9 @@ const DialogBoxSummary: FC = () => {
   const onRefresh = async () => {
     if (isOpen) {
       Summarize(selectedPostId)
-        .then(() => {})
+        .then(() => {
+          // TODO: добавить АПИ на перезапрос
+        })
         .catch((error) => {
           NotificationManager.createNotification(
             "error",

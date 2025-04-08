@@ -12,14 +12,13 @@ import RegisterDialog from "../../widgets/auth/RegisterDialog";
 import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import { WebSocketContext } from "../../../api/WebSocket";
-import TeamList from "../../widgets/TeamList/TeamList";
 import TeamAddMemberDialog from "../../widgets/TeamDialog/TeamAddMemberDialog";
 import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setPosts, setScrollToPost } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
-import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
+import Sidebar from "../../ui/Sidebar/Sidebar";
 
 const { Text } = Typography;
 
@@ -29,6 +28,7 @@ const MainContainer: React.FC = () => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const [showDiaTeamCreate, setShowDiaTeamCreate] = useState(false);
+  const [activePage, setActivePage] = useState<string>("posts");
 
   useEffect(() => {
     getPosts()
@@ -58,39 +58,17 @@ const MainContainer: React.FC = () => {
     }
   }, [webSocketmanager.readyState]);
 
-  const options = [
-    {
-      icon: <PlusOutlined className={styles["icon-primary"]} />,
-      text: "Добавить пост",
-    },
-    {
-      icon: <TeamOutlined className={styles["icon-primary"]} />,
-      text: "Команды",
-    },
-  ];
-
   return (
     <div className={styles["main-container"]}>
       <div className={styles["layout"]}>
         {/* Навигационная панель */}
-        <div className={styles["sidebar"]}>
-          {options.map((option, index) => (
-            <div key={index} className={styles["sidebar-options"]}>
-              {option.icon}
-              <Text className={styles["sidebar-option"]}>{option.text}</Text>
-            </div>
-          ))}
-        </div>
+        <Sidebar setActivePage={setActivePage} />
 
         {/* Основной контент */}
         <div className={styles["content"]}>
           {activeTab === "1" ? (
             <div>
               <PostList />
-              {
-                //Для теста
-                <TeamList />
-              }
             </div>
           ) : (
             <div>

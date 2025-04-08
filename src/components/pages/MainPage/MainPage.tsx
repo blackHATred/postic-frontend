@@ -5,7 +5,6 @@ import { getPosts } from "../../../api/api";
 import { WebSocketContext } from "../../../api/WebSocket";
 import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { Typography } from "antd";
 import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import MainContainer from "../MainContainer/MainContainer";
@@ -24,6 +23,7 @@ const MainPage: React.FC = () => {
         if (res.posts) {
           dispatch(setPosts(res.posts));
         } else {
+          console.log("нет постов");
         }
       })
       .catch(() => {
