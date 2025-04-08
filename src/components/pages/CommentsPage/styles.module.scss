@@ -13,3 +13,9 @@
     cursor: pointer;
   }
 }
+
+.commentPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}

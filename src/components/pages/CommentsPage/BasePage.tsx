@@ -21,6 +21,7 @@ import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   setPosts,
+  setPostsScroll,
   setScrollToPost,
   setSelectedPostId,
 } from "../../../stores/postsSlice";
@@ -39,6 +40,7 @@ const BasePage: React.FC = () => {
       .then((res: { posts: Post[] }) => {
         if (res.posts) {
           dispatch(setPosts(res.posts));
+          dispatch(setPostsScroll(res.posts.length));
         } else {
         }
       })
@@ -61,10 +63,6 @@ const BasePage: React.FC = () => {
     }
   }, [webSocketmanager.readyState]);
 
-  const makeVisibleDialogCreateTeam = () => {
-    setShowDiaTeamCreate(true);
-  };
-
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
     dispatch(setActiveTab(key));
@@ -80,15 +78,8 @@ const BasePage: React.FC = () => {
         onTabChange={handleTabChange} // для изменения вкладки
       />
 
-      {activeTab === "1" ? (
-        <div>
-          <PostList />
-          {
-            //Для тестa
-            <TeamList />
-          }
-        </div>
-      ) : (
+      {activeTab == "1" && <PostList hasMore={true} />}
+      {activeTab == "2" && (
         <div>
           {selectedPostId && (
             <Breadcrumb

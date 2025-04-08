@@ -1,6 +1,7 @@
 import axios from "axios";
 import {
   Post,
+  postStatusResults,
   sendPost,
   sendPostResult,
   UploadResult,
@@ -53,7 +54,22 @@ export const getPosts = async (): Promise<{ posts: Post[] }> => {
       withCredentials: true,
     }
   );
-  console.log("Посты:", response.data);
+  return response.data;
+};
+
+export const getPostStatus = async (
+  post_id: string,
+  platform: string
+): Promise<postStatusResults> => {
+  const response = await axios.get<postStatusResults>(
+    `${config.api.baseURL}/posts/status/` + post_id,
+    {
+      withCredentials: true,
+      params: {
+        platform: platform,
+      },
+    }
+  );
   return response.data;
 };
 
@@ -67,7 +83,6 @@ export const sendPostRequest = async (
       withCredentials: true,
     }
   );
-  console.log("Результат:", response.data);
   return response.data;
 };
 

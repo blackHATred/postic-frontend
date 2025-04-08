@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Divider, Typography } from "antd";
+import { Divider, List, Space, Typography } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
@@ -17,6 +17,12 @@ import {
   setSummaryDialog,
 } from "../../../stores/basePageDialogsSlice";
 import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
+import {
+  LiaQuestionCircle,
+  LiaTelegram,
+  LiaTwitter,
+  LiaVk,
+} from "react-icons/lia";
 
 const { Text } = Typography;
 
@@ -31,35 +37,38 @@ const PostComponent: React.FC<Post> = (props: Post) => {
     ID: id,
   } = props;
 
+  const getIcon = (platform: string) => {
+    switch (platform) {
+      case "vk":
+        return <LiaVk className={styles.icon} />;
+      case "tg":
+        return <LiaTelegram className={styles.icon} />;
+      case "twitter":
+        return <LiaTwitter className={styles.icon} />;
+    }
+    return <LiaQuestionCircle className={styles.icon} />;
+  };
+
   const dispatch = useAppDispatch();
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollToPost && id === selectedPostId) {
-      setSelected();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (scrollToPost && id === selectedPostId) {
-      setSelected();
-    }
+    if (props.ID === selectedPostId) setSelected();
   }, [scrollToPost]);
 
   const setSelected = async () => {
     if (refer.current) {
-      refer.current.scrollIntoView({ behavior: "smooth" });
       refer.current.className += " selected";
-      await setTimeout(() => {
+      setTimeout(() => {
         if (refer.current)
           refer.current.className = refer.current.className.replace(
             " selected",
             ""
           );
       }, 3000);
-      dispatch(setScrollToPost(false));
+
       dispatch(setSelectedPostId(""));
     }
   };
@@ -81,11 +90,17 @@ const PostComponent: React.FC<Post> = (props: Post) => {
       <div className={styles["post-header"]}>
         <div className={styles["post-header-info"]}>
           <div className={styles["post-header-info-text"]}>
-            <Text strong>Модератор {userID}</Text>
+            <Text strong className={styles["post-name"]}>
+              Модератор {userID}
+            </Text>
             <Text type="secondary" className={styles["post-time"]}>
               {dayjs(PubDate).format("DD.MM.YYYY HH:mm")}
             </Text>
-            <Text type="secondary"> | {Platforms}</Text>
+            <Space size={0} split={<Divider type="vertical" />}>
+              {Platforms?.map((plat) => {
+                return getIcon(plat);
+              }).concat(getIcon("vk"))}
+            </Space>
           </div>
         </div>
         <div className={styles["post-header-buttons"]}>
@@ -108,7 +123,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
       <Divider className={styles.customDivider} />
       <div className={styles["post-content"]}>
         <div className={styles["post-content-text"]}>
-          <Text>{postText}</Text>
+          <Text style={{ whiteSpace: "pre-line" }}>{postText}</Text>
         </div>
         <div className={styles["post-content-attachments"]}>
           {Attachments?.map((attachment, index) => (

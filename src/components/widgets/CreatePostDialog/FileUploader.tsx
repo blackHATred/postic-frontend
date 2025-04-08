@@ -46,7 +46,6 @@ const FileUploader: React.FC<fileUploaderProps> = (
             reader.result as string,
           ]);
         };
-        console.log(file);
         reader.readAsDataURL(file);
       } else {
         setFiles((prevFiles) => [...prevFiles, file]);

@@ -1,5 +1,5 @@
 // @ts-ignore
-import dayjs from 'dayjs'
+import dayjs from "dayjs";
 
 export interface Post {
   ID: string;
@@ -7,8 +7,8 @@ export interface Post {
   userID: string;
   Attachments: PostAttachment[];
   Platforms?: string[];
-  CreatedAt?: dayjs.Dayjs;
-  PubDate: dayjs.Dayjs;
+  CreatedAt?: number;
+  PubDate: number;
 }
 
 interface PostAttachment {
@@ -31,6 +31,15 @@ export interface sendPostResult {
   status: string;
 }
 
+export interface postStatusResults {
+  status: {
+    post_id: string;
+    platform: string;
+    status: "success" | "error" | "pending";
+    err_message: string;
+  };
+}
+
 export interface UploadResult {
   file_id: string;
   // filename: string;
@@ -41,20 +50,29 @@ export interface UploadResult {
 export const mockPosts: Post[] = [
   {
     ID: "11",
-    CreatedAt: dayjs("2025-03-15T10:00:00Z"),
+    CreatedAt: dayjs().unix(),
     userID: "1 Moderator",
     Text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
     Attachments: [],
     Platforms: ["tg", "vk"],
-    PubDate: dayjs("2025-03-15T10:00:00Z"),
+    PubDate: dayjs().unix(),
   },
   {
     ID: "22",
-    CreatedAt: dayjs("2025-03-15T10:00:00Z"),
-    userID: "1 Moderator",
-    Text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
+    CreatedAt: dayjs().unix(),
+    userID: "2 Moderator",
+    Text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
     Attachments: [],
     Platforms: ["tg"],
-    PubDate: dayjs("2025-03-15T10:00:00Z"),
+    PubDate: dayjs().unix(),
+  },
+  {
+    ID: "33",
+    CreatedAt: dayjs().unix(),
+    userID: "2 Moderator",
+    Text: "a\nb\nc\nd\ne\nf\nh\ni\nj\nk\nl",
+    Attachments: [],
+    Platforms: ["tg"],
+    PubDate: dayjs().unix(),
   },
 ];

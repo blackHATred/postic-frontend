@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { List, Spin, Button } from "antd";
 import CommentComponent from "../../ui/Comment/Comment";
 import { Comment } from "../../../models/Comment/types";
@@ -12,6 +12,8 @@ import {
   getCommentsFromStore,
   getLastDate,
 } from "../../../stores/commentSlice";
+import { CellMeasurerCache } from "react-virtualized";
+import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
@@ -20,6 +22,11 @@ const CommentList: React.FC = () => {
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
+
+  const cache = new CellMeasurerCache({
+    defaultHeight: 200,
+    fixedWidth: true,
+  });
 
   const filteredComments = selectedPostId
     ? comments.filter(
@@ -91,24 +98,18 @@ const CommentList: React.FC = () => {
   ) : null;
 
   return (
-    <div className={styles.commentListContainer} title="Комментарии">
-      {loading && (
-        <div className={styles.spinnerContainer}>
-          <Spin />
-        </div>
-      )}
-
-      <div className={styles.commentList}>
-        <List
-          dataSource={filteredComments}
-          loadMore={loadMore}
-          renderItem={(comment) => (
-            <List.Item>
-              <CommentComponent comment={comment} />
-            </List.Item>
-          )}
-        />
-      </div>
+    <div className={styles.commentListContainer}>
+      <RowVirtualizerDynamic
+        object={filteredComments.map((comment) => {
+          console.log(filteredComments);
+          return <CommentComponent comment={comment} />;
+        })}
+        getNewData={() => 0}
+        doSmoothScroll={false}
+        smoothScrollTarget={0}
+        scrollAmount={0}
+        setScroll={(scroll: number) => {}}
+      />
     </div>
   );
 };

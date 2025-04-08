@@ -7,10 +7,6 @@ interface basicDialogState {
   isOpen: boolean;
 }
 
-interface createPostDialogState extends basicDialogState {
-  selectedPlatforms: string[];
-}
-
 interface summaryDialogState extends basicDialogState {
   isLoading: boolean;
 }
@@ -21,7 +17,7 @@ export interface basePageDialogsSliceState {
   welcomeDialog: basicDialogState;
   loginDialog: basicDialogState;
   registerDialog: basicDialogState;
-  createPostDialog: createPostDialogState;
+  createPostDialog: basicDialogState;
   postStatusDialog: basicDialogState;
   personalInfoDialog: basicDialogState;
   activeTab: string;
@@ -34,7 +30,7 @@ const initialState: basePageDialogsSliceState = {
   welcomeDialog: { isOpen: false },
   loginDialog: { isOpen: false },
   registerDialog: { isOpen: false },
-  createPostDialog: { isOpen: false, selectedPlatforms: [] },
+  createPostDialog: { isOpen: false },
   postStatusDialog: { isOpen: false },
   personalInfoDialog: { isOpen: false },
   activeTab: "1",
@@ -70,12 +66,6 @@ export const basePageDialogsSlice = createSlice({
     setCreatePostDialog: (state, action: PayloadAction<boolean>) => {
       state.createPostDialog.isOpen = action.payload;
     },
-    setCreatePostDialogSelectedPlatforms: (
-      state,
-      action: PayloadAction<string[]>
-    ) => {
-      state.createPostDialog.selectedPlatforms = action.payload;
-    },
 
     setPostStatusDialog: (state, action: PayloadAction<boolean>) => {
       state.postStatusDialog.isOpen = action.payload;
@@ -101,7 +91,6 @@ export const {
   setSummaryDialog,
   setWelcomeDialog,
   setApiBoxDialog,
-  setCreatePostDialogSelectedPlatforms,
   setSummaryLoading,
   setActiveTab,
 } = basePageDialogsSlice.actions;

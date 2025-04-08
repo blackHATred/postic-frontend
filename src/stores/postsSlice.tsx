@@ -7,6 +7,7 @@ export interface PostSliceState {
   posts: Post[];
   selectedPostId: string;
   scrollToPost: boolean;
+  postsScroll: number;
 }
 
 // Define the initial state using that type
@@ -14,6 +15,7 @@ const initialState: PostSliceState = {
   posts: [],
   selectedPostId: "",
   scrollToPost: false,
+  postsScroll: 10000,
 };
 
 export const postsSlice = createSlice({
@@ -40,7 +42,11 @@ export const postsSlice = createSlice({
       state.posts.push(action.payload);
     },
     addPosts: (state, action: PayloadAction<Post[]>) => {
-      state.posts = state.posts.concat(action.payload);
+      state.posts = [...action.payload, ...state.posts];
+    },
+
+    setPostsScroll: (state, action: PayloadAction<number>) => {
+      state.postsScroll = action.payload;
     },
   },
 });
@@ -52,6 +58,7 @@ export const {
   addPost,
   addPosts,
   setPosts,
+  setPostsScroll,
 } = postsSlice.actions;
 
 export const getPostsStore = (state: RootState) => state.posts.posts;

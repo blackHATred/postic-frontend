@@ -17,10 +17,6 @@ const WelcomeDialog: React.FC = () => {
   );
   const [cookies, _, removeCookie] = useCookies();
 
-  useEffect(() => {
-    console.log(cookies["session"]);
-  }, [cookies]);
-
   const getButtons = (): ClickableButtonProps[] => {
     if (cookies["session"]) {
       //NOTE: Есть информация об аккаунте

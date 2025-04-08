@@ -27,7 +27,6 @@ export const commentsSlice = createSlice({
           (a, b) => a.created_at.unix() - b.created_at.unix()
         );
       }
-      console.log(state.comments);
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
       let modif = false;
@@ -42,7 +41,6 @@ export const commentsSlice = createSlice({
             dayjs(a.created_at).unix() - dayjs(b.created_at).unix()
         );
       }
-      console.log(state.comments);
     },
   },
 });

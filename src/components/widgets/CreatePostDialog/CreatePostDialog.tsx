@@ -13,14 +13,15 @@ import FileUploader from "./FileUploader";
 import { validateMinLength } from "../../../utils/validation";
 import dayjs, { Dayjs } from "dayjs";
 import Picker from "emoji-picker-react";
-import { sendPostRequest } from "../../../api/api";
+import { getPosts, sendPostRequest } from "../../../api/api";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   setCreatePostDialog,
-  setCreatePostDialogSelectedPlatforms,
   setPostStatusDialog,
 } from "../../../stores/basePageDialogsSlice";
 import ru from "antd/es/date-picker/locale/ru_RU";
+import { Post, sendPostResult } from "../../../models/Post/types";
+import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
 
 const { Text } = Typography;
 
@@ -38,15 +39,13 @@ const CreatePostDialog: FC = () => {
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [postText, setPostText] = useState(""); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Состояние для выбранной даты
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(); // Состояние для выбранной даты
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // Состояние для выбранной даты
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
   const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector(
     (state) => state.basePageDialogs.createPostDialog.isOpen
-  );
-  const selectedPlatforms = useAppSelector(
-    (state) => state.basePageDialogs.createPostDialog.selectedPlatforms
   );
 
   const onOk = () => {
@@ -79,8 +78,16 @@ const CreatePostDialog: FC = () => {
     sendPostRequest({
       text: postText,
       attachments: fileIDs,
-      pub_time: selectedDate?.valueOf() ? selectedDate.valueOf() : 0,
+      pub_time: selectedDate?.unix() ? selectedDate.unix() : dayjs().unix(),
       platforms: selectedPlatforms,
+    }).then((data: sendPostResult) => {
+      getPosts().then((res: { posts: Post[] }) => {
+        if (res.posts) {
+          dispatch(setPosts(res.posts));
+        } else {
+        }
+      }); // Вот это можно будет удалить после изменения бекэнда
+      dispatch(setSelectedPostId(data.post_id));
     });
     dispatch(setPostStatusDialog(true));
     dispatch(setCreatePostDialog(false));
@@ -151,9 +158,7 @@ const CreatePostDialog: FC = () => {
             { value: "tg", label: "Telegram" },
           ]}
           value={selectedPlatforms}
-          onChange={(values) =>
-            dispatch(setCreatePostDialogSelectedPlatforms(values))
-          }
+          onChange={(values: string[]) => setSelectedPlatforms(values)}
         />
         <PlatformSettings selectedPlatforms={selectedPlatforms} />
         <div className={styles["post-time"]}>

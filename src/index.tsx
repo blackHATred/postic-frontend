@@ -2,15 +2,25 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./app/App";
 import { CookiesProvider } from "react-cookie";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./stores/store";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+]);
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <CookiesProvider defaultSetOptions={{ path: "/", httpOnly: false }}>
-      <App />
-    </CookiesProvider>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>
 );
 

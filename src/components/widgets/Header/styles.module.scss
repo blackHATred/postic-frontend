@@ -5,15 +5,20 @@
   flex-direction: row;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   background-color: #fff;
+  grid-row: 1;
+  height: 100px;
+  width: 100%;
+  z-index: 100;
 }
 
 .headerComponents {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   flex-direction: raw;
-  gap: 300px;
+  gap: auto;
   margin-top: 10px;
+  width: 100vw;
 }
 
 .headerIcons {
