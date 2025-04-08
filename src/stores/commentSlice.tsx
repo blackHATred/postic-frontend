@@ -30,7 +30,7 @@ export const commentsSlice = createSlice({
       console.log(state.comments);
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
-      let modif = false;
+      const modif = false;
       action.payload.forEach((element) => {
         if (!state.comments.some((comment) => comment.id === element.id)) {
           state.comments = [...state.comments, element];

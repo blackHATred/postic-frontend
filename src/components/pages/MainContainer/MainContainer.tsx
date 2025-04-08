@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
-import ButtonHeader from "../../widgets/Header/Header";
 import { Post } from "../../../models/Post/types";
 import PostList from "../../widgets/PostList/PostList";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, Typography } from "antd";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import PostStatusDialog from "../../widgets/PostStatusDialog/PostStatusDialog";
 import WelcomeDialog from "../../widgets/auth/WelcomeDialog";
@@ -14,20 +13,17 @@ import { getPosts } from "../../../api/api";
 import MeDialog from "../../widgets/auth/MeDialog";
 import { WebSocketContext } from "../../../api/WebSocket";
 import TeamList from "../../widgets/TeamList/TeamList";
-import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
 import TeamAddMemberDialog from "../../widgets/TeamDialog/TeamAddMemberDialog";
-import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
 import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  setPosts,
-  setScrollToPost,
-  setSelectedPostId,
-} from "../../../stores/postsSlice";
+import { setPosts, setScrollToPost } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
+import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
 
-const BasePage: React.FC = () => {
+const { Text } = Typography;
+
+const MainContainer: React.FC = () => {
   const dispatch = useAppDispatch();
   const webSocketmanager = useContext(WebSocketContext);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
@@ -40,6 +36,7 @@ const BasePage: React.FC = () => {
         if (res.posts) {
           dispatch(setPosts(res.posts));
         } else {
+          console.log("нет постов");
         }
       })
       .catch(() => {
@@ -61,62 +58,71 @@ const BasePage: React.FC = () => {
     }
   }, [webSocketmanager.readyState]);
 
-  const makeVisibleDialogCreateTeam = () => {
-    setShowDiaTeamCreate(true);
-  };
-
-  // для того, чтоб сбрасывать состояние ленты и миниленты
-  const handleTabChange = (key: string) => {
-    dispatch(setActiveTab(key));
-    if (key === "1") {
-      dispatch(setSelectedPostId(""));
-    }
-  };
+  const options = [
+    {
+      icon: <PlusOutlined className={styles["icon-primary"]} />,
+      text: "Добавить пост",
+    },
+    {
+      icon: <TeamOutlined className={styles["icon-primary"]} />,
+      text: "Команды",
+    },
+  ];
 
   return (
-    <div className={styles.commentPage}>
-      <ButtonHeader
-        activeTab={activeTab}
-        onTabChange={handleTabChange} // для изменения вкладки
-      />
-
-      {activeTab === "1" ? (
-        <div>
-          <PostList />
-          {
-            //Для тестa
-            <TeamList />
-          }
+    <div className={styles["main-container"]}>
+      <div className={styles["layout"]}>
+        {/* Навигационная панель */}
+        <div className={styles["sidebar"]}>
+          {options.map((option, index) => (
+            <div key={index} className={styles["sidebar-options"]}>
+              {option.icon}
+              <Text className={styles["sidebar-option"]}>{option.text}</Text>
+            </div>
+          ))}
         </div>
-      ) : (
-        <div>
-          {selectedPostId && (
-            <Breadcrumb
-              className={styles["breadcrumb"]}
-              items={[
-                {
-                  title: (
-                    <div
-                      className={styles["Post"]}
-                      onClick={() => {
-                        dispatch(setActiveTab("1"));
-                        dispatch(setScrollToPost(true));
-                      }}
-                    >
-                      {"Пост #" + selectedPostId}
-                    </div>
-                  ),
-                },
-                {
-                  title: "Комментарии",
-                },
-              ]}
-            ></Breadcrumb>
+
+        {/* Основной контент */}
+        <div className={styles["content"]}>
+          {activeTab === "1" ? (
+            <div>
+              <PostList />
+              {
+                //Для теста
+                <TeamList />
+              }
+            </div>
+          ) : (
+            <div>
+              {selectedPostId && (
+                <Breadcrumb
+                  className={styles["breadcrumb"]}
+                  items={[
+                    {
+                      title: (
+                        <div
+                          className={styles["Post"]}
+                          onClick={() => {
+                            dispatch(setActiveTab("1"));
+                            dispatch(setScrollToPost(true));
+                          }}
+                        >
+                          {"Пост #" + selectedPostId}
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "Комментарии",
+                    },
+                  ]}
+                ></Breadcrumb>
+              )}
+              <CommentList />
+            </div>
           )}
-
-          <CommentList />
         </div>
-      )}
+      </div>
+
       <DialogBoxSummary />
       <PostStatusDialog />
       <CreatePostDialog />
@@ -136,4 +142,4 @@ const BasePage: React.FC = () => {
   );
 };
 
-export default BasePage;
+export default MainContainer;

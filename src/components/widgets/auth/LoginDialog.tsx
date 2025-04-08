@@ -3,10 +3,10 @@ import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
 import { NotificationContext } from "../../../api/notification";
 
 import { RegisterResult } from "../../../models/User/types";
+import { useCookies } from "react-cookie";
 import { Login } from "../../../api/api";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setLoginDialog } from "../../../stores/basePageDialogsSlice";
-import { useCookies } from "react-cookie";
 
 const LoginDialog: React.FC = () => {
   const dispatch = useAppDispatch();

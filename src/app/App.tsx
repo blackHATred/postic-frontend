@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import BasePage from "../components/pages/CommentsPage/BasePage";
+import MainPage from "../components/pages/MainPage/MainPage";
 import { ConfigProvider, theme } from "antd";
 import WebSocketComponent from "../api/WebSocket";
 import "./App.css";
@@ -23,7 +23,7 @@ const App: React.FC = () => {
               <Provider store={store}>
                 <NotificationManager>
                   <WebSocketComponent>
-                    <BasePage />
+                    <MainPage />
                   </WebSocketComponent>
                 </NotificationManager>
               </Provider>

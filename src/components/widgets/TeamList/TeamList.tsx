@@ -1,10 +1,7 @@
-import React, { RefObject } from "react";
+import React from "react";
 import { List, Spin } from "antd";
 import styles from "./styles.module.scss";
-import { Post } from "../../../models/Post/types";
-import PostComponent from "../../ui/Post/Post";
 import TeamCard from "../../ui/TeamCard/TeamCard";
-import { Team } from "../../../models/Team/types";
 import { useAppSelector } from "../../../stores/hooks";
 import { getTeamsFromStore } from "../../../stores/teamSlice";
 

@@ -1,0 +1,48 @@
+@import "../../../styles/variables";
+
+.main-container {
+  padding-top: 90px; /* Высота хедера */
+  background-color: $background-color;
+  display: flex;
+  justify-content: center;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 100px;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.sidebar-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  &:hover .sidebar-option {
+    color: $primary-color;
+  }
+}
+
+.content {
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.icon-primary {
+  color: $primary-color;
+}

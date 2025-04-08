@@ -1,16 +1,8 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Divider, Radio, Table, TableColumnsType, Tag, Typography } from "antd";
+import React, { useState } from "react";
+import { Divider, Table, TableColumnsType, Typography } from "antd";
 import styles from "./styles.module.scss";
-import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
-import Icon, {
-  CommentOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  MinusOutlined,
-  PaperClipOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Team } from "../../../models/Team/types";
 
 const { Text } = Typography;
@@ -20,7 +12,7 @@ interface TeamCardProps {
 }
 
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
-  const { team_id, admin_id, team_name, team_members } = teamcard;
+  const { id, name: team_name, users: team_members } = teamcard;
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -77,10 +69,10 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   ];
 
   const tabledata: DataType[] = team_members.map((member) => ({
-    key: member.ID,
-    member: member.name,
-    id: member.ID,
-    access: member.access,
+    key: member.user_id,
+    member: member.user_id.toString(),
+    id: member.user_id,
+    access: member.roles.join(", "),
   }));
 
   const handleTableChange = (newPagination: any, filters: any, sorter: any) => {
@@ -105,7 +97,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
         </div>
         <div className={styles["post-header-buttons"]}>
           <ClickableButton
-            text="Удалить команду"
+            text="Покинуть команду"
             type="primary"
             color="danger"
             variant="solid"

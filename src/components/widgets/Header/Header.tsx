@@ -2,15 +2,12 @@ import React from "react";
 import ClickableButton from "../../ui/Button/Button";
 import {
   BellOutlined,
-  CommentOutlined,
-  PlusCircleOutlined,
   PlusOutlined,
-  SettingOutlined,
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import styles from "./styles.module.scss";
-import { Image, Menu, MenuProps, Tabs, Select, SelectProps } from "antd";
+import { Image, Tabs, Select } from "antd";
 import logo from "../../../styles/images/logo.png";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
@@ -54,8 +51,8 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   }
 
   const teamOptions = teams.map((team) => ({
-    value: team.team_id.toString(),
-    label: team.team_name,
+    value: team.id.toString(),
+    label: team.name,
   }));
 
   return (

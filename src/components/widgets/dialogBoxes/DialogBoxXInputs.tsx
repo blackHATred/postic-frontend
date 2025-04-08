@@ -44,7 +44,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
           placeholder={value}
           variant="filled"
           onChange={(e) => {
-            let d_1 = input_data;
+            const d_1 = input_data;
             d_1[key] = e.target.value;
             SetInputData(d_1);
           }}

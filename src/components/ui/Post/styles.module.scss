@@ -1,12 +1,14 @@
+@import "../../../styles/variables";
+
 .post {
-  border: 1px solid #f0f0f0;
+  border: 1px solid $border-color;
   border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
-  background-color: #fff;
+  background-color: $container-color;
   width: 768px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: $border-radius;
 }
 .post-header {
   display: flex;
@@ -32,16 +34,16 @@
 
 .post-time {
   font-size: 12px;
-  color: #8c8c8c;
+  color: $secondary-color;
 }
 
 .post-reply-to {
   margin-bottom: 12px;
   font-size: 12px;
-  color: #8c8c8c;
+  color: $secondary-color;
 
   a {
-    color: #1890ff;
+    color: $primary-color;
     text-decoration: none;
 
     &:hover {
@@ -68,7 +70,7 @@
 }
 
 .primaryText {
-  color: #1890ff;
+  color: $primary-color;
 }
 
 .post-author .post-time {

@@ -1,9 +1,11 @@
+@import "../../../styles/variables";
+
 .comment {
   //border: 1px solid #f0f0f0;
-  border-radius: 4px;
+  border-radius: $border-radius;
   padding: 16px;
   margin-bottom: 16px;
-  background-color: #fff;
+  background-color: $container-color;
   width: 50vw;
 }
 
@@ -20,16 +22,16 @@
 
 .comment-time {
   font-size: 12px;
-  color: #8c8c8c;
+  color: $secondary-color;
 }
 
 .comment-reply-to {
   margin-bottom: 12px;
   font-size: 12px;
-  color: #8c8c8c;
+  color: $secondary-color;
 
   a {
-    color: #1890ff; // Цвет ссылки
+    color: $primary-color; // Цвет ссылки
     text-decoration: none;
 
     &:hover {

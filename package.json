@@ -36,7 +36,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "eslintConfig": {
     "extends": [
@@ -57,6 +59,11 @@
     ]
   },
   "devDependencies": {
-    "sass": "^1.85.1"
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.29.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "sass": "^1.85.1",
+    "sass-resources-loader": "^2.2.5"
   }
 }

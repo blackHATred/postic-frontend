@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren } from 'react';
-import { Button, notification, NotificationArgsProps } from 'antd';
+import { notification, NotificationArgsProps } from 'antd';
 import { NotificationPlacements } from 'antd/es/notification/interface';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
