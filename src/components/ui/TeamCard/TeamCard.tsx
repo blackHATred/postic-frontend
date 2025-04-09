@@ -117,12 +117,24 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       dispatch(setSelectRoles([]));
     }
   };
+  const roleTranslations: Record<string, string> = {
+    admin: "администратор",
+    comments: "комментарии",
+    posts: "посты",
+  };
+
+  const formatRoles = (roles: string[]): string => {
+    if (roles.includes("admin")) {
+      return roleTranslations["admin"];
+    }
+    return roles.map((role) => roleTranslations[role] || role).join(", ");
+  };
 
   interface DataType {
     key: React.Key;
     member: string;
     id: number;
-    access: string;
+    access: string[];
   }
 
   const columns: TableColumnsType<DataType> = [
@@ -138,7 +150,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     {
       title: "Права",
       dataIndex: "access",
-      render: (access: string, row: DataType) => (
+      render: (roles: string[], row: DataType) => (
         <button
           onClick={() => onEditMemberClick(row.id)}
           style={{
@@ -149,7 +161,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
             padding: 0,
           }}
         >
-          {access}
+          {formatRoles(roles)}
         </button>
       ),
     },
@@ -157,15 +169,16 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       title: "",
       dataIndex: "",
       key: "x",
-      render: (row: DataType) => (
-        <ClickableButton
-          type="link"
-          color="danger"
-          variant="link"
-          icon={<MinusOutlined />}
-          onButtonClick={() => handleKickMember(row.id)}
-        />
-      ),
+      render: (row: DataType) =>
+        isUserAdmin ? (
+          <ClickableButton
+            type="link"
+            color="danger"
+            variant="link"
+            icon={<MinusOutlined />}
+            onButtonClick={() => handleKickMember(row.id)}
+          />
+        ) : null,
     },
   ];
 
@@ -173,7 +186,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     key: member.user_id,
     member: member.user_id.toString(),
     id: member.user_id,
-    access: member.roles.join(", "),
+    access: member.roles,
   }));
 
   const handleTableChange = (newPagination: any, filters: any, sorter: any) => {
@@ -197,12 +210,14 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
           </div>
         </div>
         <div className={styles["post-header-buttons"]}>
-          <ClickableButton
-            type="text"
-            variant="solid"
-            icon={<EditOutlined />}
-            onButtonClick={handleRename}
-          />
+          {isUserAdmin && (
+            <ClickableButton
+              type="text"
+              variant="solid"
+              icon={<EditOutlined />}
+              onButtonClick={handleRename}
+            />
+          )}
           <ClickableButton
             text="Покинуть команду"
             type="primary"

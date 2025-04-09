@@ -59,7 +59,7 @@ const TeamRenameDialog: React.FC = () => {
     <DialogBox
       bottomButtons={[
         {
-          text: "Создать",
+          text: "Сохранить",
           onButtonClick: onOk,
         },
       ]}
