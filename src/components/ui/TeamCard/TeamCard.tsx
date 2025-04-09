@@ -2,16 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Divider, Table, TableColumnsType, Typography } from "antd";
 import styles from "./styles.module.scss";
 import ClickableButton from "../Button/Button";
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Team } from "../../../models/Team/types";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   setAddMemberDialog,
+  setCurrentUserId,
   setEditMemberDialog,
+  setOldTeamName,
+  setRenameTeamDialog,
   setSelectedMemberId,
   setSelectedTeamId,
 } from "../../../stores/teamSlice";
 import { useCookies } from "react-cookie";
+import { Me } from "../../../api/api";
 
 const { Text } = Typography;
 
@@ -25,6 +29,8 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const selectedMemberId = useAppSelector(
     (state) => state.teams.selectedMemberId
   );
+  const selectedTeamId = useAppSelector((state) => state.teams.selectedTeamId);
+  const oldTeamName = useAppSelector((state) => state.teams.oldTeamName);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -34,6 +40,8 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const [cookies, setCookie] = useCookies(["session"]);
 
   useEffect(() => {
+    const selectedTeamId = teamcard.id;
+    const oldTeamName = teamcard.name;
     const currentUserId = parseInt(cookies.session || "0");
     const userMember = team_members.find(
       (member) => String(member.user_id) === String(currentUserId)
@@ -43,6 +51,34 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     setIsUserAdmin(isAdmin);
   }, [team_members, cookies.session]);
 
+  const [currentUserId, setCurrentUserIdState] = useState<number | null>(null);
+
+  useEffect(() => {
+    Me()
+      .then((userData) => {
+        const userId = Number(userData.user_id);
+        setCurrentUserIdState(userId); // Сохраняем ID пользователя
+        dispatch(setCurrentUserId(userId)); // Обновляем в store
+      })
+      .catch((error) => {
+        console.error("Ошибка при получении данных пользователя:", error);
+      });
+  }, []);
+
+  // Проверяем, является ли текущий пользователь администратором команды
+  useEffect(() => {
+    if (currentUserId !== null) {
+      const userMember = team_members.find(
+        (member) => member.user_id === currentUserId
+      );
+      const isAdmin = userMember?.roles.includes("admin") || false;
+
+      setIsUserAdmin(isAdmin);
+      console.log("Текущий пользователь (ID):", currentUserId);
+      console.log("Является администратором:", isAdmin);
+    }
+  }, [currentUserId, team_members]);
+
   const handleAddMember = () => {
     dispatch(setSelectedTeamId?.(id));
     dispatch(setAddMemberDialog(true));
@@ -51,6 +87,12 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const handleKick = () => {
     setCookie("session", "201", { path: "/" });
     console.log("Cookie 'session' set to 201");
+  };
+
+  const handleRename = () => {
+    dispatch(setOldTeamName(oldTeamName));
+    dispatch(setSelectedTeamId(selectedTeamId));
+    dispatch(setRenameTeamDialog(true));
   };
 
   const onEditMemberClick = async (userId: number) => {
@@ -124,6 +166,12 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
           </div>
         </div>
         <div className={styles["post-header-buttons"]}>
+          <ClickableButton
+            type="text"
+            variant="solid"
+            icon={<EditOutlined />}
+            onButtonClick={handleRename}
+          />
           <ClickableButton
             text="Покинуть команду"
             type="primary"

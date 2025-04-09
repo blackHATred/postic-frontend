@@ -1,33 +1,41 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Typography, Input, Divider, Form, Checkbox } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setEditMemberDialog } from "../../../stores/teamSlice";
+import { NotificationContext } from "../../../api/notification";
+import { UpdateRole } from "../../../api/teamApi";
 
 const { Text } = Typography;
 
 export interface TeamEditMemberDialogProps
   extends Omit<DialogBoxProps, "onCancelClick"> {
-  setOpen: Function;
+  setOpen: (value: boolean) => void;
 }
 
 const TeamEditMemberDialog: React.FC = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.teams.editMemberDialog.isOpen);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [permissions, setPermissions] = useState({
     comments: false,
     posts: false,
   });
+  const teamId = useAppSelector((state) => state.teams.selectedTeamId);
+  const notificationManager = useContext(NotificationContext);
+  const [inviteUserId, setInviteUserId] = useState("");
   const selectedMemberId = useAppSelector(
     (state) => state.teams.selectedMemberId
   );
+
+  const [empty_checkbox, setEmptyCheckbox] = useState("");
 
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
     if (checked) {
       setPermissions({ comments: true, posts: true });
+      setEmptyCheckbox("");
     } else {
       setPermissions({ comments: false, posts: false });
     }
@@ -37,16 +45,44 @@ const TeamEditMemberDialog: React.FC = () => {
     key: "comments" | "posts",
     checked: boolean
   ) => {
-    setPermissions((prev) => ({ ...prev, [key]: checked }));
+    const newPermissions = { ...permissions, [key]: checked };
+    setPermissions(newPermissions);
+
+    if (isAdmin || newPermissions.comments || newPermissions.posts) {
+      setEmptyCheckbox("");
+    }
   };
 
-  const onOk = () => {};
+  const onOk = async () => {
+    if (!isAdmin && !permissions.comments && !permissions.posts) {
+      setEmptyCheckbox("Пожалуйста, выберите хотя бы одно право доступа");
+      return;
+    }
+
+    // Prepare roles array based on permissions
+    const roles: string[] = [];
+    if (isAdmin) {
+      roles.push("admin");
+    }
+    if (permissions.comments) {
+      roles.push("comments");
+    }
+    if (permissions.posts) {
+      roles.push("posts");
+    }
+
+    const result = await UpdateRole({
+      user_id: selectedMemberId,
+      team_id: teamId,
+      roles,
+    });
+  };
 
   return (
     <DialogBox
       bottomButtons={[
         {
-          text: "Сохранить",
+          text: "Добавить",
           onButtonClick: onOk,
         },
       ]}
@@ -54,7 +90,7 @@ const TeamEditMemberDialog: React.FC = () => {
       onCancelClick={async () => {
         dispatch(setEditMemberDialog(false));
       }}
-      title={"Изменение прав"}
+      title={"Смена доступа участника"}
       isCenter={true}
     >
       <Divider />
@@ -67,7 +103,12 @@ const TeamEditMemberDialog: React.FC = () => {
             rules={[{ required: true }]}
             labelCol={{ span: 24 }}
           >
-            <Input disabled placeholder={String(selectedMemberId)} />
+            <Input
+              placeholder="Введите ID участника"
+              defaultValue={selectedMemberId}
+              onChange={(e) => setInviteUserId(e.target.value)}
+              disabled={true}
+            />
           </Form.Item>
         </Form>
 
@@ -95,6 +136,7 @@ const TeamEditMemberDialog: React.FC = () => {
           >
             Администратор
           </Checkbox>
+          {empty_checkbox && <Text type="danger">{empty_checkbox}</Text>}
         </div>
       </div>
     </DialogBox>

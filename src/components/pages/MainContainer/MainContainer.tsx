@@ -17,6 +17,7 @@ import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
 import Sidebar from "../../ui/Sidebar/Sidebar";
 import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
 import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
+import TeamRenameDialog from "../../widgets/TeamDialog/TeamRenameDialog";
 
 const { Text } = Typography;
 
@@ -100,6 +101,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
       <TeamAddMemberDialog />
       <TeamCreateDialog />
       <TeamEditMemberDialog />
+      <TeamRenameDialog />
     </div>
   );
 };

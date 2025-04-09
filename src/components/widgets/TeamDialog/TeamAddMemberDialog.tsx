@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Typography, Input, Divider, Form, Checkbox } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setAddMemberDialog } from "../../../stores/teamSlice";
+import { NotificationContext } from "../../../api/notification";
+import { Invite } from "../../../api/teamApi";
 
 const { Text } = Typography;
 
@@ -20,13 +22,17 @@ const TeamAddMemberDialog: React.FC = () => {
     comments: false,
     posts: false,
   });
+  const teamId = useAppSelector((state) => state.teams.selectedTeamId);
+  const notificationManager = useContext(NotificationContext);
+  const [inviteUserId, setInviteUserId] = useState("");
+
   const [empty_checkbox, setEmptyCheckbox] = useState("");
 
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
     if (checked) {
       setPermissions({ comments: true, posts: true });
-      setEmptyCheckbox(""); // Сбрасываем ошибку при выборе админа
+      setEmptyCheckbox("");
     } else {
       setPermissions({ comments: false, posts: false });
     }
@@ -44,13 +50,29 @@ const TeamAddMemberDialog: React.FC = () => {
     }
   };
 
-  const onOk = () => {
+  const onOk = async () => {
     if (!isAdmin && !permissions.comments && !permissions.posts) {
       setEmptyCheckbox("Пожалуйста, выберите хотя бы одно право доступа");
       return;
     }
-    console.log("Сделать АПИ - Добавление участника выполнено");
-    // TODO: сделать отправку запроса апи
+
+    // Prepare roles array based on permissions
+    const roles: string[] = [];
+    if (isAdmin) {
+      roles.push("admin");
+    }
+    if (permissions.comments) {
+      roles.push("comments");
+    }
+    if (permissions.posts) {
+      roles.push("posts");
+    }
+
+    const result = await Invite({
+      user_id: Number(inviteUserId),
+      team_id: teamId,
+      roles,
+    });
   };
 
   return (
@@ -78,7 +100,11 @@ const TeamAddMemberDialog: React.FC = () => {
             rules={[{ required: true }]}
             labelCol={{ span: 24 }}
           >
-            <Input placeholder="Введите ID участника" />
+            <Input
+              placeholder="Введите ID участника"
+              value={inviteUserId}
+              onChange={(e) => setInviteUserId(e.target.value)}
+            />
           </Form.Item>
         </Form>
 

@@ -10,9 +10,12 @@ export interface teamSliceState {
   teams: Team[];
   selectedMemberId: number;
   selectedTeamId: number;
+  oldTeamName: string;
+  currentUserId: number;
   addMemberDialog: basicDialogState;
   editMemberDialog: basicDialogState;
   createTeamDialog: basicDialogState;
+  renameTeamDialog: basicDialogState;
 }
 
 // Define the initial state using that type
@@ -20,9 +23,12 @@ const initialState: teamSliceState = {
   teams: [],
   selectedMemberId: 0,
   selectedTeamId: 0,
+  oldTeamName: "",
+  currentUserId: 0,
   addMemberDialog: { isOpen: false },
   editMemberDialog: { isOpen: false },
   createTeamDialog: { isOpen: false },
+  renameTeamDialog: { isOpen: false },
 };
 
 export const teamSlice = createSlice({
@@ -50,7 +56,9 @@ export const teamSlice = createSlice({
     setSelectedTeamId: (state, action: PayloadAction<number>) => {
       state.selectedTeamId = action.payload;
     },
-
+    setCurrentUserId: (state, action: PayloadAction<number>) => {
+      state.currentUserId = action.payload;
+    },
     setAddMemberDialog: (state, action: PayloadAction<boolean>) => {
       state.addMemberDialog.isOpen = action.payload;
     },
@@ -59,6 +67,12 @@ export const teamSlice = createSlice({
     },
     setCreateTeamDialog: (state, action: PayloadAction<boolean>) => {
       state.createTeamDialog.isOpen = action.payload;
+    },
+    setRenameTeamDialog: (state, action: PayloadAction<boolean>) => {
+      state.renameTeamDialog.isOpen = action.payload;
+    },
+    setOldTeamName: (state, action: PayloadAction<string>) => {
+      state.oldTeamName = action.payload;
     },
   },
 });
@@ -70,9 +84,12 @@ export const {
   setTeams,
   setSelectedMemberId,
   setSelectedTeamId,
+  setCurrentUserId,
+  setOldTeamName,
   setAddMemberDialog,
   setEditMemberDialog,
   setCreateTeamDialog,
+  setRenameTeamDialog,
 } = teamSlice.actions;
 
 export const getTeamsFromStore = (state: RootState) => state.teams.teams;

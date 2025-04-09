@@ -55,7 +55,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   const setCookiesUserID = () => {
     setCookie(
       "session",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3MjY0MTZ9.0ZPFGSQYN8_qcmRM3w8IGwhwPBTt66HM8x9rSV7ERUk",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3Mzc1NTB9.gbZ3hbX63rBsokzIbKjZjYb3rz53PSKQEt9e9mASCvM",
       { path: "/" }
     );
     console.log("Cookie 'session' set to 1");
