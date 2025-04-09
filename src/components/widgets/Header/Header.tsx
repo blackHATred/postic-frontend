@@ -43,9 +43,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     },
   ];
 
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
+  const handleChange = (value: string) => {};
 
   interface TeamOption {
     value: string;

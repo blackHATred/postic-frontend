@@ -21,7 +21,11 @@ import {
 } from "../../../stores/basePageDialogsSlice";
 import ru from "antd/es/date-picker/locale/ru_RU";
 import { Post, sendPostResult } from "../../../models/Post/types";
-import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
+import {
+  setPosts,
+  setScrollToPost,
+  setSelectedPostId,
+} from "../../../stores/postsSlice";
 
 const { Text } = Typography;
 
@@ -86,7 +90,7 @@ const CreatePostDialog: FC = () => {
           dispatch(setPosts(res.posts));
         } else {
         }
-      }); // Вот это можно будет удалить после изменения бекэнда
+      }); // Вот это можно будет удалить после изменения бекэнда (вместо этого добавление нового элемента)
       dispatch(setSelectedPostId(data.post_id));
     });
     dispatch(setPostStatusDialog(true));

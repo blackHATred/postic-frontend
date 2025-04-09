@@ -101,7 +101,6 @@ const CommentList: React.FC = () => {
     <div className={styles.commentListContainer}>
       <RowVirtualizerDynamic
         object={filteredComments.map((comment) => {
-          console.log(filteredComments);
           return <CommentComponent comment={comment} />;
         })}
         getNewData={() => 0}

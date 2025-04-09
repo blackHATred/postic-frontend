@@ -59,7 +59,6 @@ const BasePage: React.FC = () => {
           max_count: 10,
         },
       });
-      console.log("sent");
     }
   }, [webSocketmanager.readyState]);
 

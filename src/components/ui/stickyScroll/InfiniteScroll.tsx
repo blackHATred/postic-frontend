@@ -38,6 +38,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
 
     setTimeout(() => setIsLoading(false), 100);
   };
+  const maxElementHeight = 2000;
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [hasMoreQuotes, setHasMoreQuotes] = React.useState({
@@ -45,6 +46,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   });
 
   const bottomRef = React.useRef(null);
+  const topRef = React.useRef<HTMLDivElement>(null);
   const scrollRef = React.useRef<number>(undefined);
 
   const parentRef = React.useRef<HTMLDivElement>(null);
@@ -54,8 +56,8 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   const virtualizer = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 2000,
-    initialOffset: props.scrollAmount * 2000,
+    estimateSize: () => maxElementHeight,
+    initialOffset: props.scrollAmount * maxElementHeight,
     overscan: 0,
     enabled: true,
   });
@@ -69,8 +71,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
 
   React.useEffect(() => {
     // On scroll to item
-    console.log("smooth scroll");
-    if (props.doSmoothScroll) {
+    if (props.doSmoothScroll && props.smoothScrollTarget) {
       setTimeout(
         () =>
           virtualizer.scrollToIndex(props.smoothScrollTarget, {
@@ -93,6 +94,22 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
       if (ref) {
         virtualizer.scrollToIndex(ref, { align: "start" });
         setHasMoreQuotes({ bottom: true });
+      }
+      scrollRef.current = undefined;
+    } else {
+      //new items added not to top
+
+      if (
+        topRef.current &&
+        topRef.current.getBoundingClientRect().bottom <=
+          window.innerHeight + maxElementHeight
+      ) {
+        console.log(
+          topRef.current.getBoundingClientRect().bottom,
+          window.innerHeight
+        );
+        //at bottom of screen
+        virtualizer.scrollToIndex(count - 1, { align: "end" });
       }
     }
   }, [count]);
@@ -145,6 +162,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
         }}
       >
         <div
+          ref={topRef}
           style={{
             height: `${virtualizer.getTotalSize()}px`,
             width: "100%",
