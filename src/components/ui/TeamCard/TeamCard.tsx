@@ -13,6 +13,7 @@ import {
   setRenameTeamDialog,
   setSelectedMemberId,
   setSelectedTeamId,
+  setSelectRoles,
 } from "../../../stores/teamSlice";
 import { useCookies } from "react-cookie";
 import { Me } from "../../../api/api";
@@ -27,9 +28,6 @@ interface TeamCardProps {
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const dispatch = useAppDispatch();
   const { id, name: team_name, users: team_members } = teamcard;
-  const selectedMemberId = useAppSelector(
-    (state) => state.teams.selectedMemberId
-  );
   const selectedTeamId = useAppSelector((state) => state.teams.selectedTeamId);
   const oldTeamName = useAppSelector((state) => state.teams.oldTeamName);
   const [pagination, setPagination] = useState({
@@ -92,6 +90,14 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     }
   };
 
+  const handleKickMember = (userId: number) => {
+    if (userId !== null) {
+      Kick({ kicked_user_id: userId, team_id: id });
+    } else {
+      console.error("Current user ID is null. Cannot kick user.");
+    }
+  };
+
   const handleRename = () => {
     dispatch(setOldTeamName(oldTeamName));
     dispatch(setSelectedTeamId?.(id));
@@ -100,10 +106,16 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   };
 
   const onEditMemberClick = async (userId: number) => {
+    const member = team_members.find((member) => member.user_id === userId);
     // При нажатии кнопки смены доступа
     dispatch(setEditMemberDialog(true));
+    dispatch(setSelectedTeamId?.(id));
     dispatch(setSelectedMemberId(userId));
-    //dispatch(setSelectRoles());
+    if (member) {
+      dispatch(setSelectRoles(member.roles));
+    } else {
+      dispatch(setSelectRoles([]));
+    }
   };
 
   interface DataType {
@@ -115,7 +127,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const columns: TableColumnsType<DataType> = [
     {
-      title: "Участник",
+      title: "Участники",
       dataIndex: "member",
       render: (text: string) => <a>{text}</a>,
     },
@@ -139,6 +151,20 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
         >
           {access}
         </button>
+      ),
+    },
+    {
+      title: "",
+      dataIndex: "",
+      key: "x",
+      render: (row: DataType) => (
+        <ClickableButton
+          type="link"
+          color="danger"
+          variant="link"
+          icon={<MinusOutlined />}
+          onButtonClick={() => handleKickMember(row.id)}
+        />
       ),
     },
   ];
@@ -200,9 +226,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
         <div className={styles["post-content-text"]}>
           <div>
             <Table<DataType>
-              rowSelection={{
-                type: "checkbox",
-              }}
               columns={columns}
               dataSource={paginatedData}
               pagination={{
