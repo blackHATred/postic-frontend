@@ -14,10 +14,6 @@ export const WebSocketContext = createContext<WebSocketContent>({
   sendJsonMessage: () => {},
 });
 
-interface commentWebsocket {
-  comment: any;
-}
-
 const WebSocketComponent: React.FC<PropsWithChildren> = (
   props: PropsWithChildren
 ) => {
@@ -40,7 +36,7 @@ const WebSocketComponent: React.FC<PropsWithChildren> = (
   }, [readyState]);
 
   useEffect(() => {
-    console.log("Recieved messgae:" + lastMessage);
+    console.log("Recieved message:" + lastMessage);
   }, [lastMessage]);
 
   const sendmessage = (args: { [key: string]: any }) => {

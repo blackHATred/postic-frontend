@@ -27,6 +27,8 @@ import {
 } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
+import Cookies from "universal-cookie";
+import { useCookies } from "react-cookie";
 
 const BasePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -34,20 +36,25 @@ const BasePage: React.FC = () => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const [showDiaTeamCreate, setShowDiaTeamCreate] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies();
 
   useEffect(() => {
-    getPosts()
-      .then((res: { posts: Post[] }) => {
-        if (res.posts) {
-          dispatch(setPosts(res.posts));
-          dispatch(setPostsScroll(res.posts.length));
-        } else {
-        }
-      })
-      .catch(() => {
-        console.log("Error getting posts");
-      });
-  }, []);
+    if (cookies["session"])
+      getPosts()
+        .then((res: { posts: Post[] }) => {
+          if (res.posts) {
+            dispatch(setPosts(res.posts));
+            dispatch(setPostsScroll(res.posts.length));
+          } else {
+          }
+        })
+        .catch(() => {
+          console.log("Error getting posts");
+        });
+    else {
+      dispatch(setPosts([]));
+    }
+  }, [cookies["session"]]);
 
   useEffect(() => {
     if (webSocketmanager.readyState == ReadyState.OPEN) {
