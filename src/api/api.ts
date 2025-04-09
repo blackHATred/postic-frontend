@@ -107,8 +107,7 @@ export const Login = async (id: number): Promise<RegisterResult> => {
     `${config.api.baseURL}/user/login`,
     {
       user_id: id,
-    },
-    { withCredentials: true }
+    }
   );
 
   return response.data;
