@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
@@ -16,10 +16,6 @@ const WelcomeDialog: React.FC = () => {
     (state) => state.basePageDialogs.welcomeDialog.isOpen
   );
   const [cookies, _, removeCookie] = useCookies();
-
-  useEffect(() => {
-    console.log(cookies["session"]);
-  }, [cookies]);
 
   const getButtons = (): ClickableButtonProps[] => {
     if (cookies["session"]) {

@@ -1,25 +1,37 @@
 import React, { useContext, useEffect, useState } from "react";
 import ButtonHeader from "../../widgets/Header/Header";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
+import {
+  setPosts,
+  setPostsScroll,
+  setSelectedPostId,
+} from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import MainContainer from "../MainContainer/MainContainer";
 import styles from "./styles.module.scss";
 import { Team } from "../../../models/Team/types";
 import { MyTeams } from "../../../api/teamApi";
+import { mockPosts, Post } from "../../../models/Post/types";
 import { setCurrentUserId, setTeams } from "../../../stores/teamSlice";
-import { Post } from "../../../models/Post/types";
 import { getPosts, Me } from "../../../api/api";
 import { ReadyState } from "react-use-websocket";
 import { WebSocketContext } from "../../../api/WebSocket";
+import AuthenticatedSSE from "../../../api/SSE";
 
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const webSocketmanager = useContext(WebSocketContext);
-  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const [currentUserId, setCurrentUserIdState] = useState<number | null>(null);
+  const selectedteamid = useAppSelector(
+    (state) => state.teams.globalActiveTeamId
+  );
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const url =
+    "http://localhost:80/api/comment/subscribe?team_id=" + selectedteamid;
+
+  useEffect(() => {
+    console.log(url);
+  }, [selectedteamid]);
 
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
@@ -33,12 +45,21 @@ const MainPage: React.FC = () => {
     getPosts()
       .then((res: { posts: Post[] }) => {
         if (res.posts) {
-          dispatch(setPosts(res.posts));
+          if (res.posts.length == 0) {
+            console.log("mocks");
+            dispatch(setPosts(mockPosts));
+            dispatch(setPostsScroll(mockPosts.length));
+          } else {
+            dispatch(setPosts(res.posts));
+            dispatch(setPostsScroll(res.posts.length));
+          }
         } else {
-          console.log("нет постов");
         }
       })
       .catch(() => {
+        console.log("mocks");
+        dispatch(setPosts(mockPosts));
+        dispatch(setPostsScroll(mockPosts.length));
         console.log("Error getting posts");
       });
   }, []);
@@ -88,15 +109,17 @@ const MainPage: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className={styles["main-page"]}>
-      <ButtonHeader
-        isAuthorized={isAuthorized}
-        activeTab={activeTab}
-        onTabChange={handleTabChange} // для изменения вкладки
-      />
+    <AuthenticatedSSE url={url} onMessage={() => {}}>
+      <div className={styles["main-page"]}>
+        <ButtonHeader
+          isAuthorized={isAuthorized}
+          activeTab={activeTab}
+          onTabChange={handleTabChange} // для изменения вкладки
+        />
 
-      <MainContainer isAuthorized={isAuthorized} />
-    </div>
+        <MainContainer isAuthorized={isAuthorized} />
+      </div>
+    </AuthenticatedSSE>
   );
 };
 

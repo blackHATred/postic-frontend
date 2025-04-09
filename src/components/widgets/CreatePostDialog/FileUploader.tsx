@@ -46,7 +46,6 @@ const FileUploader: React.FC<fileUploaderProps> = (
             reader.result as string,
           ]);
         };
-        console.log(file);
         reader.readAsDataURL(file);
       } else {
         setFiles((prevFiles) => [...prevFiles, file]);
@@ -55,7 +54,6 @@ const FileUploader: React.FC<fileUploaderProps> = (
       //  (для всех файлов)
       try {
         const uploadResult = await uploadFile(file);
-        console.log("ID файла:", uploadResult.file_id);
         props.setFileIDs([...props.fileIDs, uploadResult.file_id]);
       } catch (error) {
         if (isAxiosError(error)) {

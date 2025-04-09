@@ -28,8 +28,9 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
       bottomButtons={
         props.bottomButtons &&
         props.bottomButtons.map((button: ClickableButtonProps) => {
-          if (button.onButtonClick) {
-            button.onButtonClick = button.onButtonClick(input_data);
+          const cl = button.onButtonClick;
+          if (cl) {
+            button.onButtonClick = () => cl(input_data);
           }
           return button;
         })

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { List, Spin, Button } from "antd";
+import { Button } from "antd";
 import CommentComponent from "../../ui/Comment/Comment";
 import { Comment } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
@@ -12,6 +12,7 @@ import {
   getCommentsFromStore,
   getLastDate,
 } from "../../../stores/commentSlice";
+import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
@@ -20,7 +21,6 @@ const CommentList: React.FC = () => {
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-
   const filteredComments = selectedPostId
     ? comments.filter(
         (comment) => comment.post_union_id === Number(selectedPostId)
@@ -91,24 +91,18 @@ const CommentList: React.FC = () => {
   ) : null;
 
   return (
-    <div className={styles.commentListContainer} title="Комментарии">
-      {loading && (
-        <div className={styles.spinnerContainer}>
-          <Spin />
-        </div>
-      )}
-
-      <div className={styles.commentList}>
-        <List
-          dataSource={filteredComments}
-          loadMore={loadMore}
-          renderItem={(comment) => (
-            <List.Item>
-              <CommentComponent comment={comment} />
-            </List.Item>
-          )}
-        />
-      </div>
+    <div className={styles.commentListContainer}>
+      <RowVirtualizerDynamic
+        object={filteredComments.map((comment) => {
+          return <CommentComponent comment={comment} />;
+        })}
+        getNewData={() => new Promise(() => [])}
+        addData={() => {}}
+        doSmoothScroll={false}
+        smoothScrollTarget={0}
+        scrollAmount={0}
+        setScroll={(scroll: number) => {}}
+      />
     </div>
   );
 };

@@ -27,9 +27,6 @@ const LoginDialog: React.FC = () => {
             if (args["id"])
               Login(parseInt(args["id"]))
                 .then((res: RegisterResult) => {
-                  setCookie("session", res.user_id.toString(), {
-                    httpOnly: false,
-                  });
                   dispatch(setLoginDialog(false));
                 })
                 .catch(() => {
