@@ -107,10 +107,11 @@ export const Kick = async (user: KickUserRequest): Promise<string> => {
   return response.data;
 };
 
-export const Secret = async (): Promise<MeInfo> => {
+export const Secret = async (team_id: number): Promise<MeInfo> => {
   const response = await axios.get<MeInfo>(
     `${config.api.baseURL}/teams/secret`,
     {
+      params: { team_id },
       withCredentials: true,
     }
   );

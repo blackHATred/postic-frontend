@@ -16,6 +16,7 @@ import {
 } from "../../../stores/teamSlice";
 import { useCookies } from "react-cookie";
 import { Me } from "../../../api/api";
+import { Kick } from "../../../api/teamApi";
 
 const { Text } = Typography;
 
@@ -40,7 +41,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const [cookies, setCookie] = useCookies(["session"]);
 
   useEffect(() => {
-    const selectedTeamId = teamcard.id;
     const oldTeamName = teamcard.name;
     const currentUserId = parseInt(cookies.session || "0");
     const userMember = team_members.find(
@@ -85,13 +85,17 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   };
 
   const handleKick = () => {
-    setCookie("session", "201", { path: "/" });
-    console.log("Cookie 'session' set to 201");
+    if (currentUserId !== null) {
+      Kick({ kicked_user_id: currentUserId, team_id: id });
+    } else {
+      console.error("Current user ID is null. Cannot kick user.");
+    }
   };
 
   const handleRename = () => {
     dispatch(setOldTeamName(oldTeamName));
-    dispatch(setSelectedTeamId(selectedTeamId));
+    dispatch(setSelectedTeamId?.(id));
+    dispatch(setOldTeamName?.(team_name));
     dispatch(setRenameTeamDialog(true));
   };
 
@@ -99,6 +103,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     // При нажатии кнопки смены доступа
     dispatch(setEditMemberDialog(true));
     dispatch(setSelectedMemberId(userId));
+    //dispatch(setSelectRoles());
   };
 
   interface DataType {

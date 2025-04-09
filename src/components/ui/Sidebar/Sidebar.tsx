@@ -52,6 +52,16 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
           onButtonClick={handleTeamsClick}
         />
       </div>
+      {/*            
+      <div className={styles["sidebar-options"]}>
+        <ClickableButton
+          type="text"
+          text={"секрет"}
+          icon={<KeyOutlined className={styles["icon-primary"]} />}
+          onButtonClick={() => dispatch(setSecretTeamDialog(true))}
+        />
+      </div>
+      */}
     </div>
   );
 };

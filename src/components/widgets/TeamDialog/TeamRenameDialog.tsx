@@ -3,10 +3,7 @@ import { Typography, Input, Divider, Form } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  setCreateTeamDialog,
-  setRenameTeamDialog,
-} from "../../../stores/teamSlice";
+import { setRenameTeamDialog } from "../../../stores/teamSlice";
 import { Rename } from "../../../api/teamApi";
 import { NotificationContext } from "../../../api/notification";
 
@@ -23,7 +20,8 @@ const TeamRenameDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.teams.renameTeamDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
-  const selectedTeamId = useAppSelector((state) => state.teams.selectedTeamId);
+  const teamId = useAppSelector((state) => state.teams.selectedTeamId);
+  const oldName = useAppSelector((state) => state.teams.oldTeamName);
 
   const onOk = () => {
     if (!teamName.trim()) {
@@ -32,7 +30,7 @@ const TeamRenameDialog: React.FC = () => {
     }
 
     const renameRequest = {
-      team_id: selectedTeamId,
+      team_id: teamId,
       new_name: teamName,
     };
     Rename(renameRequest)
@@ -69,7 +67,7 @@ const TeamRenameDialog: React.FC = () => {
       onCancelClick={async () => {
         form.resetFields();
         setTeamName("");
-        dispatch(setCreateTeamDialog(false));
+        dispatch(setRenameTeamDialog(false));
       }}
       title={"Смена названия команды"}
       isCenter={true}
@@ -91,6 +89,7 @@ const TeamRenameDialog: React.FC = () => {
           >
             <Input
               placeholder="Введите название команды"
+              defaultValue={oldName}
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
             />
