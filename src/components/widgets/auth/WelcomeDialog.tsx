@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";

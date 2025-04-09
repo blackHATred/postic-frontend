@@ -1,17 +1,11 @@
 import MainPage from "../components/pages/MainPage/MainPage";
 import React from "react";
 import { ConfigProvider, theme } from "antd";
-import WebSocketComponent from "../api/WebSocket";
 import "./App.css";
 import NotificationManager from "../api/notification";
-import { Provider } from "react-redux";
-import { store } from "../stores/store";
 import { CookiesProvider } from "react-cookie";
-import {
-  useInfiniteQuery,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AuthenticatedSSE from "../api/SSE";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +20,12 @@ const App: React.FC = () => {
         <QueryClientProvider client={queryClient}>
           <CookiesProvider defaultSetOptions={{ path: "/", httpOnly: false }}>
             <NotificationManager>
-              <WebSocketComponent>
+              <AuthenticatedSSE
+                url="http://localhost:80/api/comment/subscribe"
+                onMessage={() => {}}
+              >
                 <MainPage />
-              </WebSocketComponent>
+              </AuthenticatedSSE>
             </NotificationManager>
           </CookiesProvider>
         </QueryClientProvider>

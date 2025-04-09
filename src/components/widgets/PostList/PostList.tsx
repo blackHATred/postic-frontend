@@ -1,19 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Space, Spin } from "antd";
+import React, { useEffect } from "react";
 import styles from "./styles.module.scss";
 import PostComponent from "../../ui/Post/Post";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   addPosts,
   getPostsStore,
-  setPosts,
   setPostsScroll,
   setScrollToPost,
 } from "../../../stores/postsSlice";
 import { mockPosts, Post } from "../../../models/Post/types";
-import Example from "../../ui/stickyScroll/InfiniteScroll";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
-import dayjs from "dayjs";
 interface PostListProps {
   isLoading?: boolean;
   hasMore?: boolean;
@@ -34,16 +30,16 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
     dispatch(setPostsScroll(scroll));
   };
 
-  const getNewData = () => {
-    let mocks: Post[] = [];
-    for (let i = 0; i < 50; i++) {
+  const getNewData = async () => {
+    const mocks: Post[] = [];
+    for (let i = 0; i < 5; i++) {
       const m = mockPosts.at(Math.random() * 3);
       if (m) mocks.push(m);
     }
-    const new_data = mocks;
     // if first time return newQuotes else concate it
-    dispatch(addPosts(new_data));
-    return new_data.length;
+    await new Promise((res) => setTimeout(res, 1000));
+    const new_data = mocks;
+    return new_data;
   };
 
   return (
@@ -53,6 +49,9 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           object={posts.map((post, index) => {
             return <PostComponent {...post} key={index} />;
           })}
+          addData={(data) => {
+            dispatch(addPosts(data));
+          }}
           getNewData={getNewData}
           doSmoothScroll={scrollToPost}
           smoothScrollTarget={posts.findIndex(

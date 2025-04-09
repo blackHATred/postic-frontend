@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { List, Spin, Button } from "antd";
+import React, { useContext, useEffect, useState } from "react";
+import { Button } from "antd";
 import CommentComponent from "../../ui/Comment/Comment";
 import { Comment } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
@@ -12,7 +12,6 @@ import {
   getCommentsFromStore,
   getLastDate,
 } from "../../../stores/commentSlice";
-import { CellMeasurerCache } from "react-virtualized";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 
 const CommentList: React.FC = () => {
@@ -22,12 +21,6 @@ const CommentList: React.FC = () => {
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-
-  const cache = new CellMeasurerCache({
-    defaultHeight: 200,
-    fixedWidth: true,
-  });
-
   const filteredComments = selectedPostId
     ? comments.filter(
         (comment) => comment.post_union_id === Number(selectedPostId)
@@ -103,7 +96,8 @@ const CommentList: React.FC = () => {
         object={filteredComments.map((comment) => {
           return <CommentComponent comment={comment} />;
         })}
-        getNewData={() => 0}
+        getNewData={() => new Promise(() => [])}
+        addData={() => {}}
         doSmoothScroll={false}
         smoothScrollTarget={0}
         scrollAmount={0}

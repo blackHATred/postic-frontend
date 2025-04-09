@@ -17,6 +17,7 @@ import DialogBoxSummary from "../../widgets/SummaryDialog/SummaryDialog";
 import Sidebar from "../../ui/Sidebar/Sidebar";
 import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
 import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
+import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import TeamRenameDialog from "../../widgets/TeamDialog/TeamRenameDialog";
 
 const { Text } = Typography;
@@ -58,8 +59,8 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
           <div className={styles["content"]}>
             {/* Контент для вкладок хедера */}
             {activeTab === "1" && (
-              <div>
-                <PostList />
+              <div style={{ width: "100%", height: "100%" }}>
+                <PostList hasMore={true} />
               </div>
             )}
             {activeTab === "2" && (
@@ -94,6 +95,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
 
       <DialogBoxSummary />
       <PostStatusDialog />
+      <CreatePostDialog />
       <LoginDialog />
       <RegisterDialog />
       <MeDialog />

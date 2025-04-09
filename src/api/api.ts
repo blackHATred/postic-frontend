@@ -52,6 +52,10 @@ export const getPosts = async (): Promise<{ posts: Post[] }> => {
     `${config.api.baseURL}/posts/list`,
     {
       withCredentials: true,
+      params: {
+        team_id: 1,
+        offset: 0,
+      },
     }
   );
   return response.data;
@@ -107,7 +111,8 @@ export const Login = async (id: number): Promise<RegisterResult> => {
     `${config.api.baseURL}/user/login`,
     {
       user_id: id,
-    }
+    },
+    { withCredentials: true }
   );
 
   return response.data;

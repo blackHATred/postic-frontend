@@ -2,23 +2,10 @@ import * as React from "react";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import styles from "./styles.module.scss";
-import { current } from "@reduxjs/toolkit";
-import { mockPosts } from "../../../models/Post/types";
-import { getPosts } from "../../../api/api";
-import { ScrollEventData } from "react-virtualized";
-import { Spin } from "antd";
-import PostComponent from "../Post/Post";
-import { randomInt } from "crypto";
-import { useScrollTo } from "react-scroll-to-bottom";
-import { ignore } from "antd/es/theme/useToken";
-import { start } from "repl";
-
-interface scrollInterface {}
-
 interface coolScroll {
   object: React.ReactNode[];
-  getNewData: () => number;
+  getNewData: () => Promise<any[]>;
+  addData: (data: any[]) => void;
   doSmoothScroll: boolean;
   smoothScrollTarget: number;
   scrollAmount: number;
@@ -33,9 +20,13 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
     setHasMoreQuotes({
       bottom: true,
     });
+    let new_data: any[] = [];
 
-    scrollRef.current = props.getNewData();
-
+    new_data = await props.getNewData().then((data) => {
+      return data;
+    });
+    scrollRef.current = new_data.length;
+    props.addData(new_data);
     setTimeout(() => setIsLoading(false), 100);
   };
   const maxElementHeight = 2000;
@@ -45,7 +36,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
     bottom: true,
   });
 
-  const bottomRef = React.useRef(null);
+  const bottomRef = React.useRef<HTMLDivElement>(null);
   const topRef = React.useRef<HTMLDivElement>(null);
   const scrollRef = React.useRef<number>(undefined);
 
@@ -98,16 +89,11 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
       scrollRef.current = undefined;
     } else {
       //new items added not to top
-
       if (
         topRef.current &&
         topRef.current.getBoundingClientRect().bottom <=
           window.innerHeight + maxElementHeight
       ) {
-        console.log(
-          topRef.current.getBoundingClientRect().bottom,
-          window.innerHeight
-        );
         //at bottom of screen
         virtualizer.scrollToIndex(count - 1, { align: "end" });
       }
@@ -139,6 +125,8 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   }, [hasMoreQuotes, hasMoreQuotes.bottom, isLoading]);
 
   const handleScroll = () => {
+    if (bottomRef.current)
+      console.log(bottomRef.current.getBoundingClientRect().top);
     if (virtualizer.scrollOffset) {
       const x = virtualizer.getVirtualItemForOffset(virtualizer.scrollOffset);
       if (x && x.key) {

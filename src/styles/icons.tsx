@@ -1,9 +1,6 @@
-import React from "react";
 import {
   LiaTelegram,
-  LiaWhatsapp,
   LiaTwitter,
-  LiaFacebook,
   LiaVk,
   LiaQuestionCircle,
 } from "react-icons/lia";

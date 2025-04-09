@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Divider, List, Space, Typography } from "antd";
+import { Divider, Space, Typography } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
@@ -16,7 +16,7 @@ import {
   setActiveTab,
   setSummaryDialog,
 } from "../../../stores/basePageDialogsSlice";
-import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
+import { setSelectedPostId } from "../../../stores/postsSlice";
 import {
   LiaQuestionCircle,
   LiaTelegram,

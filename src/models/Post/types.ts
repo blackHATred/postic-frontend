@@ -23,6 +23,7 @@ export interface sendPost {
   attachments: string[];
   pub_time: number;
   platforms: string[];
+  team_id: number;
 }
 
 export interface sendPostResult {

@@ -21,11 +21,7 @@ import {
 } from "../../../stores/basePageDialogsSlice";
 import ru from "antd/es/date-picker/locale/ru_RU";
 import { Post, sendPostResult } from "../../../models/Post/types";
-import {
-  setPosts,
-  setScrollToPost,
-  setSelectedPostId,
-} from "../../../stores/postsSlice";
+import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
 
 const { Text } = Typography;
 
@@ -51,6 +47,7 @@ const CreatePostDialog: FC = () => {
   const isOpen = useAppSelector(
     (state) => state.basePageDialogs.createPostDialog.isOpen
   );
+  const team_id = useAppSelector((state) => state.teams.selectedTeamId);
 
   const onOk = () => {
     const errors: string[] = [];
@@ -84,6 +81,7 @@ const CreatePostDialog: FC = () => {
       attachments: fileIDs,
       pub_time: selectedDate?.unix() ? selectedDate.unix() : dayjs().unix(),
       platforms: selectedPlatforms,
+      team_id: team_id,
     }).then((data: sendPostResult) => {
       getPosts().then((res: { posts: Post[] }) => {
         if (res.posts) {

@@ -13,9 +13,7 @@ import { getPostStatus } from "../../../api/api";
 import { postStatusResults } from "../../../models/Post/types";
 import {
   LiaTelegram,
-  LiaWhatsapp,
   LiaTwitter,
-  LiaFacebook,
   LiaVk,
   LiaQuestionCircle,
 } from "react-icons/lia";
@@ -78,14 +76,14 @@ const PostStatusDialog: FC = () => {
       getPostStatus(postId, platform).then((res: postStatusResults) => {
         //Получили статус
         switch (res.status.status) {
-          case "success":
-            const stat_s = socialStatuses.find(
+          case "success": {
+            const statusSuccess = socialStatuses.find(
               (element: SocialStatus) => element.platform == platform
             );
-            if (stat_s) {
-              const index = socialStatuses.indexOf(stat_s);
-              stat_s.status = "finish";
-              socialStatuses[index] = stat_s;
+            if (statusSuccess) {
+              const index = socialStatuses.indexOf(statusSuccess);
+              statusSuccess.status = "finish";
+              socialStatuses[index] = statusSuccess;
               setSocialStatuses(socialStatuses);
             } else {
               setSocialStatuses([
@@ -98,14 +96,15 @@ const PostStatusDialog: FC = () => {
               ]);
             }
             break;
-          case "error":
-            const stat_e = socialStatuses.find(
+          }
+          case "error": {
+            const statE = socialStatuses.find(
               (element: SocialStatus) => element.platform == platform
             );
-            if (stat_e) {
-              const index = socialStatuses.indexOf(stat_e);
-              stat_e.status = "error";
-              socialStatuses[index] = stat_e;
+            if (statE) {
+              const index = socialStatuses.indexOf(statE);
+              statE.status = "error";
+              socialStatuses[index] = statE;
               setSocialStatuses(socialStatuses);
             } else {
               setSocialStatuses([
@@ -118,14 +117,15 @@ const PostStatusDialog: FC = () => {
               ]);
             }
             break;
-          case "pending":
-            const stat_p = socialStatuses.find(
+          }
+          case "pending": {
+            const statP = socialStatuses.find(
               (element: SocialStatus) => element.platform == platform
             );
-            if (stat_p) {
-              const index = socialStatuses.indexOf(stat_p);
-              stat_p.status = "wait";
-              socialStatuses[index] = stat_p;
+            if (statP) {
+              const index = socialStatuses.indexOf(statP);
+              statP.status = "wait";
+              socialStatuses[index] = statP;
               setTimeout(() => setSocialStatuses(socialStatuses), 5000);
             } else {
               setSocialStatuses([
@@ -139,6 +139,7 @@ const PostStatusDialog: FC = () => {
             }
             getStatus(platform);
             setSocialStatuses(mapStatuses());
+          }
         }
       });
   };

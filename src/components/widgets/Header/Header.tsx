@@ -60,6 +60,13 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     }
   }, [teams, selectedTeam]);
 
+  useEffect(() => {
+    if (teamOptions[0]) {
+      const number = Number(teamOptions[0].value);
+      dispatch(setGlobalActiveTeamId(number));
+    }
+  }, [teamOptions]);
+
   const handleChange = (value: string) => {
     setSelectedTeam(value);
     setGlobalActiveTeamId(Number(value));
