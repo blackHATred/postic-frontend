@@ -2,13 +2,13 @@ import React, { useEffect } from "react";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { useCookies } from "react-cookie";
 import {
   setLoginDialog,
   setRegiserDialog,
   setWelcomeDialog,
 } from "../../../stores/basePageDialogsSlice";
 import { ClickableButtonProps } from "../../ui/Button/Button";
-import { useCookies } from "react-cookie";
 
 const WelcomeDialog: React.FC = () => {
   const dispatch = useAppDispatch();

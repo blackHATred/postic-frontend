@@ -1,20 +1,10 @@
 import {
-  RefObject,
-  useImperativeHandle,
-  useState,
-  useEffect,
-  useContext,
   PropsWithChildren,
 } from "react";
-import React, { createContext, Dispatch, SetStateAction } from "react";
+import React from "react";
 import { FC } from "react";
 import { Typography, Spin } from "antd";
-import DialogBox, { DialogBoxProps } from "../dialogBox/DialogBox";
 import { blue } from "@ant-design/colors";
-import { NotificationContext } from "../../../api/notification";
-import { publish } from "../../logic/event";
-import { getSummarize, Summarize } from "../../../api/api";
-import { GetSummarizeResult } from "../../../models/Comment/types";
 
 const { Text } = Typography;
 

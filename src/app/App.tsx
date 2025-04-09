@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import BasePage from "../components/pages/CommentsPage/BasePage";
+import MainPage from "../components/pages/MainPage/MainPage";
+import React from "react";
 import { ConfigProvider, theme } from "antd";
 import WebSocketComponent from "../api/WebSocket";
 import "./App.css";
@@ -27,7 +27,7 @@ const App: React.FC = () => {
           <CookiesProvider defaultSetOptions={{ path: "/", httpOnly: false }}>
             <NotificationManager>
               <WebSocketComponent>
-                <BasePage />
+                <MainPage />
               </WebSocketComponent>
             </NotificationManager>
           </CookiesProvider>

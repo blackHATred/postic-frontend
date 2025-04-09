@@ -1,0 +1,23 @@
+@import "../../../styles/variables";
+
+.main-container {
+  padding-top: 90px; /* Высота хедера */
+  background-color: $background-color;
+  display: flex;
+  justify-content: center;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.content {
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}

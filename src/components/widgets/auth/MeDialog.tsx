@@ -21,7 +21,7 @@ const MeDialog: React.FC = (props) => {
     if (isOpen) {
       Me()
         .then((res: MeInfo) => {
-          setSecretKey(res.secret);
+          setSecretKey(res.user_id);
         })
         .catch(() => {
           notificationManager.createNotification(

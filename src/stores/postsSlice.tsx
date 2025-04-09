@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { Post } from "../models/Post/types";
-import { RefObject } from "react";
 
 export interface PostSliceState {
   posts: Post[];

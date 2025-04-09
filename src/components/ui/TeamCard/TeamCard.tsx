@@ -1,17 +1,17 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Divider, Radio, Table, TableColumnsType, Tag, Typography } from "antd";
+import React, { useEffect, useState } from "react";
+import { Divider, Table, TableColumnsType, Typography } from "antd";
 import styles from "./styles.module.scss";
-import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
-import Icon, {
-  CommentOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  MinusOutlined,
-  PaperClipOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Team } from "../../../models/Team/types";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import {
+  setAddMemberDialog,
+  setEditMemberDialog,
+  setSelectedMemberId,
+  setSelectedTeamId,
+} from "../../../stores/teamSlice";
+import { useCookies } from "react-cookie";
 
 const { Text } = Typography;
 
@@ -20,23 +20,43 @@ interface TeamCardProps {
 }
 
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
-  const { team_id, admin_id, team_name, team_members } = teamcard;
+  const dispatch = useAppDispatch();
+  const { id, name: team_name, users: team_members } = teamcard;
+  const selectedMemberId = useAppSelector(
+    (state) => state.teams.selectedMemberId
+  );
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
   });
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedAccess, setSelectedAccess] = useState<string | null>(null);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
+  const [cookies, setCookie] = useCookies(["session"]);
 
-  const showModal = (access: string) => {
-    setSelectedAccess(access);
-    setIsModalVisible(true);
+  useEffect(() => {
+    const currentUserId = parseInt(cookies.session || "0");
+    const userMember = team_members.find(
+      (member) => String(member.user_id) === String(currentUserId)
+    );
+    const isAdmin = userMember?.roles.includes("admin") || false;
+
+    setIsUserAdmin(isAdmin);
+  }, [team_members, cookies.session]);
+
+  const handleAddMember = () => {
+    dispatch(setSelectedTeamId?.(id));
+    dispatch(setAddMemberDialog(true));
   };
 
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-    setSelectedAccess(null);
+  const handleKick = () => {
+    setCookie("session", "201", { path: "/" });
+    console.log("Cookie 'session' set to 201");
+  };
+
+  const onEditMemberClick = async (userId: number) => {
+    // При нажатии кнопки смены доступа
+    dispatch(setEditMemberDialog(true));
+    dispatch(setSelectedMemberId(userId));
   };
 
   interface DataType {
@@ -59,9 +79,9 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     {
       title: "Права",
       dataIndex: "access",
-      render: (access: string) => (
+      render: (access: string, row: DataType) => (
         <button
-          onClick={() => showModal(access)}
+          onClick={() => onEditMemberClick(row.id)}
           style={{
             background: "none",
             border: "none",
@@ -77,10 +97,10 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   ];
 
   const tabledata: DataType[] = team_members.map((member) => ({
-    key: member.ID,
-    member: member.name,
-    id: member.ID,
-    access: member.access,
+    key: member.user_id,
+    member: member.user_id.toString(),
+    id: member.user_id,
+    access: member.roles.join(", "),
   }));
 
   const handleTableChange = (newPagination: any, filters: any, sorter: any) => {
@@ -105,17 +125,21 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
         </div>
         <div className={styles["post-header-buttons"]}>
           <ClickableButton
-            text="Удалить команду"
+            text="Покинуть команду"
             type="primary"
             color="danger"
             variant="solid"
             icon={<MinusOutlined />}
+            onButtonClick={handleKick}
           />
-          <ClickableButton
-            text="Добавить участника"
-            icon={<PlusOutlined />}
-            color="primary"
-          />
+          {isUserAdmin && (
+            <ClickableButton
+              text="Добавить участника"
+              icon={<PlusOutlined />}
+              color="primary"
+              onButtonClick={handleAddMember}
+            />
+          )}
         </div>
       </div>
       <Divider className={styles.customDivider} />

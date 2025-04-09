@@ -1,28 +1,35 @@
 .headerContainer {
   display: flex;
-  justify-content: center;
+  justify-content: center; // Центрируем содержимое
   align-items: center;
-  flex-direction: row;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  grid-row: 1;
-  height: 100px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  z-index: 1;
   width: 100%;
-  z-index: 100;
+  height: 72px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .headerComponents {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; // Равномерное распределение
   align-items: center;
-  flex-direction: raw;
-  gap: auto;
-  margin-top: 10px;
-  width: 100vw;
+  width: 100%;
+  max-width: 1200px; // Ограничиваем максимальную ширину
+  padding: 0 20px; // Отступы по бокам
+  margin: 0 auto; // Центрирование
 }
 
 .headerIcons {
   display: flex;
   gap: 10px;
-  flex-direction: row;
+  align-items: center;
+}
+
+.tabs {
+  width: 200px; // Фиксированная ширина, даже если контент скрыт
+  display: flex;
+  justify-content: center;
 }

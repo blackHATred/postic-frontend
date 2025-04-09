@@ -1,4 +1,4 @@
-import dayjs, {Dayjs, isDayjs} from 'dayjs'
+import dayjs, {Dayjs} from 'dayjs'
 
 export interface Comment {
   id: number;

@@ -1,9 +1,7 @@
 import { useState, useEffect, useContext } from "react";
-import { createContext } from "react";
 import { FC } from "react";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import { NotificationContext } from "../../../api/notification";
-import { publish } from "../../logic/event";
 import { getSummarize, Summarize } from "../../../api/api";
 import { GetSummarizeResult } from "../../../models/Comment/types";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
@@ -49,7 +47,9 @@ const DialogBoxSummary: FC = () => {
   const onRefresh = async () => {
     if (isOpen) {
       Summarize(selectedPostId)
-        .then(() => {})
+        .then(() => {
+          // TODO: добавить АПИ на перезапрос
+        })
         .catch((error) => {
           NotificationManager.createNotification(
             "error",

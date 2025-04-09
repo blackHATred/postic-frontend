@@ -2,36 +2,36 @@ import React from "react";
 import ClickableButton from "../../ui/Button/Button";
 import {
   BellOutlined,
-  CommentOutlined,
-  PlusCircleOutlined,
   PlusOutlined,
-  SettingOutlined,
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import styles from "./styles.module.scss";
-import { Image, Menu, MenuProps, Tabs, Select, SelectProps } from "antd";
+import { Image, Tabs, Select } from "antd";
 import logo from "../../../styles/images/logo.png";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   setCreatePostDialog,
   setPersonalInfoDialog,
-  setPostStatusDialog,
   setWelcomeDialog,
 } from "../../../stores/basePageDialogsSlice";
 import { getTeamsFromStore } from "../../../stores/teamSlice";
-
+import { useCookies } from "react-cookie";
 interface ButtonHeaderProps {
-  activeTab: string;
-  onTabChange: (key: string) => void;
+  activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
+  onTabChange?: (key: string) => void; // Сделаем необязательным
+  isAuthorized: boolean; // Новый проп для определения авторизации
 }
 
 const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   activeTab,
   onTabChange,
+  isAuthorized,
 }) => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
+  const [cookies, setCookie] = useCookies(["session"]);
+
   const tabItems = [
     {
       key: "1",
@@ -45,22 +45,36 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
 
   const handleChange = (value: string) => {};
 
-  interface TeamOption {
-    value: string;
-    label: React.ReactNode;
-    icon: React.ReactNode;
-  }
-
   const teamOptions = teams.map((team) => ({
-    value: team.team_id.toString(),
-    label: team.team_name,
+    value: team.id.toString(),
+    label: team.name,
   }));
+
+  const setCookiesUserID = () => {
+    setCookie(
+      "session",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3MjY0MTZ9.0ZPFGSQYN8_qcmRM3w8IGwhwPBTt66HM8x9rSV7ERUk",
+      { path: "/" }
+    );
+    console.log("Cookie 'session' set to 1");
+  };
 
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
         <Image src={logo} alt="logo" height={40} width={40} preview={false} />
-        <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
+
+        {/* Рендерим вкладки только для авторизованных пользователей */}
+        {isAuthorized && (
+          <div className={styles.tabs}>
+            <Tabs
+              activeKey={activeTab}
+              items={tabItems}
+              onChange={onTabChange}
+            />
+          </div>
+        )}
+
         <div className={styles.headerIcons}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <TeamOutlined style={{ color: "#1890ff" }} />{" "}
@@ -83,7 +97,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
           <ClickableButton
             icon={<BellOutlined />}
             type="default"
-            onButtonClick={() => dispatch(setPostStatusDialog(true))}
+            onButtonClick={setCookiesUserID}
           />
           <ClickableButton
             icon={<UserOutlined />}

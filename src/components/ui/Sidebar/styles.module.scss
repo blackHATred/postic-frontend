@@ -1,0 +1,24 @@
+@import "../../../styles/variables";
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.sidebar-options {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover .sidebar-option {
+    color: $primary-color;
+  }
+}
+
+.icon-primary {
+  color: $primary-color;
+}

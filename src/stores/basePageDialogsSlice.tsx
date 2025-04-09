@@ -1,7 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Comment } from "../models/Comment/types";
-import { RootState } from "./store";
-import dayjs from "dayjs";
 
 interface basicDialogState {
   isOpen: boolean;

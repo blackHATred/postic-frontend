@@ -40,8 +40,8 @@ const CommentList: React.FC = () => {
     if (webSocketManager.lastJsonMessage) {
       const recievedJSON = JSON.parse(webSocketManager.lastJsonMessage.data); // Парсим JSON
 
-      if (recievedJSON.hasOwnProperty("comments")) {
-        //recieved multiple comments
+      if (Object.prototype.hasOwnProperty.call(recievedJSON, "comments")) {
+        // Обработка, если поле "comments" существует
         const comments = recievedJSON.comments as Comment[];
         if (comments != null) {
           dispatch(addComments(comments));

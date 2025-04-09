@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Upload, message, List, Typography, Carousel, Image } from "antd";
+import { Upload, List, Typography, Carousel, Image } from "antd";
 import {
   CloseOutlined,
   InboxOutlined,
@@ -35,7 +35,7 @@ const FileUploader: React.FC<fileUploaderProps> = (
     }
   }, [files, maxFiles]);
 
-  const handleFileUpload = async (file: any) => {
+  const handleFileUpload = async (file: File) => {
     if (!isFileAlreadyAdded(files, file)) {
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
