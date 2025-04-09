@@ -13,6 +13,7 @@ import {
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
 import { MeInfo, RegisterResult } from "../models/User/types";
+import dayjs from "dayjs";
 
 export const uploadFile = async (file: File): Promise<UploadResult> => {
   try {
@@ -54,7 +55,7 @@ export const getPosts = async (): Promise<{ posts: Post[] }> => {
       withCredentials: true,
       params: {
         team_id: 1,
-        offset: 0,
+        limit: 10,
       },
     }
   );
@@ -123,11 +124,13 @@ export const getSummarize = async (
 ): Promise<GetSummarizeResult> => {
   try {
     const response = await axios.get<GetSummarizeResult>(
-      `${config.api.baseURL}/get_summarize`,
+      `${config.api.baseURL}/comment/summarize`,
       {
         params: {
-          post_id: postId,
+          team_id: 1,
+          post_union_id: postId,
         },
+        withCredentials: true,
       }
     );
     return response.data;

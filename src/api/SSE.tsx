@@ -25,8 +25,34 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
           method: "get",
           credentials: "include",
           signal: ctrl.signal,
+          headers: {
+            "Content-Type": "text/event-stream",
+          },
+          async onopen(response) {
+            if (response.ok) {
+              console.log(response.headers.get("content-type"));
+              return; // everything's good
+            } else if (
+              response.status >= 400 &&
+              response.status < 500 &&
+              response.status !== 429
+            ) {
+              // client-side errors are usually non-retriable:
+              throw new Error(await response.text());
+            } else {
+              throw new Error(await response.text());
+            }
+          },
           onerror(err) {
             throw err; // rethrow to stop the operation
+          },
+          onclose() {
+            if (eventSourceRef.current) {
+              console.log("closed");
+              eventSourceRef.current.close();
+              eventSourceRef.current = null;
+              setIsConnected(false);
+            }
           },
         });
       } catch (err) {
@@ -45,14 +71,6 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
       }
     };
   }, [props.url, props.onMessage, props.onError, props.withCredentials]);
-
-  const close = () => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-      setIsConnected(false);
-    }
-  };
 
   return <div>{props.children}</div>;
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import CommentList from "../../widgets/CommentList/CommentList";
 import PostList from "../../widgets/PostList/PostList";
@@ -47,6 +47,12 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
       dispatch(setActiveTab("")); // Сбрасываем активную вкладку хедера при переключении на страницу сайдбара
     }
   };
+
+  useEffect(() => {
+    if (activeTab != "") {
+      setActivePage("");
+    }
+  }, [activeTab]);
 
   return (
     <div className={styles["main-container"]}>

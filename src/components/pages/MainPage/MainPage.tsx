@@ -95,7 +95,6 @@ const MainPage: React.FC = () => {
       .then((userData) => {
         if (userData && userData.user_id) {
           const userId = Number(userData.user_id);
-          setCurrentUserIdState(userId);
           dispatch(setCurrentUserId(userId));
           setIsAuthorized(true);
         } else {

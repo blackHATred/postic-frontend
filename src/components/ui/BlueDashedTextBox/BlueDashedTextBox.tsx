@@ -1,6 +1,4 @@
-import {
-  PropsWithChildren,
-} from "react";
+import { PropsWithChildren } from "react";
 import React from "react";
 import { FC } from "react";
 import { Typography, Spin } from "antd";
@@ -20,7 +18,6 @@ const BlueDashedTextBox: FC<PropsWithChildren<BlueDashedTextBoxProps>> = (
     borderStyle: "dashed",
     borderColor: blue[2],
     borderRadius: "5px",
-    textAlign: "center",
     minHeight: "50px",
     display: "flex",
     alignItems: "center",
@@ -33,15 +30,7 @@ const BlueDashedTextBox: FC<PropsWithChildren<BlueDashedTextBoxProps>> = (
       style={{ display: "flex", alignItems: "center", flexDirection: "column" }}
     >
       {props.isLoading && <Spin />}
-      {!props.isLoading && (
-        <div style={BackgroundStyle}>
-          <Text
-            style={{ color: blue[6], marginTop: "auto", marginBottom: "auto" }}
-          >
-            {props.children}
-          </Text>
-        </div>
-      )}
+      {!props.isLoading && <div style={BackgroundStyle}>{props.children}</div>}
     </div>
   );
 };

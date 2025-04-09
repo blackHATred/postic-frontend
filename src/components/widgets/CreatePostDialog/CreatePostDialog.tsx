@@ -47,7 +47,7 @@ const CreatePostDialog: FC = () => {
   const isOpen = useAppSelector(
     (state) => state.basePageDialogs.createPostDialog.isOpen
   );
-  const team_id = useAppSelector((state) => state.teams.selectedTeamId);
+  const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const onOk = () => {
     const errors: string[] = [];

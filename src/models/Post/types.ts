@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 
 export interface Post {
-  ID: string;
-  Text: string;
+  id: string;
+  text: string;
   userID: string;
   Attachments: PostAttachment[];
   Platforms?: string[];
@@ -49,28 +49,28 @@ export interface UploadResult {
 
 export const mockPosts: Post[] = [
   {
-    ID: "11",
+    id: "11",
     CreatedAt: dayjs().unix(),
     userID: "1 Moderator",
-    Text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
+    text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
     Attachments: [],
     Platforms: ["tg", "vk"],
     PubDate: dayjs().unix(),
   },
   {
-    ID: "22",
+    id: "22",
     CreatedAt: dayjs().unix(),
     userID: "2 Moderator",
-    Text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
+    text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
     Attachments: [],
     Platforms: ["tg"],
     PubDate: dayjs().unix(),
   },
   {
-    ID: "33",
+    id: "33",
     CreatedAt: dayjs().unix(),
     userID: "2 Moderator",
-    Text: "a\nb\nc\nd\ne\nf\nh\ni\nj\nk\nl",
+    text: "a\nb\nc\nd\ne\nf\nh\ni\nj\nk\nl",
     Attachments: [],
     Platforms: ["tg"],
     PubDate: dayjs().unix(),

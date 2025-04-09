@@ -30,7 +30,7 @@ const PostStatusDialog: FC = () => {
     (state) => state.basePageDialogs.postStatusDialog.isOpen
   );
   const selectedPlatforms = useAppSelector(
-    (state) => state.posts.posts.find((post) => post.ID === postId)?.Platforms
+    (state) => state.posts.posts.find((post) => post.id === postId)?.Platforms
   );
   const [error_data, SetErrorData] = useState("");
 

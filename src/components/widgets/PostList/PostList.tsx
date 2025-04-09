@@ -31,14 +31,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   };
 
   const getNewData = async () => {
-    const mocks: Post[] = [];
-    for (let i = 0; i < 5; i++) {
-      const m = mockPosts.at(Math.random() * 3);
-      if (m) mocks.push(m);
-    }
-    // if first time return newQuotes else concate it
-    await new Promise((res) => setTimeout(res, 1000));
-    const new_data = mocks;
+    const new_data: Post[] = [];
     return new_data;
   };
 
@@ -55,7 +48,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           getNewData={getNewData}
           doSmoothScroll={scrollToPost}
           smoothScrollTarget={posts.findIndex(
-            (post) => post.ID === selectedPostId
+            (post) => post.id === selectedPostId
           )}
           scrollAmount={scrollAmount}
           setScroll={(scroll) => setScroll(scroll)}

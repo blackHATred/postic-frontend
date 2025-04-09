@@ -11,6 +11,8 @@ import {
 } from "../../../stores/basePageDialogsSlice";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
+import ReactMarkdown from "react-markdown";
+import "./styles.scss";
 
 const DialogBoxSummary: FC = () => {
   const dispatch = useAppDispatch();
@@ -29,7 +31,7 @@ const DialogBoxSummary: FC = () => {
     if (isOpen) {
       getSummarize(selectedPostId)
         .then((summary: GetSummarizeResult) => {
-          setSummaryText(summary.summary);
+          setSummaryText(summary.summarize.markdown);
           dispatch(setSummaryLoading(false));
         })
         .catch((error) => {
@@ -81,12 +83,16 @@ const DialogBoxSummary: FC = () => {
       ]}
       isOpen={isOpen}
       onCancelClick={onCancel}
-      title={"Создать пост"}
+      title={"Суммаризация"}
       headerSubtext={"Пост #" + selectedPostId}
       headerSubtextOnClick={onHeaderClick}
       isCenter={true}
     >
-      <BlueDashedTextBox isLoading={isLoading}>{summaryText}</BlueDashedTextBox>
+      <BlueDashedTextBox isLoading={isLoading}>
+        <div className="reactMarkDown">
+          <ReactMarkdown>{summaryText}</ReactMarkdown>
+        </div>
+      </BlueDashedTextBox>
     </DialogBox>
   );
 };

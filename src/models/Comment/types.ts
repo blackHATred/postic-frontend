@@ -1,4 +1,4 @@
-import dayjs, {Dayjs} from 'dayjs'
+import dayjs, { Dayjs } from "dayjs";
 
 export interface Comment {
   id: number;
@@ -28,8 +28,8 @@ interface CommentAttachments {
 }
 
 export interface GetSummarizeResult {
-  summary: string;
-  lastUpdate: Dayjs;
+  status: string;
+  summarize: { markdown: string; post_union_id: number };
 }
 
 export interface GetSummarizeMarkdownResponse {

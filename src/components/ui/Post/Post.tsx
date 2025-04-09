@@ -30,11 +30,11 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const {
     CreatedAt,
     userID,
-    Text: postText,
+    text: postText,
     Attachments,
     PubDate,
     Platforms,
-    ID: id,
+    id: id,
   } = props;
 
   const getIcon = (platform: string) => {
@@ -55,7 +55,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const refer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (props.ID === selectedPostId) setSelected();
+    if (props.id === selectedPostId) setSelected();
   }, [scrollToPost]);
 
   const setSelected = async () => {
