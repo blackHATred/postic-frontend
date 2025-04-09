@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { mockTeams, Team } from "../models/Team/types";
+import { Team } from "../models/Team/types";
 
 interface basicDialogState {
   isOpen: boolean;
@@ -17,7 +17,7 @@ export interface teamSliceState {
 
 // Define the initial state using that type
 const initialState: teamSliceState = {
-  teams: mockTeams,
+  teams: [],
   selectedMemberId: 0,
   selectedTeamId: 0,
   addMemberDialog: { isOpen: false },
@@ -36,15 +36,21 @@ export const teamSlice = createSlice({
       // immutable state based off those changes
       state.teams.push(action.payload);
     },
+    addTeams: (state, action: PayloadAction<Team[]>) => {
+      state.teams = [...state.teams, ...action.payload];
+    },
+
+    setTeams: (state, action: PayloadAction<Team[]>) => {
+      state.teams = action.payload;
+    },
+
     setSelectedMemberId: (state, action: PayloadAction<number>) => {
       state.selectedMemberId = action.payload;
     },
     setSelectedTeamId: (state, action: PayloadAction<number>) => {
       state.selectedTeamId = action.payload;
     },
-    addTeams: (state, action: PayloadAction<Team[]>) => {
-      state.teams = [...state.teams, ...action.payload];
-    },
+
     setAddMemberDialog: (state, action: PayloadAction<boolean>) => {
       state.addMemberDialog.isOpen = action.payload;
     },
@@ -61,6 +67,7 @@ export const teamSlice = createSlice({
 export const {
   addTeam,
   addTeams,
+  setTeams,
   setSelectedMemberId,
   setSelectedTeamId,
   setAddMemberDialog,

@@ -5,6 +5,10 @@ export interface Team {
   created_at: string;
 }
 
+export interface TeamCreateRequest {
+  team_name: string;
+}
+
 export interface TeamUserRole {
   user_id: number;
   team_id: number;

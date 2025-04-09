@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { NotificationContext } from "../../../api/notification";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import { Secret } from "../../../api/teamApi";
+import { Me } from "../../../api/api";
 import { MeInfo } from "../../../models/User/types";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setPersonalInfoDialog } from "../../../stores/basePageDialogsSlice";
@@ -19,14 +19,14 @@ const MeDialog: React.FC = (props) => {
   useEffect(() => {
     setLoading(true);
     if (isOpen) {
-      Secret()
+      Me()
         .then((res: MeInfo) => {
-          setSecretKey(res.secret);
+          setSecretKey(res.user_id);
         })
         .catch(() => {
           notificationManager.createNotification(
             "error",
-            "Ошибка получения личной информации",
+            "Ошибка пулечения личной информации",
             ""
           );
         });

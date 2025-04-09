@@ -3,5 +3,5 @@ export interface RegisterResult {
 }
 
 export interface MeInfo {
-  secret: string;
+  user_id: string;
 }

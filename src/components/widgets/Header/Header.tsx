@@ -13,10 +13,10 @@ import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   setCreatePostDialog,
   setPersonalInfoDialog,
-  setPostStatusDialog,
   setWelcomeDialog,
 } from "../../../stores/basePageDialogsSlice";
 import { getTeamsFromStore } from "../../../stores/teamSlice";
+import { useCookies } from "react-cookie";
 interface ButtonHeaderProps {
   activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
   onTabChange?: (key: string) => void; // Сделаем необязательным
@@ -30,6 +30,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
+  const [cookies, setCookie] = useCookies(["session"]);
 
   const tabItems = [
     {
@@ -50,6 +51,15 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     value: team.id.toString(),
     label: team.name,
   }));
+
+  const setCookiesUserID = () => {
+    setCookie(
+      "session",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3MjY0MTZ9.0ZPFGSQYN8_qcmRM3w8IGwhwPBTt66HM8x9rSV7ERUk",
+      { path: "/" }
+    );
+    console.log("Cookie 'session' set to 1");
+  };
 
   return (
     <div className={styles.headerContainer}>
@@ -89,7 +99,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
           <ClickableButton
             icon={<BellOutlined />}
             type="default"
-            onButtonClick={() => dispatch(setPostStatusDialog(true))}
+            onButtonClick={setCookiesUserID}
           />
           <ClickableButton
             icon={<UserOutlined />}

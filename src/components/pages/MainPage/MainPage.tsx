@@ -1,21 +1,31 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import ButtonHeader from "../../widgets/Header/Header";
-import { Post } from "../../../models/Post/types";
-import { getPosts } from "../../../api/api";
-import { WebSocketContext } from "../../../api/WebSocket";
-import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import MainContainer from "../MainContainer/MainContainer";
 import styles from "./styles.module.scss";
+import { Team } from "../../../models/Team/types";
+import { MyTeams } from "../../../api/teamApi";
+import { setTeams } from "../../../stores/teamSlice";
+import { Post } from "../../../models/Post/types";
+import { getPosts } from "../../../api/api";
+import { ReadyState } from "react-use-websocket";
+import { WebSocketContext } from "../../../api/WebSocket";
 
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const webSocketmanager = useContext(WebSocketContext);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-  const [showDiaTeamCreate, setShowDiaTeamCreate] = useState(false);
+
+  // для того, чтоб сбрасывать состояние ленты и миниленты
+  const handleTabChange = (key: string) => {
+    dispatch(setActiveTab(key));
+    if (key === "1") {
+      dispatch(setSelectedPostId(""));
+    }
+  };
 
   useEffect(() => {
     getPosts()
@@ -32,6 +42,18 @@ const MainPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+        }
+      })
+      .catch(() => {
+        console.log("Error getting teams");
+      });
+  }, []);
+
+  useEffect(() => {
     if (webSocketmanager.readyState == ReadyState.OPEN) {
       webSocketmanager.sendJsonMessage({
         type: "get_comments",
@@ -44,14 +66,6 @@ const MainPage: React.FC = () => {
       console.log("sent");
     }
   }, [webSocketmanager.readyState]);
-
-  // для того, чтоб сбрасывать состояние ленты и миниленты
-  const handleTabChange = (key: string) => {
-    dispatch(setActiveTab(key));
-    if (key === "1") {
-      dispatch(setSelectedPostId(""));
-    }
-  };
 
   return (
     <div className={styles["main-page"]}>
