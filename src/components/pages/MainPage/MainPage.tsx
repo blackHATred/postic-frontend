@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ButtonHeader from "../../widgets/Header/Header";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
@@ -7,9 +7,9 @@ import MainContainer from "../MainContainer/MainContainer";
 import styles from "./styles.module.scss";
 import { Team } from "../../../models/Team/types";
 import { MyTeams } from "../../../api/teamApi";
-import { setTeams } from "../../../stores/teamSlice";
+import { setCurrentUserId, setTeams } from "../../../stores/teamSlice";
 import { Post } from "../../../models/Post/types";
-import { getPosts } from "../../../api/api";
+import { getPosts, Me } from "../../../api/api";
 import { ReadyState } from "react-use-websocket";
 import { WebSocketContext } from "../../../api/WebSocket";
 
@@ -18,6 +18,8 @@ const MainPage: React.FC = () => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const webSocketmanager = useContext(WebSocketContext);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
+  const [currentUserId, setCurrentUserIdState] = useState<number | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
@@ -67,15 +69,33 @@ const MainPage: React.FC = () => {
     }
   }, [webSocketmanager.readyState]);
 
+  useEffect(() => {
+    Me()
+      .then((userData) => {
+        if (userData && userData.user_id) {
+          const userId = Number(userData.user_id);
+          setCurrentUserIdState(userId);
+          dispatch(setCurrentUserId(userId));
+          setIsAuthorized(true);
+        } else {
+          setIsAuthorized(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка при получении данных пользователя:", error);
+        setIsAuthorized(false);
+      });
+  }, [dispatch]);
+
   return (
     <div className={styles["main-page"]}>
       <ButtonHeader
-        isAuthorized={true}
+        isAuthorized={isAuthorized}
         activeTab={activeTab}
         onTabChange={handleTabChange} // для изменения вкладки
       />
 
-      <MainContainer isAuthorized={true} />
+      <MainContainer isAuthorized={isAuthorized} />
     </div>
   );
 };

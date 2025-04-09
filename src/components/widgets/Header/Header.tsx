@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ClickableButton from "../../ui/Button/Button";
 import {
   BellOutlined,
@@ -15,7 +15,10 @@ import {
   setPersonalInfoDialog,
   setWelcomeDialog,
 } from "../../../stores/basePageDialogsSlice";
-import { getTeamsFromStore } from "../../../stores/teamSlice";
+import {
+  getTeamsFromStore,
+  setGlobalActiveTeamId,
+} from "../../../stores/teamSlice";
 import { useCookies } from "react-cookie";
 interface ButtonHeaderProps {
   activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
@@ -31,6 +34,9 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
   const [cookies, setCookie] = useCookies(["session"]);
+  const [selectedTeam, setSelectedTeam] = useState<string | undefined>(
+    undefined
+  );
 
   const tabItems = [
     {
@@ -43,17 +49,27 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     },
   ];
 
-  const handleChange = (value: string) => {};
-
   const teamOptions = teams.map((team) => ({
     value: team.id.toString(),
     label: team.name,
   }));
 
+  useEffect(() => {
+    if (teams.length > 0 && !selectedTeam) {
+      setSelectedTeam(teams[0].id.toString());
+    }
+  }, [teams, selectedTeam]);
+
+  const handleChange = (value: string) => {
+    setSelectedTeam(value);
+    setGlobalActiveTeamId(Number(value));
+    console.log("Global", value);
+  };
+
   const setCookiesUserID = () => {
     setCookie(
       "session",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3MjY0MTZ9.0ZPFGSQYN8_qcmRM3w8IGwhwPBTt66HM8x9rSV7ERUk",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3Mzc1NTB9.gbZ3hbX63rBsokzIbKjZjYb3rz53PSKQEt9e9mASCvM",
       { path: "/" }
     );
     console.log("Cookie 'session' set to 1");
@@ -79,6 +95,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
           <div style={{ display: "flex", alignItems: "center" }}>
             <TeamOutlined style={{ color: "#1890ff" }} />{" "}
             <Select
+              value={selectedTeam}
               defaultValue={teamOptions[0]?.value}
               style={{
                 width: 150,

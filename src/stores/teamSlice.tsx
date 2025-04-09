@@ -10,9 +10,15 @@ export interface teamSliceState {
   teams: Team[];
   selectedMemberId: number;
   selectedTeamId: number;
+  oldTeamName: string;
+  currentUserId: number;
+  globalActiveTeamId: number;
+  selectRoles: string[];
   addMemberDialog: basicDialogState;
   editMemberDialog: basicDialogState;
   createTeamDialog: basicDialogState;
+  renameTeamDialog: basicDialogState;
+  secretTeamDialog: basicDialogState;
 }
 
 // Define the initial state using that type
@@ -20,9 +26,15 @@ const initialState: teamSliceState = {
   teams: [],
   selectedMemberId: 0,
   selectedTeamId: 0,
+  oldTeamName: "",
+  currentUserId: 0,
+  globalActiveTeamId: 0,
+  selectRoles: [],
   addMemberDialog: { isOpen: false },
   editMemberDialog: { isOpen: false },
   createTeamDialog: { isOpen: false },
+  renameTeamDialog: { isOpen: false },
+  secretTeamDialog: { isOpen: false },
 };
 
 export const teamSlice = createSlice({
@@ -50,7 +62,9 @@ export const teamSlice = createSlice({
     setSelectedTeamId: (state, action: PayloadAction<number>) => {
       state.selectedTeamId = action.payload;
     },
-
+    setCurrentUserId: (state, action: PayloadAction<number>) => {
+      state.currentUserId = action.payload;
+    },
     setAddMemberDialog: (state, action: PayloadAction<boolean>) => {
       state.addMemberDialog.isOpen = action.payload;
     },
@@ -59,6 +73,21 @@ export const teamSlice = createSlice({
     },
     setCreateTeamDialog: (state, action: PayloadAction<boolean>) => {
       state.createTeamDialog.isOpen = action.payload;
+    },
+    setRenameTeamDialog: (state, action: PayloadAction<boolean>) => {
+      state.renameTeamDialog.isOpen = action.payload;
+    },
+    setOldTeamName: (state, action: PayloadAction<string>) => {
+      state.oldTeamName = action.payload;
+    },
+    setGlobalActiveTeamId: (state, action: PayloadAction<number>) => {
+      state.globalActiveTeamId = action.payload;
+    },
+    setSecretTeamDialog: (state, action: PayloadAction<boolean>) => {
+      state.secretTeamDialog.isOpen = action.payload;
+    },
+    setSelectRoles: (state, action: PayloadAction<string[]>) => {
+      state.selectRoles = action.payload;
     },
   },
 });
@@ -70,9 +99,15 @@ export const {
   setTeams,
   setSelectedMemberId,
   setSelectedTeamId,
+  setCurrentUserId,
+  setOldTeamName,
+  setGlobalActiveTeamId,
   setAddMemberDialog,
   setEditMemberDialog,
   setCreateTeamDialog,
+  setRenameTeamDialog,
+  setSecretTeamDialog,
+  setSelectRoles,
 } = teamSlice.actions;
 
 export const getTeamsFromStore = (state: RootState) => state.teams.teams;
