@@ -1,11 +1,12 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Typography, Input, Divider, Form } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setRenameTeamDialog } from "../../../stores/teamSlice";
-import { Rename } from "../../../api/teamApi";
+import { setRenameTeamDialog, setTeams } from "../../../stores/teamSlice";
+import { MyTeams, Rename } from "../../../api/teamApi";
 import { NotificationContext } from "../../../api/notification";
+import { Team } from "../../../models/Team/types";
 
 const { Text } = Typography;
 
@@ -22,6 +23,18 @@ const TeamRenameDialog: React.FC = () => {
   const notificationManager = useContext(NotificationContext);
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
   const oldName = useAppSelector((state) => state.teams.oldTeamName);
+
+  const updateTeamList = () => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+        }
+      })
+      .catch(() => {
+        console.log("Error getting teams");
+      });
+  };
 
   const onOk = () => {
     if (!teamName.trim()) {
@@ -53,7 +66,18 @@ const TeamRenameDialog: React.FC = () => {
           error.message || "Не удалось создать команду"
         );
       });
+    updateTeamList();
   };
+
+  useEffect(() => {
+    // Устанавливаем название, только когда диалог открывается
+    if (isOpen && oldName) {
+      setTeamName(oldName); // Инициализируем teamName значением из oldName
+
+      // Также обновляем значение в форме
+      form.setFieldsValue({ teamName: oldName });
+    }
+  }, [isOpen, oldName, form]); // Зависимость от oldName вместо teamName
 
   return (
     <DialogBox

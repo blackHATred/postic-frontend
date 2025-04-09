@@ -18,11 +18,12 @@ const SecretDialog: React.FC = (props) => {
     (state) => state.teams.globalActiveTeamId
   );
   const notificationManager = useContext(NotificationContext);
+  const team_id = useAppSelector((state) => state.teams.selectedTeamId);
 
   useEffect(() => {
     setLoading(true);
     if (isOpen) {
-      Secret(activeTeamId)
+      Secret(team_id)
         .then((res: MeInfo) => {
           setSecretKey(res.user_id);
         })

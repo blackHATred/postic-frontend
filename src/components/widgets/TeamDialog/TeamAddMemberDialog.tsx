@@ -3,9 +3,10 @@ import { Typography, Input, Divider, Form, Checkbox } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setAddMemberDialog } from "../../../stores/teamSlice";
+import { setAddMemberDialog, setTeams } from "../../../stores/teamSlice";
 import { NotificationContext } from "../../../api/notification";
-import { Invite } from "../../../api/teamApi";
+import { Invite, MyTeams } from "../../../api/teamApi";
+import { Team } from "../../../models/Team/types";
 
 const { Text } = Typography;
 
@@ -27,6 +28,18 @@ const TeamAddMemberDialog: React.FC = () => {
   const [inviteUserId, setInviteUserId] = useState("");
 
   const [empty_checkbox, setEmptyCheckbox] = useState("");
+
+  const updateTeamList = () => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+        }
+      })
+      .catch(() => {
+        console.log("Error getting teams");
+      });
+  };
 
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
@@ -73,6 +86,8 @@ const TeamAddMemberDialog: React.FC = () => {
       team_id: teamId,
       roles,
     });
+    dispatch(setAddMemberDialog(false));
+    updateTeamList();
   };
 
   return (

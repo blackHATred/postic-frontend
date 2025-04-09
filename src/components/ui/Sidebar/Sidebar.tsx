@@ -16,10 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
   const dispatch = useAppDispatch();
 
   const handleTeamsClick = () => {
-    // Сначала обновляем активную страницу
     setActivePage("teams");
-
-    // Затем делаем запрос на получение команд
     MyTeams()
       .then((res: { teams: Team[] }) => {
         if (res.teams) {
@@ -56,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
       <div className={styles["sidebar-options"]}>
         <ClickableButton
           type="text"
-          text={"секрет"}
+          text={"Секрет"}
           icon={<KeyOutlined className={styles["icon-primary"]} />}
           onButtonClick={() => dispatch(setSecretTeamDialog(true))}
         />
