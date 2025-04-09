@@ -2,17 +2,31 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { mockTeams, Team } from "../models/Team/types";
 
+interface basicDialogState {
+  isOpen: boolean;
+}
+
 export interface teamSliceState {
   teams: Team[];
+  selectedMemberId: number;
+  selectedTeamId: number;
+  addMemberDialog: basicDialogState;
+  editMemberDialog: basicDialogState;
+  createTeamDialog: basicDialogState;
 }
 
 // Define the initial state using that type
 const initialState: teamSliceState = {
   teams: mockTeams,
+  selectedMemberId: 0,
+  selectedTeamId: 0,
+  addMemberDialog: { isOpen: false },
+  editMemberDialog: { isOpen: false },
+  createTeamDialog: { isOpen: false },
 };
 
 export const teamSlice = createSlice({
-  name: "comments",
+  name: "teams",
   initialState,
   reducers: {
     addTeam: (state, action: PayloadAction<Team>) => {
@@ -22,14 +36,37 @@ export const teamSlice = createSlice({
       // immutable state based off those changes
       state.teams.push(action.payload);
     },
+    setSelectedMemberId: (state, action: PayloadAction<number>) => {
+      state.selectedMemberId = action.payload;
+    },
+    setSelectedTeamId: (state, action: PayloadAction<number>) => {
+      state.selectedTeamId = action.payload;
+    },
     addTeams: (state, action: PayloadAction<Team[]>) => {
       state.teams = [...state.teams, ...action.payload];
+    },
+    setAddMemberDialog: (state, action: PayloadAction<boolean>) => {
+      state.addMemberDialog.isOpen = action.payload;
+    },
+    setEditMemberDialog: (state, action: PayloadAction<boolean>) => {
+      state.editMemberDialog.isOpen = action.payload;
+    },
+    setCreateTeamDialog: (state, action: PayloadAction<boolean>) => {
+      state.createTeamDialog.isOpen = action.payload;
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addTeam, addTeams } = teamSlice.actions;
+export const {
+  addTeam,
+  addTeams,
+  setSelectedMemberId,
+  setSelectedTeamId,
+  setAddMemberDialog,
+  setEditMemberDialog,
+  setCreateTeamDialog,
+} = teamSlice.actions;
 
 export const getTeamsFromStore = (state: RootState) => state.teams.teams;
 

@@ -1,7 +1,9 @@
-import { FC, useState } from "react";
+import { useState } from "react";
 import { Typography, Input, Divider, Form, Checkbox } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { setAddMemberDialog } from "../../../stores/teamSlice";
 
 const { Text } = Typography;
 
@@ -10,19 +12,21 @@ export interface TeamAddMemberDialogProps
   setOpen: (value: boolean) => void;
 }
 
-const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
-  props: TeamAddMemberDialogProps
-) => {
+const TeamAddMemberDialog: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector((state) => state.teams.addMemberDialog.isOpen);
   const [permissions, setPermissions] = useState({
     comments: false,
     posts: false,
   });
+  const [empty_checkbox, setEmptyCheckbox] = useState("");
 
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
     if (checked) {
       setPermissions({ comments: true, posts: true });
+      setEmptyCheckbox(""); // Сбрасываем ошибку при выборе админа
     } else {
       setPermissions({ comments: false, posts: false });
     }
@@ -32,16 +36,21 @@ const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
     key: "comments" | "posts",
     checked: boolean
   ) => {
-    setPermissions((prev) => ({ ...prev, [key]: checked }));
+    const newPermissions = { ...permissions, [key]: checked };
+    setPermissions(newPermissions);
+
+    if (isAdmin || newPermissions.comments || newPermissions.posts) {
+      setEmptyCheckbox("");
+    }
   };
 
   const onOk = () => {
-    // TODO: сделать отправку запроса апи
+    if (!isAdmin && !permissions.comments && !permissions.posts) {
+      setEmptyCheckbox("Пожалуйста, выберите хотя бы одно право доступа");
+      return;
+    }
     console.log("Сделать АПИ - Добавление участника выполнено");
-  };
-
-  const onCancel = async () => {
-    props.setOpen(false);
+    // TODO: сделать отправку запроса апи
   };
 
   return (
@@ -52,9 +61,11 @@ const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
           onButtonClick: onOk,
         },
       ]}
-      isOpen={props.isOpen}
-      onCancelClick={onCancel}
-      title={props.title}
+      isOpen={isOpen}
+      onCancelClick={async () => {
+        dispatch(setAddMemberDialog(false));
+      }}
+      title={"Добавление участника"}
       isCenter={true}
     >
       <Divider />
@@ -95,6 +106,7 @@ const TeamAddMemberDialog: FC<TeamAddMemberDialogProps> = (
           >
             Администратор
           </Checkbox>
+          {empty_checkbox && <Text type="danger">{empty_checkbox}</Text>}
         </div>
       </div>
     </DialogBox>

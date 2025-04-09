@@ -1,12 +1,8 @@
-import { FC } from "react";
-import {
-  Typography,
-  Input,
-  Divider,
-  Form,
-} from "antd";
+import { Typography, Input, Divider, Form } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { setCreateTeamDialog } from "../../../stores/teamSlice";
 
 const { Text } = Typography;
 
@@ -15,26 +11,24 @@ export interface TeamCreateDialogProps
   setOpen: Function;
 }
 
-const TeamCreateDialog: FC<TeamCreateDialogProps> = (
-  props: TeamCreateDialogProps
-) => {
+const TeamCreateDialog: React.FC = () => {
   const onOk = () => {};
-
-  const onCancel = async () => {
-    props.setOpen(false);
-  };
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector((state) => state.teams.createTeamDialog.isOpen);
 
   return (
     <DialogBox
       bottomButtons={[
         {
-          text: "",
+          text: "Создать",
           onButtonClick: onOk,
         },
       ]}
-      isOpen={props.isOpen}
-      onCancelClick={onCancel}
-      title={props.title}
+      isOpen={isOpen}
+      onCancelClick={async () => {
+        dispatch(setCreateTeamDialog(false));
+      }}
+      title={"Создание команду"}
       isCenter={true}
     >
       <Divider />

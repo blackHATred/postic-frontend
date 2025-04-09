@@ -1,45 +1,37 @@
+// ui/Sidebar/Sidebar.tsx
 import React from "react";
 import styles from "./styles.module.scss";
-import { Typography } from "antd";
 import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
 import ClickableButton from "../../ui/Button/Button";
-
-const { Text } = Typography;
+import { useAppDispatch } from "../../../stores/hooks";
+import { setCreateTeamDialog } from "../../../stores/teamSlice";
 
 interface SidebarProps {
   setActivePage: (page: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
-  const options = [
-    {
-      icon: <PlusOutlined className={styles["icon-primary"]} />,
-      text: "Добавить пост",
-      page: "add-post",
-    },
-    {
-      icon: <TeamOutlined className={styles["icon-primary"]} />,
-      text: "Команды",
-      page: "teams",
-    },
-  ];
-
+  const dispatch = useAppDispatch();
   return (
     <div className={styles["sidebar"]}>
-      {options.map((option, index) => (
-        <div
-          key={index}
-          className={styles["sidebar-options"]}
-          onClick={() => setActivePage(option.page)} // Устанавливаем активную страницу
-        >
-          <ClickableButton
-            color="default"
-            type="text"
-            text={option.text}
-            icon={option.icon}
-          />
-        </div>
-      ))}
+      <div className={styles["sidebar-options"]}>
+        <ClickableButton
+          type="text"
+          text={"Добавить команду"}
+          icon={<PlusOutlined className={styles["icon-primary"]} />}
+          onButtonClick={() => dispatch(setCreateTeamDialog(true))}
+        />
+      </div>
+      <div
+        className={styles["sidebar-options"]}
+        onClick={() => setActivePage("teams")}
+      >
+        <ClickableButton
+          type="text"
+          text={"Команды"}
+          icon={<TeamOutlined className={styles["icon-primary"]} />}
+        />
+      </div>
     </div>
   );
 };

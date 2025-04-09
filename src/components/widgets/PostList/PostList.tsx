@@ -4,6 +4,7 @@ import styles from "./styles.module.scss";
 import PostComponent from "../../ui/Post/Post";
 import { useAppSelector } from "../../../stores/hooks";
 import { getPostsStore } from "../../../stores/postsSlice";
+import { mockPosts } from "../../../models/Post/types";
 
 interface PostListProps {
   isLoading?: boolean;
@@ -22,7 +23,7 @@ const CommentList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
 
       <div>
         <List
-          dataSource={posts}
+          dataSource={mockPosts}
           renderItem={(post) => (
             <List.Item>
               <PostComponent {...post} />

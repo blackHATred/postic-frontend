@@ -56,12 +56,12 @@ const MainPage: React.FC = () => {
   return (
     <div className={styles["main-page"]}>
       <ButtonHeader
-        isAuthorized={false}
+        isAuthorized={true}
         activeTab={activeTab}
         onTabChange={handleTabChange} // для изменения вкладки
       />
 
-      <MainContainer />
+      <MainContainer isAuthorized={true} />
     </div>
   );
 };

@@ -1,5 +1,4 @@
-// @ts-ignore
-import dayjs from 'dayjs'
+import dayjs from "dayjs";
 
 export interface Post {
   ID: string;
