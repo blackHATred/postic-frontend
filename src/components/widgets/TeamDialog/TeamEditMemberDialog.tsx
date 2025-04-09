@@ -3,8 +3,9 @@ import { Typography, Input, Divider, Form, Checkbox } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setEditMemberDialog } from "../../../stores/teamSlice";
-import { UpdateRole } from "../../../api/teamApi";
+import { setEditMemberDialog, setTeams } from "../../../stores/teamSlice";
+import { MyTeams, UpdateRole } from "../../../api/teamApi";
+import { Team } from "../../../models/Team/types";
 
 const { Text } = Typography;
 
@@ -29,6 +30,18 @@ const TeamEditMemberDialog: React.FC = () => {
   const roles = useAppSelector((state) => state.teams.selectRoles);
 
   const [empty_checkbox, setEmptyCheckbox] = useState("");
+
+  const updateTeamList = () => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+        }
+      })
+      .catch(() => {
+        console.log("Error getting teams");
+      });
+  };
 
   useEffect(() => {
     const hasAdminRole = roles.includes("admin");
@@ -87,6 +100,9 @@ const TeamEditMemberDialog: React.FC = () => {
       team_id: teamId,
       roles,
     });
+    dispatch(setEditMemberDialog(false));
+
+    updateTeamList();
   };
 
   return (

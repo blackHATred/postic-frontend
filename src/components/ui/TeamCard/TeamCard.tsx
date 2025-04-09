@@ -99,10 +99,10 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   };
 
   const handleRename = () => {
-    dispatch(setOldTeamName(oldTeamName));
+    dispatch(setRenameTeamDialog(true));
+    //dispatch(setOldTeamName(oldTeamName));
     dispatch(setSelectedTeamId?.(id));
     dispatch(setOldTeamName?.(team_name));
-    dispatch(setRenameTeamDialog(true));
   };
 
   const onEditMemberClick = async (userId: number) => {

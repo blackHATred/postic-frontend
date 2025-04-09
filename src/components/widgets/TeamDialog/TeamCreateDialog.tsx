@@ -3,8 +3,12 @@ import { Typography, Input, Divider, Form } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setCreateTeamDialog, addTeam } from "../../../stores/teamSlice";
-import { TeamCreate } from "../../../api/teamApi";
+import {
+  setCreateTeamDialog,
+  addTeam,
+  setTeams,
+} from "../../../stores/teamSlice";
+import { MyTeams, TeamCreate } from "../../../api/teamApi";
 import { Team, TeamCreateRequest } from "../../../models/Team/types";
 import { NotificationContext } from "../../../api/notification";
 
@@ -21,6 +25,18 @@ const TeamCreateDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.teams.createTeamDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
+
+  const updateTeamList = () => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+        }
+      })
+      .catch(() => {
+        console.log("Error getting teams");
+      });
+  };
 
   const onOk = () => {
     if (!teamName.trim()) {
@@ -61,6 +77,8 @@ const TeamCreateDialog: React.FC = () => {
           error.message || "Не удалось создать команду"
         );
       });
+    updateTeamList();
+    updateTeamList();
   };
 
   return (
