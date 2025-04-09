@@ -1,10 +1,9 @@
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { Typography, Input, Divider, Form, Checkbox } from "antd";
 import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setEditMemberDialog } from "../../../stores/teamSlice";
-import { NotificationContext } from "../../../api/notification";
 import { UpdateRole } from "../../../api/teamApi";
 
 const { Text } = Typography;
@@ -23,13 +22,25 @@ const TeamEditMemberDialog: React.FC = () => {
     posts: false,
   });
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
-  const notificationManager = useContext(NotificationContext);
   const [inviteUserId, setInviteUserId] = useState("");
   const selectedMemberId = useAppSelector(
     (state) => state.teams.selectedMemberId
   );
+  const roles = useAppSelector((state) => state.teams.selectRoles);
 
   const [empty_checkbox, setEmptyCheckbox] = useState("");
+
+  useEffect(() => {
+    const hasAdminRole = roles.includes("admin");
+    setIsAdmin(hasAdminRole);
+    setPermissions({
+      comments: hasAdminRole || roles.includes("comments"),
+      posts: hasAdminRole || roles.includes("posts"),
+    });
+    if (hasAdminRole || roles.includes("comments") || roles.includes("posts")) {
+      setEmptyCheckbox("");
+    }
+  }, [roles]);
 
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
