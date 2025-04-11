@@ -47,6 +47,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   const virtualizer = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
+    paddingStart: 90,
     estimateSize: () => maxElementHeight,
     initialOffset: props.scrollAmount * maxElementHeight,
     overscan: 0,
@@ -147,6 +148,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
           height: `100%`,
           width: `100%`,
           overflow: "auto",
+          scrollbarWidth: "none",
         }}
       >
         <div

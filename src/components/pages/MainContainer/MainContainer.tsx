@@ -70,7 +70,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
               </div>
             )}
             {activeTab === "2" && (
-              <div>
+              <div style={{ width: "100%", height: "100%" }}>
                 {selectedPostId && (
                   <Breadcrumb className={styles["breadcrumb"]}>
                     <Breadcrumb.Item
@@ -97,7 +97,11 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
           </div>
         </div>
       )}
-      {!isAuthorized && <div>Привет, го в команду, а то что как лопушок</div>}
+      {!isAuthorized && (
+        <div className={styles["loginDiv"]}>
+          Привет, го в команду, а то что как лопушок
+        </div>
+      )}
 
       <DialogBoxSummary />
       <PostStatusDialog />

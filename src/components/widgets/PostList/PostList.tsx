@@ -39,7 +39,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
     <div className={styles.postListContainer}>
       {posts.length > 0 && (
         <RowVirtualizerDynamic
-          object={posts.map((post, index) => {
+          object={[...posts].reverse().map((post, index) => {
             return <PostComponent {...post} key={index} />;
           })}
           addData={(data) => {

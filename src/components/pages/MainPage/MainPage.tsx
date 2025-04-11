@@ -13,10 +13,11 @@ import { Team } from "../../../models/Team/types";
 import { MyTeams } from "../../../api/teamApi";
 import { mockPosts, Post } from "../../../models/Post/types";
 import { setCurrentUserId, setTeams } from "../../../stores/teamSlice";
-import { getPosts, Me } from "../../../api/api";
+import { getComment, getPosts, Me } from "../../../api/api";
 import { ReadyState } from "react-use-websocket";
 import { WebSocketContext } from "../../../api/WebSocket";
 import AuthenticatedSSE from "../../../api/SSE";
+import { addComment } from "../../../stores/commentSlice";
 
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -108,8 +109,14 @@ const MainPage: React.FC = () => {
       });
   }, [dispatch]);
 
+  const newComment = (data: any) => {
+    getComment(selectedteamid, data.data).then((data) =>
+      dispatch(addComment(data))
+    );
+  };
+
   return (
-    <AuthenticatedSSE url={url} onMessage={() => {}}>
+    <AuthenticatedSSE url={url} onMessage={newComment}>
       <div className={styles["main-page"]}>
         <ButtonHeader
           isAuthorized={isAuthorized}

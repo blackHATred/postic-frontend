@@ -7,13 +7,13 @@ import {
   UploadResult,
 } from "../models/Post/types";
 import {
+  Comment,
   GetSummarizeMarkdownResponse,
   GetSummarizeResult,
 } from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
 import { MeInfo, RegisterResult } from "../models/User/types";
-import dayjs from "dayjs";
 
 export const uploadFile = async (file: File): Promise<UploadResult> => {
   try {
@@ -148,6 +148,41 @@ export const Summarize = async (
     `${config.api.baseURL}/comment/summarize`,
     {
       post_id: postId,
+    }
+  );
+  return response.data;
+};
+
+export const getComment = async (team_id: number, comment_id: number) => {
+  const response = await axios.get<Comment>(
+    `${config.api.baseURL}/comment/get`,
+    {
+      withCredentials: true,
+      params: {
+        team_id: team_id,
+        comment_id: comment_id,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const getComments = async (
+  selectedteamid: number,
+  union_id: number,
+  limit: number,
+  offset?: string
+) => {
+  const response = await axios.get<Comment[]>(
+    `${config.api.baseURL}/comment/last`,
+    {
+      withCredentials: true,
+      params: {
+        team_id: selectedteamid,
+        post_union_id: union_id,
+        limit: limit,
+        offset: offset,
+      },
     }
   );
   return response.data;

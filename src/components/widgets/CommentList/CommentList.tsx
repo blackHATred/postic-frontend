@@ -13,6 +13,8 @@ import {
   getLastDate,
 } from "../../../stores/commentSlice";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
+import dayjs from "dayjs";
+import { getComments } from "../../../api/api";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
@@ -23,9 +25,12 @@ const CommentList: React.FC = () => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const filteredComments = selectedPostId
     ? comments.filter(
-        (comment) => comment.post_union_id === Number(selectedPostId)
+        (comment) => comment.comment.post_union_id === Number(selectedPostId)
       )
     : comments; //WARNING: CURRENTLY NOT FILTERING PROPERLY
+  const selectedteamid = useAppSelector(
+    (state) => state.teams.globalActiveTeamId
+  );
 
   const [loading, setLoading] = useState(false);
 
@@ -51,18 +56,10 @@ const CommentList: React.FC = () => {
   }, [webSocketManager.lastJsonMessage]);
 
   useEffect(() => {
-    if (selectedPostId !== "" && filteredComments.length < requestSize) {
-      if (webSocketManager.readyState === ReadyState.OPEN) {
-        webSocketManager.sendJsonMessage({
-          type: "get_comments",
-          get_comments: {
-            post_union_id: selectedPostId,
-            offset: "2020-03-26T13:55:57+03:00",
-            max_count: requestSize,
-          },
-        });
-      }
-    }
+    const union_id = selectedPostId ? Number(selectedPostId) : 0;
+    const limit = 10;
+
+    getComments(selectedteamid, union_id, limit, dayjs().format());
   }, []);
 
   const onLoadMore = () => {

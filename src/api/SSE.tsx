@@ -2,6 +2,7 @@
 import React, { PropsWithChildren } from "react";
 import { useState, useEffect, useRef } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { message } from "antd";
 
 interface SSEOptions {
   url: string;
@@ -28,6 +29,9 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
           headers: {
             "Content-Type": "text/event-stream",
           },
+          onmessage(ev) {
+            props.onMessage(ev);
+          },
           async onopen(response) {
             if (response.ok) {
               console.log(response.headers.get("content-type"));
@@ -38,13 +42,13 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
               response.status !== 429
             ) {
               // client-side errors are usually non-retriable:
-              throw new Error(await response.text());
+              //throw new Error(await response.text());
             } else {
-              throw new Error(await response.text());
+              //throw new Error(await response.text());
             }
           },
           onerror(err) {
-            throw err; // rethrow to stop the operation
+            //throw err; // rethrow to stop the operation
           },
           onclose() {
             if (eventSourceRef.current) {
@@ -72,7 +76,7 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
     };
   }, [props.url, props.onMessage, props.onError, props.withCredentials]);
 
-  return <div>{props.children}</div>;
+  return <>{props.children}</>;
 };
 
 export default AuthenticatedSSE;

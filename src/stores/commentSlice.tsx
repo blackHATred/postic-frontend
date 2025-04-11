@@ -21,24 +21,35 @@ export const commentsSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      if (!state.comments.some((el) => el.id === action.payload.id)) {
+      if (
+        !state.comments.some(
+          (el) => el.comment.id === action.payload.comment.id
+        )
+      ) {
         state.comments.push(action.payload);
         state.comments.sort(
-          (a, b) => a.created_at.unix() - b.created_at.unix()
+          (a, b) =>
+            dayjs(a.comment.created_at).unix() -
+            dayjs(b.comment.created_at).unix()
         );
       }
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
       const modif = false;
       action.payload.forEach((element) => {
-        if (!state.comments.some((comment) => comment.id === element.id)) {
+        if (
+          !state.comments.some(
+            (comment) => comment.comment.id === element.comment.id
+          )
+        ) {
           state.comments = [...state.comments, element];
         }
       });
       if (modif) {
         state.comments.sort(
           (a: Comment, b: Comment) =>
-            dayjs(a.created_at).unix() - dayjs(b.created_at).unix()
+            dayjs(a.comment.created_at).unix() -
+            dayjs(b.comment.created_at).unix()
         );
       }
     },
@@ -53,7 +64,7 @@ export const getCommentsFromStore = (state: RootState) =>
 
 export const getLastDate = (state: RootState) => {
   if (state.comments.comments.length > 0)
-    return state.comments.comments[state.comments.comments.length - 1]
+    return state.comments.comments[state.comments.comments.length - 1].comment
       .created_at;
   return 0;
 };

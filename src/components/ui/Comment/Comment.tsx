@@ -16,25 +16,24 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     post_union_id,
     comment_id,
     user_id,
-    user,
+    username,
     text = "Загрузка...",
     created_at = dayjs("0000-00-00 00:00:00"),
     attachments = [],
-  } = comment;
+  } = comment.comment;
 
   return (
     <div className={styles.comment}>
       <div className={styles["comment-header"]}>
         <Avatar
-          src={user.photo_file_id}
-          alt={user.username}
+          src={null}
           onError={() => {
             console.log("img-error");
             return true;
           }}
         />
         <div className={styles["comment-author"]}>
-          <Text strong>{user.username}</Text>
+          <Text strong>{username}</Text>
           <Text type="secondary" className={styles["comment-time"]}>
             {dayjs(created_at).format("DD.MM.YYYY HH:mm")} | tg
           </Text>
