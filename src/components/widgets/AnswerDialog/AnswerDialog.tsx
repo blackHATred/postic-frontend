@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Typography, Input, Divider, Avatar, Button } from "antd";
 import DialogBox from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
@@ -11,8 +11,8 @@ import FileUploader from "../CreatePostDialog/FileUploader";
 import { setAnswerDialog } from "../../../stores/commentSlice";
 import { RightOutlined } from "@ant-design/icons";
 import { SendOutlined } from "@ant-design/icons/lib/icons";
-import { CommentReply, mockAnswers } from "../../../models/Comment/types";
-import { Reply } from "../../../api/api";
+import { Answ, CommentReply } from "../../../models/Comment/types";
+import { Reply, ReplyIdeas } from "../../../api/api";
 
 const { Text } = Typography;
 
@@ -28,7 +28,49 @@ const AnswerDialog: FC = () => {
     (state) => state.comments.selectedComment
   );
 
-  const answers = mockAnswers;
+  const [answers, setAnswers] = useState<{ ideas: string[] }[]>([]);
+  useEffect(() => {
+    if (isOpen && selectedComment) {
+      const fetchAnswers = async () => {
+        const request: Answ = {
+          comment_id: Number(selectedComment?.id),
+          team_id: team_id,
+        };
+
+        try {
+          const response = await ReplyIdeas(request);
+          console.log("Raw response:", response);
+
+          // Проверка формата ответа и соответствующая обработка
+          if (response && typeof response === "object" && response.ideas) {
+            // Если ответ уже является объектом с полем ideas
+            setAnswers([{ ideas: response.ideas }]);
+          } else if (typeof response === "string") {
+            try {
+              // Попытка парсить как JSON
+              const parsedResponse = JSON.parse(response);
+              if (parsedResponse.ideas) {
+                setAnswers([{ ideas: parsedResponse.ideas }]);
+              }
+            } catch (parseError) {
+              // Если не JSON, используем старый подход со split
+              const formattedAnswers = (response as string)
+                .split("\n")
+                .filter((text) => text.trim())
+                .map((text) => ({ ideas: [text] }));
+              setAnswers(formattedAnswers);
+            }
+          }
+        } catch (err) {
+          console.error("Ошибка при получении идей ответа:", err);
+        }
+      };
+
+      fetchAnswers();
+    } else {
+      setAnswers([]);
+    }
+  }, [isOpen, selectedComment, team_id]);
 
   const setQuickAnswer = (q_ans: string) => {
     setReplyText(q_ans);
@@ -113,8 +155,9 @@ const AnswerDialog: FC = () => {
           <Divider>Быстрый ответ</Divider>
           <div className={styles["answers"]}>
             {answers.map((answer, answerIndex) =>
-              answer.answers.map((text, index) => (
+              answer.ideas.map((text, index) => (
                 <Button
+                  className={styles["answ-button"]}
                   shape="round"
                   key={`${answerIndex}-${index}`}
                   icon={<RightOutlined />}

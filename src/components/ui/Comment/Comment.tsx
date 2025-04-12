@@ -45,7 +45,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     console.log("Удаление комментария", selectedTeamId, post_union_id, false);
     const res: DeleteComment = {
       team_id: selectedTeamId,
-      post_comment_id: Number(post_union_id),
+      post_comment_id: Number(id),
       ban_user: false,
     };
     Delete(res);

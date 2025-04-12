@@ -13,6 +13,7 @@ import {
   DeleteComment,
   GetSummarizeMarkdownResponse,
   GetSummarizeResult,
+  Answ,
 } from "../models/Comment/types";
 import { AxiosError, isAxiosError } from "axios";
 import config from "../constants/appConfig";
@@ -230,6 +231,17 @@ export const Delete = async (request: DeleteComment) => {
     {
       data: request,
       withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+export const ReplyIdeas = async (req: Answ): Promise<{ ideas: string[] }> => {
+  const response = await axios.get<{ ideas: string[] }>(
+    `${config.api.baseURL}/comment/ideas`,
+    {
+      withCredentials: true,
+      params: req,
     }
   );
   return response.data;
