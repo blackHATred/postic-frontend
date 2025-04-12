@@ -2,7 +2,6 @@
 import React, { PropsWithChildren } from "react";
 import { useState, useEffect, useRef } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { message } from "antd";
 
 interface SSEOptions {
   url: string;

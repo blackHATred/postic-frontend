@@ -34,7 +34,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
     Attachments,
     PubDate,
     Platforms,
-    id: id,
+    id,
   } = props;
 
   const getIcon = (platform: string) => {

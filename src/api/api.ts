@@ -8,6 +8,8 @@ import {
 } from "../models/Post/types";
 import {
   Comment,
+  CommentReply,
+  DeleteComment,
   GetSummarizeMarkdownResponse,
   GetSummarizeResult,
 } from "../models/Comment/types";
@@ -183,6 +185,28 @@ export const getComments = async (
         limit: limit,
         offset: offset,
       },
+    }
+  );
+  return response.data;
+};
+
+export const Reply = async (request: CommentReply) => {
+  const response = await axios.post<string>(
+    `${config.api.baseURL}/comment/reply`,
+    request,
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+export const Delete = async (request: DeleteComment) => {
+  const response = await axios.delete<string>(
+    `${config.api.baseURL}/comment/delete`,
+    {
+      data: request,
+      withCredentials: true,
     }
   );
   return response.data;

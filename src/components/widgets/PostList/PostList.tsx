@@ -8,8 +8,8 @@ import {
   setPostsScroll,
   setScrollToPost,
 } from "../../../stores/postsSlice";
-import { mockPosts, Post } from "../../../models/Post/types";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
+import { Post } from "../../../models/Post/types";
 interface PostListProps {
   isLoading?: boolean;
   hasMore?: boolean;

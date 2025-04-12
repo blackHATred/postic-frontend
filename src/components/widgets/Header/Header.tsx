@@ -128,6 +128,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
             type="default"
             onButtonClick={() => dispatch(setWelcomeDialog(true))}
           />
+
           <ClickableButton
             type="default"
             text="me"

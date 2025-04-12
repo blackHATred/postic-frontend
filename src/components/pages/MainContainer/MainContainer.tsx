@@ -19,6 +19,7 @@ import TeamCreateDialog from "../../widgets/TeamDialog/TeamCreateDialog";
 import TeamEditMemberDialog from "../../widgets/TeamDialog/TeamEditMemberDialog";
 import CreatePostDialog from "../../widgets/CreatePostDialog/CreatePostDialog";
 import TeamRenameDialog from "../../widgets/TeamDialog/TeamRenameDialog";
+import AnswerDialog from "../../widgets/AnswerDialog/AnswerDialog";
 
 const { Text } = Typography;
 
@@ -114,6 +115,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
       <TeamCreateDialog />
       <TeamEditMemberDialog />
       <TeamRenameDialog />
+      <AnswerDialog />
     </div>
   );
 };
