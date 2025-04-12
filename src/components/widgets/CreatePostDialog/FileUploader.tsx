@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Upload, List, Typography, Carousel, Image } from "antd";
-import {
-  CloseOutlined,
-  InboxOutlined,
-  PaperClipOutlined,
-} from "@ant-design/icons";
-import styles from "./styles.module.scss";
-import ClickableButton from "../../ui/Button/Button";
+import { Upload, Typography, Button } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { exceedsMaxFiles, isFileAlreadyAdded } from "../../../utils/validation";
 import { uploadFile } from "../../../api/api";
 import { NotificationContext } from "../../../api/notification";
 import { isAxiosError } from "axios";
+import styles from "./styles.module.scss";
 
 const { Dragger } = Upload;
 const { Text } = Typography;
@@ -94,12 +89,13 @@ const FileUploader: React.FC<fileUploaderProps> = (
   };
 
   return (
-    <div>
+    <div className={styles["post"]}>
+      {/* 
       <Dragger
         className={styles.dragger}
         name="file"
         multiple={true}
-        showUploadList={false}
+        showUploadList={true}
         beforeUpload={handleFileUpload}
       >
         <p className="ant-upload-drag-icon">
@@ -114,41 +110,23 @@ const FileUploader: React.FC<fileUploaderProps> = (
           ). Загружено: {files.length}/{maxFiles}
         </p>
       </Dragger>
+      */}
+      <Text type="secondary">
+        Поддерживается загрузка одного или нескольких файлов (максимум{" "}
+        {maxFiles}
+        ). Загружено: {files.length}/{maxFiles}
+      </Text>
 
-      {files.length > 0 && (
-        <>
-          <List
-            className={styles.images}
-            dataSource={files}
-            renderItem={(file) => (
-              <List.Item>
-                <PaperClipOutlined />
-                <Text className={styles.filename}>{file.name}</Text>
-                <ClickableButton
-                  icon={<CloseOutlined />}
-                  type="text"
-                  onButtonClick={() => handleFileRemove(file)}
-                />
-              </List.Item>
-            )}
-          />
-
-          {imagePreviews.length > 0 &&
-            (imagePreviews.length === 1 ? (
-              <Image src={imagePreviews[0]} />
-            ) : (
-              <Carousel arrows>
-                {imagePreviews.map((preview) => (
-                  <div key={preview}>
-                    <Image src={preview} />
-                  </div>
-                ))}
-              </Carousel>
-            ))}
-        </>
-      )}
-
-      <Upload listType="picture" defaultFileList={files}></Upload>
+      <Upload
+        listType="picture"
+        defaultFileList={files}
+        beforeUpload={handleFileUpload}
+        onRemove={handleFileRemove} // Используйте onRemove вместо action для удаления файлов
+      >
+        <div style={{ textAlign: "center", margin: "16px 0" }}>
+          <Button icon={<UploadOutlined />}>Upload</Button>
+        </div>{" "}
+      </Upload>
       <Upload defaultFileList={files}></Upload>
     </div>
   );

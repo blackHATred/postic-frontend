@@ -144,7 +144,7 @@ const AnswerDialog: FC = () => {
         </div>
         {/* Отображение ошибок валидации */}
         {validationErrors.length > 0 && (
-          <div style={{ marginTop: 5 }}>
+          <div style={{ marginTop: "5px" }}>
             {validationErrors.map((error, index) => (
               <Text key={index} style={{ color: "red", display: "block" }}>
                 {error}
