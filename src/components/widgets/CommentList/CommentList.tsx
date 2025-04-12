@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { addComments, getLastDate } from "../../../stores/commentSlice";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 import { getComments } from "../../../api/api";
+import dayjs from "dayjs";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
@@ -29,10 +30,10 @@ const CommentList: React.FC = () => {
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
-    console.log(last_date);
     if (filteredComments.length < requestSize)
-      getComments(selectedteamid, union_id, requestSize, last_date).then(
+      getComments(selectedteamid, union_id, requestSize, dayjs().format()).then(
         (val) => {
+          console.log(val);
           if (val.comments) dispatch(addComments(val.comments));
         }
       );

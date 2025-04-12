@@ -210,6 +210,7 @@ export const getComments = async (
         post_union_id: union_id,
         limit: limit,
         offset: offset,
+        before: true,
       },
     }
   );
