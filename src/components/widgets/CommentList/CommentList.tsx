@@ -21,7 +21,7 @@ const CommentList: React.FC = () => {
       ? comments.comments.filter(
           (comment) => comment.post_union_id === Number(selectedPostId)
         )
-      : comments.comments
+      : comments.comments.filter((el) => el.post_union_id != null)
     : []; //WARNING: CURRENTLY NOT FILTERING PROPERLY
   const selectedteamid = useAppSelector(
     (state) => state.teams.globalActiveTeamId
