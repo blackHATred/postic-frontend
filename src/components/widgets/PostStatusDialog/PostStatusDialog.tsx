@@ -125,7 +125,6 @@ const PostStatusDialog: FC = () => {
                 const index = socialStatuses.indexOf(statP);
                 statP.status = "wait";
                 socialStatuses[index] = statP;
-                setTimeout(() => setSocialStatuses(socialStatuses), 5000);
               } else {
                 setSocialStatuses([
                   ...socialStatuses,

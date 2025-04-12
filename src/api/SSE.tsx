@@ -32,6 +32,7 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
             props.onMessage(ev);
           },
           async onopen(response) {
+            console.log(response);
             if (response.ok) {
               console.log(response.headers.get("content-type"));
               return; // everything's good

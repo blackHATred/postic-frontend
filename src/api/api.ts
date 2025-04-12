@@ -178,7 +178,7 @@ export const Summarize = async (
 };
 
 export const getComment = async (team_id: number, comment_id: number) => {
-  const response = await axios.get<Comment>(
+  const response = await axios.get<{ comment: Comment }>(
     `${config.api.baseURL}/comment/get`,
     {
       withCredentials: true,

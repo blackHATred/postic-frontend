@@ -74,9 +74,11 @@ const MainPage: React.FC = () => {
   }, [dispatch]);
 
   const newComment = (data: any) => {
-    getComment(selectedteamid, data.data).then((data) =>
-      dispatch(addComment(data))
-    );
+    console.log(data);
+    getComment(selectedteamid, data.data).then((data) => {
+      console.log(data);
+      dispatch(addComment(data.comment));
+    });
   };
 
   return (

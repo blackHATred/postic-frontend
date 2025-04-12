@@ -35,11 +35,17 @@ export const commentsSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      if (!state.comments.comments.some((el) => el.id === action.payload.id)) {
-        state.comments.comments.push(action.payload);
+      if (
+        state.comments.comments &&
+        !state.comments.comments.some((el) => el.id === action.payload.id)
+      ) {
+        state.comments.comments = [action.payload, ...state.comments.comments];
+      } else {
+        state.comments.comments = [action.payload];
       }
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
+      console.log(action.payload);
       const modif = false;
       const to_add: Comment[] = [];
       action.payload.forEach((element) => {
@@ -52,8 +58,7 @@ export const commentsSlice = createSlice({
       state.comments.comments = [...to_add, ...state.comments.comments];
     },
     setComments: (state, action: PayloadAction<Comment[]>) => {
-      console.log(action.payload);
-      state.comments.comments = action.payload;
+      state.comments.comments = action.payload ? action.payload : [];
     },
   },
 });
@@ -75,9 +80,7 @@ export const getLastDate = (state: RootState) => {
     state.comments.comments.comments &&
     state.comments.comments.comments.length > 0
   )
-    return state.comments.comments.comments[
-      state.comments.comments.comments.length - 1
-    ].created_at;
+    return state.comments.comments.comments[0].created_at;
   return dayjs("2020").format();
 };
 

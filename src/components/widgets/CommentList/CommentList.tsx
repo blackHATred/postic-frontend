@@ -4,7 +4,7 @@ import CommentComponent from "../../ui/Comment/Comment";
 import styles from "./styles.module.scss";
 import { WebSocketContext } from "../../../api/WebSocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { getLastDate, setComments } from "../../../stores/commentSlice";
+import { addComments, getLastDate } from "../../../stores/commentSlice";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 import { getComments } from "../../../api/api";
 
@@ -29,10 +29,12 @@ const CommentList: React.FC = () => {
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
-
+    console.log(last_date);
     if (filteredComments.length < requestSize)
       getComments(selectedteamid, union_id, requestSize, last_date).then(
-        (val) => dispatch(setComments(val.comments))
+        (val) => {
+          if (val.comments) dispatch(addComments(val.comments));
+        }
       );
   }, []);
 
