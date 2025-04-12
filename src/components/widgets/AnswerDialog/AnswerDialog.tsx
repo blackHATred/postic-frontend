@@ -12,6 +12,7 @@ import { setAnswerDialog } from "../../../stores/commentSlice";
 import { RightOutlined } from "@ant-design/icons";
 import { SendOutlined } from "@ant-design/icons/lib/icons";
 import { CommentReply, mockAnswers } from "../../../models/Comment/types";
+import { Reply } from "../../../api/api";
 
 const { Text } = Typography;
 
@@ -36,25 +37,28 @@ const AnswerDialog: FC = () => {
   const onOk = () => {
     const errors: string[] = [];
 
-    // Валидация текста поста
-    const postTextError = validateMinLength(replyText, 3);
-    if (postTextError) {
-      errors.push(postTextError);
+    if (fileIDs.length === 0) {
+      const postTextError = validateMinLength(replyText, 3);
+      if (postTextError) {
+        errors.push(postTextError);
+      }
     }
+
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
     }
+
     setValidationErrors([]);
 
     const req: CommentReply = {
       team_id: team_id,
-      comment_id: Number(selectedComment?.comment_id),
+      comment_id: Number(selectedComment?.id),
       text: replyText,
       attachments: fileIDs,
     };
     console.log("Ответ на коммент", req);
-    //Reply();
+    Reply(req);
     dispatch(setAnswerDialog(false));
   };
 
@@ -138,20 +142,19 @@ const AnswerDialog: FC = () => {
             onChange={(e) => setReplyText(e.target.value)}
           />
         </div>
+        {/* Отображение ошибок валидации */}
+        {validationErrors.length > 0 && (
+          <div style={{ marginTop: "5px" }}>
+            {validationErrors.map((error, index) => (
+              <Text key={index} style={{ color: "red", display: "block" }}>
+                {error}
+              </Text>
+            ))}
+          </div>
+        )}
 
         <FileUploader addFiles={addFileIDs} removeFile={() => {}} />
       </div>
-
-      {/* Отображение ошибок валидации */}
-      {validationErrors.length > 0 && (
-        <div style={{ marginTop: 16 }}>
-          {validationErrors.map((error, index) => (
-            <Text key={index} style={{ color: "red", display: "block" }}>
-              {error}
-            </Text>
-          ))}
-        </div>
-      )}
     </DialogBox>
   );
 };
