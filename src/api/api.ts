@@ -53,7 +53,8 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
 
 export const getPosts = async (
   team_id: number,
-  limit: number
+  limit: number,
+  offset: string
 ): Promise<{ posts: Post[] }> => {
   const response = await axios.get<{ posts: Post[] }>(
     `${config.api.baseURL}/posts/list`,
@@ -62,6 +63,8 @@ export const getPosts = async (
       params: {
         team_id: team_id,
         limit: limit,
+        offset: offset,
+        before: true,
       },
     }
   );

@@ -1,6 +1,6 @@
 // hooks/useAuthenticatedSSE.ts
-import React, { PropsWithChildren } from "react";
-import { useState, useEffect, useRef } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 interface SSEOptions {
@@ -10,17 +10,14 @@ interface SSEOptions {
   withCredentials?: boolean;
 }
 
-const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
-  props: PropsWithChildren<SSEOptions>
-) => {
+const AuthenticatedSSE: React.FC<SSEOptions> = (props: SSEOptions) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const ctrl = new AbortController();
 
   useEffect(() => {
+    console.log("loading");
     const setupSSE = async () => {
       try {
-        const ctrl = new AbortController();
-
         fetchEventSource(`${props.url}`, {
           method: "get",
           credentials: "include",
@@ -29,10 +26,11 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
             "Content-Type": "text/event-stream",
           },
           onmessage(ev) {
+            console.log("message");
             props.onMessage(ev);
           },
           async onopen(response) {
-            console.log(response);
+            setIsConnected(true);
             if (response.ok) {
               console.log(response.headers.get("content-type"));
               return; // everything's good
@@ -44,39 +42,36 @@ const AuthenticatedSSE: React.FC<PropsWithChildren<SSEOptions>> = (
               // client-side errors are usually non-retriable:
               //throw new Error(await response.text());
             } else {
-              //throw new Error(await response.text());
+              setTimeout(() => setupSSE(), 1000);
+              throw new Error(await response.text());
             }
           },
           onerror(err) {
-            //throw err; // rethrow to stop the operation
+            ctrl.abort();
+            setTimeout(() => setupSSE(), 1000);
+            throw err;
           },
           onclose() {
-            if (eventSourceRef.current) {
-              console.log("closed");
-              eventSourceRef.current.close();
-              eventSourceRef.current = null;
-              setIsConnected(false);
-            }
+            ctrl.abort();
+            setIsConnected(false);
           },
         });
       } catch (err) {
+        ctrl.abort();
         console.error("Failed to establish SSE connection:", err);
-        setTimeout(setupSSE, 5000);
+        setTimeout(setupSSE, 1000);
       }
     };
 
-    setupSSE();
+    if (!isConnected) setupSSE();
 
     return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-        setIsConnected(false);
-      }
+      ctrl.abort();
+      setIsConnected(false);
     };
   }, [props.url, props.onMessage, props.onError, props.withCredentials]);
 
-  return <>{props.children}</>;
+  return <></>;
 };
 
 export default AuthenticatedSSE;

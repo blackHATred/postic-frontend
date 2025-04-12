@@ -16,6 +16,9 @@ import { setCurrentUserId, setTeams } from "../../../stores/teamSlice";
 import { getComment, getPosts, Me } from "../../../api/api";
 import AuthenticatedSSE from "../../../api/SSE";
 import { addComment } from "../../../stores/commentSlice";
+import dayjs from "dayjs";
+
+const PureSSE = React.memo(AuthenticatedSSE);
 
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -25,7 +28,10 @@ const MainPage: React.FC = () => {
   );
   const [isAuthorized, setIsAuthorized] = useState(false);
   const url =
-    "http://localhost:80/api/comment/subscribe?team_id=" + selectedteamid;
+    "http://localhost:80/api/comment/subscribe?team_id=" +
+    selectedteamid +
+    "&post_union_id=" +
+    0;
 
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
@@ -34,7 +40,7 @@ const MainPage: React.FC = () => {
   };
 
   useEffect(() => {
-    getPosts(selectedteamid, 20)
+    getPosts(selectedteamid, 20, dayjs().format())
       .then((res: { posts: Post[] }) => {
         if (res.posts) {
           if (res.posts.length == 0) {
@@ -79,15 +85,20 @@ const MainPage: React.FC = () => {
   }, [dispatch]);
 
   const newComment = (data: any) => {
-    console.log(data);
-    getComment(selectedteamid, data.data).then((data) => {
+    if (data.event == "comment") {
       console.log(data);
-      dispatch(addComment(data.comment));
-    });
+      getComment(selectedteamid, JSON.parse(data.data).comment_id).then(
+        (data) => {
+          console.log(data);
+          dispatch(addComment(data.comment));
+        }
+      );
+    }
   };
 
   return (
-    <AuthenticatedSSE url={url} onMessage={newComment}>
+    <>
+      <PureSSE url={url} onMessage={newComment} />
       <div className={styles["main-page"]}>
         <ButtonHeader
           isAuthorized={isAuthorized}
@@ -97,7 +108,7 @@ const MainPage: React.FC = () => {
 
         <MainContainer isAuthorized={isAuthorized} />
       </div>
-    </AuthenticatedSSE>
+    </>
   );
 };
 
