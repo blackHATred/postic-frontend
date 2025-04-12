@@ -4,12 +4,9 @@ import DialogBox from "../../ui/dialogBox/DialogBox";
 import styles from "./styles.module.scss";
 
 import { validateMinLength } from "../../../utils/validation";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  setCreatePostDialog,
-  setPostStatusDialog,
-} from "../../../stores/basePageDialogsSlice";
+
 import FileUploader from "../CreatePostDialog/FileUploader";
 import { setAnswerDialog } from "../../../stores/commentSlice";
 import { RightOutlined } from "@ant-design/icons";
@@ -21,8 +18,6 @@ const { Text } = Typography;
 const AnswerDialog: FC = () => {
   const [replyText, setReplyText] = useState(""); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(); // Состояние для выбранной даты
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // Состояние для выбранной даты
   const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.comments.answerDialog.isOpen);
@@ -33,8 +28,6 @@ const AnswerDialog: FC = () => {
   );
 
   const answers = mockAnswers;
-
-  const reply: CommentReply | null = null;
 
   const setQuickAnswer = (q_ans: string) => {
     setReplyText(q_ans);
@@ -48,27 +41,27 @@ const AnswerDialog: FC = () => {
     if (postTextError) {
       errors.push(postTextError);
     }
-
-    if (!selectedDate) {
-      setSelectedDate(dayjs());
-    }
-
-    // Если есть ошибки, отображаем их и не закрываем диалог
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
     }
-
-    // Если ошибок нет, сбрасываем их и вызываем onOk
     setValidationErrors([]);
 
-    dispatch(setPostStatusDialog(true));
-    dispatch(setCreatePostDialog(false));
+    const req: CommentReply = {
+      team_id: team_id,
+      comment_id: Number(selectedComment?.comment.comment_id),
+      text: replyText,
+      attachments: fileIDs,
+    };
+    console.log("Ответ на коммент", req);
+    //Reply();
+    dispatch(setAnswerDialog(false));
   };
 
   const onCancel = async () => {
     dispatch(setAnswerDialog(false));
   };
+
   return (
     <DialogBox
       bottomButtons={[

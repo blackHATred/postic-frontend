@@ -36,7 +36,7 @@ export interface CommentReply {
   team_id: number;
   comment_id: number;
   text: string;
-  attachments: CommentAttachments[];
+  attachments: string[];
 }
 
 export interface QuickAnswer {
