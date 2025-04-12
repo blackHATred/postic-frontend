@@ -44,7 +44,7 @@ export const postsSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      state.posts.push(action.payload);
+      state.posts = [action.payload, ...state.posts];
     },
     addPosts: (state, action: PayloadAction<Post[]>) => {
       state.posts = [...action.payload, ...state.posts];

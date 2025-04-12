@@ -13,15 +13,17 @@ import FileUploader from "./FileUploader";
 import { validateMinLength } from "../../../utils/validation";
 import dayjs, { Dayjs } from "dayjs";
 import Picker from "emoji-picker-react";
-import { getPosts, sendPostRequest } from "../../../api/api";
+import { getPost, sendPostRequest } from "../../../api/api";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
+  addFile,
+  removeFile,
   setCreatePostDialog,
   setPostStatusDialog,
 } from "../../../stores/basePageDialogsSlice";
 import ru from "antd/es/date-picker/locale/ru_RU";
 import { Post, sendPostResult } from "../../../models/Post/types";
-import { setPosts, setSelectedPostId } from "../../../stores/postsSlice";
+import { addPost, setSelectedPostId } from "../../../stores/postsSlice";
 
 const { Text } = Typography;
 
@@ -42,12 +44,14 @@ const CreatePostDialog: FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(); // Состояние для выбранной даты
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // Состояние для выбранной даты
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
-  const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector(
     (state) => state.basePageDialogs.createPostDialog.isOpen
   );
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const fileIds = useAppSelector((state) =>
+    state.basePageDialogs.createPostDialog.files.map((file) => file.id)
+  );
 
   const onOk = () => {
     const errors: string[] = [];
@@ -78,14 +82,14 @@ const CreatePostDialog: FC = () => {
     setValidationErrors([]);
     sendPostRequest({
       text: postText,
-      attachments: fileIDs,
+      attachments: fileIds,
       pub_time: selectedDate?.unix() ? selectedDate.unix() : dayjs().unix(),
       platforms: selectedPlatforms,
       team_id: team_id,
     }).then((data: sendPostResult) => {
-      getPosts(team_id, 20).then((res: { posts: Post[] }) => {
-        if (res.posts) {
-          dispatch(setPosts(res.posts));
+      getPost(team_id, data.post_id).then((res: { post: Post }) => {
+        if (res.post) {
+          dispatch(addPost(res.post));
         } else {
         }
       }); // Вот это можно будет удалить после изменения бекэнда (вместо этого добавление нового элемента)
@@ -102,6 +106,14 @@ const CreatePostDialog: FC = () => {
   const onEmojiClick = (emojiObject: any) => {
     setPostText((prevText) => prevText + emojiObject.emoji);
     setShowEmojiPicker(false);
+  };
+
+  const addFileIDs = (id: string, file: any) => {
+    dispatch(addFile({ id: id, file: file }));
+  };
+
+  const removeFiles = (file: any) => {
+    dispatch(removeFile({ file: file }));
   };
 
   return (
@@ -183,7 +195,7 @@ const CreatePostDialog: FC = () => {
             />
           </div>
         )}
-        <FileUploader fileIDs={fileIDs} setFileIDs={setFilesIDs} />
+        <FileUploader addFiles={addFileIDs} removeFile={removeFiles} />
       </div>
 
       {/* Отображение ошибок валидации */}

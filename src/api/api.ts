@@ -68,6 +68,23 @@ export const getPosts = async (
   return response.data;
 };
 
+export const getPost = async (
+  team_id: number,
+  post_id: number
+): Promise<{ post: Post }> => {
+  const response = await axios.get<{ post: Post }>(
+    `${config.api.baseURL}/posts/get`,
+    {
+      withCredentials: true,
+      params: {
+        team_id: team_id,
+        post_union_id: post_id,
+      },
+    }
+  );
+  return response.data;
+};
+
 export const getPostStatus = async (
   post_id: number,
   team_id: number

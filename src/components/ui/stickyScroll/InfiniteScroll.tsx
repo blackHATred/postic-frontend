@@ -62,7 +62,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
 
   React.useEffect(() => {
     // On scroll to item
-    console.log(props.smoothScrollTarget, props.scrollAmount);
+
     if (props.doSmoothScroll && props.smoothScrollTarget) {
       setTimeout(
         () =>

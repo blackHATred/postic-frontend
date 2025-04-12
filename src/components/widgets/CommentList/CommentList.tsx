@@ -29,11 +29,10 @@ const CommentList: React.FC = () => {
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
-    const limit = 10;
 
     if (filteredComments.length < requestSize)
-      getComments(selectedteamid, union_id, limit, last_date).then((val) =>
-        dispatch(setComments(val.comments))
+      getComments(selectedteamid, union_id, requestSize, last_date).then(
+        (val) => dispatch(setComments(val.comments))
       );
   }, []);
 
