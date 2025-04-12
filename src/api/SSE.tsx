@@ -39,9 +39,11 @@ const AuthenticatedSSE: React.FC<SSEOptions> = (props: SSEOptions) => {
               response.status < 500 &&
               response.status !== 429
             ) {
+              ctrl.abort();
               // client-side errors are usually non-retriable:
               //throw new Error(await response.text());
             } else {
+              ctrl.abort();
               setTimeout(() => setupSSE(), 1000);
               throw new Error(await response.text());
             }
