@@ -1,15 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Comment } from "../models/Comment/types";
+import { Comment, Comments } from "../models/Comment/types";
 import { RootState } from "./store";
 import dayjs from "dayjs";
+import { stat } from "fs";
 
 export interface CommentSliceState {
-  comments: Comment[];
+  comments: Comments;
 }
 
 // Define the initial state using that type
 const initialState: CommentSliceState = {
-  comments: [],
+  comments: { comments: [], status: "" },
 };
 
 export const commentsSlice = createSlice({
@@ -21,52 +22,44 @@ export const commentsSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      if (
-        !state.comments.some(
-          (el) => el.comment.id === action.payload.comment.id
-        )
-      ) {
-        state.comments.push(action.payload);
-        state.comments.sort(
-          (a, b) =>
-            dayjs(a.comment.created_at).unix() -
-            dayjs(b.comment.created_at).unix()
-        );
+      if (!state.comments.comments.some((el) => el.id === action.payload.id)) {
+        state.comments.comments.push(action.payload);
       }
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
       const modif = false;
+      let to_add: Comment[] = [];
       action.payload.forEach((element) => {
         if (
-          !state.comments.some(
-            (comment) => comment.comment.id === element.comment.id
-          )
+          !state.comments.comments.some((comment) => comment.id === element.id)
         ) {
-          state.comments = [...state.comments, element];
+          to_add.push(element);
         }
       });
-      if (modif) {
-        state.comments.sort(
-          (a: Comment, b: Comment) =>
-            dayjs(a.comment.created_at).unix() -
-            dayjs(b.comment.created_at).unix()
-        );
-      }
+      state.comments.comments = [...to_add, ...state.comments.comments];
+    },
+    setComments: (state, action: PayloadAction<Comment[]>) => {
+      console.log(action.payload);
+      state.comments.comments = action.payload;
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addComment, addComments } = commentsSlice.actions;
+export const { addComment, addComments, setComments } = commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) =>
   state.comments.comments;
 
 export const getLastDate = (state: RootState) => {
-  if (state.comments.comments.length > 0)
-    return state.comments.comments[state.comments.comments.length - 1].comment
-      .created_at;
-  return 0;
+  if (
+    state.comments.comments.comments &&
+    state.comments.comments.comments.length > 0
+  )
+    return state.comments.comments.comments[
+      state.comments.comments.comments.length - 1
+    ].created_at;
+  return dayjs("2020").format();
 };
 
 export default commentsSlice.reducer;

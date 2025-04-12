@@ -10,6 +10,7 @@ import {
 } from "../../../stores/postsSlice";
 import { mockPosts, Post } from "../../../models/Post/types";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
+import { Empty, Typography } from "antd";
 interface PostListProps {
   isLoading?: boolean;
   hasMore?: boolean;
@@ -47,12 +48,20 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           }}
           getNewData={getNewData}
           doSmoothScroll={scrollToPost}
-          smoothScrollTarget={posts.findIndex(
-            (post) => post.id === selectedPostId
-          )}
+          smoothScrollTarget={
+            posts.length -
+            posts.findIndex((post) => post.id === selectedPostId) -
+            1
+          }
           scrollAmount={scrollAmount}
           setScroll={(scroll) => setScroll(scroll)}
         />
+      )}
+      {posts.length === 0 && (
+        <Empty
+          styles={{ image: { height: 60 } }}
+          description={<Typography.Text>Нету постов</Typography.Text>}
+        ></Empty>
       )}
     </div>
   );

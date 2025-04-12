@@ -35,7 +35,6 @@ const SecretDialog: React.FC = (props) => {
           );
         });
       setLoading(false);
-      console.log(activeTeamId);
     }
   }, [isOpen]);
 

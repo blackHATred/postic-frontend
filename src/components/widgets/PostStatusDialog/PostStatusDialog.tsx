@@ -26,13 +26,13 @@ interface SocialStatus {
 const PostStatusDialog: FC = () => {
   const dispatch = useAppDispatch();
   const postId = useAppSelector((state) => state.posts.selectedPostId);
+  const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const isOpen = useAppSelector(
     (state) => state.basePageDialogs.postStatusDialog.isOpen
   );
   const selectedPlatforms = useAppSelector(
-    (state) => state.posts.posts.find((post) => post.id === postId)?.Platforms
+    (state) => state.posts.posts.find((post) => post.id === postId)?.platforms
   );
-  const [error_data, SetErrorData] = useState("");
 
   const getIcon = (platform: string) => {
     switch (platform) {
@@ -57,90 +57,91 @@ const PostStatusDialog: FC = () => {
       : [];
   };
 
-  const [socialStatuses, setSocialStatuses] = useState<SocialStatus[]>(
-    mapStatuses()
-  );
+  const [socialStatuses, setSocialStatuses] = useState<SocialStatus[]>([]);
 
   useEffect(() => {
-    if (isOpen && selectedPlatforms) {
-      selectedPlatforms.forEach((platform) => getStatus(platform));
+    mapStatuses();
+    if (isOpen) {
+      getStatus();
     }
-  }, [selectedPlatforms]);
+  }, [isOpen]);
 
   const onCancel = () => {
     dispatch(setPostStatusDialog(false));
   };
 
-  const getStatus = async (platform: string) => {
+  const getStatus = async () => {
     if (postId)
-      getPostStatus(postId, platform).then((res: postStatusResults) => {
+      getPostStatus(postId, teamId).then((res: postStatusResults) => {
+        res.status.forEach((status) => {
+          switch (status.status) {
+            case "success": {
+              const statusSuccess = socialStatuses.find(
+                (element: SocialStatus) => element.platform == status.platform
+              );
+              if (statusSuccess) {
+                const index = socialStatuses.indexOf(statusSuccess);
+                statusSuccess.status = "finish";
+                socialStatuses[index] = statusSuccess;
+                setSocialStatuses(socialStatuses);
+              } else {
+                setSocialStatuses([
+                  ...socialStatuses,
+                  {
+                    platform: status.platform,
+                    icon: getIcon(status.platform),
+                    status: "finish",
+                  },
+                ]);
+              }
+              break;
+            }
+            case "error": {
+              const statE = socialStatuses.find(
+                (element: SocialStatus) => element.platform == status.platform
+              );
+              if (statE) {
+                const index = socialStatuses.indexOf(statE);
+                statE.status = "error";
+                socialStatuses[index] = statE;
+                setSocialStatuses(socialStatuses);
+              } else {
+                setSocialStatuses([
+                  ...socialStatuses,
+                  {
+                    platform: status.platform,
+                    icon: getIcon(status.platform),
+                    status: "error",
+                  },
+                ]);
+              }
+              break;
+            }
+            case "pending": {
+              const statP = socialStatuses.find(
+                (element: SocialStatus) => element.platform == status.platform
+              );
+              if (statP) {
+                const index = socialStatuses.indexOf(statP);
+                statP.status = "wait";
+                socialStatuses[index] = statP;
+                setTimeout(() => setSocialStatuses(socialStatuses), 5000);
+              } else {
+                setSocialStatuses([
+                  ...socialStatuses,
+                  {
+                    platform: status.platform,
+                    icon: getIcon(status.platform),
+                    status: "wait",
+                  },
+                ]);
+              }
+              getStatus();
+              setSocialStatuses(mapStatuses());
+            }
+          }
+        });
         //Получили статус
-        switch (res.status.status) {
-          case "success": {
-            const statusSuccess = socialStatuses.find(
-              (element: SocialStatus) => element.platform == platform
-            );
-            if (statusSuccess) {
-              const index = socialStatuses.indexOf(statusSuccess);
-              statusSuccess.status = "finish";
-              socialStatuses[index] = statusSuccess;
-              setSocialStatuses(socialStatuses);
-            } else {
-              setSocialStatuses([
-                ...socialStatuses,
-                {
-                  platform: res.status.platform,
-                  icon: getIcon(res.status.platform),
-                  status: "finish",
-                },
-              ]);
-            }
-            break;
-          }
-          case "error": {
-            const statE = socialStatuses.find(
-              (element: SocialStatus) => element.platform == platform
-            );
-            if (statE) {
-              const index = socialStatuses.indexOf(statE);
-              statE.status = "error";
-              socialStatuses[index] = statE;
-              setSocialStatuses(socialStatuses);
-            } else {
-              setSocialStatuses([
-                ...socialStatuses,
-                {
-                  platform: res.status.platform,
-                  icon: getIcon(res.status.platform),
-                  status: "error",
-                },
-              ]);
-            }
-            break;
-          }
-          case "pending": {
-            const statP = socialStatuses.find(
-              (element: SocialStatus) => element.platform == platform
-            );
-            if (statP) {
-              const index = socialStatuses.indexOf(statP);
-              statP.status = "wait";
-              socialStatuses[index] = statP;
-              setTimeout(() => setSocialStatuses(socialStatuses), 5000);
-            } else {
-              setSocialStatuses([
-                ...socialStatuses,
-                {
-                  platform: res.status.platform,
-                  icon: getIcon(res.status.platform),
-                  status: "wait",
-                },
-              ]);
-            }
-            getStatus(platform);
-            setSocialStatuses(mapStatuses());
-          }
-        }
       });
   };
 
@@ -193,8 +194,6 @@ const PostStatusDialog: FC = () => {
           </div>
         ))}
       </div>
-
-      <Text>{error_data}</Text>
     </DialogBox>
   );
 };

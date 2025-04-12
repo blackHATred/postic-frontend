@@ -71,7 +71,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
             )}
             {activeTab === "2" && (
               <div style={{ width: "100%", height: "100%" }}>
-                {selectedPostId && (
+                {selectedPostId != 0 && (
                   <Breadcrumb className={styles["breadcrumb"]}>
                     <Breadcrumb.Item
                       onClick={handleBreadcrumbClick}

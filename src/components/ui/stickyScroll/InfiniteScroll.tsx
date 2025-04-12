@@ -29,7 +29,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
     props.addData(new_data);
     setTimeout(() => setIsLoading(false), 100);
   };
-  const maxElementHeight = 2000;
+  const maxElementHeight = 5000;
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [hasMoreQuotes, setHasMoreQuotes] = React.useState({
@@ -47,7 +47,6 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   const virtualizer = useVirtualizer({
     count,
     getScrollElement: () => parentRef.current,
-    paddingStart: 90,
     estimateSize: () => maxElementHeight,
     initialOffset: props.scrollAmount * maxElementHeight,
     overscan: 0,
@@ -63,6 +62,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
 
   React.useEffect(() => {
     // On scroll to item
+    console.log(props.smoothScrollTarget, props.scrollAmount);
     if (props.doSmoothScroll && props.smoothScrollTarget) {
       setTimeout(
         () =>
@@ -126,13 +126,11 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   }, [hasMoreQuotes, hasMoreQuotes.bottom, isLoading]);
 
   const handleScroll = () => {
-    if (bottomRef.current)
-      console.log(bottomRef.current.getBoundingClientRect().top);
     if (virtualizer.scrollOffset) {
       const x = virtualizer.getVirtualItemForOffset(virtualizer.scrollOffset);
-      if (x && x.key) {
+      if (x) {
         const y = virtualizer.elementsCache.get(x?.key);
-        if (x?.index && y && y.getBoundingClientRect().top) {
+        if (y && y.getBoundingClientRect().top) {
           props.setScroll(x.index);
         }
       }

@@ -1,17 +1,19 @@
 import dayjs, { Dayjs } from "dayjs";
 
+export interface Comments {
+  comments: Comment[];
+  status: string;
+}
 export interface Comment {
-  comment: {
-    id: number;
-    post_union_id?: number;
-    platform: string;
-    comment_id: number;
-    user_id: number;
-    username: string;
-    text: string;
-    created_at: Dayjs;
-    attachments: CommentAttachments[];
-  };
+  id: number;
+  post_union_id?: number;
+  platform: string;
+  comment_id: number;
+  user_id: number;
+  username: string;
+  text: string;
+  created_at: string;
+  attachments: CommentAttachments[];
 }
 
 interface CommentAttachments {

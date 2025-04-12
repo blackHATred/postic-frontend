@@ -8,6 +8,7 @@ import {
 } from "../models/Post/types";
 import {
   Comment,
+  Comments,
   GetSummarizeMarkdownResponse,
   GetSummarizeResult,
 } from "../models/Comment/types";
@@ -48,14 +49,17 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
   }
 };
 
-export const getPosts = async (): Promise<{ posts: Post[] }> => {
+export const getPosts = async (
+  team_id: number,
+  limit: number
+): Promise<{ posts: Post[] }> => {
   const response = await axios.get<{ posts: Post[] }>(
     `${config.api.baseURL}/posts/list`,
     {
       withCredentials: true,
       params: {
-        team_id: 1,
-        limit: 10,
+        team_id: team_id,
+        limit: limit,
       },
     }
   );
@@ -63,15 +67,16 @@ export const getPosts = async (): Promise<{ posts: Post[] }> => {
 };
 
 export const getPostStatus = async (
-  post_id: string,
-  platform: string
+  post_id: number,
+  team_id: number
 ): Promise<postStatusResults> => {
   const response = await axios.get<postStatusResults>(
-    `${config.api.baseURL}/posts/status/` + post_id,
+    `${config.api.baseURL}/posts/status`,
     {
       withCredentials: true,
       params: {
-        platform: platform,
+        team_id: team_id,
+        post_union_id: post_id,
       },
     }
   );
@@ -120,7 +125,7 @@ export const Login = async (id: number): Promise<RegisterResult> => {
 };
 
 export const getSummarize = async (
-  postId: string
+  postId: number
 ): Promise<GetSummarizeResult> => {
   try {
     const response = await axios.get<GetSummarizeResult>(
@@ -142,7 +147,7 @@ export const getSummarize = async (
 };
 
 export const Summarize = async (
-  postId: string
+  postId: number
 ): Promise<GetSummarizeMarkdownResponse | null> => {
   const response = await axios.post<GetSummarizeMarkdownResponse>(
     `${config.api.baseURL}/comment/summarize`,
@@ -173,7 +178,7 @@ export const getComments = async (
   limit: number,
   offset?: string
 ) => {
-  const response = await axios.get<Comment[]>(
+  const response = await axios.get<Comments>(
     `${config.api.baseURL}/comment/last`,
     {
       withCredentials: true,
@@ -185,5 +190,6 @@ export const getComments = async (
       },
     }
   );
+  console.log(response);
   return response.data;
 };

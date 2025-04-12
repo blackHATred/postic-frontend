@@ -1,20 +1,21 @@
 import dayjs from "dayjs";
 
 export interface Post {
-  id: string;
+  id: number;
   text: string;
-  userID: string;
-  Attachments: PostAttachment[];
-  Platforms?: string[];
-  CreatedAt?: number;
-  PubDate: number;
+  platforms: string[] | null;
+  pub_datetime: string | null;
+  attachments: PostAttachment[];
+  created_at: number;
+  user_id: number;
+  team_id: number;
 }
 
 interface PostAttachment {
-  id: string;
+  id: number;
   file_path: string;
   file_type: string;
-  uploaded_by_user_id: string;
+  uploaded_by_user_id: number;
   created_at: string;
 }
 
@@ -27,17 +28,19 @@ export interface sendPost {
 }
 
 export interface sendPostResult {
-  post_id: string;
+  post_id: number;
   status: string;
 }
 
 export interface postStatusResults {
   status: {
     post_id: string;
+    operation: string;
     platform: string;
     status: "success" | "error" | "pending";
     err_message: string;
-  };
+    created_at: string;
+  }[];
 }
 
 export interface UploadResult {
@@ -49,30 +52,33 @@ export interface UploadResult {
 
 export const mockPosts: Post[] = [
   {
-    id: "11",
-    CreatedAt: dayjs().unix(),
-    userID: "1 Moderator",
+    id: 11,
+    created_at: dayjs().unix(),
+    user_id: 1,
+    team_id: 1,
     text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
-    Attachments: [],
-    Platforms: ["tg", "vk"],
-    PubDate: dayjs().unix(),
+    attachments: [],
+    platforms: ["tg", "vk"],
+    pub_datetime: null,
   },
   {
-    id: "22",
-    CreatedAt: dayjs().unix(),
-    userID: "2 Moderator",
+    id: 22,
+    created_at: dayjs().unix(),
+    user_id: 2,
+    team_id: 2,
     text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
-    Attachments: [],
-    Platforms: ["tg"],
-    PubDate: dayjs().unix(),
+    attachments: [],
+    platforms: ["tg"],
+    pub_datetime: null,
   },
   {
-    id: "33",
-    CreatedAt: dayjs().unix(),
-    userID: "2 Moderator",
-    text: "a\nb\nc\nd\ne\nf\nh\ni\nj\nk\nl",
-    Attachments: [],
-    Platforms: ["tg"],
-    PubDate: dayjs().unix(),
+    id: 33,
+    created_at: dayjs().unix(),
+    user_id: 3,
+    team_id: 3,
+    text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
+    attachments: [],
+    platforms: ["tg"],
+    pub_datetime: null,
   },
 ];

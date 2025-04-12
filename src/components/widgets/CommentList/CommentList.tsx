@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button } from "antd";
+import { Button, Empty, Typography } from "antd";
 import CommentComponent from "../../ui/Comment/Comment";
 import { Comment } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
@@ -11,6 +11,7 @@ import {
   addComments,
   getCommentsFromStore,
   getLastDate,
+  setComments,
 } from "../../../stores/commentSlice";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 import dayjs from "dayjs";
@@ -23,83 +24,48 @@ const CommentList: React.FC = () => {
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const filteredComments = selectedPostId
-    ? comments.filter(
-        (comment) => comment.comment.post_union_id === Number(selectedPostId)
-      )
-    : comments; //WARNING: CURRENTLY NOT FILTERING PROPERLY
+  const filteredComments = comments.comments
+    ? selectedPostId !== 0
+      ? comments.comments.filter(
+          (comment) => comment.post_union_id === Number(selectedPostId)
+        )
+      : comments.comments
+    : []; //WARNING: CURRENTLY NOT FILTERING PROPERLY
   const selectedteamid = useAppSelector(
     (state) => state.teams.globalActiveTeamId
   );
-
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (webSocketManager.lastJsonMessage) {
-      const recievedJSON = JSON.parse(webSocketManager.lastJsonMessage.data); // Парсим JSON
-
-      if (Object.prototype.hasOwnProperty.call(recievedJSON, "comments")) {
-        // Обработка, если поле "comments" существует
-        const comments = recievedJSON.comments as Comment[];
-        if (comments != null) {
-          dispatch(addComments(comments));
-          setLoading(false);
-          return;
-        }
-      } else {
-        //NOTE: recieved one comment
-        const comment = recievedJSON as Comment; // recieve comment
-        dispatch(addComment(comment));
-        setLoading(false);
-      }
-    }
-  }, [webSocketManager.lastJsonMessage]);
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
     const limit = 10;
 
-    getComments(selectedteamid, union_id, limit, dayjs().format());
+    if (filteredComments.length < requestSize)
+      getComments(selectedteamid, union_id, limit, last_date).then((val) =>
+        dispatch(setComments(val.comments))
+      );
   }, []);
-
-  const onLoadMore = () => {
-    setLoading(true);
-    webSocketManager.sendJsonMessage({
-      type: "get_comments",
-      get_comments: {
-        post_union_id: selectedPostId ? selectedPostId : 0,
-        offset: last_date,
-        max_count: requestSize,
-      },
-    });
-  };
-
-  const loadMore = !loading ? (
-    <div
-      style={{
-        textAlign: "center",
-        marginTop: 12,
-        height: 32,
-        lineHeight: "32px",
-      }}
-    >
-      <Button onClick={onLoadMore}>Больше</Button>
-    </div>
-  ) : null;
 
   return (
     <div className={styles.commentListContainer}>
-      <RowVirtualizerDynamic
-        object={filteredComments.map((comment) => {
-          return <CommentComponent comment={comment} />;
-        })}
-        getNewData={() => new Promise(() => [])}
-        addData={() => {}}
-        doSmoothScroll={false}
-        smoothScrollTarget={0}
-        scrollAmount={0}
-        setScroll={(scroll: number) => {}}
-      />
+      {filteredComments.length > 0 && (
+        <RowVirtualizerDynamic
+          object={[...filteredComments].reverse().map((comment) => {
+            return <CommentComponent comment={comment} />;
+          })}
+          getNewData={() => new Promise(() => [])}
+          addData={() => {}}
+          doSmoothScroll={false}
+          smoothScrollTarget={0}
+          scrollAmount={filteredComments.length}
+          setScroll={(scroll: number) => {}}
+        />
+      )}
+      {filteredComments.length === 0 && (
+        <Empty
+          styles={{ image: { height: 60 }, root: { paddingTop: 25 } }}
+          description={<Typography.Text>Нету комментариев</Typography.Text>}
+        ></Empty>
+      )}
     </div>
   );
 };

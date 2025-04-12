@@ -65,7 +65,7 @@ const DialogBoxSummary: FC = () => {
   const onCancel = async () => {
     setSummaryText("");
     dispatch(setSummaryDialog(false));
-    dispatch(setSelectedPostId(""));
+    dispatch(setSelectedPostId(0));
   };
 
   const onHeaderClick = async () => {

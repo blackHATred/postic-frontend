@@ -70,18 +70,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   const handleChange = (value: string) => {
     setSelectedTeam(value);
     setGlobalActiveTeamId(Number(value));
-    console.log("Global", value);
   };
-
-  const setCookiesUserID = () => {
-    setCookie(
-      "session",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3Mzc1NTB9.gbZ3hbX63rBsokzIbKjZjYb3rz53PSKQEt9e9mASCvM",
-      { path: "/" }
-    );
-    console.log("Cookie 'session' set to 1");
-  };
-
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
@@ -121,7 +110,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
           <ClickableButton
             icon={<BellOutlined />}
             type="default"
-            onButtonClick={setCookiesUserID}
+            onButtonClick={() => {}}
           />
           <ClickableButton
             icon={<UserOutlined />}

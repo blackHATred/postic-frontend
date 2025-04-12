@@ -4,7 +4,8 @@ import { Post } from "../models/Post/types";
 
 export interface PostSliceState {
   posts: Post[];
-  selectedPostId: string;
+  isOpened: { [key: number]: boolean };
+  selectedPostId: number;
   scrollToPost: boolean;
   postsScroll: number;
 }
@@ -12,7 +13,8 @@ export interface PostSliceState {
 // Define the initial state using that type
 const initialState: PostSliceState = {
   posts: [],
-  selectedPostId: "",
+  isOpened: {},
+  selectedPostId: 0,
   scrollToPost: false,
   postsScroll: 10000,
 };
@@ -21,7 +23,7 @@ export const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    setSelectedPostId: (state, action: PayloadAction<string>) => {
+    setSelectedPostId: (state, action: PayloadAction<number>) => {
       state.selectedPostId = action.payload;
     },
 
@@ -31,6 +33,10 @@ export const postsSlice = createSlice({
 
     setPosts: (state, action: PayloadAction<Post[]>) => {
       state.posts = action.payload;
+    },
+
+    setIsOpened(state, action: PayloadAction<{ key: number; value: boolean }>) {
+      state.isOpened[action.payload.key] = action.payload.value;
     },
 
     addPost: (state, action: PayloadAction<Post>) => {
@@ -58,6 +64,7 @@ export const {
   addPosts,
   setPosts,
   setPostsScroll,
+  setIsOpened,
 } = postsSlice.actions;
 
 export const getPostsStore = (state: RootState) => state.posts.posts;

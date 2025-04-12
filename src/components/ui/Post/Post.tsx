@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Divider, Space, Typography } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { Divider, Space, Typography, Image, Collapse, Carousel } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";
 import ClickableButton from "../Button/Button";
@@ -16,7 +16,7 @@ import {
   setActiveTab,
   setSummaryDialog,
 } from "../../../stores/basePageDialogsSlice";
-import { setSelectedPostId } from "../../../stores/postsSlice";
+import { setIsOpened, setSelectedPostId } from "../../../stores/postsSlice";
 import {
   LiaQuestionCircle,
   LiaTelegram,
@@ -27,16 +27,6 @@ import {
 const { Text } = Typography;
 
 const PostComponent: React.FC<Post> = (props: Post) => {
-  const {
-    CreatedAt,
-    userID,
-    text: postText,
-    Attachments,
-    PubDate,
-    Platforms,
-    id: id,
-  } = props;
-
   const getIcon = (platform: string) => {
     switch (platform) {
       case "vk":
@@ -53,6 +43,13 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
+  const attach_files = props.attachments
+    ? props.attachments.filter((el) => el.file_type != "photo")
+    : [];
+  const attach_images = props.attachments
+    ? props.attachments.filter((el) => el.file_type === "photo")
+    : [];
+  const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
 
   useEffect(() => {
     if (props.id === selectedPostId) setSelected();
@@ -69,19 +66,19 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           );
       }, 3000);
 
-      dispatch(setSelectedPostId(""));
+      dispatch(setSelectedPostId(0));
     }
   };
 
   const onCommentClick = () => {
-    dispatch(setSelectedPostId(id));
+    dispatch(setSelectedPostId(props.id));
     dispatch(setActiveTab("2"));
   };
 
   const onSummaryClick = async () => {
     // При нажатии кнопки суммаризации
     dispatch(setSummaryDialog(true));
-    dispatch(setSelectedPostId(id));
+    dispatch(setSelectedPostId(props.id));
   };
 
   return (
@@ -90,16 +87,18 @@ const PostComponent: React.FC<Post> = (props: Post) => {
       <div className={styles["post-header"]}>
         <div className={styles["post-header-info"]}>
           <div className={styles["post-header-info-text"]}>
+            {/* NOTE: заменить потом на информацию пользователя */}
             <Text strong className={styles["post-name"]}>
-              Модератор {userID}
+              Модератор {props.user_id}
             </Text>
+
             <Text type="secondary" className={styles["post-time"]}>
-              {dayjs(PubDate).format("DD.MM.YYYY HH:mm")}
+              {dayjs(props.created_at).format("DD.MM.YYYY HH:mm")}
             </Text>
             <Space size={0} split={<Divider type="vertical" />}>
-              {Platforms?.map((plat) => {
+              {props.platforms?.map((plat) => {
                 return getIcon(plat);
-              }).concat(getIcon("vk"))}
+              })}
             </Space>
           </div>
         </div>
@@ -123,15 +122,47 @@ const PostComponent: React.FC<Post> = (props: Post) => {
       <Divider className={styles.customDivider} />
       <div className={styles["post-content"]}>
         <div className={styles["post-content-text"]}>
-          <Text style={{ whiteSpace: "pre-line" }}>{postText}</Text>
+          <Text style={{ whiteSpace: "pre-line" }}>{props.text}</Text>
         </div>
         <div className={styles["post-content-attachments"]}>
-          {Attachments?.map((attachment, index) => (
-            <div className={styles["post-content-attachment"]} key={index}>
-              <Icon component={PaperClipOutlined} />
-              <Text className={styles.primaryText}>{attachment.file_path}</Text>
-            </div>
-          ))}
+          {attach_files.length > 0 &&
+            attach_files?.map((attachment, index) => (
+              <div className={styles["post-content-attachment"]} key={index}>
+                <Icon component={PaperClipOutlined} />
+                <Text className={styles.primaryText}>
+                  {attachment.file_path}
+                </Text>
+              </div>
+            ))}
+          {attach_images.length > 0 && (
+            <Collapse
+              size="small"
+              onChange={(key) =>
+                dispatch(setIsOpened({ key: props.id, value: key.length >= 1 }))
+              }
+              defaultActiveKey={isOpened ? "1" : undefined}
+              items={[
+                {
+                  key: "1",
+                  label: "Фотографии",
+                  children: (
+                    <Carousel arrows>
+                      {attach_images.map((preview) => (
+                        <div key={preview.id}>
+                          <Image
+                            src={
+                              "http://localhost:80/api/upload/get/" +
+                              preview.uploaded_by_user_id
+                            }
+                          />
+                        </div>
+                      ))}
+                    </Carousel>
+                  ),
+                },
+              ]}
+            />
+          )}
         </div>
         <div className={styles["post-content-buttons"]}>
           <ClickableButton

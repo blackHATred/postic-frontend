@@ -83,7 +83,7 @@ const CreatePostDialog: FC = () => {
       platforms: selectedPlatforms,
       team_id: team_id,
     }).then((data: sendPostResult) => {
-      getPosts().then((res: { posts: Post[] }) => {
+      getPosts(team_id, 20).then((res: { posts: Post[] }) => {
         if (res.posts) {
           dispatch(setPosts(res.posts));
         } else {

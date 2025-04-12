@@ -17,7 +17,6 @@ export const MyTeams = async (): Promise<{ teams: Team[] }> => {
       withCredentials: true,
     }
   );
-  console.log("Teams", response.data);
   return response.data;
 };
 
@@ -53,7 +52,6 @@ export const TeamCreate = async (
       withCredentials: true,
     }
   );
-  console.log("Результат:", response.data);
   return response.data;
 };
 
@@ -103,7 +101,6 @@ export const Kick = async (user: KickUserRequest): Promise<string> => {
       withCredentials: true,
     }
   );
-  console.log("Результат:", response.data);
   return response.data;
 };
 

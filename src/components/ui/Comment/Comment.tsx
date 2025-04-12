@@ -20,7 +20,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     text = "Загрузка...",
     created_at = dayjs("0000-00-00 00:00:00"),
     attachments = [],
-  } = comment.comment;
+  } = comment;
 
   return (
     <div className={styles.comment}>

@@ -22,7 +22,6 @@ import { addComment } from "../../../stores/commentSlice";
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-  const webSocketmanager = useContext(WebSocketContext);
   const selectedteamid = useAppSelector(
     (state) => state.teams.globalActiveTeamId
   );
@@ -30,40 +29,25 @@ const MainPage: React.FC = () => {
   const url =
     "http://localhost:80/api/comment/subscribe?team_id=" + selectedteamid;
 
-  useEffect(() => {
-    console.log(url);
-  }, [selectedteamid]);
-
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
     dispatch(setActiveTab(key));
-    if (key === "1") {
-      dispatch(setSelectedPostId(""));
-    }
   };
 
   useEffect(() => {
-    getPosts()
+    getPosts(selectedteamid, 20)
       .then((res: { posts: Post[] }) => {
         if (res.posts) {
           if (res.posts.length == 0) {
-            console.log("mocks");
-            dispatch(setPosts(mockPosts));
-            dispatch(setPostsScroll(mockPosts.length));
           } else {
+            dispatch(setPostsScroll(res.posts.length - 1));
             dispatch(setPosts(res.posts));
-            dispatch(setPostsScroll(res.posts.length));
           }
         } else {
         }
       })
-      .catch(() => {
-        console.log("mocks");
-        dispatch(setPosts(mockPosts));
-        dispatch(setPostsScroll(mockPosts.length));
-        console.log("Error getting posts");
-      });
-  }, []);
+      .catch(() => {});
+  }, [selectedteamid]);
 
   useEffect(() => {
     MyTeams()
@@ -76,20 +60,6 @@ const MainPage: React.FC = () => {
         console.log("Error getting teams");
       });
   }, []);
-
-  useEffect(() => {
-    if (webSocketmanager.readyState == ReadyState.OPEN) {
-      webSocketmanager.sendJsonMessage({
-        type: "get_comments",
-        get_comments: {
-          post_union_id: 0,
-          offset: "2020-03-26T13:55:57+03:00",
-          max_count: 10,
-        },
-      });
-      console.log("sent");
-    }
-  }, [webSocketmanager.readyState]);
 
   useEffect(() => {
     Me()

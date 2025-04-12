@@ -36,9 +36,7 @@ const TeamAddMemberDialog: React.FC = () => {
           dispatch(setTeams(res.teams));
         }
       })
-      .catch(() => {
-        console.log("Error getting teams");
-      });
+      .catch(() => {});
   };
 
   const handleAdminChange = (checked: boolean) => {
