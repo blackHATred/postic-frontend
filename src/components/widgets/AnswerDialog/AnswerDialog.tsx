@@ -62,6 +62,10 @@ const AnswerDialog: FC = () => {
     dispatch(setAnswerDialog(false));
   };
 
+  const addFileIDs = (id: string, file: any) => {
+    setFilesIDs([...fileIDs, id]);
+  };
+
   return (
     <DialogBox
       bottomButtons={[
@@ -135,7 +139,7 @@ const AnswerDialog: FC = () => {
           />
         </div>
 
-        <FileUploader fileIDs={fileIDs} setFileIDs={setFilesIDs} />
+        <FileUploader addFiles={addFileIDs} removeFile={() => {}} />
       </div>
 
       {/* Отображение ошибок валидации */}

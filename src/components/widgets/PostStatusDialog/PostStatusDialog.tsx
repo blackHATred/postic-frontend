@@ -64,7 +64,7 @@ const PostStatusDialog: FC = () => {
     if (isOpen) {
       getStatus();
     }
-  }, [isOpen]);
+  }, [selectedPlatforms]);
 
   const onCancel = () => {
     dispatch(setPostStatusDialog(false));
@@ -136,7 +136,7 @@ const PostStatusDialog: FC = () => {
                   },
                 ]);
               }
-              getStatus();
+              setTimeout(() => getStatus(), 2000);
               setSocialStatuses(mapStatuses());
             }
           }

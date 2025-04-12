@@ -8,13 +8,17 @@ interface summaryDialogState extends basicDialogState {
   isLoading: boolean;
 }
 
+interface createPostDialogState extends basicDialogState {
+  files: { id: string; file: any }[];
+}
+
 export interface basePageDialogsSliceState {
   apiBoxDialog: basicDialogState;
   summaryDialog: summaryDialogState;
   welcomeDialog: basicDialogState;
   loginDialog: basicDialogState;
   registerDialog: basicDialogState;
-  createPostDialog: basicDialogState;
+  createPostDialog: createPostDialogState;
   postStatusDialog: basicDialogState;
   personalInfoDialog: basicDialogState;
   activeTab: string;
@@ -27,7 +31,7 @@ const initialState: basePageDialogsSliceState = {
   welcomeDialog: { isOpen: false },
   loginDialog: { isOpen: false },
   registerDialog: { isOpen: false },
-  createPostDialog: { isOpen: false },
+  createPostDialog: { isOpen: false, files: [] },
   postStatusDialog: { isOpen: false },
   personalInfoDialog: { isOpen: false },
   activeTab: "1",
@@ -75,6 +79,15 @@ export const basePageDialogsSlice = createSlice({
     setActiveTab: (state, action: PayloadAction<string>) => {
       state.activeTab = action.payload;
     },
+
+    addFile: (state, action: PayloadAction<{ id: string; file: any }>) => {
+      state.createPostDialog.files.push(action.payload);
+    },
+    removeFile: (state, action: PayloadAction<{ file: any }>) => {
+      state.createPostDialog.files = state.createPostDialog.files.filter(
+        (f) => f.file.uid !== action.payload.file.uid
+      );
+    },
   },
 });
 
@@ -90,6 +103,8 @@ export const {
   setApiBoxDialog,
   setSummaryLoading,
   setActiveTab,
+  addFile,
+  removeFile,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;

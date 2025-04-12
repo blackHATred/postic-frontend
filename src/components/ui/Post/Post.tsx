@@ -151,8 +151,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
                         <div key={preview.id}>
                           <Image
                             src={
-                              "http://localhost:80/api/upload/get/" +
-                              preview.uploaded_by_user_id
+                              "http://localhost:80/api/upload/get/" + preview.id
                             }
                           />
                         </div>

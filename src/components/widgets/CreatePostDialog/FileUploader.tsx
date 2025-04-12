@@ -16,8 +16,8 @@ const { Dragger } = Upload;
 const { Text } = Typography;
 
 interface fileUploaderProps {
-  fileIDs: string[];
-  setFileIDs: React.Dispatch<React.SetStateAction<string[]>>;
+  addFiles: (id: string, file: any) => void;
+  removeFile: (file: any) => any;
 }
 
 const FileUploader: React.FC<fileUploaderProps> = (
@@ -54,7 +54,7 @@ const FileUploader: React.FC<fileUploaderProps> = (
       //  (для всех файлов)
       try {
         const uploadResult = await uploadFile(file);
-        props.setFileIDs([...props.fileIDs, uploadResult.file_id]);
+        props.addFiles(uploadResult.file_id, file);
       } catch (error) {
         if (isAxiosError(error)) {
           NotificationManager.createNotification(
@@ -82,6 +82,7 @@ const FileUploader: React.FC<fileUploaderProps> = (
 
   const handleFileRemove = (file: any) => {
     setFiles((prevFiles) => prevFiles.filter((f) => f.uid !== file.uid));
+    props.removeFile(file);
     if (file.type.startsWith("image/")) {
       setImagePreviews((prevPreviews) => {
         const index = files.findIndex((f) => f.uid === file.uid);
