@@ -1,7 +1,7 @@
 import React from "react";
 import { Avatar, Typography } from "antd";
 import styles from "./styles.module.scss"; // Импортируем стили
-import { Comment } from "../../../models/Comment/types";
+import { Comment, DeleteComment } from "../../../models/Comment/types";
 import dayjs from "dayjs";
 import ClickableButton from "../Button/Button";
 import { DeleteOutlined, DoubleRightOutlined } from "@ant-design/icons";
@@ -9,7 +9,8 @@ import {
   setAnswerDialog,
   setSelectedComment,
 } from "../../../stores/commentSlice";
-import { useAppDispatch } from "../../../stores/hooks";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { Delete } from "../../../api/api";
 
 const { Text } = Typography;
 
@@ -29,13 +30,24 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     attachments = [],
   } = comment.comment;
   const dispatch = useAppDispatch();
+  const selectedTeamId = useAppSelector(
+    (state) => state.teams.globalActiveTeamId
+  );
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
     dispatch(setAnswerDialog(true));
   };
 
-  const deleteComment = () => {};
+  const deleteComment = () => {
+    console.log("Удаление комментария", selectedTeamId, post_union_id, false);
+    const res: DeleteComment = {
+      team_id: selectedTeamId,
+      post_comment_id: Number(post_union_id),
+      ban_user: false,
+    };
+    Delete(res);
+  };
 
   return (
     <div className={styles.comment}>
