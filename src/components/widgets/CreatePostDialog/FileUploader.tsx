@@ -119,6 +119,7 @@ const FileUploader: React.FC<fileUploaderProps> = (
 
       <Upload
         listType="picture"
+        multiple={true}
         defaultFileList={files}
         beforeUpload={handleFileUpload}
         onRemove={handleFileRemove} // Используйте onRemove вместо action для удаления файлов

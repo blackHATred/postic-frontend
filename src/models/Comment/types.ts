@@ -40,7 +40,7 @@ export interface CommentReply {
 }
 
 export interface QuickAnswer {
-  answers: string[];
+  ideas: string[];
 }
 
 export interface DeleteComment {
@@ -49,9 +49,14 @@ export interface DeleteComment {
   ban_user: boolean;
 }
 
+export interface Answ {
+  team_id: number;
+  comment_id: number;
+}
+
 export const mockAnswers: QuickAnswer[] = [
   {
-    answers: ["gggggg", "222222222222", "333333333333"],
+    ideas: ["А ты кто?", "И тебе привет", "Я администратор тестового канала"],
   },
 ];
 
