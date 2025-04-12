@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ButtonHeader from "../../widgets/Header/Header";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setPosts, setPostsScroll } from "../../../stores/postsSlice";
+import {
+  setPosts,
+  setPostsScroll,
+  setSelectedPostId,
+} from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import MainContainer from "../MainContainer/MainContainer";
 import styles from "./styles.module.scss";
@@ -26,6 +30,7 @@ const MainPage: React.FC = () => {
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
     dispatch(setActiveTab(key));
+    dispatch(setSelectedPostId(0));
   };
 
   useEffect(() => {

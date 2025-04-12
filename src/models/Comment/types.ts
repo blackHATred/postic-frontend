@@ -4,7 +4,7 @@ export interface Comments {
 }
 export interface Comment {
   id: number;
-  post_union_id?: number;
+  post_union_id: number;
   platform: string;
   comment_id: number;
   user_id: number;

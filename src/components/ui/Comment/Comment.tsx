@@ -11,6 +11,8 @@ import {
 } from "../../../stores/commentSlice";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { Delete } from "../../../api/api";
+import { setActiveTab } from "../../../stores/basePageDialogsSlice";
+import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
 
 const { Text } = Typography;
 
@@ -49,6 +51,12 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     Delete(res);
   };
 
+  const handlePostClick = () => {
+    dispatch(setActiveTab("1"));
+    dispatch(setScrollToPost(true));
+    dispatch(setSelectedPostId(post_union_id));
+  };
+
   return (
     <div className={styles.comment}>
       <div className={styles["comment-header"]}>
@@ -63,6 +71,14 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
           <Text strong>{username}</Text>
           <Text type="secondary" className={styles["comment-time"]}>
             {dayjs(created_at).format("DD.MM.YYYY HH:mm")} | tg
+          </Text>
+          <Text
+            underline
+            type="secondary"
+            style={{ marginTop: "auto", marginBottom: "auto" }}
+            onClick={handlePostClick}
+          >
+            От Поста № {post_union_id}
           </Text>
         </div>
         {/* Условный для replyToUrl 

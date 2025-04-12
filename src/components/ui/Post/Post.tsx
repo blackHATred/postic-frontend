@@ -59,14 +59,13 @@ const PostComponent: React.FC<Post> = (props: Post) => {
     if (refer.current) {
       refer.current.className += " selected";
       setTimeout(() => {
+        dispatch(setSelectedPostId(0));
         if (refer.current)
           refer.current.className = refer.current.className.replace(
             " selected",
             ""
           );
       }, 3000);
-
-      dispatch(setSelectedPostId(0));
     }
   };
 

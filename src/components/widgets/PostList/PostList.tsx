@@ -53,7 +53,13 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
             posts.findIndex((post) => post.id === selectedPostId) -
             1
           }
-          scrollAmount={scrollAmount}
+          scrollAmount={
+            scrollToPost
+              ? posts.length -
+                posts.findIndex((post) => post.id === selectedPostId) -
+                1
+              : scrollAmount
+          }
           setScroll={(scroll) => setScroll(scroll)}
         />
       )}
