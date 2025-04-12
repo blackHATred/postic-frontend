@@ -49,7 +49,7 @@ const AnswerDialog: FC = () => {
 
     const req: CommentReply = {
       team_id: team_id,
-      comment_id: Number(selectedComment?.comment.comment_id),
+      comment_id: Number(selectedComment?.comment_id),
       text: replyText,
       attachments: fileIDs,
     };
@@ -86,22 +86,21 @@ const AnswerDialog: FC = () => {
         />
         <div className={styles["comment-author"]}>
           <Text strong>
-            {selectedComment?.comment.username
-              ? selectedComment?.comment.username
-              : selectedComment?.comment.id}
+            {selectedComment?.username
+              ? selectedComment?.username
+              : selectedComment?.id}
           </Text>
           <Text type="secondary" className={styles["comment-time"]}>
-            {selectedComment?.comment.created_at
-              ? dayjs(selectedComment?.comment.created_at).format(
-                  "DD.MM.YYYY HH:mm"
-                )
+            {selectedComment?.created_at
+              ? dayjs(selectedComment?.created_at).format("DD.MM.YYYY HH:mm")
               : "Дата не указана"}{" "}
             | tg
           </Text>
         </div>
       </div>
+      <Text>{selectedComment?.text}</Text>
 
-      {selectedComment?.comment.text ? (
+      {selectedComment?.text ? (
         <div>
           <Divider>Быстрый ответ</Divider>
           <div className={styles["answers"]}>

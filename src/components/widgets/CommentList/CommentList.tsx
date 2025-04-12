@@ -1,24 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Button, Empty, Typography } from "antd";
+import React, { useContext, useEffect } from "react";
+import { Empty, Typography } from "antd";
 import CommentComponent from "../../ui/Comment/Comment";
-import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
 import { WebSocketContext } from "../../../api/WebSocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  addComment,
-  addComments,
-  getLastDate,
-  setComments,
-} from "../../../stores/commentSlice";
+import { getLastDate, setComments } from "../../../stores/commentSlice";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
-import dayjs from "dayjs";
 import { getComments } from "../../../api/api";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
   //const comments = useAppSelector(getCommentsFromStore);
-  const comments = mockComments;
+  const comments = useAppSelector((state) => state.comments.comments);
   const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты

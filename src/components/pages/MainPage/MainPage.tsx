@@ -1,21 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ButtonHeader from "../../widgets/Header/Header";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  setPosts,
-  setPostsScroll,
-  setSelectedPostId,
-} from "../../../stores/postsSlice";
+import { setPosts, setPostsScroll } from "../../../stores/postsSlice";
 import { setActiveTab } from "../../../stores/basePageDialogsSlice";
 import MainContainer from "../MainContainer/MainContainer";
 import styles from "./styles.module.scss";
 import { Team } from "../../../models/Team/types";
 import { MyTeams } from "../../../api/teamApi";
-import { mockPosts, Post } from "../../../models/Post/types";
+import { Post } from "../../../models/Post/types";
 import { setCurrentUserId, setTeams } from "../../../stores/teamSlice";
 import { getComment, getPosts, Me } from "../../../api/api";
-import { ReadyState } from "react-use-websocket";
-import { WebSocketContext } from "../../../api/WebSocket";
 import AuthenticatedSSE from "../../../api/SSE";
 import { addComment } from "../../../stores/commentSlice";
 

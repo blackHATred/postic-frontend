@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Comment, Comments } from "../models/Comment/types";
 import { RootState } from "./store";
 import dayjs from "dayjs";
-import { stat } from "fs";
 
 interface basicDialogState {
   isOpen: boolean;
@@ -42,7 +41,7 @@ export const commentsSlice = createSlice({
     },
     addComments: (state, action: PayloadAction<Comment[]>) => {
       const modif = false;
-      let to_add: Comment[] = [];
+      const to_add: Comment[] = [];
       action.payload.forEach((element) => {
         if (
           !state.comments.comments.some((comment) => comment.id === element.id)
@@ -60,7 +59,13 @@ export const commentsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { addComment, addComments, setComments, setAnswerDialog, setSelectedComment } = commentsSlice.actions;
+export const {
+  addComment,
+  addComments,
+  setComments,
+  setAnswerDialog,
+  setSelectedComment,
+} = commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) =>
   state.comments.comments;

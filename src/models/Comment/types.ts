@@ -1,5 +1,3 @@
-import dayjs, { Dayjs } from "dayjs";
-
 export interface Comments {
   comments: Comment[];
   status: string;
@@ -57,9 +55,9 @@ export const mockAnswers: QuickAnswer[] = [
   },
 ];
 
-export const mockComments: Comment[] = [
-  {
-    comment: {
+export const mockComments: Comments = {
+  comments: [
+    {
       id: 1,
       post_union_id: 101,
       platform: "Twitter",
@@ -67,7 +65,7 @@ export const mockComments: Comment[] = [
       user_id: 501,
       username: "user1",
       text: "This is a mock comment for post 101.",
-      created_at: dayjs("2025-04-12T10:00:00"),
+      created_at: "2025-04-12T10:00:00",
       attachments: [
         {
           id: 1,
@@ -85,9 +83,7 @@ export const mockComments: Comment[] = [
         },
       ],
     },
-  },
-  {
-    comment: {
+    {
       id: 2,
       post_union_id: 102,
       platform: "Facebook",
@@ -95,7 +91,7 @@ export const mockComments: Comment[] = [
       user_id: 502,
       username: "user2",
       text: "Another mock comment for post 102.",
-      created_at: dayjs("2025-04-12T11:00:00"),
+      created_at: "2025-04-12T11:00:00",
       attachments: [
         {
           id: 3,
@@ -106,9 +102,7 @@ export const mockComments: Comment[] = [
         },
       ],
     },
-  },
-  {
-    comment: {
+    {
       id: 3,
       post_union_id: 103,
       platform: "Instagram",
@@ -116,12 +110,10 @@ export const mockComments: Comment[] = [
       user_id: 503,
       username: "user3",
       text: "Mock comment without attachments.",
-      created_at: dayjs("2025-04-12T12:00:00"),
+      created_at: "2025-04-12T12:00:00",
       attachments: [],
     },
-  },
-  {
-    comment: {
+    {
       id: 3,
       post_union_id: 103,
       platform: "Instagram",
@@ -129,8 +121,9 @@ export const mockComments: Comment[] = [
       user_id: 503,
       username: "user3",
       text: "",
-      created_at: dayjs("2025-04-12T12:00:00"),
+      created_at: "2025-04-12T12:00:00",
       attachments: [],
     },
-  },
-];
+  ],
+  status: "ok",
+};

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Divider, Space, Typography, Image, Collapse, Carousel } from "antd";
 import styles from "./styles.module.scss";
 import { Post } from "../../../models/Post/types";

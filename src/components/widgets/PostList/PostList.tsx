@@ -8,7 +8,7 @@ import {
   setPostsScroll,
   setScrollToPost,
 } from "../../../stores/postsSlice";
-import { mockPosts, Post } from "../../../models/Post/types";
+import { Post } from "../../../models/Post/types";
 import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
 import { Empty, Typography } from "antd";
 interface PostListProps {
