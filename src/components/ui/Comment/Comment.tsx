@@ -1,8 +1,16 @@
 import React from "react";
 import { Avatar, Typography } from "antd";
 import styles from "./styles.module.scss"; // Импортируем стили
-import { Comment } from "../../../models/Comment/types";
+import { Comment, DeleteComment } from "../../../models/Comment/types";
 import dayjs from "dayjs";
+import ClickableButton from "../Button/Button";
+import { DeleteOutlined, DoubleRightOutlined } from "@ant-design/icons";
+import {
+  setAnswerDialog,
+  setSelectedComment,
+} from "../../../stores/commentSlice";
+import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
+import { Delete } from "../../../api/api";
 
 const { Text } = Typography;
 
@@ -21,6 +29,25 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     created_at = dayjs("0000-00-00 00:00:00"),
     attachments = [],
   } = comment;
+  const dispatch = useAppDispatch();
+  const selectedTeamId = useAppSelector(
+    (state) => state.teams.globalActiveTeamId
+  );
+
+  const openAnswerDialog = () => {
+    dispatch(setSelectedComment?.(comment));
+    dispatch(setAnswerDialog(true));
+  };
+
+  const deleteComment = () => {
+    console.log("Удаление комментария", selectedTeamId, post_union_id, false);
+    const res: DeleteComment = {
+      team_id: selectedTeamId,
+      post_comment_id: Number(post_union_id),
+      ban_user: false,
+    };
+    Delete(res);
+  };
 
   return (
     <div className={styles.comment}>
@@ -55,6 +82,24 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
 
       <div className={styles["comment-content"]}>
         <Text>{text}</Text>
+      </div>
+      <div>
+        <ClickableButton
+          type="default"
+          variant="outlined"
+          color="blue"
+          text="Ответить"
+          icon={<DoubleRightOutlined />}
+          onButtonClick={openAnswerDialog}
+        />
+        <ClickableButton
+          type="default"
+          variant="outlined"
+          color="danger"
+          text="Удалить"
+          icon={<DeleteOutlined />}
+          onButtonClick={deleteComment}
+        />
       </div>
     </div>
   );

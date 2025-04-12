@@ -11,8 +11,8 @@ import {
 } from "../../../stores/basePageDialogsSlice";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
-import ReactMarkdown from "react-markdown";
 import "./styles.scss";
+import ReactMarkdown from "react-markdown";
 
 const DialogBoxSummary: FC = () => {
   const dispatch = useAppDispatch();

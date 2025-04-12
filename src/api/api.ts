@@ -9,6 +9,8 @@ import {
 import {
   Comment,
   Comments,
+  CommentReply,
+  DeleteComment,
   GetSummarizeMarkdownResponse,
   GetSummarizeResult,
 } from "../models/Comment/types";
@@ -191,5 +193,27 @@ export const getComments = async (
     }
   );
   console.log(response);
+  return response.data;
+};
+
+export const Reply = async (request: CommentReply) => {
+  const response = await axios.post<string>(
+    `${config.api.baseURL}/comment/reply`,
+    request,
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+export const Delete = async (request: DeleteComment) => {
+  const response = await axios.delete<string>(
+    `${config.api.baseURL}/comment/delete`,
+    {
+      data: request,
+      withCredentials: true,
+    }
+  );
   return response.data;
 };

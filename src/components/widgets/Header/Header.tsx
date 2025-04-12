@@ -38,6 +38,8 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
     undefined
   );
 
+  const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
+
   const tabItems = [
     {
       key: "1",
@@ -61,16 +63,32 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
   }, [teams, selectedTeam]);
 
   useEffect(() => {
-    if (teamOptions[0]) {
+    if (teamOptions[0] && !selectedTeam) {
       const number = Number(teamOptions[0].value);
       dispatch(setGlobalActiveTeamId(number));
+      setSelectedTeam(teamOptions[0].value);
     }
-  }, [teamOptions]);
+  }, [teamOptions, selectedTeam]);
 
   const handleChange = (value: string) => {
     setSelectedTeam(value);
-    setGlobalActiveTeamId(Number(value));
+    dispatch(setGlobalActiveTeamId(Number(value)));
+    console.log("Global", team_id, value);
   };
+
+  useEffect(() => {
+    console.log("Updated team_id:", team_id);
+  }, [team_id]);
+
+  const setCookiesUserID = () => {
+    setCookie(
+      "session",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3Mzc1NTB9.gbZ3hbX63rBsokzIbKjZjYb3rz53PSKQEt9e9mASCvM",
+      { path: "/" }
+    );
+    console.log("Cookie 'session' set to 1");
+  };
+
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
@@ -117,6 +135,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({
             type="default"
             onButtonClick={() => dispatch(setWelcomeDialog(true))}
           />
+
           <ClickableButton
             type="default"
             text="me"

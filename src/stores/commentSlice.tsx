@@ -4,19 +4,33 @@ import { RootState } from "./store";
 import dayjs from "dayjs";
 import { stat } from "fs";
 
+interface basicDialogState {
+  isOpen: boolean;
+}
+
 export interface CommentSliceState {
   comments: Comments;
+  answerDialog: basicDialogState;
+  selectedComment: Comment | null;
 }
 
 // Define the initial state using that type
 const initialState: CommentSliceState = {
   comments: { comments: [], status: "" },
+  answerDialog: { isOpen: false },
+  selectedComment: null,
 };
 
 export const commentsSlice = createSlice({
   name: "comments",
   initialState,
   reducers: {
+    setAnswerDialog: (state, action: PayloadAction<boolean>) => {
+      state.answerDialog.isOpen = action.payload;
+    },
+    setSelectedComment: (state, action: PayloadAction<Comment>) => {
+      state.selectedComment = action.payload;
+    },
     addComment: (state, action: PayloadAction<Comment>) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
@@ -46,7 +60,7 @@ export const commentsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { addComment, addComments, setComments } = commentsSlice.actions;
+export const { addComment, addComments, setComments, setAnswerDialog, setSelectedComment } = commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) =>
   state.comments.comments;

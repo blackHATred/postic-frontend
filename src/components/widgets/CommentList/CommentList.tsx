@@ -1,15 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Empty, Typography } from "antd";
 import CommentComponent from "../../ui/Comment/Comment";
-import { Comment } from "../../../models/Comment/types";
+import { Comment, mockComments } from "../../../models/Comment/types";
 import styles from "./styles.module.scss";
 import { WebSocketContext } from "../../../api/WebSocket";
-import { ReadyState } from "react-use-websocket";
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
 import {
   addComment,
   addComments,
-  getCommentsFromStore,
   getLastDate,
   setComments,
 } from "../../../stores/commentSlice";
@@ -19,7 +17,8 @@ import { getComments } from "../../../api/api";
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
-  const comments = useAppSelector(getCommentsFromStore);
+  //const comments = useAppSelector(getCommentsFromStore);
+  const comments = mockComments;
   const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
   const requestSize = 20; // комменты
