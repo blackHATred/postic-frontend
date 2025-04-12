@@ -146,6 +146,9 @@ const FileUploader: React.FC<fileUploaderProps> = (
             ))}
         </>
       )}
+
+      <Upload listType="picture" defaultFileList={files}></Upload>
+      <Upload defaultFileList={files}></Upload>
     </div>
   );
 };
