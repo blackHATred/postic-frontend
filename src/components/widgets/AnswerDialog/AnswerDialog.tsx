@@ -106,7 +106,7 @@ const AnswerDialog: FC = () => {
     dispatch(setAnswerDialog(false));
   };
 
-  const addFileIDs = (id: string, file: any) => {
+  const addFileIDs = (id: string) => {
     setFilesIDs([...fileIDs, id]);
   };
 

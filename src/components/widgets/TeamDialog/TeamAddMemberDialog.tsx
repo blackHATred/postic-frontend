@@ -1,10 +1,9 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Typography, Input, Divider, Form, Checkbox } from 'antd';
 import DialogBox, { DialogBoxProps } from '../../ui/dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setAddMemberDialog, setTeams } from '../../../stores/teamSlice';
-import { NotificationContext } from '../../../api/notification';
 import { Invite, MyTeams } from '../../../api/teamApi';
 import { Team } from '../../../models/Team/types';
 
@@ -23,7 +22,6 @@ const TeamAddMemberDialog: React.FC = () => {
     posts: false,
   });
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
-  const notificationManager = useContext(NotificationContext);
   const [inviteUserId, setInviteUserId] = useState('');
 
   const [empty_checkbox, setEmptyCheckbox] = useState('');

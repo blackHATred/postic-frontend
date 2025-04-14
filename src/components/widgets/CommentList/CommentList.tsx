@@ -1,15 +1,13 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Empty, Typography } from 'antd';
 import CommentComponent from '../../ui/Comment/Comment';
 import styles from './styles.module.scss';
-import { WebSocketContext } from '../../../api/WebSocket';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { addComments, getLastDate } from '../../../stores/commentSlice';
 import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
 import { getComments } from '../../../api/api';
 
 const CommentList: React.FC = () => {
-  const webSocketManager = useContext(WebSocketContext);
   //const comments = useAppSelector(getCommentsFromStore);
   const comments = useAppSelector((state) => state.comments.comments);
   const last_date = useAppSelector(getLastDate);

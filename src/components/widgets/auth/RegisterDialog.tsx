@@ -14,7 +14,7 @@ const RegisterDialog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.registerDialog.isOpen);
-  const [cookies, setCookie, removeCookie] = useCookies();
+  const [, setCookie] = useCookies();
 
   useEffect(() => {
     setLoading(true);

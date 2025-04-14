@@ -28,7 +28,7 @@ const DialogBoxSummary: FC = () => {
           setSummaryText(summary.summarize.markdown);
           dispatch(setSummaryLoading(false));
         })
-        .catch((error) => {
+        .catch(() => {
           NotificationManager.createNotification('error', 'Ошибка получения суммаризации', 'ошибка подключения к серверу');
           dispatch(setSummaryLoading(false));
         });
@@ -42,7 +42,7 @@ const DialogBoxSummary: FC = () => {
         .then(() => {
           // TODO: добавить АПИ на перезапрос
         })
-        .catch((error) => {
+        .catch(() => {
           NotificationManager.createNotification('error', 'Ошибка запроса суммарищации', 'ошибка подключения к серверу');
         });
     }

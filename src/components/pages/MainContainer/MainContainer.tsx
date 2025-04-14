@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './styles.module.scss';
 import CommentList from '../../widgets/CommentList/CommentList';
 import PostList from '../../widgets/PostList/PostList';
-import { Breadcrumb, Typography } from 'antd';
+import { Breadcrumb } from 'antd';
 import PostStatusDialog from '../../widgets/PostStatusDialog/PostStatusDialog';
 import WelcomeDialog from '../../widgets/auth/WelcomeDialog';
 import LoginDialog from '../../widgets/auth/LoginDialog';
@@ -21,8 +21,6 @@ import CreatePostDialog from '../../widgets/CreatePostDialog/CreatePostDialog';
 import TeamRenameDialog from '../../widgets/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../widgets/AnswerDialog/AnswerDialog';
 
-const { Text } = Typography;
-
 interface MainContainerProps {
   isAuthorized: boolean;
 }
@@ -30,7 +28,7 @@ interface MainContainerProps {
 const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const [activePage, setActivePage] = useState<string>('posts');
-  const [showCreatePostDialog, setShowCreatePostDialog] = useState(false);
+  const [, setShowCreatePostDialog] = useState(false);
 
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const dispatch = useAppDispatch();

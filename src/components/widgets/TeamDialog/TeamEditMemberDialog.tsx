@@ -22,7 +22,7 @@ const TeamEditMemberDialog: React.FC = () => {
     posts: false,
   });
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
-  const [inviteUserId, setInviteUserId] = useState('');
+  const [, setInviteUserId] = useState('');
   const selectedMemberId = useAppSelector((state) => state.teams.selectedMemberId);
   const roles = useAppSelector((state) => state.teams.selectRoles);
 

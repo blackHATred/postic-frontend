@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { Typography, Divider } from 'antd';
+import { Divider } from 'antd';
 import DialogBox from '../../ui/dialogBox/DialogBox';
 import Icon, { CheckCircleOutlined, LoadingOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
@@ -32,7 +32,6 @@ const PostStatusDialog: FC = () => {
     }
     return <LiaQuestionCircle />;
   };
-  const { Text } = Typography;
 
   const mapStatuses = () => {
     return selectedPlatforms

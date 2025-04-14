@@ -3,7 +3,6 @@ import DialogBoxXInputs from '../dialogBoxes/DialogBoxXInputs';
 import { NotificationContext } from '../../../api/notification';
 
 import { RegisterResult } from '../../../models/User/types';
-import { useCookies } from 'react-cookie';
 import { Login } from '../../../api/api';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setLoginDialog } from '../../../stores/basePageDialogsSlice';
@@ -12,7 +11,7 @@ const LoginDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.loginDialog.isOpen);
-  const [cookies, setCookie, removeCookie] = useCookies();
+
   return (
     <DialogBoxXInputs
       text={'Введите ID'}

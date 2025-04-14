@@ -18,16 +18,7 @@ interface CommentProps {
 }
 
 const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
-  const {
-    id,
-    post_union_id,
-    comment_id,
-    user_id,
-    username,
-    text = 'Загрузка...',
-    created_at = dayjs('0000-00-00 00:00:00'),
-    attachments = [],
-  } = comment;
+  const { id, post_union_id, username, text = 'Загрузка...', created_at = dayjs('0000-00-00 00:00:00') } = comment;
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 

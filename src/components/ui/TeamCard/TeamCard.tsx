@@ -4,7 +4,7 @@ import styles from './styles.module.scss';
 import ClickableButton from '../Button/Button';
 import { EditOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Team } from '../../../models/Team/types';
-import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { useAppDispatch } from '../../../stores/hooks';
 import {
   setAddMemberDialog,
   setCurrentUserId,
@@ -28,8 +28,6 @@ interface TeamCardProps {
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const dispatch = useAppDispatch();
   const { id, name: team_name, users: team_members } = teamcard;
-  const selectedTeamId = useAppSelector((state) => state.teams.selectedTeamId);
-  const oldTeamName = useAppSelector((state) => state.teams.oldTeamName);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -39,7 +37,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const [cookies, setCookie] = useCookies(['session']);
 
   useEffect(() => {
-    const oldTeamName = teamcard.name;
     const currentUserId = parseInt(cookies.session || '0');
     const userMember = team_members.find((member) => String(member.user_id) === String(currentUserId));
     const isAdmin = userMember?.roles.includes('admin') || false;

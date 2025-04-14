@@ -5,10 +5,10 @@ import { setApiBoxDialog } from '../../../stores/basePageDialogsSlice';
 
 const ApiKeyBox: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [styleInp1, setStyleInp1] = useState<'' | 'warning' | 'error'>('');
-  const [styleInp2, setStyleInp2] = useState<'' | 'warning' | 'error'>('');
-  const [styleInp3, setStyleInp3] = useState<'' | 'warning' | 'error'>('');
-  const [errorText, setErrorText] = useState<string>('');
+  const [styleInp1] = useState<'' | 'warning' | 'error'>('');
+  const [styleInp2] = useState<'' | 'warning' | 'error'>('');
+  const [styleInp3] = useState<'' | 'warning' | 'error'>('');
+  const [errorText] = useState<string>('');
   return (
     <DialogBoxXInputs
       title={'Api keys'}

@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { Typography, Input, Divider, Form } from 'antd';
+import { Input, Divider, Form } from 'antd';
 import DialogBox, { DialogBoxProps } from '../../ui/dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -8,10 +8,8 @@ import { MyTeams, Rename } from '../../../api/teamApi';
 import { NotificationContext } from '../../../api/notification';
 import { Team } from '../../../models/Team/types';
 
-const { Text } = Typography;
-
 export interface TeamCreateDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
-  setOpen: Function;
+  setOpen: (value: boolean) => void;
 }
 
 const TeamRenameDialog: React.FC = () => {

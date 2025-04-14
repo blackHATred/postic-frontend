@@ -17,7 +17,7 @@ interface ButtonHeaderProps {
 const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isAuthorized }) => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
-  const [cookies, setCookie] = useCookies(['session']);
+  const [, setCookie] = useCookies(['session']);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(undefined);
 
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);

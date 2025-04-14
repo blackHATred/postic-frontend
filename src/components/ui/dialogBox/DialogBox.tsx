@@ -56,8 +56,7 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (props: PropsWithChildr
       styles={styles}
       footer={
         <div style={{ marginRight: '10px' }}>
-          {props.bottomButtons &&
-            props.bottomButtons.map((object, i: number) => <ClickableButton key={object.text} type='primary' {...object} />)}
+          {props.bottomButtons && props.bottomButtons.map((object) => <ClickableButton key={object.text} type='primary' {...object} />)}
           {!props.bottomButtons && <span></span>}
         </div>
       }

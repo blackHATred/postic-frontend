@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 import { Secret } from '../../../api/teamApi';
 
-const SecretDialog: React.FC = (props) => {
+const SecretDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [secretKey, setSecretKey] = useState('');
   const [loading, setLoading] = useState(true);

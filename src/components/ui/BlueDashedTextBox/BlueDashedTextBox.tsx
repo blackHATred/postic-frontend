@@ -1,10 +1,8 @@
 import { PropsWithChildren } from 'react';
 import React from 'react';
 import { FC } from 'react';
-import { Typography, Spin } from 'antd';
+import { Spin } from 'antd';
 import { blue } from '@ant-design/colors';
-
-const { Text } = Typography;
 
 export interface BlueDashedTextBoxProps {
   isLoading: boolean;

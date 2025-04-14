@@ -7,7 +7,6 @@ import { NotificationContext } from '../../../api/notification';
 import { isAxiosError } from 'axios';
 import styles from './styles.module.scss';
 
-const { Dragger } = Upload;
 const { Text } = Typography;
 
 interface fileUploaderProps {

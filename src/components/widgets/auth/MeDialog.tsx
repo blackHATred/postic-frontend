@@ -7,7 +7,7 @@ import { MeInfo } from '../../../models/User/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 
-const MeDialog: React.FC = (props) => {
+const MeDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [secretKey, setSecretKey] = useState('');
   const [loading, setLoading] = useState(true);

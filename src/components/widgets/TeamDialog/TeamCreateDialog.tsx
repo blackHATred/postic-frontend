@@ -11,7 +11,7 @@ import { NotificationContext } from '../../../api/notification';
 const { Text } = Typography;
 
 export interface TeamCreateDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
-  setOpen: Function;
+  setOpen: (value: boolean) => void;
 }
 
 const TeamCreateDialog: React.FC = () => {
