@@ -33,6 +33,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const attach_files = props.attachments ? props.attachments.filter((el) => el.file_type != 'photo') : [];
   const attach_images = props.attachments ? props.attachments.filter((el) => el.file_type === 'photo') : [];
   const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
+  const help_mode = useAppSelector((state) => state.settings.helpMode);
 
   useEffect(() => {
     if (props.id === selectedPostId) setSelected();
@@ -89,7 +90,19 @@ const PostComponent: React.FC<Post> = (props: Post) => {
               onCommentClick();
             }}
           />
-          <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
+
+          {help_mode ? (
+            <ClickableButton
+              text='Суммаризация'
+              variant='dashed'
+              color='primary'
+              onButtonClick={onSummaryClick}
+              withPopover={true}
+              popoverContent={'Получить краткий анализ комментариев'}
+            />
+          ) : (
+            <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
+          )}
         </div>
       </div>
       <Divider className={styles.customDivider} />

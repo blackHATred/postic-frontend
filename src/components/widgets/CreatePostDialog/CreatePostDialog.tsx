@@ -15,6 +15,7 @@ import { addFile, removeFile, setCreatePostDialog, setPostStatusDialog } from '.
 import ru from 'antd/es/date-picker/locale/ru_RU';
 import { Post, sendPostResult } from '../../../models/Post/types';
 import { addPost, setSelectedPostId } from '../../../stores/postsSlice';
+import { EmojiStyle } from 'emoji-picker-react';
 
 const { Text } = Typography;
 
@@ -39,6 +40,7 @@ const CreatePostDialog: FC = () => {
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
   const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files.map((file) => file.id));
+  const help_mode = useAppSelector((state) => state.settings.helpMode);
 
   const onOk = () => {
     const errors: string[] = [];
@@ -123,8 +125,30 @@ const CreatePostDialog: FC = () => {
         <div className={styles['post-text']}>
           <Input.TextArea rows={3} placeholder='Введите текст поста' value={postText} onChange={(e) => setPostText(e.target.value)} />
           <div className={styles['post-icons']}>
-            <ClickableButton icon={<EditOutlined />} type='default' size='small' />
-            <ClickableButton icon={<ThunderboltOutlined />} type='default' size='small' />
+            {help_mode ? (
+              <>
+                <ClickableButton
+                  icon={<EditOutlined />}
+                  type='default'
+                  size='small'
+                  withPopover={true}
+                  popoverContent={'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'}
+                />
+                <ClickableButton
+                  icon={<ThunderboltOutlined />}
+                  type='default'
+                  size='small'
+                  withPopover={true}
+                  popoverContent={'ИИ-генерация текста поста'}
+                />
+              </>
+            ) : (
+              <>
+                <ClickableButton icon={<EditOutlined />} type='default' size='small' />
+                <ClickableButton icon={<ThunderboltOutlined />} type='default' size='small' />
+              </>
+            )}
+
             <ClickableButton
               icon={<SmileOutlined />}
               type='default'
@@ -135,7 +159,7 @@ const CreatePostDialog: FC = () => {
         </div>
         {showEmojiPicker && (
           <div className={styles.emojiPicker}>
-            <Picker onEmojiClick={onEmojiClick} />
+            <Picker onEmojiClick={onEmojiClick} lazyLoadEmojis={true} emojiStyle={EmojiStyle.APPLE} />
           </div>
         )}
         <Select

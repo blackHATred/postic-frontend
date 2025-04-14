@@ -24,6 +24,12 @@
   flex-direction: column;
 }
 
+.popover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .post-header-info-text {
   display: flex;
   gap: 10px;

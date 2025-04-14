@@ -144,17 +144,26 @@ export const getComment = async (team_id: number, comment_id: number) => {
 };
 
 export const getComments = async (selectedteamid: number, union_id: number, limit: number, offset?: string) => {
-  const response = await axios.get<Comments>(`${config.api.baseURL}/comment/last`, {
-    withCredentials: true,
-    params: {
-      team_id: selectedteamid,
-      post_union_id: union_id,
-      limit: limit,
-      offset: offset,
-    },
-  });
-  console.log(response);
-  return response.data;
+  try {
+    const response = await axios.get<Comments>(`${config.api.baseURL}/comment/last`, {
+      withCredentials: true,
+      params: {
+        team_id: selectedteamid,
+        post_union_id: union_id,
+        limit: limit,
+        offset: offset,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Ошибка при получении комментариев:', error.response?.data || error.message);
+      alert('Не удалось загрузить комментарии. Попробуйте позже.');
+    } else {
+      console.error('Неизвестная ошибка:', error);
+    }
+    throw error;
+  }
 };
 
 export const Reply = async (request: CommentReply) => {

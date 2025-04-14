@@ -6,7 +6,7 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"  // Добавляем интеграцию Prettier
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -20,7 +20,7 @@
       "warn",
       { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
     ],
-    "prettier/prettier": "warn", // Правила Prettier будут браться из .prettierrc
+    "prettier/prettier": "warn",
     "@typescript-eslint/no-empty-function": "off",
     "no-empty": "off"
   }

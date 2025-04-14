@@ -141,7 +141,7 @@ const AnswerDialog: FC = () => {
       </div>
       <Text>{selectedComment?.text}</Text>
 
-      {selectedComment?.text ? (
+      {selectedComment?.text && answers.length > 0 ? (
         <div>
           <Divider>Быстрый ответ</Divider>
           <div className={styles['answers']}>
@@ -161,9 +161,7 @@ const AnswerDialog: FC = () => {
             )}
           </div>
         </div>
-      ) : (
-        <div></div>
-      )}
+      ) : null}
 
       <Divider>Свой ответ</Divider>
 

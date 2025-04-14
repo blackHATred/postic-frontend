@@ -7,6 +7,8 @@ import { useAppDispatch } from '../../../stores/hooks';
 import { setCreateTeamDialog, setTeams } from '../../../stores/teamSlice';
 import { MyTeams } from '../../../api/teamApi';
 import { Team } from '../../../models/Team/types';
+import { Switch, Typography } from 'antd';
+import { setHelpMode } from '../../../stores/settingsSlice';
 
 interface SidebarProps {
   setActivePage: (page: string) => void;
@@ -28,6 +30,14 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
       });
   };
 
+  const handleSettingsMode = (checked: boolean) => {
+    if (checked) {
+      dispatch(setHelpMode(true));
+    } else {
+      dispatch(setHelpMode(false));
+    }
+  };
+
   return (
     <div className={styles['sidebar']}>
       <div className={styles['sidebar-options']}>
@@ -46,7 +56,11 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
           onButtonClick={handleTeamsClick}
         />
       </div>
-      {/*            
+      <div className={styles['sidebar-option-mode']}>
+        <Switch size='default' onChange={(checked) => handleSettingsMode(checked)} />
+        <Typography.Text> Подсказки </Typography.Text>
+      </div>
+      {/*
       <div className={styles["sidebar-options"]}>
         <ClickableButton
           type="text"

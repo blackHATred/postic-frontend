@@ -4,14 +4,16 @@
   background-color: $background-color;
   height: 100%;
   width: 100%;
-  padding-top: $header-height;
+  display: flex;
+  justify-content: center;
+  padding-top: $header-height + 20px;
 }
 
 .layout {
   display: flex;
-  justify-content: space-between;
+  align-items: flex-start;
   width: 100%;
-  height: 100%;
+  max-width: 1000px;
 }
 
 .content {
@@ -20,7 +22,6 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  height: 100%;
 }
 
 .loginDiv {

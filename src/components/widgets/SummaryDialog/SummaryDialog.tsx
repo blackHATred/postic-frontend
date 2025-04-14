@@ -18,6 +18,7 @@ const DialogBoxSummary: FC = () => {
   const isOpen = useAppSelector((state) => state.basePageDialogs.summaryDialog.isOpen);
   const isLoading = useAppSelector((state) => state.basePageDialogs.summaryDialog.isLoading);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
+  const help_mode = useAppSelector((state) => state.settings.helpMode);
 
   useEffect(() => {
     dispatch(setSummaryLoading(true));
@@ -64,6 +65,8 @@ const DialogBoxSummary: FC = () => {
         {
           text: 'Повторная суммаризация',
           onButtonClick: onRefresh,
+          withPopover: help_mode ? true : false,
+          popoverContent: help_mode ? 'Сделать краткий анализ содержания комментариев' : undefined,
         },
       ]}
       isOpen={isOpen}

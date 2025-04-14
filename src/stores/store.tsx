@@ -3,6 +3,7 @@ import commentsReducer from './commentSlice';
 import postsReducer from './postsSlice';
 import basePageDialogsReducer from './basePageDialogsSlice';
 import teamsReducer from './teamSlice';
+import settingsReducer from './settingsSlice';
 // ...
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     comments: commentsReducer,
     basePageDialogs: basePageDialogsReducer,
     teams: teamsReducer,
+    settings: settingsReducer,
   },
 });
 

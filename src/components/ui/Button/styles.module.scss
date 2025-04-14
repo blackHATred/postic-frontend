@@ -1,3 +1,9 @@
 .blueButton {
   margin: 5px;
 }
+
+.popover-content {
+  white-space: pre-wrap; /* Перенос строк */
+  word-wrap: break-word; /* Перенос слов */
+  max-width: 200px; /* Ограничение ширины, если нужно */
+}

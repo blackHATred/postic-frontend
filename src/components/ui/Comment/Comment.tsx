@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, Typography } from 'antd';
-import styles from './styles.module.scss'; // Импортируем стили
+import styles from './styles.module.scss';
 import { Comment, DeleteComment } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
 import ClickableButton from '../Button/Button';
@@ -63,14 +63,20 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
           }}
         />
         <div className={styles['comment-author']}>
-          <Text strong>{username}</Text>
-          <Text type='secondary' className={styles['comment-time']}>
-            {dayjs(created_at).format('DD.MM.YYYY HH:mm')} | tg
-          </Text>
-          <Text underline type='secondary' style={{ marginTop: 'auto', marginBottom: 'auto' }} onClick={handlePostClick}>
-            От Поста № {post_union_id}
-          </Text>
+          <div>
+            <Text strong>{username}</Text>
+            <Text type='secondary' className={styles['comment-time']}>
+              {dayjs(created_at).format('DD.MM.YYYY HH:mm')} | tg
+            </Text>
+          </div>
+
+          <div>
+            <Text underline type='secondary' style={{ marginTop: 'auto', marginBottom: 'auto' }} onClick={handlePostClick}>
+              Пост: {post_union_id}
+            </Text>
+          </div>
         </div>
+
         {/* Условный для replyToUrl 
         
                 {replyToUrl && (
