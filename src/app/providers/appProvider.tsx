@@ -1,8 +1,8 @@
-import React, { createContext, ReactNode, useState } from "react";
+import React, { createContext, ReactNode, useState } from 'react';
 
 export const AppContext = createContext({
   isModalOpen: false,
-  modalContent: "",
+  modalContent: '',
   openModal: (content: string) => {},
   closeModal: () => {},
 });
@@ -14,7 +14,7 @@ interface AppProviderProps {
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState("");
+  const [modalContent, setModalContent] = useState('');
 
   const openModal = (content: React.SetStateAction<string>) => {
     setModalContent(content);
@@ -23,7 +23,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setModalContent("");
+    setModalContent('');
   };
 
   return (

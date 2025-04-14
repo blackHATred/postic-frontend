@@ -1,6 +1,6 @@
-import { createContext, PropsWithChildren, useEffect } from "react";
-import useWebSocket, { ReadyState } from "react-use-websocket";
-import config from "../constants/appConfig";
+import { createContext, PropsWithChildren, useEffect } from 'react';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
+import config from '../constants/appConfig';
 
 interface WebSocketContent {
   sendJsonMessage: (args: { [key: string]: any }) => void;
@@ -12,40 +12,35 @@ export const WebSocketContext = createContext<WebSocketContent>({
   lastJsonMessage: null,
   readyState: ReadyState.UNINSTANTIATED,
   sendJsonMessage: () => {
-    throw new Error("WebSocket еще не инициализирован");
+    throw new Error('WebSocket еще не инициализирован');
   },
 });
 
-const WebSocketComponent: React.FC<PropsWithChildren> = (
-  props: PropsWithChildren
-) => {
-  const { sendMessage, lastMessage, readyState } = useWebSocket<string>(
-    config.api.socketUrl,
-    {
-      share: false,
-      shouldReconnect: () => true,
-    }
-  );
+const WebSocketComponent: React.FC<PropsWithChildren> = (props: PropsWithChildren) => {
+  const { sendMessage, lastMessage, readyState } = useWebSocket<string>(config.api.socketUrl, {
+    share: false,
+    shouldReconnect: () => true,
+  });
 
   useEffect(() => {
     //console.log("Connection state changed")
     if (readyState === ReadyState.OPEN) {
-      console.log("WebSocket соединение установлено");
+      console.log('WebSocket соединение установлено');
     }
     if (readyState === ReadyState.CLOSED) {
-      console.log("WebSocket соединение закрыто");
+      console.log('WebSocket соединение закрыто');
     }
   }, [readyState]);
 
   useEffect(() => {
-    console.log("Recieved message:" + lastMessage);
+    console.log('Recieved message:' + lastMessage);
   }, [lastMessage]);
 
   const sendmessage = (args: { [key: string]: any }) => {
     if (readyState === ReadyState.OPEN) {
       sendMessage(JSON.stringify(args));
     } else {
-      throw new Error("Connection not Established");
+      throw new Error('Connection not Established');
     }
   };
 

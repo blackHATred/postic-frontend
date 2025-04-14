@@ -1,39 +1,26 @@
-import React, { useEffect, useRef } from "react";
-import { Divider, Space, Typography, Image, Collapse, Carousel } from "antd";
-import styles from "./styles.module.scss";
-import { Post } from "../../../models/Post/types";
-import ClickableButton from "../Button/Button";
-import Icon, {
-  CommentOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PaperClipOutlined,
-} from "@ant-design/icons";
-import "./selected_style.css";
-import dayjs from "dayjs";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  setActiveTab,
-  setSummaryDialog,
-} from "../../../stores/basePageDialogsSlice";
-import { setIsOpened, setSelectedPostId } from "../../../stores/postsSlice";
-import {
-  LiaQuestionCircle,
-  LiaTelegram,
-  LiaTwitter,
-  LiaVk,
-} from "react-icons/lia";
+import React, { useEffect, useRef } from 'react';
+import { Divider, Space, Typography, Image, Collapse, Carousel } from 'antd';
+import styles from './styles.module.scss';
+import { Post } from '../../../models/Post/types';
+import ClickableButton from '../Button/Button';
+import Icon, { CommentOutlined, DeleteOutlined, EditOutlined, PaperClipOutlined } from '@ant-design/icons';
+import './selected_style.css';
+import dayjs from 'dayjs';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setActiveTab, setSummaryDialog } from '../../../stores/basePageDialogsSlice';
+import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
+import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 
 const { Text } = Typography;
 
 const PostComponent: React.FC<Post> = (props: Post) => {
   const getIcon = (platform: string) => {
     switch (platform) {
-      case "vk":
+      case 'vk':
         return <LiaVk className={styles.icon} />;
-      case "tg":
+      case 'tg':
         return <LiaTelegram className={styles.icon} />;
-      case "twitter":
+      case 'twitter':
         return <LiaTwitter className={styles.icon} />;
     }
     return <LiaQuestionCircle className={styles.icon} />;
@@ -43,12 +30,8 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
-  const attach_files = props.attachments
-    ? props.attachments.filter((el) => el.file_type != "photo")
-    : [];
-  const attach_images = props.attachments
-    ? props.attachments.filter((el) => el.file_type === "photo")
-    : [];
+  const attach_files = props.attachments ? props.attachments.filter((el) => el.file_type != 'photo') : [];
+  const attach_images = props.attachments ? props.attachments.filter((el) => el.file_type === 'photo') : [];
   const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
 
   useEffect(() => {
@@ -57,21 +40,17 @@ const PostComponent: React.FC<Post> = (props: Post) => {
 
   const setSelected = async () => {
     if (refer.current) {
-      refer.current.className += " selected";
+      refer.current.className += ' selected';
       setTimeout(() => {
         dispatch(setSelectedPostId(0));
-        if (refer.current)
-          refer.current.className = refer.current.className.replace(
-            " selected",
-            ""
-          );
+        if (refer.current) refer.current.className = refer.current.className.replace(' selected', '');
       }, 3000);
     }
   };
 
   const onCommentClick = () => {
     dispatch(setSelectedPostId(props.id));
-    dispatch(setActiveTab("2"));
+    dispatch(setActiveTab('2'));
   };
 
   const onSummaryClick = async () => {
@@ -81,78 +60,65 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   };
 
   return (
-    <div ref={refer} className={styles["post"]}>
+    <div ref={refer} className={styles['post']}>
       {/* хедер*/}
-      <div className={styles["post-header"]}>
-        <div className={styles["post-header-info"]}>
-          <div className={styles["post-header-info-text"]}>
+      <div className={styles['post-header']}>
+        <div className={styles['post-header-info']}>
+          <div className={styles['post-header-info-text']}>
             {/* NOTE: заменить потом на информацию пользователя */}
-            <Text strong className={styles["post-name"]}>
+            <Text strong className={styles['post-name']}>
               Модератор {props.user_id}
             </Text>
 
-            <Text type="secondary" className={styles["post-time"]}>
-              {dayjs(props.created_at).format("DD.MM.YYYY HH:mm")}
+            <Text type='secondary' className={styles['post-time']}>
+              {dayjs(props.created_at).format('DD.MM.YYYY HH:mm')}
             </Text>
-            <Space size={0} split={<Divider type="vertical" />}>
+            <Space size={0} split={<Divider type='vertical' />}>
               {props.platforms?.map((plat) => {
                 return getIcon(plat);
               })}
             </Space>
           </div>
         </div>
-        <div className={styles["post-header-buttons"]}>
+        <div className={styles['post-header-buttons']}>
           <ClickableButton
-            text="Комментарии"
-            type="link"
+            text='Комментарии'
+            type='link'
             icon={<CommentOutlined />}
             onButtonClick={() => {
               onCommentClick();
             }}
           />
-          <ClickableButton
-            text="Суммаризация"
-            variant="dashed"
-            color="primary"
-            onButtonClick={onSummaryClick}
-          />
+          <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
         </div>
       </div>
       <Divider className={styles.customDivider} />
-      <div className={styles["post-content"]}>
-        <div className={styles["post-content-text"]}>
-          <Text style={{ whiteSpace: "pre-line" }}>{props.text}</Text>
+      <div className={styles['post-content']}>
+        <div className={styles['post-content-text']}>
+          <Text style={{ whiteSpace: 'pre-line' }}>{props.text}</Text>
         </div>
-        <div className={styles["post-content-attachments"]}>
+        <div className={styles['post-content-attachments']}>
           {attach_files.length > 0 &&
             attach_files?.map((attachment, index) => (
-              <div className={styles["post-content-attachment"]} key={index}>
+              <div className={styles['post-content-attachment']} key={index}>
                 <Icon component={PaperClipOutlined} />
-                <Text className={styles.primaryText}>
-                  {attachment.file_path}
-                </Text>
+                <Text className={styles.primaryText}>{attachment.file_path}</Text>
               </div>
             ))}
           {attach_images.length > 0 && (
             <Collapse
-              size="small"
-              onChange={(key) =>
-                dispatch(setIsOpened({ key: props.id, value: key.length >= 1 }))
-              }
-              defaultActiveKey={isOpened ? "1" : undefined}
+              size='small'
+              onChange={(key) => dispatch(setIsOpened({ key: props.id, value: key.length >= 1 }))}
+              defaultActiveKey={isOpened ? '1' : undefined}
               items={[
                 {
-                  key: "1",
-                  label: "Фотографии",
+                  key: '1',
+                  label: 'Фотографии',
                   children: (
                     <Carousel arrows>
                       {attach_images.map((preview) => (
                         <div key={preview.id}>
-                          <Image
-                            src={
-                              "http://localhost:80/api/upload/get/" + preview.id
-                            }
-                          />
+                          <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
                         </div>
                       ))}
                     </Carousel>
@@ -162,19 +128,9 @@ const PostComponent: React.FC<Post> = (props: Post) => {
             />
           )}
         </div>
-        <div className={styles["post-content-buttons"]}>
-          <ClickableButton
-            text="Редактировать"
-            variant="outlined"
-            color="primary"
-            icon={<EditOutlined />}
-          />
-          <ClickableButton
-            text="Удалить"
-            variant="outlined"
-            color="danger"
-            icon={<DeleteOutlined />}
-          />
+        <div className={styles['post-content-buttons']}>
+          <ClickableButton text='Редактировать' variant='outlined' color='primary' icon={<EditOutlined />} />
+          <ClickableButton text='Удалить' variant='outlined' color='danger' icon={<DeleteOutlined />} />
         </div>
       </div>
     </div>

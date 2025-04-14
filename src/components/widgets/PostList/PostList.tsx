@@ -1,16 +1,11 @@
-import React, { useEffect } from "react";
-import styles from "./styles.module.scss";
-import PostComponent from "../../ui/Post/Post";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  addPosts,
-  getPostsStore,
-  setPostsScroll,
-  setScrollToPost,
-} from "../../../stores/postsSlice";
-import { Post } from "../../../models/Post/types";
-import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
-import { Empty, Typography } from "antd";
+import React, { useEffect } from 'react';
+import styles from './styles.module.scss';
+import PostComponent from '../../ui/Post/Post';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { addPosts, getPostsStore, setPostsScroll, setScrollToPost } from '../../../stores/postsSlice';
+import { Post } from '../../../models/Post/types';
+import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
+import { Empty, Typography } from 'antd';
 interface PostListProps {
   isLoading?: boolean;
   hasMore?: boolean;
@@ -48,26 +43,13 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           }}
           getNewData={getNewData}
           doSmoothScroll={scrollToPost}
-          smoothScrollTarget={
-            posts.length -
-            posts.findIndex((post) => post.id === selectedPostId) -
-            1
-          }
-          scrollAmount={
-            scrollToPost
-              ? posts.length -
-                posts.findIndex((post) => post.id === selectedPostId) -
-                1
-              : scrollAmount
-          }
+          smoothScrollTarget={posts.length - posts.findIndex((post) => post.id === selectedPostId) - 1}
+          scrollAmount={scrollToPost ? posts.length - posts.findIndex((post) => post.id === selectedPostId) - 1 : scrollAmount}
           setScroll={(scroll) => setScroll(scroll)}
         />
       )}
       {posts.length === 0 && (
-        <Empty
-          styles={{ image: { height: 60 } }}
-          description={<Typography.Text>Нету постов</Typography.Text>}
-        ></Empty>
+        <Empty styles={{ image: { height: 60 } }} description={<Typography.Text>Нету постов</Typography.Text>}></Empty>
       )}
     </div>
   );

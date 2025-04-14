@@ -1,46 +1,33 @@
-import { FC, useEffect, useState } from "react";
-import { Typography, Divider } from "antd";
-import DialogBox from "../../ui/dialogBox/DialogBox";
-import Icon, {
-  CheckCircleOutlined,
-  LoadingOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
-import styles from "./styles.module.scss";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setPostStatusDialog } from "../../../stores/basePageDialogsSlice";
-import { getPostStatus } from "../../../api/api";
-import { postStatusResults } from "../../../models/Post/types";
-import {
-  LiaTelegram,
-  LiaTwitter,
-  LiaVk,
-  LiaQuestionCircle,
-} from "react-icons/lia";
+import { FC, useEffect, useState } from 'react';
+import { Typography, Divider } from 'antd';
+import DialogBox from '../../ui/dialogBox/DialogBox';
+import Icon, { CheckCircleOutlined, LoadingOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import styles from './styles.module.scss';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setPostStatusDialog } from '../../../stores/basePageDialogsSlice';
+import { getPostStatus } from '../../../api/api';
+import { postStatusResults } from '../../../models/Post/types';
+import { LiaTelegram, LiaTwitter, LiaVk, LiaQuestionCircle } from 'react-icons/lia';
 
 interface SocialStatus {
   platform: string;
   icon: React.ReactNode;
-  status: "wait" | "process" | "finish" | "error";
+  status: 'wait' | 'process' | 'finish' | 'error';
 }
 const PostStatusDialog: FC = () => {
   const dispatch = useAppDispatch();
   const postId = useAppSelector((state) => state.posts.selectedPostId);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const isOpen = useAppSelector(
-    (state) => state.basePageDialogs.postStatusDialog.isOpen
-  );
-  const selectedPlatforms = useAppSelector(
-    (state) => state.posts.posts.find((post) => post.id === postId)?.platforms
-  );
+  const isOpen = useAppSelector((state) => state.basePageDialogs.postStatusDialog.isOpen);
+  const selectedPlatforms = useAppSelector((state) => state.posts.posts.find((post) => post.id === postId)?.platforms);
 
   const getIcon = (platform: string) => {
     switch (platform) {
-      case "vk":
+      case 'vk':
         return <LiaVk />;
-      case "tg":
+      case 'tg':
         return <LiaTelegram />;
-      case "twitter":
+      case 'twitter':
         return <LiaTwitter />;
     }
     return <LiaQuestionCircle />;
@@ -52,7 +39,7 @@ const PostStatusDialog: FC = () => {
       ? selectedPlatforms.map((platform) => ({
           platform,
           icon: getIcon(platform),
-          status: "wait" as const, // Начальный статус
+          status: 'wait' as const, // Начальный статус
         }))
       : [];
   };
@@ -75,13 +62,11 @@ const PostStatusDialog: FC = () => {
       getPostStatus(postId, teamId).then((res: postStatusResults) => {
         res.status.forEach((status) => {
           switch (status.status) {
-            case "success": {
-              const statusSuccess = socialStatuses.find(
-                (element: SocialStatus) => element.platform == status.platform
-              );
+            case 'success': {
+              const statusSuccess = socialStatuses.find((element: SocialStatus) => element.platform == status.platform);
               if (statusSuccess) {
                 const index = socialStatuses.indexOf(statusSuccess);
-                statusSuccess.status = "finish";
+                statusSuccess.status = 'finish';
                 socialStatuses[index] = statusSuccess;
                 setSocialStatuses(socialStatuses);
               } else {
@@ -90,19 +75,17 @@ const PostStatusDialog: FC = () => {
                   {
                     platform: status.platform,
                     icon: getIcon(status.platform),
-                    status: "finish",
+                    status: 'finish',
                   },
                 ]);
               }
               break;
             }
-            case "error": {
-              const statE = socialStatuses.find(
-                (element: SocialStatus) => element.platform == status.platform
-              );
+            case 'error': {
+              const statE = socialStatuses.find((element: SocialStatus) => element.platform == status.platform);
               if (statE) {
                 const index = socialStatuses.indexOf(statE);
-                statE.status = "error";
+                statE.status = 'error';
                 socialStatuses[index] = statE;
                 setSocialStatuses(socialStatuses);
               } else {
@@ -111,19 +94,17 @@ const PostStatusDialog: FC = () => {
                   {
                     platform: status.platform,
                     icon: getIcon(status.platform),
-                    status: "error",
+                    status: 'error',
                   },
                 ]);
               }
               break;
             }
-            case "pending": {
-              const statP = socialStatuses.find(
-                (element: SocialStatus) => element.platform == status.platform
-              );
+            case 'pending': {
+              const statP = socialStatuses.find((element: SocialStatus) => element.platform == status.platform);
               if (statP) {
                 const index = socialStatuses.indexOf(statP);
-                statP.status = "wait";
+                statP.status = 'wait';
                 socialStatuses[index] = statP;
               } else {
                 setSocialStatuses([
@@ -131,7 +112,7 @@ const PostStatusDialog: FC = () => {
                   {
                     platform: status.platform,
                     icon: getIcon(status.platform),
-                    status: "wait",
+                    status: 'wait',
                   },
                 ]);
               }
@@ -144,20 +125,16 @@ const PostStatusDialog: FC = () => {
       });
   };
 
-  const getStatusIcon = (status: "wait" | "process" | "finish" | "error") => {
+  const getStatusIcon = (status: 'wait' | 'process' | 'finish' | 'error') => {
     switch (status) {
-      case "finish":
-        return (
-          <Icon component={CheckCircleOutlined} style={{ color: "green" }} />
-        );
-      case "process":
-        return <Icon component={LoadingOutlined} style={{ color: "blue" }} />;
-      case "error":
-        return (
-          <Icon component={CloseCircleOutlined} style={{ color: "red" }} />
-        );
+      case 'finish':
+        return <Icon component={CheckCircleOutlined} style={{ color: 'green' }} />;
+      case 'process':
+        return <Icon component={LoadingOutlined} style={{ color: 'blue' }} />;
+      case 'error':
+        return <Icon component={CloseCircleOutlined} style={{ color: 'red' }} />;
       default:
-        return <Icon component={LoadingOutlined} style={{ color: "gray" }} />;
+        return <Icon component={LoadingOutlined} style={{ color: 'gray' }} />;
     }
   };
 
@@ -165,7 +142,7 @@ const PostStatusDialog: FC = () => {
     <DialogBox
       bottomButtons={[
         {
-          text: "Ок",
+          text: 'Ок',
           onButtonClick: () => {
             dispatch(setPostStatusDialog(false));
           },
@@ -173,7 +150,7 @@ const PostStatusDialog: FC = () => {
       ]}
       isOpen={isOpen}
       onCancelClick={onCancel}
-      title={"Публикация поста"}
+      title={'Публикация поста'}
     >
       <Divider>Статус публикации</Divider>
       <div className={styles.socialList}>
@@ -182,10 +159,10 @@ const PostStatusDialog: FC = () => {
             className={styles.socialStatuses}
             key={index}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '12px',
             }}
           >
             {social.icon}

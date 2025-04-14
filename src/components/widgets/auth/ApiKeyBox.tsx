@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import DialogBoxXInputs from "../dialogBoxes/DialogBoxXInputs";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setApiBoxDialog } from "../../../stores/basePageDialogsSlice";
+import React, { useState } from 'react';
+import DialogBoxXInputs from '../dialogBoxes/DialogBoxXInputs';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setApiBoxDialog } from '../../../stores/basePageDialogsSlice';
 
 const ApiKeyBox: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [styleInp1, setStyleInp1] = useState<"" | "warning" | "error">("");
-  const [styleInp2, setStyleInp2] = useState<"" | "warning" | "error">("");
-  const [styleInp3, setStyleInp3] = useState<"" | "warning" | "error">("");
-  const [errorText, setErrorText] = useState<string>("");
+  const [styleInp1, setStyleInp1] = useState<'' | 'warning' | 'error'>('');
+  const [styleInp2, setStyleInp2] = useState<'' | 'warning' | 'error'>('');
+  const [styleInp3, setStyleInp3] = useState<'' | 'warning' | 'error'>('');
+  const [errorText, setErrorText] = useState<string>('');
   return (
     <DialogBoxXInputs
-      title={"Api keys"}
-      text={"Введите ключи"}
-      input_placeholders={{ id_tg: "id тг", id_vk: "id vk", vk_key: "Ключ vk" }}
+      title={'Api keys'}
+      text={'Введите ключи'}
+      input_placeholders={{ id_tg: 'id тг', id_vk: 'id vk', vk_key: 'Ключ vk' }}
       styles={{ id_tg: styleInp1, id_vk: styleInp2, vk_key: styleInp3 }}
       isCenter={true}
       // onOkClick={[
@@ -74,9 +74,7 @@ const ApiKeyBox: React.FC = () => {
       onCancelClick={async () => {
         dispatch(setApiBoxDialog(false));
       }}
-      isOpen={useAppSelector(
-        (state) => state.basePageDialogs.apiBoxDialog.isOpen
-      )}
+      isOpen={useAppSelector((state) => state.basePageDialogs.apiBoxDialog.isOpen)}
       errortext={errorText}
     />
   );

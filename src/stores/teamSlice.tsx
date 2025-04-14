@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
-import { Team } from "../models/Team/types";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from './store';
+import { Team } from '../models/Team/types';
 
 interface basicDialogState {
   isOpen: boolean;
@@ -26,7 +26,7 @@ const initialState: teamSliceState = {
   teams: [],
   selectedMemberId: 0,
   selectedTeamId: 0,
-  oldTeamName: "",
+  oldTeamName: '',
   currentUserId: 0,
   globalActiveTeamId: 0,
   selectRoles: [],
@@ -38,7 +38,7 @@ const initialState: teamSliceState = {
 };
 
 export const teamSlice = createSlice({
-  name: "teams",
+  name: 'teams',
   initialState,
   reducers: {
     addTeam: (state, action: PayloadAction<Team>) => {

@@ -1,19 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
-import { NotificationContext } from "../../../api/notification";
-import DialogBox from "../../ui/dialogBox/DialogBox";
-import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import { Me } from "../../../api/api";
-import { MeInfo } from "../../../models/User/types";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setPersonalInfoDialog } from "../../../stores/basePageDialogsSlice";
+import React, { useContext, useEffect, useState } from 'react';
+import { NotificationContext } from '../../../api/notification';
+import DialogBox from '../../ui/dialogBox/DialogBox';
+import BlueDashedTextBox from '../../ui/BlueDashedTextBox/BlueDashedTextBox';
+import { Me } from '../../../api/api';
+import { MeInfo } from '../../../models/User/types';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 
 const MeDialog: React.FC = (props) => {
   const dispatch = useAppDispatch();
-  const [secretKey, setSecretKey] = useState("");
+  const [secretKey, setSecretKey] = useState('');
   const [loading, setLoading] = useState(true);
-  const isOpen = useAppSelector(
-    (state) => state.basePageDialogs.personalInfoDialog.isOpen
-  );
+  const isOpen = useAppSelector((state) => state.basePageDialogs.personalInfoDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
 
   useEffect(() => {
@@ -24,11 +22,7 @@ const MeDialog: React.FC = (props) => {
           setSecretKey(res.user_id);
         })
         .catch(() => {
-          notificationManager.createNotification(
-            "error",
-            "Ошибка пулечения личной информации",
-            ""
-          );
+          notificationManager.createNotification('error', 'Ошибка пулечения личной информации', '');
         });
       setLoading(false);
     }
@@ -36,10 +30,10 @@ const MeDialog: React.FC = (props) => {
 
   return (
     <DialogBox
-      title={"Личная информация"}
+      title={'Личная информация'}
       bottomButtons={[
         {
-          text: "Ok",
+          text: 'Ok',
           onButtonClick: () => {
             dispatch(setPersonalInfoDialog(false));
           },

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface basicDialogState {
   isOpen: boolean;
@@ -34,11 +34,11 @@ const initialState: basePageDialogsSliceState = {
   createPostDialog: { isOpen: false, files: [] },
   postStatusDialog: { isOpen: false },
   personalInfoDialog: { isOpen: false },
-  activeTab: "1",
+  activeTab: '1',
 };
 
 export const basePageDialogsSlice = createSlice({
-  name: "basePageDialogs",
+  name: 'basePageDialogs',
   initialState,
   reducers: {
     setApiBoxDialog: (state, action: PayloadAction<boolean>) => {
@@ -84,9 +84,7 @@ export const basePageDialogsSlice = createSlice({
       state.createPostDialog.files.push(action.payload);
     },
     removeFile: (state, action: PayloadAction<{ file: any }>) => {
-      state.createPostDialog.files = state.createPostDialog.files.filter(
-        (f) => f.file.uid !== action.payload.file.uid
-      );
+      state.createPostDialog.files = state.createPostDialog.files.filter((f) => f.file.uid !== action.payload.file.uid);
     },
   },
 });

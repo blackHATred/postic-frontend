@@ -1,17 +1,12 @@
-import {
-  LiaTelegram,
-  LiaTwitter,
-  LiaVk,
-  LiaQuestionCircle,
-} from "react-icons/lia";
+import { LiaTelegram, LiaTwitter, LiaVk, LiaQuestionCircle } from 'react-icons/lia';
 
 export const getIcon = (platform: string) => {
   switch (platform) {
-    case "vk":
+    case 'vk':
       return LiaVk;
-    case "tg":
+    case 'tg':
       return LiaTelegram;
-    case "twitter":
+    case 'twitter':
       return LiaTwitter;
   }
   return LiaQuestionCircle;

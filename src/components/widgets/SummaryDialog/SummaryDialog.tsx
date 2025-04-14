@@ -1,29 +1,22 @@
-import { useState, useEffect, useContext } from "react";
-import { FC } from "react";
-import DialogBox from "../../ui/dialogBox/DialogBox";
-import { NotificationContext } from "../../../api/notification";
-import { getSummarize, Summarize } from "../../../api/api";
-import { GetSummarizeResult } from "../../../models/Comment/types";
-import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import {
-  setSummaryDialog,
-  setSummaryLoading,
-} from "../../../stores/basePageDialogsSlice";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setScrollToPost, setSelectedPostId } from "../../../stores/postsSlice";
-import "./styles.scss";
-import ReactMarkdown from "react-markdown";
+import { useState, useEffect, useContext } from 'react';
+import { FC } from 'react';
+import DialogBox from '../../ui/dialogBox/DialogBox';
+import { NotificationContext } from '../../../api/notification';
+import { getSummarize, Summarize } from '../../../api/api';
+import { GetSummarizeResult } from '../../../models/Comment/types';
+import BlueDashedTextBox from '../../ui/BlueDashedTextBox/BlueDashedTextBox';
+import { setSummaryDialog, setSummaryLoading } from '../../../stores/basePageDialogsSlice';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
+import './styles.scss';
+import ReactMarkdown from 'react-markdown';
 
 const DialogBoxSummary: FC = () => {
   const dispatch = useAppDispatch();
   const NotificationManager = useContext(NotificationContext);
-  const [summaryText, setSummaryText] = useState("");
-  const isOpen = useAppSelector(
-    (state) => state.basePageDialogs.summaryDialog.isOpen
-  );
-  const isLoading = useAppSelector(
-    (state) => state.basePageDialogs.summaryDialog.isLoading
-  );
+  const [summaryText, setSummaryText] = useState('');
+  const isOpen = useAppSelector((state) => state.basePageDialogs.summaryDialog.isOpen);
+  const isLoading = useAppSelector((state) => state.basePageDialogs.summaryDialog.isLoading);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
 
   useEffect(() => {
@@ -35,11 +28,7 @@ const DialogBoxSummary: FC = () => {
           dispatch(setSummaryLoading(false));
         })
         .catch((error) => {
-          NotificationManager.createNotification(
-            "error",
-            "Ошибка получения суммаризации",
-            "ошибка подключения к серверу"
-          );
+          NotificationManager.createNotification('error', 'Ошибка получения суммаризации', 'ошибка подключения к серверу');
           dispatch(setSummaryLoading(false));
         });
     }
@@ -53,17 +42,13 @@ const DialogBoxSummary: FC = () => {
           // TODO: добавить АПИ на перезапрос
         })
         .catch((error) => {
-          NotificationManager.createNotification(
-            "error",
-            "Ошибка запроса суммарищации",
-            "ошибка подключения к серверу"
-          );
+          NotificationManager.createNotification('error', 'Ошибка запроса суммарищации', 'ошибка подключения к серверу');
         });
     }
   };
 
   const onCancel = async () => {
-    setSummaryText("");
+    setSummaryText('');
     dispatch(setSummaryDialog(false));
     dispatch(setSelectedPostId(0));
   };
@@ -77,19 +62,19 @@ const DialogBoxSummary: FC = () => {
     <DialogBox
       bottomButtons={[
         {
-          text: "Повторная суммаризация",
+          text: 'Повторная суммаризация',
           onButtonClick: onRefresh,
         },
       ]}
       isOpen={isOpen}
       onCancelClick={onCancel}
-      title={"Суммаризация"}
-      headerSubtext={"Пост #" + selectedPostId}
+      title={'Суммаризация'}
+      headerSubtext={'Пост #' + selectedPostId}
       headerSubtextOnClick={onHeaderClick}
       isCenter={true}
     >
       <BlueDashedTextBox isLoading={isLoading}>
-        <div className="reactMarkDown">
+        <div className='reactMarkDown'>
           <ReactMarkdown>{summaryText}</ReactMarkdown>
         </div>
       </BlueDashedTextBox>

@@ -1,23 +1,22 @@
-import { useState, useContext, useEffect } from "react";
-import { Typography, Input, Divider, Form } from "antd";
-import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
-import styles from "./styles.module.scss";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setRenameTeamDialog, setTeams } from "../../../stores/teamSlice";
-import { MyTeams, Rename } from "../../../api/teamApi";
-import { NotificationContext } from "../../../api/notification";
-import { Team } from "../../../models/Team/types";
+import { useState, useContext, useEffect } from 'react';
+import { Typography, Input, Divider, Form } from 'antd';
+import DialogBox, { DialogBoxProps } from '../../ui/dialogBox/DialogBox';
+import styles from './styles.module.scss';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setRenameTeamDialog, setTeams } from '../../../stores/teamSlice';
+import { MyTeams, Rename } from '../../../api/teamApi';
+import { NotificationContext } from '../../../api/notification';
+import { Team } from '../../../models/Team/types';
 
 const { Text } = Typography;
 
-export interface TeamCreateDialogProps
-  extends Omit<DialogBoxProps, "onCancelClick"> {
+export interface TeamCreateDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
   setOpen: Function;
 }
 
 const TeamRenameDialog: React.FC = () => {
   const [form] = Form.useForm();
-  const [teamName, setTeamName] = useState("");
+  const [teamName, setTeamName] = useState('');
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.teams.renameTeamDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
@@ -32,7 +31,7 @@ const TeamRenameDialog: React.FC = () => {
         }
       })
       .catch(() => {
-        console.log("Error getting teams");
+        console.log('Error getting teams');
       });
   };
 
@@ -48,23 +47,15 @@ const TeamRenameDialog: React.FC = () => {
     };
     Rename(renameRequest)
       .then((response) => {
-        notificationManager.createNotification(
-          "success",
-          "Команда переименована",
-          `Команда "${teamName}" успешно переименована`
-        );
+        notificationManager.createNotification('success', 'Команда переименована', `Команда "${teamName}" успешно переименована`);
 
         dispatch(setRenameTeamDialog(false));
 
         form.resetFields();
-        setTeamName("");
+        setTeamName('');
       })
       .catch((error) => {
-        notificationManager.createNotification(
-          "error",
-          "Ошибка создания команды",
-          error.message || "Не удалось создать команду"
-        );
+        notificationManager.createNotification('error', 'Ошибка создания команды', error.message || 'Не удалось создать команду');
       });
     updateTeamList();
   };
@@ -83,36 +74,36 @@ const TeamRenameDialog: React.FC = () => {
     <DialogBox
       bottomButtons={[
         {
-          text: "Сохранить",
+          text: 'Сохранить',
           onButtonClick: onOk,
         },
       ]}
       isOpen={isOpen}
       onCancelClick={async () => {
         form.resetFields();
-        setTeamName("");
+        setTeamName('');
         dispatch(setRenameTeamDialog(false));
       }}
-      title={"Смена названия команды"}
+      title={'Смена названия команды'}
       isCenter={true}
     >
       <Divider />
 
-      <div className={styles["form"]}>
+      <div className={styles['form']}>
         <Form form={form}>
           <Form.Item
-            label="Название команды"
-            name="teamName"
+            label='Название команды'
+            name='teamName'
             rules={[
               {
                 required: true,
-                message: "Пожалуйста, введите название команды",
+                message: 'Пожалуйста, введите название команды',
               },
             ]}
             labelCol={{ span: 24 }}
           >
             <Input
-              placeholder="Введите название команды"
+              placeholder='Введите название команды'
               defaultValue={oldName}
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}

@@ -1,22 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
-import { NotificationContext } from "../../../api/notification";
-import DialogBox from "../../ui/dialogBox/DialogBox";
-import BlueDashedTextBox from "../../ui/BlueDashedTextBox/BlueDashedTextBox";
-import { MeInfo } from "../../../models/User/types";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { setPersonalInfoDialog } from "../../../stores/basePageDialogsSlice";
-import { Secret } from "../../../api/teamApi";
+import React, { useContext, useEffect, useState } from 'react';
+import { NotificationContext } from '../../../api/notification';
+import DialogBox from '../../ui/dialogBox/DialogBox';
+import BlueDashedTextBox from '../../ui/BlueDashedTextBox/BlueDashedTextBox';
+import { MeInfo } from '../../../models/User/types';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
+import { Secret } from '../../../api/teamApi';
 
 const SecretDialog: React.FC = (props) => {
   const dispatch = useAppDispatch();
-  const [secretKey, setSecretKey] = useState("");
+  const [secretKey, setSecretKey] = useState('');
   const [loading, setLoading] = useState(true);
-  const isOpen = useAppSelector(
-    (state) => state.basePageDialogs.personalInfoDialog.isOpen
-  );
-  const activeTeamId = useAppSelector(
-    (state) => state.teams.globalActiveTeamId
-  );
+  const isOpen = useAppSelector((state) => state.basePageDialogs.personalInfoDialog.isOpen);
+  const activeTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const notificationManager = useContext(NotificationContext);
   const team_id = useAppSelector((state) => state.teams.selectedTeamId);
 
@@ -28,11 +24,7 @@ const SecretDialog: React.FC = (props) => {
           setSecretKey(res.user_id);
         })
         .catch(() => {
-          notificationManager.createNotification(
-            "error",
-            "Ошибка пулечения личной информации",
-            ""
-          );
+          notificationManager.createNotification('error', 'Ошибка пулечения личной информации', '');
         });
       setLoading(false);
     }
@@ -40,10 +32,10 @@ const SecretDialog: React.FC = (props) => {
 
   return (
     <DialogBox
-      title={"сокретный ключ команды"}
+      title={'сокретный ключ команды'}
       bottomButtons={[
         {
-          text: "Ok",
+          text: 'Ok',
           onButtonClick: () => {
             dispatch(setPersonalInfoDialog(false));
           },

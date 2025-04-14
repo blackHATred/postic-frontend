@@ -1,8 +1,8 @@
-import { configureStore } from "@reduxjs/toolkit";
-import commentsReducer from "./commentSlice";
-import postsReducer from "./postsSlice";
-import basePageDialogsReducer from "./basePageDialogsSlice";
-import teamsReducer from "./teamSlice";
+import { configureStore } from '@reduxjs/toolkit';
+import commentsReducer from './commentSlice';
+import postsReducer from './postsSlice';
+import basePageDialogsReducer from './basePageDialogsSlice';
+import teamsReducer from './teamSlice';
 // ...
 
 export const store = configureStore({

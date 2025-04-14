@@ -3,11 +3,10 @@
     "browser": true,
     "es2021": true
   },
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  "ignorePatterns": [
-    "./node_modules/*",
-    "./package.json",
-    "./package-lock.json"
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"  // Добавляем интеграцию Prettier
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -19,16 +18,10 @@
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",
-      {
-        "vars": "all",
-        "varsIgnorePattern": "^_",
-        "args": "after-used",
-        "argsIgnorePattern": "^_"
-      }
+      { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
     ],
+    "prettier/prettier": "warn", // Правила Prettier будут браться из .prettierrc
     "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/ban-types": "off",
-    "no-prototype-builtins": "off",
     "no-empty": "off"
   }
 }

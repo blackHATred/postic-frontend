@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Comment, Comments } from "../models/Comment/types";
-import { RootState } from "./store";
-import dayjs from "dayjs";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Comment, Comments } from '../models/Comment/types';
+import { RootState } from './store';
+import dayjs from 'dayjs';
 
 interface basicDialogState {
   isOpen: boolean;
@@ -15,13 +15,13 @@ export interface CommentSliceState {
 
 // Define the initial state using that type
 const initialState: CommentSliceState = {
-  comments: { comments: [], status: "" },
+  comments: { comments: [], status: '' },
   answerDialog: { isOpen: false },
   selectedComment: null,
 };
 
 export const commentsSlice = createSlice({
-  name: "comments",
+  name: 'comments',
   initialState,
   reducers: {
     setAnswerDialog: (state, action: PayloadAction<boolean>) => {
@@ -35,10 +35,7 @@ export const commentsSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      if (
-        state.comments.comments &&
-        !state.comments.comments.some((el) => el.id === action.payload.id)
-      ) {
+      if (state.comments.comments && !state.comments.comments.some((el) => el.id === action.payload.id)) {
         state.comments.comments = [action.payload, ...state.comments.comments];
       } else {
         state.comments.comments = [action.payload];
@@ -49,9 +46,7 @@ export const commentsSlice = createSlice({
       const modif = false;
       const to_add: Comment[] = [];
       action.payload.forEach((element) => {
-        if (
-          !state.comments.comments.some((comment) => comment.id === element.id)
-        ) {
+        if (!state.comments.comments.some((comment) => comment.id === element.id)) {
           to_add.push(element);
         }
       });
@@ -64,24 +59,14 @@ export const commentsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {
-  addComment,
-  addComments,
-  setComments,
-  setAnswerDialog,
-  setSelectedComment,
-} = commentsSlice.actions;
+export const { addComment, addComments, setComments, setAnswerDialog, setSelectedComment } = commentsSlice.actions;
 
-export const getCommentsFromStore = (state: RootState) =>
-  state.comments.comments;
+export const getCommentsFromStore = (state: RootState) => state.comments.comments;
 
 export const getLastDate = (state: RootState) => {
-  if (
-    state.comments.comments.comments &&
-    state.comments.comments.comments.length > 0
-  )
+  if (state.comments.comments.comments && state.comments.comments.comments.length > 0)
     return state.comments.comments.comments[0].created_at;
-  return dayjs("2020").format();
+  return dayjs('2020').format();
 };
 
 export default commentsSlice.reducer;

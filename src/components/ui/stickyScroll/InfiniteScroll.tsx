@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface coolScroll {
   object: React.ReactNode[];
@@ -54,9 +54,9 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   });
 
   React.useEffect(() => {
-    parentRef.current?.addEventListener("scroll", handleScroll);
+    parentRef.current?.addEventListener('scroll', handleScroll);
     return () => {
-      parentRef.current?.removeEventListener("scroll", handleScroll);
+      parentRef.current?.removeEventListener('scroll', handleScroll);
     };
   }, [parentRef.current]);
 
@@ -67,10 +67,10 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
       setTimeout(
         () =>
           virtualizer.scrollToIndex(props.smoothScrollTarget, {
-            align: "start",
-            behavior: "smooth",
+            align: 'start',
+            behavior: 'smooth',
           }),
-        100
+        100,
       );
     }
   }, [props.doSmoothScroll]);
@@ -84,19 +84,15 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
     if (count && scrollRef.current) {
       const ref = scrollRef.current;
       if (ref) {
-        virtualizer.scrollToIndex(ref, { align: "start" });
+        virtualizer.scrollToIndex(ref, { align: 'start' });
         setHasMoreQuotes({ bottom: true });
       }
       scrollRef.current = undefined;
     } else {
       //new items added not to top
-      if (
-        topRef.current &&
-        topRef.current.getBoundingClientRect().bottom <=
-          window.innerHeight + maxElementHeight
-      ) {
+      if (topRef.current && topRef.current.getBoundingClientRect().bottom <= window.innerHeight + maxElementHeight) {
         //at bottom of screen
-        virtualizer.scrollToIndex(count - 1, { align: "end" });
+        virtualizer.scrollToIndex(count - 1, { align: 'end' });
       }
     }
   }, [count]);
@@ -106,11 +102,7 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          if (
-            entry.target.id === "bottom" &&
-            hasMoreQuotes.bottom &&
-            !isLoading
-          ) {
+          if (entry.target.id === 'bottom' && hasMoreQuotes.bottom && !isLoading) {
             fetchData();
           }
         }
@@ -138,26 +130,26 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
   };
 
   return (
-    <div className="container" style={{ width: "100%", height: "100%" }}>
+    <div className='container' style={{ width: '100%', height: '100%' }}>
       <div
         ref={parentRef}
-        className="List"
+        className='List'
         style={{
           height: `100%`,
           width: `100%`,
-          overflow: "auto",
-          scrollbarWidth: "none",
+          overflow: 'auto',
+          scrollbarWidth: 'none',
         }}
       >
         <div
           ref={topRef}
           style={{
             height: `${virtualizer.getTotalSize()}px`,
-            width: "100%",
-            position: "relative",
+            width: '100%',
+            position: 'relative',
           }}
         >
-          <div id="bottom" ref={bottomRef} />
+          <div id='bottom' ref={bottomRef} />
 
           {virtualizer.getVirtualItems().map((virtualRow) => (
             <div
@@ -166,10 +158,10 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
               data-index={virtualRow.index}
               ref={virtualizer.measureElement}
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: 0,
-                width: "100%",
+                width: '100%',
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >

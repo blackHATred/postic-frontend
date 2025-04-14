@@ -4,12 +4,9 @@
  * @param minLength - Минимальная длина текста.
  * @returns Сообщение об ошибке или null, если проверка пройдена.
  */
-export const validateMinLength = (
-  text: string,
-  minLength: number
-): string | null => {
+export const validateMinLength = (text: string, minLength: number): string | null => {
   if (!text.trim()) {
-    return "Поле не может быть пустым.";
+    return 'Поле не может быть пустым.';
   }
   if (text.trim().length < minLength) {
     return `Текст должен содержать не менее ${minLength} символов.`;
@@ -24,7 +21,7 @@ export const validateMinLength = (
  */
 export const validateNotEmptyPlatform = (items: any[]): string | null => {
   if (items.length === 0) {
-    return "Необходимо выбрать хотя бы одну платформу для публикации";
+    return 'Необходимо выбрать хотя бы одну платформу для публикации';
   }
   return null;
 };

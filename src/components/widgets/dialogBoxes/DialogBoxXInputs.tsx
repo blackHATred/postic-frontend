@@ -1,22 +1,20 @@
-import { useState } from "react";
-import { FC } from "react";
-import { Typography, Input } from "antd";
-import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
-import styles from "./styles.module.scss";
-import { ClickableButtonProps } from "../../ui/Button/Button";
+import { useState } from 'react';
+import { FC } from 'react';
+import { Typography, Input } from 'antd';
+import DialogBox, { DialogBoxProps } from '../../ui/dialogBox/DialogBox';
+import styles from './styles.module.scss';
+import { ClickableButtonProps } from '../../ui/Button/Button';
 
 const { Text } = Typography;
 
 export interface DialogBoxXInputsProps extends DialogBoxProps {
   text: string;
   input_placeholders: { [key: string]: string };
-  styles?: { [key: string]: "" | "warning" | "error" };
+  styles?: { [key: string]: '' | 'warning' | 'error' };
   errortext?: string;
 }
 
-const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
-  props: DialogBoxXInputsProps
-) => {
+const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (props: DialogBoxXInputsProps) => {
   const [input_data, SetInputData] = useState<{ [key: string]: string }>({});
 
   return (
@@ -40,10 +38,10 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
       {Object.entries(props.input_placeholders).map(([key, value]) => (
         <Input
           key={key}
-          status={props.styles ? props.styles[key] : ""}
-          className={styles["input"]}
+          status={props.styles ? props.styles[key] : ''}
+          className={styles['input']}
           placeholder={value}
-          variant="filled"
+          variant='filled'
           onChange={(e) => {
             const d_1 = input_data;
             d_1[key] = e.target.value;
@@ -51,7 +49,7 @@ const DialogBoxXInputs: FC<DialogBoxXInputsProps> = (
           }}
         />
       ))}
-      <Text type="danger">{props.errortext}</Text>
+      <Text type='danger'>{props.errortext}</Text>
     </DialogBox>
   );
 };

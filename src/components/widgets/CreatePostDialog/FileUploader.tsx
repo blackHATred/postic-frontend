@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Upload, Typography, Button } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { exceedsMaxFiles, isFileAlreadyAdded } from "../../../utils/validation";
-import { uploadFile } from "../../../api/api";
-import { NotificationContext } from "../../../api/notification";
-import { isAxiosError } from "axios";
-import styles from "./styles.module.scss";
+import React, { useState, useEffect, useContext } from 'react';
+import { Upload, Typography, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { exceedsMaxFiles, isFileAlreadyAdded } from '../../../utils/validation';
+import { uploadFile } from '../../../api/api';
+import { NotificationContext } from '../../../api/notification';
+import { isAxiosError } from 'axios';
+import styles from './styles.module.scss';
 
 const { Dragger } = Upload;
 const { Text } = Typography;
@@ -15,9 +15,7 @@ interface fileUploaderProps {
   removeFile: (file: any) => any;
 }
 
-const FileUploader: React.FC<fileUploaderProps> = (
-  props: fileUploaderProps
-) => {
+const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => {
   const [files, setFiles] = useState<any[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
@@ -32,14 +30,11 @@ const FileUploader: React.FC<fileUploaderProps> = (
 
   const handleFileUpload = async (file: File) => {
     if (!isFileAlreadyAdded(files, file)) {
-      if (file.type.startsWith("image/")) {
+      if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onloadend = async () => {
           setFiles((prevFiles) => [...prevFiles, file]);
-          setImagePreviews((prevPreviews) => [
-            ...prevPreviews,
-            reader.result as string,
-          ]);
+          setImagePreviews((prevPreviews) => [...prevPreviews, reader.result as string]);
         };
         reader.readAsDataURL(file);
       } else {
@@ -52,25 +47,13 @@ const FileUploader: React.FC<fileUploaderProps> = (
         props.addFiles(uploadResult.file_id, file);
       } catch (error) {
         if (isAxiosError(error)) {
-          NotificationManager.createNotification(
-            "error",
-            `Файл ${file.name} не загружен.`,
-            "Ошибка подключения сети"
-          );
+          NotificationManager.createNotification('error', `Файл ${file.name} не загружен.`, 'Ошибка подключения сети');
         } else {
-          NotificationManager.createNotification(
-            "error",
-            `Файл ${file.name} не загружен.`,
-            "Ошибка обработки файла"
-          );
+          NotificationManager.createNotification('error', `Файл ${file.name} не загружен.`, 'Ошибка обработки файла');
         }
       }
     } else {
-      NotificationManager.createNotification(
-        "error",
-        `Файл ${file.name} не загружен.`,
-        "Дубликаты файлов не разрешены"
-      );
+      NotificationManager.createNotification('error', `Файл ${file.name} не загружен.`, 'Дубликаты файлов не разрешены');
     }
     return false;
   };
@@ -78,7 +61,7 @@ const FileUploader: React.FC<fileUploaderProps> = (
   const handleFileRemove = (file: any) => {
     setFiles((prevFiles) => prevFiles.filter((f) => f.uid !== file.uid));
     props.removeFile(file);
-    if (file.type.startsWith("image/")) {
+    if (file.type.startsWith('image/')) {
       setImagePreviews((prevPreviews) => {
         const index = files.findIndex((f) => f.uid === file.uid);
         const newPreviews = [...prevPreviews];
@@ -89,7 +72,7 @@ const FileUploader: React.FC<fileUploaderProps> = (
   };
 
   return (
-    <div className={styles["post"]}>
+    <div className={styles['post']}>
       {/* 
       <Dragger
         className={styles.dragger}
@@ -111,22 +94,21 @@ const FileUploader: React.FC<fileUploaderProps> = (
         </p>
       </Dragger>
       */}
-      <Text type="secondary">
-        Поддерживается загрузка одного или нескольких файлов (максимум{" "}
-        {maxFiles}
+      <Text type='secondary'>
+        Поддерживается загрузка одного или нескольких файлов (максимум {maxFiles}
         ). Загружено: {files.length}/{maxFiles}
       </Text>
 
       <Upload
-        listType="picture"
+        listType='picture'
         multiple={true}
         defaultFileList={files}
         beforeUpload={handleFileUpload}
         onRemove={handleFileRemove} // Используйте onRemove вместо action для удаления файлов
       >
-        <div style={{ textAlign: "center", margin: "16px 0" }}>
+        <div style={{ textAlign: 'center', margin: '16px 0' }}>
           <Button icon={<UploadOutlined />}>Upload</Button>
-        </div>{" "}
+        </div>{' '}
       </Upload>
       <Upload defaultFileList={files}></Upload>
     </div>

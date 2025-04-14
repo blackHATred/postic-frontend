@@ -1,27 +1,22 @@
-import { useState, useContext } from "react";
-import { Typography, Input, Divider, Form } from "antd";
-import DialogBox, { DialogBoxProps } from "../../ui/dialogBox/DialogBox";
-import styles from "./styles.module.scss";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import {
-  setCreateTeamDialog,
-  addTeam,
-  setTeams,
-} from "../../../stores/teamSlice";
-import { MyTeams, TeamCreate } from "../../../api/teamApi";
-import { Team, TeamCreateRequest } from "../../../models/Team/types";
-import { NotificationContext } from "../../../api/notification";
+import { useState, useContext } from 'react';
+import { Typography, Input, Divider, Form } from 'antd';
+import DialogBox, { DialogBoxProps } from '../../ui/dialogBox/DialogBox';
+import styles from './styles.module.scss';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setCreateTeamDialog, addTeam, setTeams } from '../../../stores/teamSlice';
+import { MyTeams, TeamCreate } from '../../../api/teamApi';
+import { Team, TeamCreateRequest } from '../../../models/Team/types';
+import { NotificationContext } from '../../../api/notification';
 
 const { Text } = Typography;
 
-export interface TeamCreateDialogProps
-  extends Omit<DialogBoxProps, "onCancelClick"> {
+export interface TeamCreateDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
   setOpen: Function;
 }
 
 const TeamCreateDialog: React.FC = () => {
   const [form] = Form.useForm();
-  const [teamName, setTeamName] = useState("");
+  const [teamName, setTeamName] = useState('');
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.teams.createTeamDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
@@ -34,7 +29,7 @@ const TeamCreateDialog: React.FC = () => {
         }
       })
       .catch(() => {
-        console.log("Error getting teams");
+        console.log('Error getting teams');
       });
   };
 
@@ -59,23 +54,15 @@ const TeamCreateDialog: React.FC = () => {
 
         dispatch(addTeam(createdTeam));
 
-        notificationManager.createNotification(
-          "success",
-          "Команда создана",
-          `Команда "${teamName}" успешно создана`
-        );
+        notificationManager.createNotification('success', 'Команда создана', `Команда "${teamName}" успешно создана`);
 
         dispatch(setCreateTeamDialog(false));
 
         form.resetFields();
-        setTeamName("");
+        setTeamName('');
       })
       .catch((error) => {
-        notificationManager.createNotification(
-          "error",
-          "Ошибка создания команды",
-          error.message || "Не удалось создать команду"
-        );
+        notificationManager.createNotification('error', 'Ошибка создания команды', error.message || 'Не удалось создать команду');
       });
     updateTeamList();
     updateTeamList();
@@ -85,39 +72,35 @@ const TeamCreateDialog: React.FC = () => {
     <DialogBox
       bottomButtons={[
         {
-          text: "Создать",
+          text: 'Создать',
           onButtonClick: onOk,
         },
       ]}
       isOpen={isOpen}
       onCancelClick={async () => {
         form.resetFields();
-        setTeamName("");
+        setTeamName('');
         dispatch(setCreateTeamDialog(false));
       }}
-      title={"Создание команды"}
+      title={'Создание команды'}
       isCenter={true}
     >
       <Divider />
 
-      <div className={styles["form"]}>
+      <div className={styles['form']}>
         <Form form={form}>
           <Form.Item
-            label="Название команды"
-            name="teamName"
+            label='Название команды'
+            name='teamName'
             rules={[
               {
                 required: true,
-                message: "Пожалуйста, введите название команды",
+                message: 'Пожалуйста, введите название команды',
               },
             ]}
             labelCol={{ span: 24 }}
           >
-            <Input
-              placeholder="Введите название команды"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-            />
+            <Input placeholder='Введите название команды' value={teamName} onChange={(e) => setTeamName(e.target.value)} />
           </Form.Item>
         </Form>
       </div>

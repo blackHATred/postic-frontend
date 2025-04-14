@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 export interface Post {
   id: number;
@@ -37,7 +37,7 @@ export interface postStatusResults {
     post_id: string;
     operation: string;
     platform: string;
-    status: "success" | "error" | "pending";
+    status: 'success' | 'error' | 'pending';
     err_message: string;
     created_at: string;
   }[];
@@ -56,9 +56,9 @@ export const mockPosts: Post[] = [
     created_at: dayjs().unix(),
     user_id: 1,
     team_id: 1,
-    text: "Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post",
+    text: 'Hello, this is a sample post.Hello, this is a sample postHello, this is a sample postHello, this is a sample post',
     attachments: [],
-    platforms: ["tg", "vk"],
+    platforms: ['tg', 'vk'],
     pub_datetime: null,
   },
   {
@@ -66,9 +66,9 @@ export const mockPosts: Post[] = [
     created_at: dayjs().unix(),
     user_id: 2,
     team_id: 2,
-    text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
+    text: 'Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post',
     attachments: [],
-    platforms: ["tg"],
+    platforms: ['tg'],
     pub_datetime: null,
   },
   {
@@ -76,9 +76,9 @@ export const mockPosts: Post[] = [
     created_at: dayjs().unix(),
     user_id: 3,
     team_id: 3,
-    text: "Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post",
+    text: 'Hello, this is a sample post\n , this is a sample postHello, this is a sample postHello, this is a sample post',
     attachments: [],
-    platforms: ["tg"],
+    platforms: ['tg'],
     pub_datetime: null,
   },
 ];

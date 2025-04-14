@@ -1,12 +1,12 @@
-import React, { useContext, useEffect } from "react";
-import { Empty, Typography } from "antd";
-import CommentComponent from "../../ui/Comment/Comment";
-import styles from "./styles.module.scss";
-import { WebSocketContext } from "../../../api/WebSocket";
-import { useAppDispatch, useAppSelector } from "../../../stores/hooks";
-import { addComments, getLastDate } from "../../../stores/commentSlice";
-import RowVirtualizerDynamic from "../../ui/stickyScroll/InfiniteScroll";
-import { getComments } from "../../../api/api";
+import React, { useContext, useEffect } from 'react';
+import { Empty, Typography } from 'antd';
+import CommentComponent from '../../ui/Comment/Comment';
+import styles from './styles.module.scss';
+import { WebSocketContext } from '../../../api/WebSocket';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { addComments, getLastDate } from '../../../stores/commentSlice';
+import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
+import { getComments } from '../../../api/api';
 
 const CommentList: React.FC = () => {
   const webSocketManager = useContext(WebSocketContext);
@@ -18,24 +18,18 @@ const CommentList: React.FC = () => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const filteredComments = comments.comments
     ? selectedPostId !== 0
-      ? comments.comments.filter(
-          (comment) => comment.post_union_id === Number(selectedPostId)
-        )
+      ? comments.comments.filter((comment) => comment.post_union_id === Number(selectedPostId))
       : comments.comments.filter((el) => el.post_union_id != null)
     : []; //WARNING: CURRENTLY NOT FILTERING PROPERLY
-  const selectedteamid = useAppSelector(
-    (state) => state.teams.globalActiveTeamId
-  );
+  const selectedteamid = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
     console.log(last_date);
     if (filteredComments.length < requestSize)
-      getComments(selectedteamid, union_id, requestSize, last_date).then(
-        (val) => {
-          if (val.comments) dispatch(addComments(val.comments));
-        }
-      );
+      getComments(selectedteamid, union_id, requestSize, last_date).then((val) => {
+        if (val.comments) dispatch(addComments(val.comments));
+      });
   }, []);
 
   return (
@@ -46,11 +40,15 @@ const CommentList: React.FC = () => {
             return <CommentComponent comment={comment} />;
           })}
           getNewData={() => new Promise(() => [])}
-          addData={() => {}}
           doSmoothScroll={false}
           smoothScrollTarget={0}
           scrollAmount={filteredComments.length}
-          setScroll={(scroll: number) => {}}
+          addData={function (data: any[]): void {
+            console.log('Объяви меня в CommentList');
+          }}
+          setScroll={function (scroll: number): void {
+            console.log('Объяви меня в CommentList');
+          }}
         />
       )}
       {filteredComments.length === 0 && (
