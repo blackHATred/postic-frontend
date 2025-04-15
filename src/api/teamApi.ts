@@ -2,9 +2,10 @@ import axios from 'axios';
 import config from '../constants/appConfig';
 import { RenameTeamRequest, Team, TeamCreateResponse, TeamUserRole, KickUserRequest, TeamCreateRequest } from '../models/Team/types';
 import { MeInfo } from '../models/User/types';
+import { routes } from './routers/routes';
 
 export const MyTeams = async (): Promise<{ teams: Team[] }> => {
-  const response = await axios.get<{ teams: Team[] }>(`${config.api.baseURL}/teams/my_teams`, {
+  const response = await axios.get<{ teams: Team[] }>(`${config.api.baseURL}${routes.teams()}/my_teams`, {
     withCredentials: true,
   });
   return response.data;
@@ -12,7 +13,7 @@ export const MyTeams = async (): Promise<{ teams: Team[] }> => {
 
 export const Rename = async (request: RenameTeamRequest): Promise<string> => {
   try {
-    const response = await axios.put<string>(`${config.api.baseURL}/teams/rename`, request, {
+    const response = await axios.put<string>(`${config.api.baseURL}${routes.teams()}/rename`, request, {
       withCredentials: true,
     });
     if (response.status === 200) {
@@ -29,7 +30,7 @@ export const Rename = async (request: RenameTeamRequest): Promise<string> => {
 };
 
 export const TeamCreate = async (request: TeamCreateRequest): Promise<TeamCreateResponse> => {
-  const response = await axios.post<TeamCreateResponse>(`${config.api.baseURL}/teams/create`, request, {
+  const response = await axios.post<TeamCreateResponse>(`${config.api.baseURL}${routes.teams()}/create`, request, {
     withCredentials: true,
   });
   return response.data;
@@ -37,7 +38,7 @@ export const TeamCreate = async (request: TeamCreateRequest): Promise<TeamCreate
 
 export const Invite = async (userRole: TeamUserRole): Promise<string> => {
   try {
-    const response = await axios.post<string>(`${config.api.baseURL}/teams/invite`, userRole, {
+    const response = await axios.post<string>(`${config.api.baseURL}${routes.teams()}/invite`, userRole, {
       withCredentials: true,
     });
   } catch (error) {
@@ -52,7 +53,7 @@ export const Invite = async (userRole: TeamUserRole): Promise<string> => {
 
 export const UpdateRole = async (userRole: TeamUserRole): Promise<string> => {
   try {
-    const response = await axios.put<string>(`${config.api.baseURL}/teams/roles`, userRole, {
+    const response = await axios.put<string>(`${config.api.baseURL}${routes.teams()}/roles`, userRole, {
       withCredentials: true,
     });
   } catch (error) {
@@ -66,14 +67,14 @@ export const UpdateRole = async (userRole: TeamUserRole): Promise<string> => {
 };
 
 export const Kick = async (user: KickUserRequest): Promise<string> => {
-  const response = await axios.post<string>(`${config.api.baseURL}/teams/kick`, user, {
+  const response = await axios.post<string>(`${config.api.baseURL}${routes.teams()}/kick`, user, {
     withCredentials: true,
   });
   return response.data;
 };
 
 export const Secret = async (team_id: number): Promise<MeInfo> => {
-  const response = await axios.get<MeInfo>(`${config.api.baseURL}/teams/secret`, {
+  const response = await axios.get<MeInfo>(`${config.api.baseURL}${routes.teams()}/secret`, {
     params: { team_id },
     withCredentials: true,
   });
