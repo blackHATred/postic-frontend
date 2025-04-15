@@ -163,7 +163,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       dataIndex: '',
       key: 'x',
       render: (row: DataType) =>
-        isUserAdmin ? (
+        isUserAdmin && row.id !== currentUserId ? (
           <ClickableButton
             type='link'
             color='danger'

@@ -10,7 +10,12 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setActiveTab, setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
+import 'dayjs/locale/ru';
+import utc from 'dayjs/plugin/utc';
 
+// часовой пояс и отображение времени
+dayjs.locale('ru');
+dayjs.extend(utc);
 const { Text } = Typography;
 
 const PostComponent: React.FC<Post> = (props: Post) => {
@@ -70,9 +75,8 @@ const PostComponent: React.FC<Post> = (props: Post) => {
             <Text strong className={styles['post-name']}>
               Модератор {props.user_id}
             </Text>
-
             <Text type='secondary' className={styles['post-time']}>
-              {dayjs(props.created_at).format('DD.MM.YYYY HH:mm')}
+              {dayjs.utc(props.created_at).format('D MMMM YYYY [в] HH:mm')}
             </Text>
             <Space size={0} split={<Divider type='vertical' />}>
               {props.platforms?.map((plat) => {

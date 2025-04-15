@@ -65,7 +65,6 @@ const TeamCreateDialog: React.FC = () => {
         notificationManager.createNotification('error', 'Ошибка создания команды', error.message || 'Не удалось создать команду');
       });
     updateTeamList();
-    updateTeamList();
   };
 
   return (

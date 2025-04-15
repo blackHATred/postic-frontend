@@ -90,7 +90,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
 
             {/* Контент для элементов Sidebar */}
             {activePage === 'teams' && (
-              <div>
+              <div className={styles['content']}>
                 <TeamList />
               </div>
             )}

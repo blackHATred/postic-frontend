@@ -10,7 +10,12 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Delete } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
+import 'dayjs/locale/ru';
+import utc from 'dayjs/plugin/utc';
 
+// часовой пояс и отображение времени
+dayjs.locale('ru');
+dayjs.extend(utc);
 const { Text } = Typography;
 
 interface CommentProps {
@@ -57,7 +62,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
           <div>
             <Text strong>{username}</Text>
             <Text type='secondary' className={styles['comment-time']}>
-              {dayjs(created_at).format('DD.MM.YYYY HH:mm')} | tg
+              {dayjs.utc(created_at).format('D MMMM YYYY [в] HH:mm')} | {comment.platform}
             </Text>
           </div>
 
