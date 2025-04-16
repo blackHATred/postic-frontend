@@ -9,19 +9,14 @@ import { Team } from '../../../models/Team/types';
 import { MyTeams } from '../../../api/teamApi';
 import { Post } from '../../../models/Post/types';
 import { setCurrentUserId, setTeams } from '../../../stores/teamSlice';
-import { getComment, getPosts, Me } from '../../../api/api';
-import AuthenticatedSSE from '../../../api/SSE';
-import { addComment } from '../../../stores/commentSlice';
+import { getPosts, Me } from '../../../api/api';
 import dayjs from 'dayjs';
-
-const PureSSE = React.memo(AuthenticatedSSE);
 
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const selectedteamid = useAppSelector((state) => state.teams.globalActiveTeamId);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const url = 'http://localhost:80/api/comment/subscribe?team_id=' + selectedteamid + '&post_union_id=' + 0;
 
   // для того, чтоб сбрасывать состояние ленты и миниленты
   const handleTabChange = (key: string) => {
@@ -78,29 +73,12 @@ const MainPage: React.FC = () => {
       });
   }, [dispatch]);
 
-  const newComment = (data: any) => {
-    if (data.event == 'comment') {
-      console.log(data);
-      getComment(selectedteamid, JSON.parse(data.data).comment_id).then((data) => {
-        console.log(data);
-        dispatch(addComment(data.comment));
-      });
-    }
-  };
-
   return (
-    <>
-      <PureSSE url={url} onMessage={newComment} />
-      <div className={styles['main-page']}>
-        <ButtonHeader
-          isAuthorized={isAuthorized}
-          activeTab={activeTab}
-          onTabChange={handleTabChange} // для изменения вкладки
-        />
+    <div className={styles['main-page']}>
+      <ButtonHeader isAuthorized={isAuthorized} activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <MainContainer isAuthorized={isAuthorized} />
-      </div>
-    </>
+      <MainContainer isAuthorized={isAuthorized} />
+    </div>
   );
 };
 

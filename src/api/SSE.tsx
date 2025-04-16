@@ -1,75 +1,104 @@
-// hooks/useAuthenticatedSSE.ts
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 interface SSEOptions {
   url: string;
   onMessage: (data: any) => void;
-  onError?: (error: Event) => void;
-  withCredentials?: boolean;
 }
 
 const AuthenticatedSSE: React.FC<SSEOptions> = (props: SSEOptions) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const ctrl = new AbortController();
+  const [retryCount, setRetryCount] = useState<number>(0);
+  const MAX_RETRIES = 3;
+
+  // реф для сейва значений между рендерами без вызова рендера
+  const ctrlRef = useRef<AbortController | null>(null);
+  const timerRef = useRef<number | null>(null);
+
+  // Функция для очистки ресурсов
+  const cleanup = () => {
+    if (ctrlRef.current) {
+      ctrlRef.current.abort();
+      ctrlRef.current = null;
+    }
+
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
 
   useEffect(() => {
-    console.log('loading');
-    const setupSSE = async () => {
+    const setupSSE = () => {
+      cleanup();
+
+      if (retryCount >= MAX_RETRIES) {
+        console.log(`Достигнут лимит попыток (${MAX_RETRIES}). SSE отключен.`);
+        return;
+      }
+
       try {
+        ctrlRef.current = new AbortController();
+
+        console.log(`Попытка SSE подключения №${retryCount + 1} к ${props.url}`);
+
         fetchEventSource(`${props.url}`, {
           method: 'get',
           credentials: 'include',
-          signal: ctrl.signal,
+          signal: ctrlRef.current.signal,
           headers: {
-            'Content-Type': 'text/event-stream',
+            Accept: 'text/event-stream',
           },
           onmessage(ev) {
-            console.log('message');
             props.onMessage(ev);
           },
           async onopen(response) {
-            setIsConnected(true);
-            if (response.ok) {
-              console.log(response.headers.get('content-type'));
-              return; // everything's good
-            } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-              ctrl.abort();
-              // client-side errors are usually non-retriable:
-              //throw new Error(await response.text());
+            if (response.ok && response.headers.get('content-type')?.includes('text/event-stream')) {
+              console.log('SSE подключение установлено');
+              setIsConnected(true);
+              setRetryCount(0);
             } else {
-              ctrl.abort();
-              setTimeout(() => setupSSE(), 1000);
-              throw new Error(await response.text());
+              console.warn(`SSE подключение не удалось. Статус: ${response.status}, Content-Type: ${response.headers.get('content-type')}`);
+              setIsConnected(false);
+
+              // Планируем повторную попытку
+              setRetryCount((prev) => prev + 1);
+              timerRef.current = window.setTimeout(setupSSE, 2000);
             }
           },
           onerror(err) {
-            ctrl.abort();
-            setTimeout(() => setupSSE(), 1000);
-            throw err;
+            console.error('SSE ошибка:', err);
+            setIsConnected(false);
+            // подход подход еще подход
+            setRetryCount((prev) => prev + 1);
+            timerRef.current = window.setTimeout(setupSSE, 2000);
           },
           onclose() {
-            ctrl.abort();
+            console.log('SSE соединение закрыто');
             setIsConnected(false);
+
+            if (!ctrlRef.current?.signal.aborted) {
+              timerRef.current = window.setTimeout(setupSSE, 2000);
+            }
           },
         });
       } catch (err) {
-        ctrl.abort();
-        console.error('Failed to establish SSE connection:', err);
-        setTimeout(setupSSE, 1000);
+        console.error('Ошибка при установке SSE:', err);
+        setIsConnected(false);
+        setRetryCount((prev) => prev + 1);
+        timerRef.current = window.setTimeout(setupSSE, 2000);
       }
     };
 
-    if (!isConnected) setupSSE();
+    if (!isConnected) {
+      setupSSE();
+    }
 
-    return () => {
-      ctrl.abort();
-      setIsConnected(false);
-    };
-  }, [props.url, props.onMessage, props.onError, props.withCredentials]);
+    return cleanup;
+  }, [props.url]);
 
-  return <></>;
+  return null;
 };
 
 export default AuthenticatedSSE;

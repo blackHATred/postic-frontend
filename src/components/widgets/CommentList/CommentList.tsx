@@ -3,9 +3,12 @@ import { Empty, Typography } from 'antd';
 import CommentComponent from '../../ui/Comment/Comment';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { addComments, getLastDate } from '../../../stores/commentSlice';
+import { addComment, addComments, getLastDate } from '../../../stores/commentSlice';
 import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
-import { getComments } from '../../../api/api';
+import { getComment, getComments } from '../../../api/api';
+import AuthenticatedSSE from '../../../api/SSE';
+
+const PureSSE = React.memo(AuthenticatedSSE);
 
 const CommentList: React.FC = () => {
   //const comments = useAppSelector(getCommentsFromStore);
@@ -20,6 +23,18 @@ const CommentList: React.FC = () => {
       : comments.comments.filter((el) => el.post_union_id != null)
     : []; //WARNING: CURRENTLY NOT FILTERING PROPERLY
   const selectedteamid = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+
+  const url = `http://localhost:80/api/comment/subscribe?team_id=${selectedteamid}&post_union_id=${selectedPostId || 0}`;
+
+  // Обработчик новых комментариев
+  const newComment = (data: any) => {
+    if (data.event == 'comment') {
+      getComment(selectedteamid, JSON.parse(data.data).comment_id).then((data) => {
+        dispatch(addComment(data.comment));
+      });
+    }
+  };
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
@@ -32,6 +47,9 @@ const CommentList: React.FC = () => {
 
   return (
     <div className={styles.commentListContainer}>
+      {/* SSE подключение только когда активна вкладка комментариев */}
+      {activeTab === '2' && <PureSSE url={url} onMessage={newComment} />}
+
       {filteredComments.length > 0 && (
         <RowVirtualizerDynamic
           object={[...filteredComments].reverse().map((comment) => {
