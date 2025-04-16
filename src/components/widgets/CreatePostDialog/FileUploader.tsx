@@ -106,7 +106,7 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         onRemove={handleFileRemove} // Используйте onRemove вместо action для удаления файлов
       >
         <div style={{ textAlign: 'center', margin: '16px 0' }}>
-          <Button icon={<UploadOutlined />}>Upload</Button>
+          <Button icon={<UploadOutlined />}>Загрузить</Button>
         </div>{' '}
       </Upload>
       <Upload defaultFileList={files}></Upload>

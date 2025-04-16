@@ -29,6 +29,10 @@ export interface KickUserRequest {
   team_id: number;
 }
 
+export interface MeSecretInfo {
+  secret: string;
+}
+
 export const mockTeams: Team[] = [
   {
     id: 1,

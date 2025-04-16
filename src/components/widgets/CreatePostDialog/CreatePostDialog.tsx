@@ -7,7 +7,7 @@ import { EditOutlined, SmileOutlined, ThunderboltOutlined } from '@ant-design/ic
 import PlatformSettings from './PlatformSettings';
 import FileUploader from './FileUploader';
 import { validateMinLength } from '../../../utils/validation';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import Picker from 'emoji-picker-react';
 import { getPost, sendPostRequest } from '../../../api/api';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -16,6 +16,10 @@ import ru from 'antd/es/date-picker/locale/ru_RU';
 import { Post, sendPostResult } from '../../../models/Post/types';
 import { addPost, setSelectedPostId } from '../../../stores/postsSlice';
 import { EmojiStyle } from 'emoji-picker-react';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 const { Text } = Typography;
 
@@ -41,6 +45,7 @@ const CreatePostDialog: FC = () => {
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
   const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files.map((file) => file.id));
   const help_mode = useAppSelector((state) => state.settings.helpMode);
+  const specificDate = dayjs('2025-04-15T02:40:00.258+03:00');
 
   const onOk = () => {
     const errors: string[] = [];

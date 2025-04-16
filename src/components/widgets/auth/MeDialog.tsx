@@ -6,13 +6,17 @@ import { Me } from '../../../api/api';
 import { MeInfo } from '../../../models/User/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
+import { Secret } from '../../../api/teamApi';
+import { MeSecretInfo } from '../../../models/Team/types';
 
 const MeDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [secretKey, setSecretKey] = useState('');
+  const [secretTeamKey, setSecretTeamKey] = useState('');
   const [loading, setLoading] = useState(true);
   const isOpen = useAppSelector((state) => state.basePageDialogs.personalInfoDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
+  const team_id = useAppSelector((state) => state.teams.selectedTeamId);
 
   useEffect(() => {
     setLoading(true);
@@ -22,7 +26,21 @@ const MeDialog: React.FC = () => {
           setSecretKey(res.user_id);
         })
         .catch(() => {
-          notificationManager.createNotification('error', 'Ошибка пулечения личной информации', '');
+          notificationManager.createNotification('error', 'Ошибка получения личной информации', '');
+        });
+      setLoading(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    setLoading(true);
+    if (isOpen) {
+      Secret(team_id)
+        .then((res: MeSecretInfo) => {
+          setSecretTeamKey(res.secret);
+        })
+        .catch(() => {
+          notificationManager.createNotification('error', 'Ошибка получения личной информации', '');
         });
       setLoading(false);
     }
@@ -46,6 +64,7 @@ const MeDialog: React.FC = () => {
     >
       <BlueDashedTextBox isLoading={loading}>
         <div>Ваш секретный ключ: {secretKey}</div>
+        <div>Командный секретный ключ: {secretTeamKey}</div>
       </BlueDashedTextBox>
     </DialogBox>
   );

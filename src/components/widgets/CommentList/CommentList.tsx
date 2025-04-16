@@ -70,7 +70,7 @@ const CommentList: React.FC = () => {
       {filteredComments.length === 0 && (
         <Empty
           styles={{ image: { height: 60 }, root: { paddingTop: 25 } }}
-          description={<Typography.Text>Нету комментариев</Typography.Text>}
+          description={<Typography.Text>Нет комментариев</Typography.Text>}
         ></Empty>
       )}
     </div>

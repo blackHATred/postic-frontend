@@ -82,7 +82,7 @@ const TeamRenameDialog: React.FC = () => {
         setTeamName('');
         dispatch(setRenameTeamDialog(false));
       }}
-      title={'Смена названия команды'}
+      title={'Переименовать команду'}
       isCenter={true}
     >
       <Divider />

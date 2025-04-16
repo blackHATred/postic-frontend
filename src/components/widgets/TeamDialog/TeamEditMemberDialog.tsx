@@ -103,7 +103,7 @@ const TeamEditMemberDialog: React.FC = () => {
     <DialogBox
       bottomButtons={[
         {
-          text: 'Добавить',
+          text: 'Сохранить',
           onButtonClick: onOk,
         },
       ]}
@@ -111,7 +111,7 @@ const TeamEditMemberDialog: React.FC = () => {
       onCancelClick={async () => {
         dispatch(setEditMemberDialog(false));
       }}
-      title={'Смена доступа участника'}
+      title={'Редактирование прав'}
       isCenter={true}
     >
       <Divider />

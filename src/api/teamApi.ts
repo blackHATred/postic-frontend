@@ -1,7 +1,14 @@
 import axios from 'axios';
 import config from '../constants/appConfig';
-import { RenameTeamRequest, Team, TeamCreateResponse, TeamUserRole, KickUserRequest, TeamCreateRequest } from '../models/Team/types';
-import { MeInfo } from '../models/User/types';
+import {
+  RenameTeamRequest,
+  Team,
+  TeamCreateResponse,
+  TeamUserRole,
+  KickUserRequest,
+  TeamCreateRequest,
+  MeSecretInfo,
+} from '../models/Team/types';
 import { routes } from './routers/routes';
 
 export const MyTeams = async (): Promise<{ teams: Team[] }> => {
@@ -73,8 +80,8 @@ export const Kick = async (user: KickUserRequest): Promise<string> => {
   return response.data;
 };
 
-export const Secret = async (team_id: number): Promise<MeInfo> => {
-  const response = await axios.get<MeInfo>(`${config.api.baseURL}${routes.teams()}/secret`, {
+export const Secret = async (team_id: number): Promise<MeSecretInfo> => {
+  const response = await axios.get<MeSecretInfo>(`${config.api.baseURL}${routes.teams()}/secret`, {
     params: { team_id },
     withCredentials: true,
   });
