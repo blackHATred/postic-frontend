@@ -76,7 +76,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
         <div className={styles.loaderContainer}>
           <Spin tip='Загрузка постов...' />
         </div>
-      ) : posts.length > 0 ? (
+      ) : posts && posts.length > 0 ? (
         <RowVirtualizerDynamic
           object={[...posts].reverse().map((post, index) => {
             return <PostComponent {...post} key={index} />;

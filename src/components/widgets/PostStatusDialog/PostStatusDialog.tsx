@@ -19,7 +19,9 @@ const PostStatusDialog: FC = () => {
   const postId = useAppSelector((state) => state.posts.selectedPostId);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const isOpen = useAppSelector((state) => state.basePageDialogs.postStatusDialog.isOpen);
-  const selectedPlatforms = useAppSelector((state) => state.posts.posts.find((post) => post.id === postId)?.platforms);
+  const selectedPlatforms = useAppSelector((state) =>
+    state.posts.posts ? state.posts.posts.find((post) => post.id === postId)?.platforms : undefined,
+  );
 
   const getIcon = (platform: string) => {
     switch (platform) {
@@ -34,23 +36,25 @@ const PostStatusDialog: FC = () => {
   };
 
   const mapStatuses = () => {
-    return selectedPlatforms
-      ? selectedPlatforms.map((platform) => ({
-          platform,
-          icon: getIcon(platform),
-          status: 'wait' as const, // Начальный статус
-        }))
-      : [];
+    if (!selectedPlatforms) return [];
+
+    return selectedPlatforms.map((platform) => ({
+      platform,
+      icon: getIcon(platform),
+      status: 'wait' as const,
+    }));
   };
 
   const [socialStatuses, setSocialStatuses] = useState<SocialStatus[]>([]);
 
   useEffect(() => {
-    mapStatuses();
-    if (isOpen) {
+    const statuses = mapStatuses();
+    setSocialStatuses(statuses);
+
+    if (isOpen && postId) {
       getStatus();
     }
-  }, [selectedPlatforms]);
+  }, [isOpen, postId, selectedPlatforms]);
 
   const onCancel = () => {
     dispatch(setPostStatusDialog(false));

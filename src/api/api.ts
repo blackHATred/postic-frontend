@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Post, postStatusResults, sendPost, sendPostResult, UploadResult } from '../models/Post/types';
 import {
   Comment,
@@ -14,30 +13,27 @@ import config from '../constants/appConfig';
 import { MeInfo, RegisterResult } from '../models/User/types';
 import { routes } from './routers/routes';
 
+import axiosInstance from './axiosConfig';
+
 export const uploadFile = async (file: File): Promise<UploadResult> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', 'photo');
 
-    const response = await axios.post<UploadResult>(`${config.api.baseURL}/upload/`, formData, {
+    const response = await axiosInstance.post<UploadResult>(`/upload/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      withCredentials: true,
     });
 
     console.log('Файл успешно загружен:', response.data);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      // do something
-      // or just re-throw the error
       console.error('Ошибка загрузки файла:', (error as AxiosError).status);
       throw error;
     } else {
-      // do something else
-      // or creating a new error
       throw error;
     }
   }
@@ -49,7 +45,7 @@ export const getPosts = async (
   offset: string,
   filter?: 'published' | 'scheduled',
 ): Promise<{ posts: Post[] }> => {
-  const response = await axios.get<{ posts: Post[] }>(`${config.api.baseURL}${routes.posts()}/list`, {
+  const response = await axiosInstance.get<{ posts: Post[] }>(`${config.api.baseURL}${routes.posts()}/list`, {
     withCredentials: true,
     params: {
       team_id: team_id,
@@ -63,7 +59,7 @@ export const getPosts = async (
 };
 
 export const getPost = async (team_id: number, post_id: number): Promise<{ post: Post }> => {
-  const response = await axios.get<{ post: Post }>(`${config.api.baseURL}${routes.posts()}/get`, {
+  const response = await axiosInstance.get<{ post: Post }>(`${config.api.baseURL}${routes.posts()}/get`, {
     withCredentials: true,
     params: {
       team_id: team_id,
@@ -74,7 +70,7 @@ export const getPost = async (team_id: number, post_id: number): Promise<{ post:
 };
 
 export const getPostStatus = async (post_id: number, team_id: number): Promise<postStatusResults> => {
-  const response = await axios.get<postStatusResults>(`${config.api.baseURL}${routes.posts()}/status`, {
+  const response = await axiosInstance.get<postStatusResults>(`${config.api.baseURL}${routes.posts()}/status`, {
     withCredentials: true,
     params: {
       team_id: team_id,
@@ -85,27 +81,27 @@ export const getPostStatus = async (post_id: number, team_id: number): Promise<p
 };
 
 export const sendPostRequest = async (post: sendPost): Promise<sendPostResult> => {
-  const response = await axios.post<sendPostResult>(`${config.api.baseURL}${routes.posts()}/add`, post, {
+  const response = await axiosInstance.post<sendPostResult>(`${config.api.baseURL}${routes.posts()}/add`, post, {
     withCredentials: true,
   });
   return response.data;
 };
 
 export const Register = async (): Promise<RegisterResult> => {
-  const response = await axios.post<RegisterResult>(`${config.api.baseURL}/user/register`, { withCredentials: true });
+  const response = await axiosInstance.post<RegisterResult>(`${config.api.baseURL}/user/register`, { withCredentials: true });
 
   return response.data;
 };
 
 export const Me = async (): Promise<MeInfo> => {
-  const response = await axios.get<MeInfo>(`${config.api.baseURL}/user/me`, {
+  const response = await axiosInstance.get<MeInfo>(`${config.api.baseURL}/user/me`, {
     withCredentials: true,
   });
   return response.data;
 };
 
 export const Login = async (id: number): Promise<RegisterResult> => {
-  const response = await axios.post<RegisterResult>(
+  const response = await axiosInstance.post<RegisterResult>(
     `${config.api.baseURL}/user/login`,
     {
       user_id: id,
@@ -118,7 +114,7 @@ export const Login = async (id: number): Promise<RegisterResult> => {
 
 export const getSummarize = async (postId: number): Promise<GetSummarizeResult> => {
   try {
-    const response = await axios.get<GetSummarizeResult>(`${config.api.baseURL}${routes.comments()}/summarize`, {
+    const response = await axiosInstance.get<GetSummarizeResult>(`${config.api.baseURL}${routes.comments()}/summarize`, {
       params: {
         team_id: 1,
         post_union_id: postId,
@@ -133,14 +129,14 @@ export const getSummarize = async (postId: number): Promise<GetSummarizeResult> 
 };
 
 export const Summarize = async (postId: number): Promise<GetSummarizeMarkdownResponse | null> => {
-  const response = await axios.post<GetSummarizeMarkdownResponse>(`${config.api.baseURL}${routes.comments()}/summarize`, {
+  const response = await axiosInstance.post<GetSummarizeMarkdownResponse>(`${config.api.baseURL}${routes.comments()}/summarize`, {
     post_id: postId,
   });
   return response.data;
 };
 
 export const getComment = async (team_id: number, comment_id: number) => {
-  const response = await axios.get<{ comment: Comment }>(`${config.api.baseURL}${routes.comments()}/get`, {
+  const response = await axiosInstance.get<{ comment: Comment }>(`${config.api.baseURL}${routes.comments()}/get`, {
     withCredentials: true,
     params: {
       team_id: team_id,
@@ -152,7 +148,7 @@ export const getComment = async (team_id: number, comment_id: number) => {
 
 export const getComments = async (selectedteamid: number, union_id: number, limit: number, offset?: string) => {
   try {
-    const response = await axios.get<Comments>(`${config.api.baseURL}${routes.comments()}/last`, {
+    const response = await axiosInstance.get<Comments>(`${config.api.baseURL}${routes.comments()}/last`, {
       withCredentials: true,
       params: {
         team_id: selectedteamid,
@@ -163,7 +159,7 @@ export const getComments = async (selectedteamid: number, union_id: number, limi
     });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (isAxiosError(error)) {
       console.error('Ошибка при получении комментариев:', error.response?.data || error.message);
       alert('Не удалось загрузить комментарии. Попробуйте позже.');
     } else {
@@ -174,14 +170,14 @@ export const getComments = async (selectedteamid: number, union_id: number, limi
 };
 
 export const Reply = async (request: CommentReply) => {
-  const response = await axios.post<string>(`${config.api.baseURL}${routes.comments()}/reply`, request, {
+  const response = await axiosInstance.post<string>(`${config.api.baseURL}${routes.comments()}/reply`, request, {
     withCredentials: true,
   });
   return response.data;
 };
 
 export const Delete = async (request: DeleteComment) => {
-  const response = await axios.delete<string>(`${config.api.baseURL}${routes.comments()}/delete`, {
+  const response = await axiosInstance.delete<string>(`${config.api.baseURL}${routes.comments()}/delete`, {
     data: request,
     withCredentials: true,
   });
@@ -189,7 +185,7 @@ export const Delete = async (request: DeleteComment) => {
 };
 
 export const ReplyIdeas = async (req: Answ): Promise<{ ideas: string[] }> => {
-  const response = await axios.get<{ ideas: string[] }>(`${config.api.baseURL}${routes.comments()}/ideas`, {
+  const response = await axiosInstance.get<{ ideas: string[] }>(`${config.api.baseURL}${routes.comments()}/ideas`, {
     withCredentials: true,
     params: req,
   });

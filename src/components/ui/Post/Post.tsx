@@ -12,6 +12,7 @@ import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import 'dayjs/locale/ru';
 import utc from 'dayjs/plugin/utc';
+import config from '../../../constants/appConfig';
 
 // часовой пояс и отображение времени
 dayjs.locale('ru');
@@ -142,7 +143,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
                     <Carousel arrows>
                       {attach_images.map((preview) => (
                         <div key={preview.id}>
-                          <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
+                          <Image src={`${config.api.baseURL}/upload/get/${preview.id}`} />
                         </div>
                       ))}
                     </Carousel>

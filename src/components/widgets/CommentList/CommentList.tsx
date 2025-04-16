@@ -7,6 +7,7 @@ import { addComment, addComments, getLastDate } from '../../../stores/commentSli
 import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
 import { getComment, getComments } from '../../../api/api';
 import AuthenticatedSSE from '../../../api/SSE';
+import { getSseUrl } from '../../../constants/appConfig';
 
 const PureSSE = React.memo(AuthenticatedSSE);
 
@@ -25,7 +26,7 @@ const CommentList: React.FC = () => {
   const selectedteamid = useAppSelector((state) => state.teams.globalActiveTeamId);
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
 
-  const url = `http://localhost:80/api/comment/subscribe?team_id=${selectedteamid}&post_union_id=${selectedPostId || 0}`;
+  const url = getSseUrl(selectedteamid, selectedPostId || 0);
 
   // Обработчик новых комментариев
   const newComment = (data: any) => {

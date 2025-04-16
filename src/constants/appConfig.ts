@@ -1,8 +1,12 @@
 const config = {
   api: {
-    baseURL: 'http://localhost:80/api',
-    socketUrl: 'http://localhost:80/api/comment/ws',
+    baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:80/api',
+    socketUrl: process.env.REACT_APP_SOCKET_URL || 'http://localhost:80/api/comment/ws',
   },
 };
 
+export const getSseUrl = (teamId: number, postId = 0): string => {
+  // Берем базовый URL из конфигурации с учетом HTTPS
+  return `${config.api.baseURL}/comment/subscribe?team_id=${teamId}&post_union_id=${postId}`;
+};
 export default config;
