@@ -43,7 +43,12 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
   }
 };
 
-export const getPosts = async (team_id: number, limit: number, offset: string): Promise<{ posts: Post[] }> => {
+export const getPosts = async (
+  team_id: number,
+  limit: number,
+  offset: string,
+  filter?: 'published' | 'scheduled',
+): Promise<{ posts: Post[] }> => {
   const response = await axios.get<{ posts: Post[] }>(`${config.api.baseURL}${routes.posts()}/list`, {
     withCredentials: true,
     params: {
@@ -51,6 +56,7 @@ export const getPosts = async (team_id: number, limit: number, offset: string): 
       limit: limit,
       offset: offset,
       before: true,
+      filter: filter,
     },
   });
   return response.data;

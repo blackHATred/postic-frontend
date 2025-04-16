@@ -22,7 +22,7 @@ interface PostAttachment {
 export interface sendPost {
   text: string;
   attachments: string[];
-  pub_time: number;
+  pub_datetime: string | undefined;
   platforms: string[];
   team_id: number;
 }

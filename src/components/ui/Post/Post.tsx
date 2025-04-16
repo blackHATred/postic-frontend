@@ -86,26 +86,33 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           </div>
         </div>
         <div className={styles['post-header-buttons']}>
-          <ClickableButton
-            text='Комментарии'
-            type='link'
-            icon={<CommentOutlined />}
-            onButtonClick={() => {
-              onCommentClick();
-            }}
-          />
+          {(!props.pub_datetime || new Date(props.pub_datetime) <= new Date()) && (
+            <>
+              <ClickableButton
+                text='Комментарии'
+                type='link'
+                icon={<CommentOutlined />}
+                onButtonClick={() => {
+                  onCommentClick();
+                }}
+              />
 
-          {help_mode ? (
-            <ClickableButton
-              text='Суммаризация'
-              variant='dashed'
-              color='primary'
-              onButtonClick={onSummaryClick}
-              withPopover={true}
-              popoverContent={'Получить краткий анализ комментариев'}
-            />
-          ) : (
-            <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
+              {help_mode ? (
+                <ClickableButton
+                  text='Суммаризация'
+                  variant='dashed'
+                  color='primary'
+                  onButtonClick={onSummaryClick}
+                  withPopover={true}
+                  popoverContent={'Получить краткий анализ комментариев'}
+                />
+              ) : (
+                <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
+              )}
+            </>
+          )}
+          {props.pub_datetime && new Date(props.pub_datetime) > new Date() && (
+            <Text type='secondary'>Будет опубликовано {dayjs(props.pub_datetime).format('D MMMM YYYY [в] HH:mm')}</Text>
           )}
         </div>
       </div>

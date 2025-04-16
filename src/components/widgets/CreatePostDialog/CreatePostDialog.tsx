@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { addFile, removeFile, setCreatePostDialog, setPostStatusDialog } from '../../../stores/basePageDialogsSlice';
 import ru from 'antd/es/date-picker/locale/ru_RU';
 import { Post, sendPostResult } from '../../../models/Post/types';
-import { addPost, setSelectedPostId } from '../../../stores/postsSlice';
+import { addPost, addScheduledPost, setSelectedPostId } from '../../../stores/postsSlice';
 import { EmojiStyle } from 'emoji-picker-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -56,10 +56,6 @@ const CreatePostDialog: FC = () => {
       errors.push(postTextError);
     }
 
-    if (!selectedDate) {
-      setSelectedDate(dayjs());
-    }
-
     // Валидация выбранных платформ
     const platformsError = validateNotEmptyArray(selectedPlatforms);
     if (platformsError !== null) {
@@ -71,23 +67,32 @@ const CreatePostDialog: FC = () => {
       setValidationErrors(errors);
       return;
     }
-
-    // Если ошибок нет, сбрасываем их и вызываем onOk
     setValidationErrors([]);
-    sendPostRequest({
+
+    // Формируем объект для отправки
+    const postPayload = {
       text: postText,
       attachments: fileIds,
-      pub_time: selectedDate?.unix() ? selectedDate.unix() : dayjs().unix(),
       platforms: selectedPlatforms,
       team_id: team_id,
-    }).then((data: sendPostResult) => {
+      pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined, // Используем pub_datetime
+    };
+
+    console.log('Отправляем пост:', postPayload);
+
+    sendPostRequest(postPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {
         if (res.post) {
-          dispatch(addPost(res.post));
+          // если у поста есть время публикации и оно в будущем, добавляем его в отложенные
+          if (res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date()) {
+            dispatch(addScheduledPost(res.post));
+          } else {
+            dispatch(addPost(res.post));
+          }
         } else {
           console.error('Ошибка получения поста:', res);
         }
-      }); // Вот это можно будет удалить после изменения бекэнда (вместо этого добавление нового элемента)
+      });
       dispatch(setSelectedPostId(data.post_id));
     });
     dispatch(setPostStatusDialog(true));

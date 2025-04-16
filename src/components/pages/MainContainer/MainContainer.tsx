@@ -99,8 +99,11 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
           </div>
         </div>
       )}
-      {!isAuthorized && <div className={styles['loginDiv']}>Привет, го в команду, а то что как лопушок</div>}
-
+      {!isAuthorized && (
+        <div className={styles['loginDiv']}>
+          Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас
+        </div>
+      )}
       <DialogBoxSummary />
       <PostStatusDialog />
       <CreatePostDialog />
