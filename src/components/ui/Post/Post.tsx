@@ -76,9 +76,14 @@ const PostComponent: React.FC<Post> = (props: Post) => {
             <Text strong className={styles['post-name']}>
               Модератор {props.user_id}
             </Text>
-            <Text type='secondary' className={styles['post-time']}>
-              {dayjs.utc(props.created_at).format('D MMMM YYYY [в] HH:mm')}
-            </Text>
+            {!props.pub_datetime || new Date(props.pub_datetime) <= new Date() ? (
+              <Text type='secondary' className={styles['post-time']}>
+                {dayjs.utc(props.created_at).format('D MMMM YYYY [в] HH:mm')}
+              </Text>
+            ) : (
+              <div></div>
+            )}
+
             <Space size={0} split={<Divider type='vertical' />}>
               {props.platforms?.map((plat) => {
                 return getIcon(plat);

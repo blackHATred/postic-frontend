@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import styles from './styles.module.scss';
 import CommentList from '../../widgets/CommentList/CommentList';
 import PostList from '../../widgets/PostList/PostList';
-import { Breadcrumb } from 'antd';
 import PostStatusDialog from '../../widgets/PostStatusDialog/PostStatusDialog';
 import WelcomeDialog from '../../widgets/auth/WelcomeDialog';
 import LoginDialog from '../../widgets/auth/LoginDialog';
@@ -11,7 +10,6 @@ import MeDialog from '../../widgets/auth/MeDialog';
 import TeamList from '../../widgets/TeamList/TeamList';
 import TeamAddMemberDialog from '../../widgets/TeamDialog/TeamAddMemberDialog';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setScrollToPost } from '../../../stores/postsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import DialogBoxSummary from '../../widgets/SummaryDialog/SummaryDialog';
 import Sidebar from '../../ui/Sidebar/Sidebar';
@@ -30,13 +28,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
   const [activePage, setActivePage] = useState<string>('posts');
   const [, setShowCreatePostDialog] = useState(false);
 
-  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const dispatch = useAppDispatch();
-
-  const handleBreadcrumbClick = () => {
-    dispatch(setActiveTab('1'));
-    dispatch(setScrollToPost(true));
-  };
 
   const handleSidebarClick = (page: string) => {
     if (page === 'add-post') {
@@ -68,25 +60,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
                 <PostList hasMore={true} />
               </div>
             )}
-            {activeTab === '2' && (
-              <div
-                style={{
-                  display: 'flex',
-                  width: '100%',
-                  height: '100%',
-                }}
-              >
-                {selectedPostId != 0 && (
-                  <Breadcrumb className={styles['breadcrumb']}>
-                    <Breadcrumb.Item onClick={handleBreadcrumbClick} className={styles['breadcrumb-item-link']}>
-                      {'Пост #' + selectedPostId}
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item>Комментарии</Breadcrumb.Item>
-                  </Breadcrumb>
-                )}
-                <CommentList />
-              </div>
-            )}
+            {activeTab === '2' && <CommentList />}
 
             {/* Контент для элементов Sidebar */}
             {activePage === 'teams' && (

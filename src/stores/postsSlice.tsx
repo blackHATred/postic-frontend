@@ -58,13 +58,15 @@ export const postsSlice = createSlice({
     },
 
     addPost: (state, action: PayloadAction<Post>) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
+      if (!Array.isArray(state.posts)) {
+        state.posts = [];
+      }
       state.posts = [action.payload, ...state.posts];
     },
     addPosts: (state, action: PayloadAction<Post[]>) => {
+      if (!Array.isArray(state.posts)) {
+        state.posts = [];
+      }
       state.posts = [...action.payload, ...state.posts];
     },
 

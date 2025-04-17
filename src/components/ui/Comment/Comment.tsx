@@ -67,25 +67,11 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
           </div>
 
           <div>
-            <Text underline type='secondary' style={{ marginTop: 'auto', marginBottom: 'auto' }} onClick={handlePostClick}>
-              Пост: {post_union_id}
+            <Text type='secondary' style={{ marginTop: 'auto', marginBottom: 'auto' }} onClick={handlePostClick}>
+              К <a>посту</a>
             </Text>
           </div>
         </div>
-
-        {/* Условный для replyToUrl 
-        
-                {replyToUrl && (
-          <div className={styles["comment-reply-to"]}>
-            <Text type="secondary">
-              смотрите{" "}
-              <a href={replyToUrl} target="_blank" rel="noopener noreferrer">
-                сообщение
-              </a>
-            </Text>
-          </div>
-        )}
-        */}
       </div>
 
       <div className={styles['comment-content']}>

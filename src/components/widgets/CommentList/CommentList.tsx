@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Empty, Typography } from 'antd';
+import { Breadcrumb, Empty, Typography } from 'antd';
 import CommentComponent from '../../ui/Comment/Comment';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -8,6 +8,8 @@ import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
 import { getComment, getComments } from '../../../api/api';
 import AuthenticatedSSE from '../../../api/SSE';
 import { getSseUrl } from '../../../constants/appConfig';
+import { setActiveTab } from '../../../stores/basePageDialogsSlice';
+import { setScrollToPost } from '../../../stores/postsSlice';
 
 const PureSSE = React.memo(AuthenticatedSSE);
 
@@ -40,14 +42,36 @@ const CommentList: React.FC = () => {
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
     console.log(last_date);
-    if (filteredComments.length < requestSize)
-      getComments(selectedteamid, union_id, requestSize, last_date).then((val) => {
-        if (val.comments) dispatch(addComments(val.comments));
-      });
+
+    if (filteredComments.length < requestSize) {
+      getComments(selectedteamid, union_id, requestSize, last_date)
+        .then((val) => {
+          if (val.comments) {
+            dispatch(addComments(val.comments));
+          }
+        })
+        .catch((error) => {
+          console.error('Ошибка при загрузке комментариев:', error.response?.data || error.message);
+        });
+    }
   }, []);
+
+  const handleBreadcrumbClick = () => {
+    dispatch(setActiveTab('1'));
+    dispatch(setScrollToPost(true));
+  };
 
   return (
     <div className={styles.commentListContainer}>
+      {selectedPostId != 0 && (
+        <Breadcrumb className={styles['breadcrumb']}>
+          <Breadcrumb.Item onClick={handleBreadcrumbClick} className={styles['breadcrumb-item-link']}>
+            <a>{'Пост #' + selectedPostId}</a>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>Комментарии</Breadcrumb.Item>
+        </Breadcrumb>
+      )}
+
       {/* SSE подключение только когда активна вкладка комментариев */}
       {activeTab === '2' && <PureSSE url={url} onMessage={newComment} />}
 

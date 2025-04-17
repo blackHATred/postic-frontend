@@ -29,7 +29,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isA
     },
     {
       key: '2',
-      label: 'Комментарии',
+      label: 'Все комментарии',
     },
   ];
 

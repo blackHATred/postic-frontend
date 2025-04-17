@@ -16,7 +16,7 @@ const MeDialog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const isOpen = useAppSelector((state) => state.basePageDialogs.personalInfoDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
-  const team_id = useAppSelector((state) => state.teams.selectedTeamId);
+  const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {
     setLoading(true);

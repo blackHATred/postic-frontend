@@ -161,7 +161,6 @@ export const getComments = async (selectedteamid: number, union_id: number, limi
   } catch (error) {
     if (isAxiosError(error)) {
       console.error('Ошибка при получении комментариев:', error.response?.data || error.message);
-      alert('Не удалось загрузить комментарии. Попробуйте позже.');
     } else {
       console.error('Неизвестная ошибка:', error);
     }

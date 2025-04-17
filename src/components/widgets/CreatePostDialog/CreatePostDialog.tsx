@@ -92,6 +92,10 @@ const CreatePostDialog: FC = () => {
         } else {
           console.error('Ошибка получения поста:', res);
         }
+        setPostText('');
+        setSelectedPlatforms([]);
+        setSelectedDate(null);
+        setValidationErrors([]);
       });
       dispatch(setSelectedPostId(data.post_id));
     });

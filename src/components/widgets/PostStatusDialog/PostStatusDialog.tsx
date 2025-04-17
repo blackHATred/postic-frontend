@@ -20,7 +20,7 @@ const PostStatusDialog: FC = () => {
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const isOpen = useAppSelector((state) => state.basePageDialogs.postStatusDialog.isOpen);
   const selectedPlatforms = useAppSelector((state) =>
-    state.posts.posts ? state.posts.posts.find((post) => post.id === postId)?.platforms : undefined,
+    Array.isArray(state.posts.posts) ? state.posts.posts.find((post) => post.id === postId)?.platforms : undefined,
   );
 
   const getIcon = (platform: string) => {
