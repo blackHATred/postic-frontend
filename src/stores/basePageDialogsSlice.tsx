@@ -84,7 +84,9 @@ export const basePageDialogsSlice = createSlice({
       state.createPostDialog.files.push(action.payload);
     },
     removeFile: (state, action: PayloadAction<{ file: any }>) => {
-      state.createPostDialog.files = state.createPostDialog.files.filter((f) => f.file.uid !== action.payload.file.uid);
+      state.createPostDialog.files = state.createPostDialog.files.filter(
+        (f) => f.file.uid !== action.payload.file.uid,
+      );
     },
   },
 });

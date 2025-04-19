@@ -42,13 +42,33 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
   withPopover = false,
 }) => {
   return withPopover ? (
-    <Popover placement='bottom' content={<div className={styles['popover-content']}>{popoverContent}</div>} trigger='hover'>
-      <Button type={type} icon={icon} color={color} variant={variant} onClick={onButtonClick} size={size} className={styles['blueButton']}>
+    <Popover
+      placement='bottom'
+      content={<div className={styles['popover-content']}>{popoverContent}</div>}
+      trigger='hover'
+    >
+      <Button
+        type={type}
+        icon={icon}
+        color={color}
+        variant={variant}
+        onClick={onButtonClick}
+        size={size}
+        className={styles['blueButton']}
+      >
         {text}
       </Button>
     </Popover>
   ) : (
-    <Button type={type} icon={icon} color={color} variant={variant} onClick={onButtonClick} size={size} className={styles['blueButton']}>
+    <Button
+      type={type}
+      icon={icon}
+      color={color}
+      variant={variant}
+      onClick={onButtonClick}
+      size={size}
+      className={styles['blueButton']}
+    >
       {text}
     </Button>
   );

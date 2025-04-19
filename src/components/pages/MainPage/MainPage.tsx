@@ -75,7 +75,11 @@ const MainPage: React.FC = () => {
 
   return (
     <div className={styles['main-page']}>
-      <ButtonHeader isAuthorized={isAuthorized} activeTab={activeTab} onTabChange={handleTabChange} />
+      <ButtonHeader
+        isAuthorized={isAuthorized}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
 
       <MainContainer isAuthorized={isAuthorized} />
     </div>

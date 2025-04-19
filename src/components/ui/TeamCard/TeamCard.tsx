@@ -38,7 +38,9 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   useEffect(() => {
     const currentUserId = parseInt(cookies.session || '0');
-    const userMember = team_members.find((member) => String(member.user_id) === String(currentUserId));
+    const userMember = team_members.find(
+      (member) => String(member.user_id) === String(currentUserId),
+    );
     const isAdmin = userMember?.roles.includes('admin') || false;
 
     setIsUserAdmin(isAdmin);
@@ -203,7 +205,14 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
           </div>
         </div>
         <div className={styles['post-header-buttons']}>
-          {isUserAdmin && <ClickableButton type='text' variant='solid' icon={<EditOutlined />} onButtonClick={handleRename} />}
+          {isUserAdmin && (
+            <ClickableButton
+              type='text'
+              variant='solid'
+              icon={<EditOutlined />}
+              onButtonClick={handleRename}
+            />
+          )}
           <ClickableButton
             text='Покинуть команду'
             type='primary'
@@ -213,7 +222,12 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
             onButtonClick={handleKick}
           />
           {isUserAdmin && (
-            <ClickableButton text='Добавить участника' icon={<PlusOutlined />} color='primary' onButtonClick={handleAddMember} />
+            <ClickableButton
+              text='Добавить участника'
+              icon={<PlusOutlined />}
+              color='primary'
+              onButtonClick={handleAddMember}
+            />
           )}
         </div>
       </div>

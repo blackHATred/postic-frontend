@@ -37,7 +37,9 @@ const NotificationManager: React.FC<PropsWithChildren> = (props: PropsWithChildr
   return (
     <>
       {contextHolder}
-      <NotificationContext.Provider value={{ createNotification: openNotification }}>{props.children}</NotificationContext.Provider>
+      <NotificationContext.Provider value={{ createNotification: openNotification }}>
+        {props.children}
+      </NotificationContext.Provider>
     </>
   );
 };

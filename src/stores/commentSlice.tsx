@@ -35,7 +35,10 @@ export const commentsSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      if (state.comments.comments && !state.comments.comments.some((el) => el.id === action.payload.id)) {
+      if (
+        state.comments.comments &&
+        !state.comments.comments.some((el) => el.id === action.payload.id)
+      ) {
         state.comments.comments = [action.payload, ...state.comments.comments];
       } else {
         state.comments.comments = [action.payload];
@@ -59,7 +62,8 @@ export const commentsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { addComment, addComments, setComments, setAnswerDialog, setSelectedComment } = commentsSlice.actions;
+export const { addComment, addComments, setComments, setAnswerDialog, setSelectedComment } =
+  commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;
 

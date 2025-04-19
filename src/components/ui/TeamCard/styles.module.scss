@@ -6,15 +6,19 @@
   padding: 16px;
   margin-bottom: 16px;
   background-color: $container-color;
-  width: 768px;
+  width: 668px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: $border-color;
+  border-radius: $border-radius;
 }
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 7px;
+}
+
+:global(.ant-list .ant-list-item) {
+  padding: 0 !important;
 }
 
 .post-header-info {

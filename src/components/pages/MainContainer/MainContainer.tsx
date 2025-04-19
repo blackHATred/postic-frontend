@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './styles.module.scss';
 import CommentList from '../../widgets/CommentList/CommentList';
 import PostList from '../../widgets/PostList/PostList';
@@ -18,6 +18,8 @@ import TeamEditMemberDialog from '../../widgets/TeamDialog/TeamEditMemberDialog'
 import CreatePostDialog from '../../widgets/CreatePostDialog/CreatePostDialog';
 import TeamRenameDialog from '../../widgets/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../widgets/AnswerDialog/AnswerDialog';
+import SideMenu from '../../ui/SideMenu/SideMenu';
+import { setSelectedPostId } from '../../../stores/postsSlice';
 
 interface MainContainerProps {
   isAuthorized: boolean;
@@ -29,28 +31,19 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
   const [, setShowCreatePostDialog] = useState(false);
 
   const dispatch = useAppDispatch();
-
-  const handleSidebarClick = (page: string) => {
-    if (page === 'add-post') {
-      setShowCreatePostDialog(true); // Открываем модалку "Добавить пост"
-    } else {
-      setActivePage(page); // Устанавливаем активную страницу
-      dispatch(setActiveTab('')); // Сбрасываем активную вкладку хедера при переключении на страницу сайдбара
-    }
+  const handleSidebarClick = (key: string) => {
+    dispatch(setActiveTab(key));
+    dispatch(setSelectedPostId(0));
   };
-
-  useEffect(() => {
-    if (activeTab != '') {
-      setActivePage('');
-    }
-  }, [activeTab]);
 
   return (
     <div className={styles['main-container']}>
       {isAuthorized && (
         <div className={styles['layout']}>
           {/* Навигационная панель (Sidebar) */}
-          <Sidebar setActivePage={handleSidebarClick} />
+          <div className={styles['left-sidebar']}>
+            <Sidebar />
+          </div>
 
           {/* Основной контент */}
           <div className={styles['content']}>
@@ -62,20 +55,21 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
             )}
             {activeTab === '2' && <CommentList />}
 
-            {/* Контент для элементов Sidebar */}
-            {activePage === 'teams' && (
+            {activeTab === '3' && (
               <div className={styles['content']}>
                 <TeamList />
               </div>
             )}
-
-            {/* Другие страницы Sidebar могут быть добавлены здесь */}
+          </div>
+          <div className={styles['right-sidebar']}>
+            <SideMenu setActivePage={handleSidebarClick} />
           </div>
         </div>
       )}
       {!isAuthorized && (
         <div className={styles['loginDiv']}>
-          Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас
+          Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он
+          пригласил вас
         </div>
       )}
       <DialogBoxSummary />

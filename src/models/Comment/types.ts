@@ -5,6 +5,7 @@ export interface Comments {
 export interface Comment {
   id: number;
   post_union_id: number;
+  full_name: string;
   platform: string;
   comment_id: number;
   user_id: number;
@@ -69,6 +70,7 @@ export const mockComments: Comments = {
       comment_id: 1001,
       user_id: 501,
       username: 'user1',
+      full_name: 'User One',
       text: 'This is a mock comment for post 101.',
       created_at: '2025-04-12T10:00:00',
       attachments: [
@@ -95,6 +97,7 @@ export const mockComments: Comments = {
       comment_id: 1002,
       user_id: 502,
       username: 'user2',
+      full_name: 'User Two',
       text: 'Another mock comment for post 102.',
       created_at: '2025-04-12T11:00:00',
       attachments: [
@@ -114,18 +117,8 @@ export const mockComments: Comments = {
       comment_id: 1003,
       user_id: 503,
       username: 'user3',
+      full_name: 'User Three',
       text: 'Mock comment without attachments.',
-      created_at: '2025-04-12T12:00:00',
-      attachments: [],
-    },
-    {
-      id: 3,
-      post_union_id: 103,
-      platform: 'Instagram',
-      comment_id: 1003,
-      user_id: 503,
-      username: 'user3',
-      text: '',
       created_at: '2025-04-12T12:00:00',
       attachments: [],
     },

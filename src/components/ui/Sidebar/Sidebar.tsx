@@ -1,45 +1,46 @@
-// ui/Sidebar/Sidebar.tsx
 import React from 'react';
 import styles from './styles.module.scss';
-import { PlusOutlined, TeamOutlined } from '@ant-design/icons';
+import { PlusOutlined, TeamOutlined, MessageOutlined, CommentOutlined } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
-import { useAppDispatch } from '../../../stores/hooks';
-import { setCreateTeamDialog, setTeams } from '../../../stores/teamSlice';
-import { MyTeams } from '../../../api/teamApi';
-import { Team } from '../../../models/Team/types';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { Switch, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
+import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 
-interface SidebarProps {
-  setActivePage: (page: string) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
+const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
 
-  const handleTeamsClick = () => {
-    setActivePage('teams');
-    MyTeams()
-      .then((res: { teams: Team[] }) => {
-        if (res.teams) {
-          dispatch(setTeams(res.teams));
-        }
-      })
-      .catch(() => {
-        console.log('Error getting teams');
-      });
+  const handleTabChange = (key: string) => {
+    dispatch(setActiveTab(key));
   };
 
   const handleSettingsMode = (checked: boolean) => {
-    if (checked) {
-      dispatch(setHelpMode(true));
-    } else {
-      dispatch(setHelpMode(false));
-    }
+    dispatch(setHelpMode(checked));
   };
 
   return (
     <div className={styles['sidebar']}>
+      <div className={`${styles['sidebar-options']} ${activeTab === '1' ? styles['active'] : ''}`}>
+        <ClickableButton
+          type='text'
+          text={'Посты'}
+          icon={<MessageOutlined className={styles['icon-primary']} />}
+          onButtonClick={() => handleTabChange('1')}
+        />
+      </div>
+      <div className={`${styles['sidebar-options']} ${activeTab === '2' ? styles['active'] : ''}`}>
+        <ClickableButton
+          type='text'
+          text={'Все комментарии'}
+          icon={<CommentOutlined className={styles['icon-primary']} />}
+          onButtonClick={() => handleTabChange('2')}
+        />
+      </div>
+
+      <div className={styles['sidebar-divider']}></div>
+
       <div className={styles['sidebar-options']}>
         <ClickableButton
           type='text'
@@ -48,28 +49,18 @@ const Sidebar: React.FC<SidebarProps> = ({ setActivePage }) => {
           onButtonClick={() => dispatch(setCreateTeamDialog(true))}
         />
       </div>
-      <div className={styles['sidebar-options']} onClick={() => setActivePage('teams')}>
+      <div className={styles['sidebar-options']} onClick={() => setActiveTab('3')}>
         <ClickableButton
           type='text'
           text={'Команды'}
           icon={<TeamOutlined className={styles['icon-primary']} />}
-          onButtonClick={handleTeamsClick}
+          onButtonClick={() => handleTabChange('3')}
         />
       </div>
       <div className={styles['sidebar-option-mode']}>
         <Switch size='default' onChange={(checked) => handleSettingsMode(checked)} />
         <Typography.Text> Подсказки </Typography.Text>
       </div>
-      {/*
-      <div className={styles["sidebar-options"]}>
-        <ClickableButton
-          type="text"
-          text={"Секрет"}
-          icon={<KeyOutlined className={styles["icon-primary"]} />}
-          onButtonClick={() => dispatch(setSecretTeamDialog(true))}
-        />
-      </div>
-      */}
     </div>
   );
 };

@@ -3,7 +3,12 @@ import { Divider, Space, Typography, Image, Collapse, Carousel } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
 import ClickableButton from '../Button/Button';
-import Icon, { CommentOutlined, DeleteOutlined, EditOutlined, PaperClipOutlined } from '@ant-design/icons';
+import Icon, {
+  CommentOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PaperClipOutlined,
+} from '@ant-design/icons';
 import './selected_style.css';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -36,8 +41,12 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
-  const attach_files = props.attachments ? props.attachments.filter((el) => el.file_type != 'photo') : [];
-  const attach_images = props.attachments ? props.attachments.filter((el) => el.file_type === 'photo') : [];
+  const attach_files = props.attachments
+    ? props.attachments.filter((el) => el.file_type != 'photo')
+    : [];
+  const attach_images = props.attachments
+    ? props.attachments.filter((el) => el.file_type === 'photo')
+    : [];
   const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
 
@@ -50,7 +59,8 @@ const PostComponent: React.FC<Post> = (props: Post) => {
       refer.current.className += ' selected';
       setTimeout(() => {
         dispatch(setSelectedPostId(0));
-        if (refer.current) refer.current.className = refer.current.className.replace(' selected', '');
+        if (refer.current)
+          refer.current.className = refer.current.className.replace(' selected', '');
       }, 3000);
     }
   };
@@ -113,12 +123,19 @@ const PostComponent: React.FC<Post> = (props: Post) => {
                   popoverContent={'Получить краткий анализ комментариев'}
                 />
               ) : (
-                <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
+                <ClickableButton
+                  text='Суммаризация'
+                  variant='dashed'
+                  color='primary'
+                  onButtonClick={onSummaryClick}
+                />
               )}
             </>
           )}
           {props.pub_datetime && new Date(props.pub_datetime) > new Date() && (
-            <Text type='secondary'>Будет опубликовано {dayjs(props.pub_datetime).format('D MMMM YYYY [в] HH:mm')}</Text>
+            <Text type='secondary'>
+              Будет опубликовано {dayjs(props.pub_datetime).format('D MMMM YYYY [в] HH:mm')}
+            </Text>
           )}
         </div>
       </div>
@@ -159,8 +176,18 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           )}
         </div>
         <div className={styles['post-content-buttons']}>
-          <ClickableButton text='Редактировать' variant='outlined' color='primary' icon={<EditOutlined />} />
-          <ClickableButton text='Удалить' variant='outlined' color='danger' icon={<DeleteOutlined />} />
+          <ClickableButton
+            text='Редактировать'
+            variant='outlined'
+            color='primary'
+            icon={<EditOutlined />}
+          />
+          <ClickableButton
+            text='Удалить'
+            variant='outlined'
+            color='danger'
+            icon={<DeleteOutlined />}
+          />
         </div>
       </div>
     </div>

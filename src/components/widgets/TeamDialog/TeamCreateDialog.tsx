@@ -54,7 +54,11 @@ const TeamCreateDialog: React.FC = () => {
 
         dispatch(addTeam(createdTeam));
 
-        notificationManager.createNotification('success', 'Команда создана', `Команда "${teamName}" успешно создана`);
+        notificationManager.createNotification(
+          'success',
+          'Команда создана',
+          `Команда "${teamName}" успешно создана`,
+        );
 
         dispatch(setCreateTeamDialog(false));
 
@@ -62,7 +66,11 @@ const TeamCreateDialog: React.FC = () => {
         setTeamName('');
       })
       .catch((error) => {
-        notificationManager.createNotification('error', 'Ошибка создания команды', error.message || 'Не удалось создать команду');
+        notificationManager.createNotification(
+          'error',
+          'Ошибка создания команды',
+          error.message || 'Не удалось создать команду',
+        );
       });
     updateTeamList();
   };
@@ -99,7 +107,11 @@ const TeamCreateDialog: React.FC = () => {
             ]}
             labelCol={{ span: 24 }}
           >
-            <Input placeholder='Введите название команды' value={teamName} onChange={(e) => setTeamName(e.target.value)} />
+            <Input
+              placeholder='Введите название команды'
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+            />
           </Form.Item>
         </Form>
       </div>

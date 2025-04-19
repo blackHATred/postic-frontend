@@ -34,17 +34,25 @@ export const Rename = async (request: RenameTeamRequest): Promise<string> => {
 };
 
 export const TeamCreate = async (request: TeamCreateRequest): Promise<TeamCreateResponse> => {
-  const response = await axiosInstance.post<TeamCreateResponse>(`${config.api.baseURL}${routes.teams()}/create`, request, {
-    withCredentials: true,
-  });
+  const response = await axiosInstance.post<TeamCreateResponse>(
+    `${config.api.baseURL}${routes.teams()}/create`,
+    request,
+    {
+      withCredentials: true,
+    },
+  );
   return response.data;
 };
 
 export const Invite = async (userRole: TeamUserRole): Promise<string> => {
   try {
-    const response = await axiosInstance.post<string>(`${config.api.baseURL}${routes.teams()}/invite`, userRole, {
-      withCredentials: true,
-    });
+    const response = await axiosInstance.post<string>(
+      `${config.api.baseURL}${routes.teams()}/invite`,
+      userRole,
+      {
+        withCredentials: true,
+      },
+    );
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       return error.response.data.error || 'Неизвестная ошибка';
@@ -57,9 +65,13 @@ export const Invite = async (userRole: TeamUserRole): Promise<string> => {
 
 export const UpdateRole = async (userRole: TeamUserRole): Promise<string> => {
   try {
-    const response = await axiosInstance.put<string>(`${config.api.baseURL}${routes.teams()}/roles`, userRole, {
-      withCredentials: true,
-    });
+    const response = await axiosInstance.put<string>(
+      `${config.api.baseURL}${routes.teams()}/roles`,
+      userRole,
+      {
+        withCredentials: true,
+      },
+    );
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       return error.response.data.error || 'Неизвестная ошибка';
@@ -71,16 +83,23 @@ export const UpdateRole = async (userRole: TeamUserRole): Promise<string> => {
 };
 
 export const Kick = async (user: KickUserRequest): Promise<string> => {
-  const response = await axiosInstance.post<string>(`${config.api.baseURL}${routes.teams()}/kick`, user, {
-    withCredentials: true,
-  });
+  const response = await axiosInstance.post<string>(
+    `${config.api.baseURL}${routes.teams()}/kick`,
+    user,
+    {
+      withCredentials: true,
+    },
+  );
   return response.data;
 };
 
 export const Secret = async (team_id: number): Promise<MeSecretInfo> => {
-  const response = await axiosInstance.get<MeSecretInfo>(`${config.api.baseURL}${routes.teams()}/secret`, {
-    params: { team_id },
-    withCredentials: true,
-  });
+  const response = await axiosInstance.get<MeSecretInfo>(
+    `${config.api.baseURL}${routes.teams()}/secret`,
+    {
+      params: { team_id },
+      withCredentials: true,
+    },
+  );
   return response.data;
 };

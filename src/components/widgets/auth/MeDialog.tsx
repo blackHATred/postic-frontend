@@ -8,6 +8,10 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 import { Secret } from '../../../api/teamApi';
 import { MeSecretInfo } from '../../../models/Team/types';
+import { Typography } from 'antd';
+import styles from './styles.module.scss';
+
+const { Text } = Typography;
 
 const MeDialog: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -63,8 +67,22 @@ const MeDialog: React.FC = () => {
       isOpen={isOpen}
     >
       <BlueDashedTextBox isLoading={loading}>
-        <div>Ваш секретный ключ: {secretKey}</div>
-        <div>Командный секретный ключ: {secretTeamKey}</div>
+        <div className={styles['secret-text']}>
+          <div>
+            <Text strong>Ваш секретный ключ:</Text>
+          </div>
+          <div className={styles['secret-text-key']}>
+            <Text copyable>{secretKey}</Text>
+          </div>
+        </div>
+        <div className={styles['secret-text']}>
+          <div>
+            <Text strong>Командный секретный ключ:</Text>
+          </div>
+          <div className={styles['secret-text-key']}>
+            <Text copyable> {secretTeamKey}</Text>
+          </div>
+        </div>
       </BlueDashedTextBox>
     </DialogBox>
   );

@@ -45,7 +45,11 @@ const TeamRenameDialog: React.FC = () => {
     };
     Rename(renameRequest)
       .then((response) => {
-        notificationManager.createNotification('success', 'Команда переименована', `Команда "${teamName}" успешно переименована`);
+        notificationManager.createNotification(
+          'success',
+          'Команда переименована',
+          `Команда "${teamName}" успешно переименована`,
+        );
 
         dispatch(setRenameTeamDialog(false));
 
@@ -53,7 +57,11 @@ const TeamRenameDialog: React.FC = () => {
         setTeamName('');
       })
       .catch((error) => {
-        notificationManager.createNotification('error', 'Ошибка создания команды', error.message || 'Не удалось создать команду');
+        notificationManager.createNotification(
+          'error',
+          'Ошибка создания команды',
+          error.message || 'Не удалось создать команду',
+        );
       });
     updateTeamList();
   };

@@ -8,7 +8,9 @@ export interface BlueDashedTextBoxProps {
   isLoading: boolean;
 }
 
-const BlueDashedTextBox: FC<PropsWithChildren<BlueDashedTextBoxProps>> = (props: PropsWithChildren<BlueDashedTextBoxProps>) => {
+const BlueDashedTextBox: FC<PropsWithChildren<BlueDashedTextBoxProps>> = (
+  props: PropsWithChildren<BlueDashedTextBoxProps>,
+) => {
   const BackgroundStyle: React.CSSProperties = {
     background: blue[0],
     borderStyle: 'dashed',

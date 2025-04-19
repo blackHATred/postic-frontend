@@ -54,12 +54,17 @@ const AuthenticatedSSE: React.FC<SSEOptions> = (props: SSEOptions) => {
             props.onMessage(ev);
           },
           async onopen(response) {
-            if (response.ok && response.headers.get('content-type')?.includes('text/event-stream')) {
+            if (
+              response.ok &&
+              response.headers.get('content-type')?.includes('text/event-stream')
+            ) {
               console.log('SSE подключение установлено');
               setIsConnected(true);
               setRetryCount(0);
             } else {
-              console.warn(`SSE подключение не удалось. Статус: ${response.status}, Content-Type: ${response.headers.get('content-type')}`);
+              console.warn(
+                `SSE подключение не удалось. Статус: ${response.status}, Content-Type: ${response.headers.get('content-type')}`,
+              );
               setIsConnected(false);
 
               // Планируем повторную попытку

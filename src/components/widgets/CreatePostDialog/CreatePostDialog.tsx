@@ -11,7 +11,12 @@ import { Dayjs } from 'dayjs';
 import Picker from 'emoji-picker-react';
 import { getPost, sendPostRequest } from '../../../api/api';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { addFile, removeFile, setCreatePostDialog, setPostStatusDialog } from '../../../stores/basePageDialogsSlice';
+import {
+  addFile,
+  removeFile,
+  setCreatePostDialog,
+  setPostStatusDialog,
+} from '../../../stores/basePageDialogsSlice';
 import ru from 'antd/es/date-picker/locale/ru_RU';
 import { Post, sendPostResult } from '../../../models/Post/types';
 import { addPost, addScheduledPost, setSelectedPostId } from '../../../stores/postsSlice';
@@ -43,7 +48,9 @@ const CreatePostDialog: FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files.map((file) => file.id));
+  const fileIds = useAppSelector((state) =>
+    state.basePageDialogs.createPostDialog.files.map((file) => file.id),
+  );
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const specificDate = dayjs('2025-04-15T02:40:00.258+03:00');
 
@@ -137,7 +144,12 @@ const CreatePostDialog: FC = () => {
 
       <div className={styles['post']}>
         <div className={styles['post-text']}>
-          <Input.TextArea rows={3} placeholder='Введите текст поста' value={postText} onChange={(e) => setPostText(e.target.value)} />
+          <Input.TextArea
+            rows={3}
+            placeholder='Введите текст поста'
+            value={postText}
+            onChange={(e) => setPostText(e.target.value)}
+          />
           <div className={styles['post-icons']}>
             {help_mode ? (
               <>
@@ -146,7 +158,9 @@ const CreatePostDialog: FC = () => {
                   type='default'
                   size='small'
                   withPopover={true}
-                  popoverContent={'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'}
+                  popoverContent={
+                    'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
+                  }
                 />
                 <ClickableButton
                   icon={<ThunderboltOutlined />}
@@ -173,7 +187,11 @@ const CreatePostDialog: FC = () => {
         </div>
         {showEmojiPicker && (
           <div className={styles.emojiPicker}>
-            <Picker onEmojiClick={onEmojiClick} lazyLoadEmojis={true} emojiStyle={EmojiStyle.APPLE} />
+            <Picker
+              onEmojiClick={onEmojiClick}
+              lazyLoadEmojis={true}
+              emojiStyle={EmojiStyle.APPLE}
+            />
           </div>
         )}
         <Select

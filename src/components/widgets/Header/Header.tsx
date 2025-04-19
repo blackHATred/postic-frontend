@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import ClickableButton from '../../ui/Button/Button';
 import { BellOutlined, PlusOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
-import { Image, Tabs, Select } from 'antd';
+import { Image, Select } from 'antd';
 import logo from '../../../styles/images/logo.png';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setCreatePostDialog, setPersonalInfoDialog, setWelcomeDialog } from '../../../stores/basePageDialogsSlice';
+import {
+  setCreatePostDialog,
+  setPersonalInfoDialog,
+  setWelcomeDialog,
+} from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
-import { useCookies } from 'react-cookie';
 interface ButtonHeaderProps {
   activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
   onTabChange?: (key: string) => void; // Сделаем необязательным
@@ -17,21 +20,7 @@ interface ButtonHeaderProps {
 const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isAuthorized }) => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
-  const [, setCookie] = useCookies(['session']);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(undefined);
-
-  const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
-
-  const tabItems = [
-    {
-      key: '1',
-      label: 'Посты',
-    },
-    {
-      key: '2',
-      label: 'Все комментарии',
-    },
-  ];
 
   const teamOptions = teams.map((team) => ({
     value: team.id.toString(),
@@ -55,33 +44,12 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isA
   const handleChange = (value: string) => {
     setSelectedTeam(value);
     dispatch(setGlobalActiveTeamId(Number(value)));
-    console.log('Global', team_id, value);
-  };
-
-  useEffect(() => {
-    console.log('Updated team_id:', team_id);
-  }, [team_id]);
-
-  const setCookiesUserID = () => {
-    setCookie(
-      'session',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3Mzc1NTB9.gbZ3hbX63rBsokzIbKjZjYb3rz53PSKQEt9e9mASCvM',
-      { path: '/' },
-    );
-    console.log("Cookie 'session' set to 1");
   };
 
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
         <Image src={logo} alt='logo' height={40} width={40} preview={false} />
-
-        {/* Рендерим вкладки только для авторизованных пользователей */}
-        {isAuthorized && (
-          <div className={styles.tabs}>
-            <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
-          </div>
-        )}
 
         <div className={styles.headerIcons}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -98,11 +66,23 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isA
               options={teamOptions}
             />
           </div>
-          <ClickableButton icon={<PlusOutlined />} type='default' onButtonClick={() => dispatch(setCreatePostDialog(true))} />
+          <ClickableButton
+            icon={<PlusOutlined />}
+            type='default'
+            onButtonClick={() => dispatch(setCreatePostDialog(true))}
+          />
           <ClickableButton icon={<BellOutlined />} type='default' onButtonClick={() => {}} />
-          <ClickableButton icon={<UserOutlined />} type='default' onButtonClick={() => dispatch(setWelcomeDialog(true))} />
+          <ClickableButton
+            icon={<UserOutlined />}
+            type='default'
+            onButtonClick={() => dispatch(setWelcomeDialog(true))}
+          />
 
-          <ClickableButton type='default' text='me' onButtonClick={() => dispatch(setPersonalInfoDialog(true))} />
+          <ClickableButton
+            type='default'
+            text='me'
+            onButtonClick={() => dispatch(setPersonalInfoDialog(true))}
+          />
         </div>
       </div>
     </div>

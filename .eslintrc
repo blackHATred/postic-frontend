@@ -5,6 +5,7 @@
   },
   "extends": [
     "eslint:recommended",
+    "prettier",
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
@@ -13,14 +14,14 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "unused-imports"],
+  "plugins": ["@typescript-eslint", "unused-imports", "prettier"],
   "rules": {
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
       "warn",
       { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
     ],
-    "prettier/prettier": "warn",
+    "prettier/prettier": "error",
     "@typescript-eslint/no-empty-function": "off",
     "no-empty": "off"
   }

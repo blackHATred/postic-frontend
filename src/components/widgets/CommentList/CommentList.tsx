@@ -65,7 +65,10 @@ const CommentList: React.FC = () => {
     <div className={styles.commentListContainer}>
       {selectedPostId != 0 && (
         <Breadcrumb className={styles['breadcrumb']}>
-          <Breadcrumb.Item onClick={handleBreadcrumbClick} className={styles['breadcrumb-item-link']}>
+          <Breadcrumb.Item
+            onClick={handleBreadcrumbClick}
+            className={styles['breadcrumb-item-link']}
+          >
             <a>{'Пост #' + selectedPostId}</a>
           </Breadcrumb.Item>
           <Breadcrumb.Item>Комментарии</Breadcrumb.Item>
