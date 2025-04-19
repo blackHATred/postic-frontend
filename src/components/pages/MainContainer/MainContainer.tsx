@@ -18,15 +18,13 @@ import TeamEditMemberDialog from '../../widgets/TeamDialog/TeamEditMemberDialog'
 import CreatePostDialog from '../../widgets/CreatePostDialog/CreatePostDialog';
 import TeamRenameDialog from '../../widgets/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../widgets/AnswerDialog/AnswerDialog';
-
-interface MainContainerProps {
-  isAuthorized: boolean;
-}
-
-const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
+import { Alert } from 'antd';
+const MainContainer: React.FC = () => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const [activePage, setActivePage] = useState<string>('posts');
   const [, setShowCreatePostDialog] = useState(false);
+  const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
 
   const dispatch = useAppDispatch();
 
@@ -47,7 +45,7 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
 
   return (
     <div className={styles['main-container']}>
-      {isAuthorized && (
+      {isAuthorized == 'authorized' && (
         <div className={styles['layout']}>
           {/* Навигационная панель (Sidebar) */}
           <Sidebar setActivePage={handleSidebarClick} />
@@ -73,10 +71,15 @@ const MainContainer: React.FC<MainContainerProps> = ({ isAuthorized }) => {
           </div>
         </div>
       )}
-      {!isAuthorized && (
-        <div className={styles['loginDiv']}>
-          Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас
-        </div>
+      {isAuthorized == 'not_authorized' && (
+        <Alert className={styles['loginDiv']} message='Пожалуйста зарегестрируйтесь или войдите в аккаунт' type='info' />
+      )}
+      {isAuthorized == 'authorized' && selectedTeam == 0 && (
+        <Alert
+          className={styles['loginDiv']}
+          message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
+          type='info'
+        />
       )}
       <DialogBoxSummary />
       <PostStatusDialog />

@@ -11,7 +11,7 @@ import { Dayjs } from 'dayjs';
 import Picker from 'emoji-picker-react';
 import { getPost, sendPostRequest } from '../../../api/api';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { addFile, removeFile, setCreatePostDialog, setPostStatusDialog } from '../../../stores/basePageDialogsSlice';
+import { addFile, clearFiles, removeFile, setCreatePostDialog, setPostStatusDialog } from '../../../stores/basePageDialogsSlice';
 import ru from 'antd/es/date-picker/locale/ru_RU';
 import { Post, sendPostResult } from '../../../models/Post/types';
 import { addPost, addScheduledPost, setSelectedPostId } from '../../../stores/postsSlice';
@@ -27,7 +27,7 @@ const buddhistLocale: typeof ru = {
   ...ru,
   lang: {
     ...ru.lang,
-    fieldDateTimeFormat: 'DD-MM-YYYY HH:mm:ss',
+    fieldDateTimeFormat: 'DD-MM-YYYY HH:mm',
     yearFormat: 'YYYY',
     cellYearFormat: 'YYYY',
   },
@@ -43,7 +43,7 @@ const CreatePostDialog: FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files.map((file) => file.id));
+  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map((file) => file.id);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const specificDate = dayjs('2025-04-15T02:40:00.258+03:00');
 
@@ -92,15 +92,22 @@ const CreatePostDialog: FC = () => {
         } else {
           console.error('Ошибка получения поста:', res);
         }
-        setPostText('');
-        setSelectedPlatforms([]);
-        setSelectedDate(null);
-        setValidationErrors([]);
+        clearFields();
       });
       dispatch(setSelectedPostId(data.post_id));
     });
     dispatch(setPostStatusDialog(true));
     dispatch(setCreatePostDialog(false));
+  };
+
+  const clearFields = () => {
+    setIsTimePickerVisible(false);
+    setPostText('');
+    setValidationErrors([]);
+    setSelectedDate(null);
+    setSelectedPlatforms([]);
+    setShowEmojiPicker(false);
+    dispatch(clearFiles());
   };
 
   const onCancel = async () => {
@@ -189,7 +196,15 @@ const CreatePostDialog: FC = () => {
         />
         <PlatformSettings selectedPlatforms={selectedPlatforms} />
         <div className={styles['post-time']}>
-          <Switch size='default' onChange={(checked) => setIsTimePickerVisible(checked)} />
+          <Switch
+            size='default'
+            onChange={(checked) => {
+              setIsTimePickerVisible(checked);
+              if (!checked) {
+                setSelectedDate(null);
+              }
+            }}
+          />
           <Text> Настроить дату и время публикации </Text>
         </div>
         {isTimePickerVisible && (
@@ -198,7 +213,7 @@ const CreatePostDialog: FC = () => {
               placeholder='Выберите дату и время'
               showTime
               locale={buddhistLocale}
-              defaultValue={selectedDate}
+              defaultValue={dayjs()}
               onChange={(date: Dayjs | null) => {
                 setSelectedDate(date);
               }}

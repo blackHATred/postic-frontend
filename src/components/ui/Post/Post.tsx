@@ -10,13 +10,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setActiveTab, setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
-import 'dayjs/locale/ru';
-import utc from 'dayjs/plugin/utc';
-import config from '../../../constants/appConfig';
 
-// часовой пояс и отображение времени
-dayjs.locale('ru');
-dayjs.extend(utc);
 const { Text } = Typography;
 
 const PostComponent: React.FC<Post> = (props: Post) => {
@@ -39,7 +33,6 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const attach_files = props.attachments ? props.attachments.filter((el) => el.file_type != 'photo') : [];
   const attach_images = props.attachments ? props.attachments.filter((el) => el.file_type === 'photo') : [];
   const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
 
   useEffect(() => {
     if (props.id === selectedPostId) setSelected();
@@ -49,7 +42,6 @@ const PostComponent: React.FC<Post> = (props: Post) => {
     if (refer.current) {
       refer.current.className += ' selected';
       setTimeout(() => {
-        dispatch(setSelectedPostId(0));
         if (refer.current) refer.current.className = refer.current.className.replace(' selected', '');
       }, 3000);
     }
@@ -76,14 +68,10 @@ const PostComponent: React.FC<Post> = (props: Post) => {
             <Text strong className={styles['post-name']}>
               Модератор {props.user_id}
             </Text>
-            {!props.pub_datetime || new Date(props.pub_datetime) <= new Date() ? (
-              <Text type='secondary' className={styles['post-time']}>
-                {dayjs.utc(props.created_at).format('D MMMM YYYY [в] HH:mm')}
-              </Text>
-            ) : (
-              <div></div>
-            )}
 
+            <Text type='secondary' className={styles['post-time']}>
+              {dayjs(props.created_at).format('DD.MM.YYYY HH:mm')}
+            </Text>
             <Space size={0} split={<Divider type='vertical' />}>
               {props.platforms?.map((plat) => {
                 return getIcon(plat);
@@ -92,34 +80,15 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           </div>
         </div>
         <div className={styles['post-header-buttons']}>
-          {(!props.pub_datetime || new Date(props.pub_datetime) <= new Date()) && (
-            <>
-              <ClickableButton
-                text='Комментарии'
-                type='link'
-                icon={<CommentOutlined />}
-                onButtonClick={() => {
-                  onCommentClick();
-                }}
-              />
-
-              {help_mode ? (
-                <ClickableButton
-                  text='Суммаризация'
-                  variant='dashed'
-                  color='primary'
-                  onButtonClick={onSummaryClick}
-                  withPopover={true}
-                  popoverContent={'Получить краткий анализ комментариев'}
-                />
-              ) : (
-                <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
-              )}
-            </>
-          )}
-          {props.pub_datetime && new Date(props.pub_datetime) > new Date() && (
-            <Text type='secondary'>Будет опубликовано {dayjs(props.pub_datetime).format('D MMMM YYYY [в] HH:mm')}</Text>
-          )}
+          <ClickableButton
+            text='Комментарии'
+            type='link'
+            icon={<CommentOutlined />}
+            onButtonClick={() => {
+              onCommentClick();
+            }}
+          />
+          <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
         </div>
       </div>
       <Divider className={styles.customDivider} />
@@ -148,7 +117,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
                     <Carousel arrows>
                       {attach_images.map((preview) => (
                         <div key={preview.id}>
-                          <Image src={`${config.api.baseURL}/upload/get/${preview.id}`} />
+                          <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
                         </div>
                       ))}
                     </Carousel>

@@ -1,5 +1,9 @@
 @import '../../../styles/variables';
 
+.logo {
+  height: 40px;
+}
+
 .headerContainer {
   display: flex;
   justify-content: center; // Центрируем содержимое
@@ -19,7 +23,7 @@
   justify-content: space-between; // Равномерное распределение
   align-items: center;
   width: 100%;
-  padding: 0 150px; // Отступы по бокам
+  padding: 0 50px; // Отступы по бокам
   margin: 0 auto; // Центрирование
 }
 
@@ -27,6 +31,10 @@
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.icon {
+  margin: 0px;
 }
 
 .tabs {

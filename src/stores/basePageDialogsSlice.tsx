@@ -86,6 +86,9 @@ export const basePageDialogsSlice = createSlice({
     removeFile: (state, action: PayloadAction<{ file: any }>) => {
       state.createPostDialog.files = state.createPostDialog.files.filter((f) => f.file.uid !== action.payload.file.uid);
     },
+    clearFiles: (state) => {
+      state.createPostDialog.files = [];
+    },
   },
 });
 
@@ -103,6 +106,7 @@ export const {
   setActiveTab,
   addFile,
   removeFile,
+  clearFiles,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;

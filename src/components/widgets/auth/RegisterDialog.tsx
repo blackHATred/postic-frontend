@@ -5,7 +5,7 @@ import BlueDashedTextBox from '../../ui/BlueDashedTextBox/BlueDashedTextBox';
 import { Register } from '../../../api/api';
 import { RegisterResult } from '../../../models/User/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
+import { setRegiserDialog } from '../../../stores/basePageDialogsSlice';
 import { useCookies } from 'react-cookie';
 
 const RegisterDialog: React.FC = () => {
@@ -38,12 +38,12 @@ const RegisterDialog: React.FC = () => {
         {
           text: 'Ok',
           onButtonClick: () => {
-            dispatch(setPersonalInfoDialog(false));
+            dispatch(setRegiserDialog(false));
           },
         },
       ]}
       onCancelClick={async () => {
-        dispatch(setPersonalInfoDialog(false));
+        dispatch(setRegiserDialog(false));
       }}
       isOpen={isOpen}
     >

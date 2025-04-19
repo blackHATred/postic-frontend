@@ -6,12 +6,10 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { addComment, addComments, getLastDate } from '../../../stores/commentSlice';
 import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
 import { getComment, getComments } from '../../../api/api';
-import AuthenticatedSSE from '../../../api/SSE';
 import { getSseUrl } from '../../../constants/appConfig';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost } from '../../../stores/postsSlice';
-
-const PureSSE = React.memo(AuthenticatedSSE);
+import { useAuthenticatedSSE } from '../../../api/newSSE';
 
 const CommentList: React.FC = () => {
   //const comments = useAppSelector(getCommentsFromStore);
@@ -30,14 +28,16 @@ const CommentList: React.FC = () => {
 
   const url = getSseUrl(selectedteamid, selectedPostId || 0);
 
-  // Обработчик новых комментариев
   const newComment = (data: any) => {
-    if (data.event == 'comment') {
-      getComment(selectedteamid, JSON.parse(data.data).comment_id).then((data) => {
+    if (data.type == 'new') {
+      getComment(selectedteamid, data.comment_id).then((data) => {
         dispatch(addComment(data.comment));
       });
     }
   };
+
+  const { isConnected, close } = useAuthenticatedSSE({ url: url, onMessage: newComment });
+  // Обработчик новых комментариев
 
   useEffect(() => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
@@ -54,6 +54,9 @@ const CommentList: React.FC = () => {
           console.error('Ошибка при загрузке комментариев:', error.response?.data || error.message);
         });
     }
+    return () => {
+      close();
+    };
   }, []);
 
   const handleBreadcrumbClick = () => {
@@ -71,9 +74,6 @@ const CommentList: React.FC = () => {
           <Breadcrumb.Item>Комментарии</Breadcrumb.Item>
         </Breadcrumb>
       )}
-
-      {/* SSE подключение только когда активна вкладка комментариев */}
-      {activeTab === '2' && <PureSSE url={url} onMessage={newComment} />}
 
       {filteredComments.length > 0 && (
         <RowVirtualizerDynamic

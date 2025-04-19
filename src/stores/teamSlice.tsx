@@ -19,6 +19,7 @@ export interface teamSliceState {
   createTeamDialog: basicDialogState;
   renameTeamDialog: basicDialogState;
   secretTeamDialog: basicDialogState;
+  authorize_status: 'not_authorized' | 'loading' | 'authorized';
 }
 
 // Define the initial state using that type
@@ -35,6 +36,7 @@ const initialState: teamSliceState = {
   createTeamDialog: { isOpen: false },
   renameTeamDialog: { isOpen: false },
   secretTeamDialog: { isOpen: false },
+  authorize_status: 'not_authorized',
 };
 
 export const teamSlice = createSlice({
@@ -89,6 +91,9 @@ export const teamSlice = createSlice({
     setSelectRoles: (state, action: PayloadAction<string[]>) => {
       state.selectRoles = action.payload;
     },
+    setAuthorized: (state, action: PayloadAction<'not_authorized' | 'loading' | 'authorized'>) => {
+      state.authorize_status = action.payload;
+    },
   },
 });
 
@@ -108,6 +113,7 @@ export const {
   setRenameTeamDialog,
   setSecretTeamDialog,
   setSelectRoles,
+  setAuthorized,
 } = teamSlice.actions;
 
 export const getTeamsFromStore = (state: RootState) => state.teams.teams;

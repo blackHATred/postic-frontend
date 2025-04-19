@@ -4,10 +4,9 @@ import styles from './styles.module.scss';
 import ClickableButton from '../Button/Button';
 import { EditOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Team } from '../../../models/Team/types';
-import { useAppDispatch } from '../../../stores/hooks';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
   setAddMemberDialog,
-  setCurrentUserId,
   setEditMemberDialog,
   setOldTeamName,
   setRenameTeamDialog,
@@ -15,8 +14,6 @@ import {
   setSelectedTeamId,
   setSelectRoles,
 } from '../../../stores/teamSlice';
-import { useCookies } from 'react-cookie';
-import { Me } from '../../../api/api';
 import { Kick } from '../../../api/teamApi';
 
 const { Text } = Typography;
@@ -32,31 +29,9 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     current: 1,
     pageSize: 10,
   });
-
   const [isUserAdmin, setIsUserAdmin] = useState(false);
-  const [cookies, setCookie] = useCookies(['session']);
 
-  useEffect(() => {
-    const currentUserId = parseInt(cookies.session || '0');
-    const userMember = team_members.find((member) => String(member.user_id) === String(currentUserId));
-    const isAdmin = userMember?.roles.includes('admin') || false;
-
-    setIsUserAdmin(isAdmin);
-  }, [team_members, cookies.session]);
-
-  const [currentUserId, setCurrentUserIdState] = useState<number | null>(null);
-
-  useEffect(() => {
-    Me()
-      .then((userData) => {
-        const userId = Number(userData.user_id);
-        setCurrentUserIdState(userId); // Сохраняем ID пользователя
-        dispatch(setCurrentUserId(userId)); // Обновляем в store
-      })
-      .catch((error) => {
-        console.error('Ошибка при получении данных пользователя:', error);
-      });
-  }, []);
+  const currentUserId = useAppSelector((state) => state.teams.currentUserId);
 
   // Проверяем, является ли текущий пользователь администратором команды
   useEffect(() => {

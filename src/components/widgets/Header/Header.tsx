@@ -1,26 +1,86 @@
 import React, { useEffect, useState } from 'react';
 import ClickableButton from '../../ui/Button/Button';
-import { BellOutlined, PlusOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  BellOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import styles from './styles.module.scss';
-import { Image, Tabs, Select } from 'antd';
-import logo from '../../../styles/images/logo.png';
+import { Tabs, Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setCreatePostDialog, setPersonalInfoDialog, setWelcomeDialog } from '../../../stores/basePageDialogsSlice';
+import { setCreatePostDialog, setLoginDialog, setRegiserDialog } from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
-import { useCookies } from 'react-cookie';
 interface ButtonHeaderProps {
   activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
   onTabChange?: (key: string) => void; // Сделаем необязательным
-  isAuthorized: boolean; // Новый проп для определения авторизации
 }
 
-const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isAuthorized }) => {
+const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange }) => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
-  const [, setCookie] = useCookies(['session']);
+  const activeTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(undefined);
+  const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
 
-  const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const items: MenuProps['items'] =
+    isAuthorized == 'not_authorized'
+      ? [
+          {
+            label: 'Вход',
+            key: 'login',
+            icon: <LoginOutlined />,
+          },
+          {
+            label: 'Регистрация',
+            key: 'register',
+            icon: <UserOutlined />,
+          },
+          {
+            label: 'Помощь',
+            key: 'help',
+            icon: <QuestionCircleOutlined />,
+            disabled: true,
+          },
+        ]
+      : [
+          {
+            label: 'Выход',
+            key: 'logout',
+            icon: <LogoutOutlined />,
+            danger: true,
+          },
+          {
+            label: 'Помощь',
+            key: 'help',
+            icon: <QuestionCircleOutlined />,
+            disabled: true,
+          },
+        ];
+
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    switch (e.key) {
+      case 'login': {
+        dispatch(setLoginDialog(true));
+        return;
+      }
+      case 'register': {
+        dispatch(setRegiserDialog(true));
+        return;
+      }
+      case 'logout': {
+        return;
+      }
+    }
+  };
+
+  const menuProps = {
+    items,
+    onClick: handleMenuClick,
+  };
 
   const tabItems = [
     {
@@ -55,54 +115,51 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange, isA
   const handleChange = (value: string) => {
     setSelectedTeam(value);
     dispatch(setGlobalActiveTeamId(Number(value)));
-    console.log('Global', team_id, value);
-  };
-
-  useEffect(() => {
-    console.log('Updated team_id:', team_id);
-  }, [team_id]);
-
-  const setCookiesUserID = () => {
-    setCookie(
-      'session',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NzU3Mzc1NTB9.gbZ3hbX63rBsokzIbKjZjYb3rz53PSKQEt9e9mASCvM',
-      { path: '/' },
-    );
-    console.log("Cookie 'session' set to 1");
   };
 
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
-        <Image src={logo} alt='logo' height={40} width={40} preview={false} />
+        <img src={'logo.png'} alt='logo' className={styles.logo} />
 
         {/* Рендерим вкладки только для авторизованных пользователей */}
-        {isAuthorized && (
+        {isAuthorized == 'authorized' && activeTeam && (
           <div className={styles.tabs}>
             <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
           </div>
         )}
 
         <div className={styles.headerIcons}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <TeamOutlined style={{ color: '#1890ff' }} />{' '}
-            <Select
-              value={selectedTeam}
-              defaultValue={teamOptions[0]?.value}
-              style={{
-                width: 150,
-                margin: 5,
-              }}
-              variant='borderless'
-              onChange={handleChange}
-              options={teamOptions}
-            />
-          </div>
-          <ClickableButton icon={<PlusOutlined />} type='default' onButtonClick={() => dispatch(setCreatePostDialog(true))} />
-          <ClickableButton icon={<BellOutlined />} type='default' onButtonClick={() => {}} />
-          <ClickableButton icon={<UserOutlined />} type='default' onButtonClick={() => dispatch(setWelcomeDialog(true))} />
-
-          <ClickableButton type='default' text='me' onButtonClick={() => dispatch(setPersonalInfoDialog(true))} />
+          {isAuthorized == 'authorized' && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TeamOutlined style={{ color: '#1890ff' }} />{' '}
+                <Select
+                  value={selectedTeam}
+                  defaultValue={teamOptions[0]?.value}
+                  style={{
+                    width: 150,
+                    margin: 5,
+                  }}
+                  variant='borderless'
+                  onChange={handleChange}
+                  options={teamOptions}
+                />
+              </div>
+              {activeTeam != 0 && (
+                <ClickableButton
+                  className={styles['icon']}
+                  icon={<PlusOutlined />}
+                  type='default'
+                  onButtonClick={() => dispatch(setCreatePostDialog(true))}
+                />
+              )}
+              <ClickableButton className={styles['icon']} icon={<BellOutlined />} type='default' onButtonClick={() => {}} />
+            </>
+          )}
+          <Dropdown menu={menuProps} placement='bottom'>
+            <Button className={styles['icon']} icon={<UserOutlined />} />
+          </Dropdown>
         </div>
       </div>
     </div>
