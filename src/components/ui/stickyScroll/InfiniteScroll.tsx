@@ -90,7 +90,10 @@ const RowVirtualizerDynamic: React.FC<coolScroll> = (props: coolScroll) => {
       scrollRef.current = undefined;
     } else {
       //new items added not to top
-      if (topRef.current && topRef.current.getBoundingClientRect().bottom <= window.innerHeight + maxElementHeight) {
+      if (
+        topRef.current &&
+        topRef.current.getBoundingClientRect().bottom <= window.innerHeight + maxElementHeight
+      ) {
         //at bottom of screen
         virtualizer.scrollToIndex(count - 1, { align: 'end' });
       }

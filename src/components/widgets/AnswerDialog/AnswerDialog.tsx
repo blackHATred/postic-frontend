@@ -133,9 +133,14 @@ const AnswerDialog: FC = () => {
           }}
         />
         <div className={styles['comment-author']}>
-          <Text strong>{selectedComment?.username ? selectedComment?.username : selectedComment?.id}</Text>
+          <Text strong>
+            {selectedComment?.username ? selectedComment?.username : selectedComment?.id}
+          </Text>
           <Text type='secondary' className={styles['comment-time']}>
-            {selectedComment?.created_at ? dayjs(selectedComment?.created_at).format('DD.MM.YYYY HH:mm') : 'Дата не указана'} | tg
+            {selectedComment?.created_at
+              ? dayjs(selectedComment?.created_at).format('DD.MM.YYYY HH:mm')
+              : 'Дата не указана'}{' '}
+            | tg
           </Text>
         </div>
       </div>
@@ -167,7 +172,12 @@ const AnswerDialog: FC = () => {
 
       <div className={styles['post']}>
         <div className={styles['post-text']}>
-          <Input.TextArea rows={3} placeholder='Введите текст ответа' value={replyText} onChange={(e) => setReplyText(e.target.value)} />
+          <Input.TextArea
+            rows={3}
+            placeholder='Введите текст ответа'
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+          />
         </div>
         {/* Отображение ошибок валидации */}
         {validationErrors.length > 0 && (

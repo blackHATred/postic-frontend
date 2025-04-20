@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './styles.module.scss';
 import CommentList from '../../widgets/CommentList/CommentList';
 import PostList from '../../widgets/PostList/PostList';
@@ -19,6 +19,7 @@ import CreatePostDialog from '../../widgets/CreatePostDialog/CreatePostDialog';
 import TeamRenameDialog from '../../widgets/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../widgets/AnswerDialog/AnswerDialog';
 import { Alert } from 'antd';
+import SideMenu from '../../ui/SideMenu/SideMenu';
 const MainContainer: React.FC = () => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const [activePage, setActivePage] = useState<string>('posts');
@@ -27,28 +28,19 @@ const MainContainer: React.FC = () => {
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
 
   const dispatch = useAppDispatch();
-
-  const handleSidebarClick = (page: string) => {
-    if (page === 'add-post') {
-      setShowCreatePostDialog(true); // Открываем модалку "Добавить пост"
-    } else {
-      setActivePage(page); // Устанавливаем активную страницу
-      dispatch(setActiveTab('')); // Сбрасываем активную вкладку хедера при переключении на страницу сайдбара
-    }
+  const handleSidebarClick = (key: string) => {
+    dispatch(setActiveTab(key));
+    dispatch(setSelectedPostId(0));
   };
-
-  useEffect(() => {
-    if (activeTab != '') {
-      setActivePage('');
-    }
-  }, [activeTab]);
 
   return (
     <div className={styles['main-container']}>
       {isAuthorized == 'authorized' && (
         <div className={styles['layout']}>
           {/* Навигационная панель (Sidebar) */}
-          <Sidebar setActivePage={handleSidebarClick} />
+          <div className={styles['left-sidebar']}>
+            <Sidebar />
+          </div>
 
           {/* Основной контент */}
           <div className={styles['content']}>
@@ -60,14 +52,14 @@ const MainContainer: React.FC = () => {
             )}
             {activeTab === '2' && <CommentList />}
 
-            {/* Контент для элементов Sidebar */}
-            {activePage === 'teams' && (
+            {activeTab === '3' && (
               <div className={styles['content']}>
                 <TeamList />
               </div>
             )}
-
-            {/* Другие страницы Sidebar могут быть добавлены здесь */}
+          </div>
+          <div className={styles['right-sidebar']}>
+            <SideMenu setActivePage={handleSidebarClick} />
           </div>
         </div>
       )}

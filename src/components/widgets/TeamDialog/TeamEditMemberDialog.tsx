@@ -118,7 +118,12 @@ const TeamEditMemberDialog: React.FC = () => {
 
       <div className={styles['form']}>
         <Form>
-          <Form.Item label='ID участника' name='vertical' rules={[{ required: true }]} labelCol={{ span: 24 }}>
+          <Form.Item
+            label='ID участника'
+            name='vertical'
+            rules={[{ required: true }]}
+            labelCol={{ span: 24 }}
+          >
             <Input
               placeholder='Введите ID участника'
               defaultValue={selectedMemberId}
@@ -137,7 +142,11 @@ const TeamEditMemberDialog: React.FC = () => {
           >
             Комментарии
           </Checkbox>
-          <Checkbox checked={permissions.posts} disabled={isAdmin} onChange={(e) => handlePermissionChange('posts', e.target.checked)}>
+          <Checkbox
+            checked={permissions.posts}
+            disabled={isAdmin}
+            onChange={(e) => handlePermissionChange('posts', e.target.checked)}
+          >
             Посты
           </Checkbox>
           <Checkbox checked={isAdmin} onChange={(e) => handleAdminChange(e.target.checked)}>

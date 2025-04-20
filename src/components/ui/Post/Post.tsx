@@ -3,7 +3,12 @@ import { Divider, Space, Typography, Image, Collapse, Carousel } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
 import ClickableButton from '../Button/Button';
-import Icon, { CommentOutlined, DeleteOutlined, EditOutlined, PaperClipOutlined } from '@ant-design/icons';
+import Icon, {
+  CommentOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PaperClipOutlined,
+} from '@ant-design/icons';
 import './selected_style.css';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -30,8 +35,12 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
-  const attach_files = props.attachments ? props.attachments.filter((el) => el.file_type != 'photo') : [];
-  const attach_images = props.attachments ? props.attachments.filter((el) => el.file_type === 'photo') : [];
+  const attach_files = props.attachments
+    ? props.attachments.filter((el) => el.file_type != 'photo')
+    : [];
+  const attach_images = props.attachments
+    ? props.attachments.filter((el) => el.file_type === 'photo')
+    : [];
   const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
 
   useEffect(() => {
@@ -42,7 +51,9 @@ const PostComponent: React.FC<Post> = (props: Post) => {
     if (refer.current) {
       refer.current.className += ' selected';
       setTimeout(() => {
-        if (refer.current) refer.current.className = refer.current.className.replace(' selected', '');
+        dispatch(setSelectedPostId(0));
+        if (refer.current)
+          refer.current.className = refer.current.className.replace(' selected', '');
       }, 3000);
     }
   };
@@ -80,15 +91,41 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           </div>
         </div>
         <div className={styles['post-header-buttons']}>
-          <ClickableButton
-            text='Комментарии'
-            type='link'
-            icon={<CommentOutlined />}
-            onButtonClick={() => {
-              onCommentClick();
-            }}
-          />
-          <ClickableButton text='Суммаризация' variant='dashed' color='primary' onButtonClick={onSummaryClick} />
+          {(!props.pub_datetime || new Date(props.pub_datetime) <= new Date()) && (
+            <>
+              <ClickableButton
+                text='Комментарии'
+                type='link'
+                icon={<CommentOutlined />}
+                onButtonClick={() => {
+                  onCommentClick();
+                }}
+              />
+
+              {help_mode ? (
+                <ClickableButton
+                  text='Суммаризация'
+                  variant='dashed'
+                  color='primary'
+                  onButtonClick={onSummaryClick}
+                  withPopover={true}
+                  popoverContent={'Получить краткий анализ комментариев'}
+                />
+              ) : (
+                <ClickableButton
+                  text='Суммаризация'
+                  variant='dashed'
+                  color='primary'
+                  onButtonClick={onSummaryClick}
+                />
+              )}
+            </>
+          )}
+          {props.pub_datetime && new Date(props.pub_datetime) > new Date() && (
+            <Text type='secondary'>
+              Будет опубликовано {dayjs(props.pub_datetime).format('D MMMM YYYY [в] HH:mm')}
+            </Text>
+          )}
         </div>
       </div>
       <Divider className={styles.customDivider} />
@@ -128,8 +165,18 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           )}
         </div>
         <div className={styles['post-content-buttons']}>
-          <ClickableButton text='Редактировать' variant='outlined' color='primary' icon={<EditOutlined />} />
-          <ClickableButton text='Удалить' variant='outlined' color='danger' icon={<DeleteOutlined />} />
+          <ClickableButton
+            text='Редактировать'
+            variant='outlined'
+            color='primary'
+            icon={<EditOutlined />}
+          />
+          <ClickableButton
+            text='Удалить'
+            variant='outlined'
+            color='danger'
+            icon={<DeleteOutlined />}
+          />
         </div>
       </div>
     </div>

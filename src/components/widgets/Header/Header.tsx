@@ -122,12 +122,6 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange }) =
       <div className={styles.headerComponents}>
         <img src={'logo.png'} alt='logo' className={styles.logo} />
 
-        {/* Рендерим вкладки только для авторизованных пользователей */}
-        {isAuthorized == 'authorized' && activeTeam && (
-          <div className={styles.tabs}>
-            <Tabs activeKey={activeTab} items={tabItems} onChange={onTabChange} />
-          </div>
-        )}
 
         <div className={styles.headerIcons}>
           {isAuthorized == 'authorized' && (

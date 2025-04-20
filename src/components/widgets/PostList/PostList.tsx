@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import styles from './styles.module.scss';
 import PostComponent from '../../ui/Post/Post';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { addPosts, getPostsStore, setPosts, setPostsScroll, setScrollToPost } from '../../../stores/postsSlice';
+import {
+  addPosts,
+  getPostsStore,
+  setPosts,
+  setPostsScroll,
+  setScrollToPost,
+} from '../../../stores/postsSlice';
 import { Post } from '../../../models/Post/types';
 import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
 import { getPosts } from '../../../api/api';
@@ -65,7 +71,12 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   return (
     <div className={styles.postListContainer}>
       <div className={styles.filterContainer}>
-        <Radio.Group defaultValue='' buttonStyle='solid' onChange={handleFilterChange} value={filter}>
+        <Radio.Group
+          defaultValue=''
+          buttonStyle='solid'
+          onChange={handleFilterChange}
+          value={filter}
+        >
           <Radio.Button value=''>Все посты</Radio.Button>
           <Radio.Button value='published'>Опубликованные</Radio.Button>
           <Radio.Button value='scheduled'>Отложенные</Radio.Button>
@@ -86,8 +97,14 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           }}
           getNewData={getNewData}
           doSmoothScroll={scrollToPost}
-          smoothScrollTarget={posts.length - posts.findIndex((post) => post.id === selectedPostId) - 1}
-          scrollAmount={scrollToPost ? posts.length - posts.findIndex((post) => post.id === selectedPostId) - 1 : scrollAmount}
+          smoothScrollTarget={
+            posts.length - posts.findIndex((post) => post.id === selectedPostId) - 1
+          }
+          scrollAmount={
+            scrollToPost
+              ? posts.length - posts.findIndex((post) => post.id === selectedPostId) - 1
+              : scrollAmount
+          }
           setScroll={(scroll) => setScroll(scroll)}
         />
       ) : (
@@ -95,7 +112,11 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           styles={{ image: { height: 60 } }}
           description={
             <span>
-              {filter === 'scheduled' ? 'Нет отложенных постов' : filter === 'published' ? 'Нет опубликованных постов' : 'Нет постов'}
+              {filter === 'scheduled'
+                ? 'Нет отложенных постов'
+                : filter === 'published'
+                  ? 'Нет опубликованных постов'
+                  : 'Нет постов'}
             </span>
           }
         />

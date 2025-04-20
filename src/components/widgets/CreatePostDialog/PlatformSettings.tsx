@@ -19,7 +19,9 @@ const PlatformSettings: React.FC<PlatformSettingsProps> = ({ selectedPlatforms }
     },
   ];
 
-  const filteredItems = allItems.filter((item) => item.key && selectedPlatforms.includes(item.key as string));
+  const filteredItems = allItems.filter(
+    (item) => item.key && selectedPlatforms.includes(item.key as string),
+  );
 
   return filteredItems.length > 0 ? <Collapse items={filteredItems} /> : null;
 };

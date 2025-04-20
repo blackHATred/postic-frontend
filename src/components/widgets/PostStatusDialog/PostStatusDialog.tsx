@@ -20,7 +20,9 @@ const PostStatusDialog: FC = () => {
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const isOpen = useAppSelector((state) => state.basePageDialogs.postStatusDialog.isOpen);
   const selectedPlatforms = useAppSelector((state) =>
-    Array.isArray(state.posts.posts) ? state.posts.posts.find((post) => post.id === postId)?.platforms : undefined,
+    Array.isArray(state.posts.posts)
+      ? state.posts.posts.find((post) => post.id === postId)?.platforms
+      : undefined,
   );
 
   const getIcon = (platform: string) => {
@@ -66,7 +68,9 @@ const PostStatusDialog: FC = () => {
         res.status.forEach((status) => {
           switch (status.status) {
             case 'success': {
-              const statusSuccess = socialStatuses.find((element: SocialStatus) => element.platform == status.platform);
+              const statusSuccess = socialStatuses.find(
+                (element: SocialStatus) => element.platform == status.platform,
+              );
               if (statusSuccess) {
                 const index = socialStatuses.indexOf(statusSuccess);
                 statusSuccess.status = 'finish';
@@ -85,7 +89,9 @@ const PostStatusDialog: FC = () => {
               break;
             }
             case 'error': {
-              const statE = socialStatuses.find((element: SocialStatus) => element.platform == status.platform);
+              const statE = socialStatuses.find(
+                (element: SocialStatus) => element.platform == status.platform,
+              );
               if (statE) {
                 const index = socialStatuses.indexOf(statE);
                 statE.status = 'error';
@@ -104,7 +110,9 @@ const PostStatusDialog: FC = () => {
               break;
             }
             case 'pending': {
-              const statP = socialStatuses.find((element: SocialStatus) => element.platform == status.platform);
+              const statP = socialStatuses.find(
+                (element: SocialStatus) => element.platform == status.platform,
+              );
               if (statP) {
                 const index = socialStatuses.indexOf(statP);
                 statP.status = 'wait';

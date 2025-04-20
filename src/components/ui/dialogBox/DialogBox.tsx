@@ -16,7 +16,9 @@ export interface DialogBoxProps {
 
 const { Text, Title } = Typography;
 
-const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (props: PropsWithChildren<DialogBoxProps>) => {
+const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
+  props: PropsWithChildren<DialogBoxProps>,
+) => {
   const styles = {
     mask: {
       backdropFilter: 'blur(5px)',
@@ -48,7 +50,12 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (props: PropsWithChildr
           <Title level={3} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
             {props.title}
           </Title>
-          <Text underline type='secondary' style={{ marginTop: 'auto', marginBottom: 'auto' }} onClick={props.headerSubtextOnClick}>
+          <Text
+            underline
+            type='secondary'
+            style={{ marginTop: 'auto', marginBottom: 'auto' }}
+            onClick={props.headerSubtextOnClick}
+          >
             {props.headerSubtext}
           </Text>
         </div>
@@ -56,7 +63,10 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (props: PropsWithChildr
       styles={styles}
       footer={
         <div style={{ marginRight: '10px' }}>
-          {props.bottomButtons && props.bottomButtons.map((object) => <ClickableButton key={object.text} type='primary' {...object} />)}
+          {props.bottomButtons &&
+            props.bottomButtons.map((object) => (
+              <ClickableButton key={object.text} type='primary' {...object} />
+            ))}
           {!props.bottomButtons && <span></span>}
         </div>
       }

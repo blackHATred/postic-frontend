@@ -46,13 +46,25 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         props.addFiles(uploadResult.file_id, file);
       } catch (error) {
         if (isAxiosError(error)) {
-          NotificationManager.createNotification('error', `Файл ${file.name} не загружен.`, 'Ошибка подключения сети');
+          NotificationManager.createNotification(
+            'error',
+            `Файл ${file.name} не загружен.`,
+            'Ошибка подключения сети',
+          );
         } else {
-          NotificationManager.createNotification('error', `Файл ${file.name} не загружен.`, 'Ошибка обработки файла');
+          NotificationManager.createNotification(
+            'error',
+            `Файл ${file.name} не загружен.`,
+            'Ошибка обработки файла',
+          );
         }
       }
     } else {
-      NotificationManager.createNotification('error', `Файл ${file.name} не загружен.`, 'Дубликаты файлов не разрешены');
+      NotificationManager.createNotification(
+        'error',
+        `Файл ${file.name} не загружен.`,
+        'Дубликаты файлов не разрешены',
+      );
     }
     return false;
   };

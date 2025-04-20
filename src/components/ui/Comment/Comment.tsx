@@ -1,8 +1,9 @@
 import React from 'react';
-import { Avatar, Typography } from 'antd';
+import { Avatar, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
+import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import ClickableButton from '../Button/Button';
 import { DeleteOutlined, DoubleRightOutlined } from '@ant-design/icons';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
@@ -23,13 +24,30 @@ interface CommentProps {
 }
 
 const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
-  const { id, post_union_id, username, text = 'Загрузка...', created_at = dayjs('0000-00-00 00:00:00') } = comment;
+  const {
+    id,
+    post_union_id,
+    username,
+    text = 'Загрузка...',
+    created_at = dayjs('0000-00-00 00:00:00'),
+  } = comment;
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
     dispatch(setAnswerDialog(true));
+  };
+  const getIcon = (platform: string) => {
+    switch (platform) {
+      case 'vk':
+        return <LiaVk className={styles.icon} />;
+      case 'tg':
+        return <LiaTelegram className={styles.icon} />;
+      case 'twitter':
+        return <LiaTwitter className={styles.icon} />;
+    }
+    return <LiaQuestionCircle className={styles.icon} />;
   };
 
   const deleteComment = () => {
@@ -58,16 +76,32 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
             return true;
           }}
         />
-        <div className={styles['comment-author']}>
-          <div>
-            <Text strong>{username}</Text>
-            <Text type='secondary' className={styles['comment-time']}>
-              {dayjs.utc(created_at).format('D MMMM YYYY [в] HH:mm')} | {comment.platform}
-            </Text>
+        <div className={styles['comment-header-text']}>
+          <div className={styles['comment-author']}>
+            <div>
+              <Text strong>{username}</Text>
+              <Text type='secondary' className={styles['comment-time']}>
+                {dayjs.utc(created_at).format('D MMMM YYYY [в] HH:mm')}
+              </Text>
+              <Space
+                size={0}
+                split={<Divider type='vertical' />}
+                className={styles['platform-icons']}
+              >
+                {getIcon(comment.platform)}
+              </Space>
+            </div>
+            <div>
+              <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
+            </div>
           </div>
 
           <div>
-            <Text type='secondary' style={{ marginTop: 'auto', marginBottom: 'auto' }} onClick={handlePostClick}>
+            <Text
+              type='secondary'
+              style={{ marginTop: 'auto', marginBottom: 'auto' }}
+              onClick={handlePostClick}
+            >
               К <a>посту</a>
             </Text>
           </div>
