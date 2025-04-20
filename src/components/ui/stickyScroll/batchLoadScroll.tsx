@@ -83,6 +83,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       setHasMoreBottom(false);
       //Если есть данные
       if (props.data && props.data.length > 0) {
+        setIsLoading(false);
         if (props.data.length < props.frame_size) {
           // Загружены все объекты
           setHasMoreTop(false);
