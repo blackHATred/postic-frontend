@@ -18,6 +18,7 @@ import { addPost, addScheduledPost, setSelectedPostId } from '../../../stores/po
 import { EmojiStyle } from 'emoji-picker-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { Categories } from 'emoji-picker-react';
 
 dayjs.extend(utc);
 
@@ -32,6 +33,45 @@ const buddhistLocale: typeof ru = {
     cellYearFormat: 'YYYY',
   },
 };
+
+const emoji_config = [
+  {
+    category: Categories.SUGGESTED,
+    name: 'Недавние',
+  },
+  {
+    category: Categories.SMILEYS_PEOPLE,
+    name: 'Эмоции и люди',
+  },
+  {
+    category: Categories.ANIMALS_NATURE,
+    name: 'Животные и природа',
+  },
+  {
+    category: Categories.FOOD_DRINK,
+    name: 'Еда',
+  },
+  {
+    category: Categories.TRAVEL_PLACES,
+    name: 'Путешествия',
+  },
+  {
+    category: Categories.ACTIVITIES,
+    name: 'Активнсть',
+  },
+  {
+    category: Categories.OBJECTS,
+    name: 'Объекты',
+  },
+  {
+    category: Categories.SYMBOLS,
+    name: 'Симболы',
+  },
+  {
+    category: Categories.FLAGS,
+    name: 'Флаги',
+  },
+];
 
 const CreatePostDialog: FC = () => {
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
@@ -112,11 +152,11 @@ const CreatePostDialog: FC = () => {
 
   const onCancel = async () => {
     dispatch(setCreatePostDialog(false));
+    setShowEmojiPicker(false);
   };
 
   const onEmojiClick = (emojiObject: any) => {
     setPostText((prevText) => prevText + emojiObject.emoji);
-    setShowEmojiPicker(false);
   };
 
   const addFileIDs = (id: string, file: any) => {
@@ -180,7 +220,16 @@ const CreatePostDialog: FC = () => {
         </div>
         {showEmojiPicker && (
           <div className={styles.emojiPicker}>
-            <Picker onEmojiClick={onEmojiClick} lazyLoadEmojis={true} emojiStyle={EmojiStyle.APPLE} />
+            <Picker
+              onEmojiClick={onEmojiClick}
+              lazyLoadEmojis={true}
+              emojiStyle={EmojiStyle.APPLE}
+              previewConfig={{
+                showPreview: false,
+              }}
+              categories={emoji_config}
+              searchPlaceHolder='Поиск'
+            />
           </div>
         )}
         <Select
