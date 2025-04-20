@@ -15,17 +15,12 @@ import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
 // уровень вложенности для отображения
 const MAX_NESTING_LEVEL = 4;
 
-interface CommentListProps {
-  postId?: number;
-  isDetailed?: boolean;
-}
-
 interface CommentWithChildren extends Comment {
   children: CommentWithChildren[];
   realLevel?: number;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
+const CommentList: React.FC = () => {
   const comments = mockComments;
   const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
@@ -34,7 +29,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
   const selectedteamid = useAppSelector((state) => state.teams.globalActiveTeamId);
   const url = getSseUrl(selectedteamid, selectedPostId || 0);
   // Получаем ID поста для фильтрации комментариев
-  const effectivePostId = postId || useAppSelector((state) => state.posts.selectedPostId);
+  const effectivePostId = useAppSelector((state) => state.posts.selectedPostId);
   const [loading, setLoading] = useState(false);
   // Фильтруем комментарии по ID активного поста
   const filteredComments = comments.comments.filter(

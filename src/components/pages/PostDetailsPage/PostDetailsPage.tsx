@@ -31,7 +31,7 @@ const PostDetailsPage: React.FC = () => {
         <PostDetailed {...post} />
       </div>
       <div className={styles.commentsSection}>
-        <CommentList postId={Number(id)} />
+        <CommentList />
       </div>
     </div>
   );
