@@ -43,6 +43,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   };
 
   const addNewDataTop = (data: any[]) => {
+    console.log('top');
     setIsLoadingTop(false);
     if (data && props.data) {
       if (data.length < props.frame_size) {
@@ -101,7 +102,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       setFinalScroll(0);
       return;
     }
-    if (props.data && ref.current && props.data.length == 0) {
+    if (ref.current && props.data.length == 0) {
       setIsLoading(true);
       setHasMoreBottom(false);
       setHasMoreTop(false);
@@ -139,7 +140,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         !isLoadingTop &&
         scrollToBottom == 'no' &&
         !isLoading &&
-        props.data
+        props.data &&
+        props.data.length > 0
       ) {
         //NOTE: load more data bottom
         setIsLoadingTop(true);

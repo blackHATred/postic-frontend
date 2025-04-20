@@ -42,7 +42,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
       {teamId != 0 && (
         <InfiniteScroll
           getObjectFromData={function (data: Post, index: number): React.ReactNode {
-            return <PostComponent {...data} key={index} />;
+            return <PostComponent post={data} key={index} />;
           }}
           data={posts}
           setData={function (data: Post[]): void {
