@@ -42,6 +42,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
     ? props.attachments.filter((el) => el.file_type === 'photo')
     : [];
   const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
+  const help_mode = useAppSelector((state) => state.settings.helpMode);
 
   useEffect(() => {
     if (props.id === selectedPostId) setSelected();

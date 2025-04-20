@@ -13,6 +13,7 @@ import { getPost, sendPostRequest } from '../../../api/api';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
   addFile,
+  clearFiles,
   removeFile,
   setCreatePostDialog,
   setPostStatusDialog,
@@ -88,7 +89,9 @@ const CreatePostDialog: FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map((file) => file.id);
+  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map(
+    (file) => file.id,
+  );
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const specificDate = dayjs('2025-04-15T02:40:00.258+03:00');
 

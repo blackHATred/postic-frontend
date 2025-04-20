@@ -10,9 +10,13 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import styles from './styles.module.scss';
-import { Tabs, Select, Dropdown, MenuProps, Button } from 'antd';
+import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setCreatePostDialog, setLoginDialog, setRegiserDialog } from '../../../stores/basePageDialogsSlice';
+import {
+  setCreatePostDialog,
+  setLoginDialog,
+  setRegiserDialog,
+} from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
 interface ButtonHeaderProps {
   activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
@@ -122,7 +126,6 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange }) =
       <div className={styles.headerComponents}>
         <img src={'logo.png'} alt='logo' className={styles.logo} />
 
-
         <div className={styles.headerIcons}>
           {isAuthorized == 'authorized' && (
             <>
@@ -148,7 +151,12 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange }) =
                   onButtonClick={() => dispatch(setCreatePostDialog(true))}
                 />
               )}
-              <ClickableButton className={styles['icon']} icon={<BellOutlined />} type='default' onButtonClick={() => {}} />
+              <ClickableButton
+                className={styles['icon']}
+                icon={<BellOutlined />}
+                type='default'
+                onButtonClick={() => {}}
+              />
             </>
           )}
           <Dropdown menu={menuProps} placement='bottom'>

@@ -20,6 +20,7 @@ import TeamRenameDialog from '../../widgets/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../widgets/AnswerDialog/AnswerDialog';
 import { Alert } from 'antd';
 import SideMenu from '../../ui/SideMenu/SideMenu';
+import { setSelectedPostId } from '../../../stores/postsSlice';
 const MainContainer: React.FC = () => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const [activePage, setActivePage] = useState<string>('posts');
@@ -64,7 +65,11 @@ const MainContainer: React.FC = () => {
         </div>
       )}
       {isAuthorized == 'not_authorized' && (
-        <Alert className={styles['loginDiv']} message='Пожалуйста зарегестрируйтесь или войдите в аккаунт' type='info' />
+        <Alert
+          className={styles['loginDiv']}
+          message='Пожалуйста зарегестрируйтесь или войдите в аккаунт'
+          type='info'
+        />
       )}
       {isAuthorized == 'authorized' && selectedTeam == 0 && (
         <Alert
