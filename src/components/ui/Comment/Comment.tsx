@@ -11,13 +11,11 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Delete } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
-import 'dayjs/locale/ru';
-import utc from 'dayjs/plugin/utc';
+
 import config from '../../../constants/appConfig';
 
 // часовой пояс и отображение времени
-dayjs.locale('ru');
-dayjs.extend(utc);
+
 const { Text } = Typography;
 
 interface CommentProps {

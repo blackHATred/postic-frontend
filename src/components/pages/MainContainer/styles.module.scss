@@ -18,7 +18,8 @@
   position: relative;
 }
 
-.right-sidebar, .left-sidebar {
+.right-sidebar,
+.left-sidebar {
   position: sticky; // Оба сайдбара теперь sticky
   top: calc($header-height + 20px);
   height: fit-content;
@@ -31,6 +32,7 @@
   justify-content: center;
   flex: 1; // центральный контент будет занимать все доступное пространство
   min-width: 0;
+  height: 100%;
 }
 
 .loginDiv {

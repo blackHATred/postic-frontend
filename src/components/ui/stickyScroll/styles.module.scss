@@ -1,4 +1,12 @@
-.scrollBottom {
-  height: 100%;
+.container {
+  height: 80%;
   width: 100%;
+  overflow-y: scroll;
+  overflow-anchor: auto;
+  scrollbar-width: none;
+}
+
+.spin {
+  width: 100%;
+  height: 60px;
 }

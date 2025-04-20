@@ -5,8 +5,13 @@ import './App.css';
 import NotificationManager from '../api/notification';
 import { CookiesProvider } from 'react-cookie';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
+import 'dayjs/locale/ru';
+import utc from 'dayjs/plugin/utc';
+import dayjs from 'dayjs';
 const queryClient = new QueryClient();
+
+dayjs.locale('ru');
+dayjs.extend(utc);
 
 const App: React.FC = () => {
   return (

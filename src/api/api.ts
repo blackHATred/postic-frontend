@@ -50,6 +50,7 @@ export const getPosts = async (
   limit: number,
   offset: string,
   filter?: 'published' | 'scheduled',
+  before = true,
 ): Promise<{ posts: Post[] }> => {
   const response = await axiosInstance.get<{ posts: Post[] }>(
     `${config.api.baseURL}${routes.posts()}/list`,
@@ -59,7 +60,7 @@ export const getPosts = async (
         team_id: team_id,
         limit: limit,
         offset: offset,
-        before: true,
+        before: before,
         filter: filter,
       },
     },
