@@ -18,6 +18,7 @@ import {
   setRegiserDialog,
 } from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
+import { setPosts } from '../../../stores/postsSlice';
 
 const ButtonHeader: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -103,6 +104,7 @@ const ButtonHeader: React.FC = () => {
 
   const handleChange = (value: string) => {
     setSelectedTeam(value);
+    dispatch(setPosts([]));
     dispatch(setGlobalActiveTeamId(Number(value)));
   };
 

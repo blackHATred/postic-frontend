@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Avatar, Carousel, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment } from '../../../models/Comment/types';
@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Delete } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
+import config from '../../../constants/appConfig';
 
 // часовой пояс и отображение времени
 
@@ -69,7 +70,11 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     <div className={styles.comment}>
       <div className={styles['comment-header']}>
         <Avatar
-          src={config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id}
+          src={
+            comment.avatar_mediafile
+              ? config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
+              : ''
+          }
           onError={() => {
             console.log('img-error');
             return true;

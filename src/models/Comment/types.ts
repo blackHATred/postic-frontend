@@ -17,9 +17,9 @@ export interface Comment {
     file_path: string;
     file_type: string;
     created_at: string;
-  };
+  } | null;
   text: string;
-  reply_to_comment_id: number;
+  reply_to_comment_id: number | null;
   is_team_reply: boolean;
   created_at: string;
   attachments: CommentAttachments[];
@@ -108,7 +108,7 @@ export const mockComments: Comments = {
       comment_platform_id: 1002,
       username: 'user2',
       full_name: 'User Two',
-      avatar_mediafile: 'https://example.com/avatar2.jpg',
+      avatar_mediafile: null,
       text: 'Второй комментарий к посту.',
       reply_to_comment_id: null,
       is_team_reply: false,
@@ -159,7 +159,7 @@ export const mockComments: Comments = {
       comment_platform_id: 1005,
       username: 'user5',
       full_name: 'User Five',
-      avatar_mediafile: 'https://example.com/avatar5.jpg',
+      avatar_mediafile: null,
       text: 'И я тоже отвечу на первый комментарий.',
       reply_to_comment_id: 1,
       is_team_reply: false,

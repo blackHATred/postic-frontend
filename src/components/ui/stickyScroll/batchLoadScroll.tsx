@@ -32,7 +32,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   const addFirstData = (data: any[]) => {
     if (data && data.length < props.frame_size) {
       setHasMoreTop(false);
-    } else if (data.length == props.frame_size) {
+    } else if (data && data.length == props.frame_size) {
       setHasMoreTop(true);
     }
     if (data) props.setData(data);
@@ -44,7 +44,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
 
   const addNewDataTop = (data: any[]) => {
     setIsLoadingTop(false);
-    if (data) {
+    if (data && props.data) {
       if (data.length < props.frame_size) {
         setHasMoreTop(false);
       }
@@ -61,7 +61,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
 
   const addNewDataBottom = (data: any[]) => {
     setIsLoadingBottom(false);
-    if (data) {
+    if (data && props.data) {
       data = data.slice(1);
       if (data.length < props.frame_size) {
         setHasMoreBottom(false);
@@ -82,7 +82,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
     if (ref.current) {
       setHasMoreBottom(false);
       //Если есть данные
-      if (props.data.length > 0) {
+      if (props.data && props.data.length > 0) {
         if (props.data.length < props.frame_size) {
           // Загружены все объекты
           setHasMoreTop(false);
@@ -101,7 +101,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       setFinalScroll(0);
       return;
     }
-    if (ref.current && props.data.length == 0) {
+    if (props.data && ref.current && props.data.length == 0) {
       setIsLoading(true);
       setHasMoreBottom(false);
       setHasMoreTop(false);
@@ -110,7 +110,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       props.getNewData(true, props.frame_size).then((data) => addFirstData(data));
     }
 
-    if (addedTop != 0 && ref.current) {
+    if (props.data && addedTop != 0 && ref.current) {
       ref.current.scrollTop = addedTop + ref.current.scrollHeight;
       setAddedTop(0);
       props.setData(props.data.slice(addedItems.length, props.data.length));
@@ -138,7 +138,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         hasMoreTop &&
         !isLoadingTop &&
         scrollToBottom == 'no' &&
-        !isLoading
+        !isLoading &&
+        props.data
       ) {
         //NOTE: load more data bottom
         setIsLoadingTop(true);
@@ -150,7 +151,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         ref.current.scrollTop >= max_scroll * 0.75 &&
         hasMoreBottom &&
         !isLoadingBottom &&
-        !isLoading
+        !isLoading &&
+        props.data
       ) {
         //NOTE: load more data top
         setIsLoadingBottom(true);
@@ -163,7 +165,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
 
   return (
     <div className={styles.container} ref={ref} onScroll={handleScroll}>
-      {(isLoading || isLoadingTop) && <Spin className={styles['spin']} />}
+      {isLoadingTop && <Spin className={styles['spin']} />}
       {props.data &&
         props.data.length > 0 &&
         props.data.toReversed().map((element, index) => {
@@ -174,8 +176,9 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       ) : (
         <div className={styles['spin']}></div>
       )}
+      {isLoading && <Spin className={styles.empty} />}
       {!isLoading && props.data && props.data.length == 0 && (
-        <Empty description={<span>{props.empty_text}</span>} />
+        <Empty className={styles.empty} description={<span>{props.empty_text}</span>} />
       )}
     </div>
   );

@@ -1,17 +1,17 @@
 @import '../../../styles/variables';
 .main-page {
   background-color: $background-color;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
 }
 
 .main-container {
   background-color: $background-color;
-  height: 100%;
+  height: calc(100% - $header-height);
+
   width: 100%;
   display: flex;
   justify-content: center;
-  padding-top: $header-height + 20px;
 }
 
 .layout {
@@ -21,6 +21,7 @@
   width: 100%;
   max-width: 1200px;
   position: relative;
+  z-index: 0;
 }
 
 .right-sidebar,

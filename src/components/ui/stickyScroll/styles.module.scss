@@ -1,5 +1,7 @@
+@import '../../../styles/variables';
+
 .container {
-  height: 80%;
+  height: 100%;
   width: 100%;
   overflow-y: scroll;
   overflow-anchor: auto;
@@ -7,6 +9,12 @@
 }
 
 .spin {
+  width: 100%;
+  height: 60px;
+}
+
+.empty {
+  padding-top: $header-height + 20px;
   width: 100%;
   height: 60px;
 }
