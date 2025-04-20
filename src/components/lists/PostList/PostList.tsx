@@ -70,7 +70,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
       ) : posts && posts.length > 0 ? (
         <RowVirtualizerDynamic
           object={[...posts].reverse().map((post, index) => {
-            return <PostComponent {...post} key={index} />;
+            return <PostComponent post={post} key={index} />;
           })}
           addData={(data) => {
             dispatch(addPosts(data));
