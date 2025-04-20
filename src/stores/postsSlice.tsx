@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { Post } from '../models/Post/types';
 
+export type PostFilter = '' | 'published' | 'scheduled';
+
 export interface PostSliceState {
   posts: Post[];
   scheduled_posts: Post[];
@@ -9,11 +11,13 @@ export interface PostSliceState {
   selectedPostId: number;
   scrollToPost: boolean;
   postsScroll: number;
+  activePostFilter: PostFilter;
 }
 
 // Define the initial state using that type
 const initialState: PostSliceState = {
   posts: [],
+  activePostFilter: '',
   scheduled_posts: [],
   isOpened: {},
   selectedPostId: 0,
@@ -33,20 +37,8 @@ export const postsSlice = createSlice({
       state.scrollToPost = action.payload;
     },
 
-    setScheduledPosts: (state, action: PayloadAction<Post[]>) => {
-      state.scheduled_posts = action.payload;
-    },
-
     addScheduledPost: (state, action: PayloadAction<Post>) => {
       state.scheduled_posts = [action.payload, ...state.scheduled_posts];
-    },
-
-    addScheduledPosts: (state, action: PayloadAction<Post[]>) => {
-      state.scheduled_posts = [...action.payload, ...state.scheduled_posts];
-    },
-    // редюсер для удаления отложенного поста
-    removeScheduledPost: (state, action: PayloadAction<number>) => {
-      state.scheduled_posts = state.scheduled_posts.filter((post) => post.id !== action.payload);
     },
 
     setPosts: (state, action: PayloadAction<Post[]>) => {
@@ -73,6 +65,10 @@ export const postsSlice = createSlice({
     setPostsScroll: (state, action: PayloadAction<number>) => {
       state.postsScroll = action.payload;
     },
+
+    setActivePostFilter: (state, action: PayloadAction<PostFilter>) => {
+      state.activePostFilter = action.payload;
+    },
   },
 });
 
@@ -83,12 +79,10 @@ export const {
   addPost,
   addScheduledPost,
   addPosts,
-  addScheduledPosts,
   setPosts,
-  setScheduledPosts,
   setPostsScroll,
   setIsOpened,
-  removeScheduledPost,
+  setActivePostFilter,
 } = postsSlice.actions;
 
 export const getPostsStore = (state: RootState) => state.posts.posts;

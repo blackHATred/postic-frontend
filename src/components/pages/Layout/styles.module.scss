@@ -1,0 +1,47 @@
+@import '../../../styles/variables';
+.main-page {
+  background-color: $background-color;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-container {
+  background-color: $background-color;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: $header-height + 20px;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+}
+
+.right-sidebar,
+.left-sidebar {
+  position: sticky; // Оба сайдбара теперь sticky
+  top: calc($header-height + 20px);
+  height: fit-content;
+}
+
+.content {
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1; // центральный контент будет занимать все доступное пространство
+  min-width: 0;
+  height: 100%;
+}
+
+.loginDiv {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}

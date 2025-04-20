@@ -1,0 +1,43 @@
+import React, { ReactNode, useEffect } from 'react';
+import { useAppDispatch } from '../../stores/hooks';
+import { Me } from '../../api/api';
+import { MyTeams } from '../../api/teamApi';
+import { setAuthorized, setCurrentUserId, setTeams } from '../../stores/teamSlice';
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setAuthorized('loading'));
+    Me()
+      .then((userData) => {
+        if (userData && userData.user_id) {
+          const userId = Number(userData.user_id);
+          dispatch(setCurrentUserId(userId));
+
+          MyTeams()
+            .then((res) => {
+              if (res.teams) {
+                dispatch(setTeams(res.teams));
+                dispatch(setAuthorized('authorized'));
+              }
+            })
+            .catch(() => {
+              console.log('Error getting teams');
+              dispatch(setAuthorized('authorized'));
+            });
+        } else {
+          dispatch(setAuthorized('not_authorized'));
+        }
+      })
+      .catch(() => {
+        dispatch(setAuthorized('not_authorized'));
+      });
+  }, [dispatch]);
+
+  return <>{children}</>;
+};
