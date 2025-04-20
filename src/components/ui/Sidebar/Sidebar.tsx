@@ -1,19 +1,22 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
-import { PlusOutlined, TeamOutlined, MessageOutlined, CommentOutlined } from '@ant-design/icons';
+import { TeamOutlined, MessageOutlined, CommentOutlined } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
-import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setCreateTeamDialog } from '../../../stores/teamSlice';
+import { useAppDispatch } from '../../../stores/hooks';
 import { Switch, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
+import { routes } from '../../../app/App.routes';
 
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
-  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleTabChange = (key: string) => {
+  const handleTabChange = (key: string, route: string) => {
     dispatch(setActiveTab(key));
+    navigate(route);
   };
 
   const handleSettingsMode = (checked: boolean) => {
@@ -22,39 +25,36 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className={styles['sidebar']}>
-      <div className={`${styles['sidebar-options']} ${activeTab === '1' ? styles['active'] : ''}`}>
+      <div
+        className={`${styles['sidebar-options']} ${location.pathname === routes.posts() ? styles['active'] : ''}`}
+      >
         <ClickableButton
           type='text'
           text={'Посты'}
           icon={<MessageOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => handleTabChange('1')}
+          onButtonClick={() => handleTabChange('1', routes.posts())}
         />
       </div>
-      <div className={`${styles['sidebar-options']} ${activeTab === '2' ? styles['active'] : ''}`}>
+      <div
+        className={`${styles['sidebar-options']} ${location.pathname === routes.comments() ? styles['active'] : ''}`}
+      >
         <ClickableButton
           type='text'
           text={'Все комментарии'}
           icon={<CommentOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => handleTabChange('2')}
+          onButtonClick={() => handleTabChange('2', routes.comments())}
         />
       </div>
 
       <div className={styles['sidebar-divider']}></div>
-
-      <div className={styles['sidebar-options']}>
-        <ClickableButton
-          type='text'
-          text={'Добавить команду'}
-          icon={<PlusOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => dispatch(setCreateTeamDialog(true))}
-        />
-      </div>
-      <div className={styles['sidebar-options']} onClick={() => setActiveTab('3')}>
+      <div
+        className={`${styles['sidebar-options']} ${location.pathname === routes.teams() ? styles['active'] : ''}`}
+      >
         <ClickableButton
           type='text'
           text={'Команды'}
           icon={<TeamOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => handleTabChange('3')}
+          onButtonClick={() => handleTabChange('3', routes.teams())}
         />
       </div>
       <div className={styles['sidebar-option-mode']}>

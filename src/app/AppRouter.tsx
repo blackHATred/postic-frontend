@@ -1,0 +1,24 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import CommentsPage from '../components/pages/CommentsPage/CommentsPage';
+import PostsPage from '../components/pages/PostsPage/PostsPage';
+import TeamsPage from '../components/pages/TeamsPage/TeamsPage';
+import { routes } from './App.routes';
+import PageLayout from '../components/pages/Layout/Layout';
+
+export const AppRouter = () => {
+  return (
+    <Routes>
+      {/* Защищенные маршруты с Layout */}
+      <Route path={routes.root()} element={<PageLayout />}>
+        <Route index element={<Navigate to={routes.posts()} replace />} />
+        <Route path={routes.posts()} element={<PostsPage />} />
+        {/* 
+         <Route path={routes.post(':id')} element={<PostDetailsPage />} />
+         */}
+        <Route path={routes.comments()} element={<CommentsPage />} />
+        <Route path={routes.teams()} element={<TeamsPage />} />
+      </Route>
+    </Routes>
+  );
+};

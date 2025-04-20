@@ -7,8 +7,23 @@ import { Team } from '../../../models/Team/types';
 import { MyTeams } from '../../../api/teamApi';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
 import { Me } from '../../../api/api';
+import { useLocation } from 'react-router-dom';
+import { routes } from '../../../app/App.routes';
+import { setActiveTab } from '../../../stores/basePageDialogsSlice';
+
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === routes.posts()) {
+      dispatch(setActiveTab('1'));
+    } else if (location.pathname === routes.comments()) {
+      dispatch(setActiveTab('2'));
+    } else if (location.pathname === routes.teams()) {
+      dispatch(setActiveTab('3'));
+    }
+  }, [location.pathname, dispatch]);
 
   useEffect(() => {
     dispatch(setAuthorized('loading'));
