@@ -70,7 +70,7 @@ export const getCommentsFromStore = (state: RootState) => state.comments.comment
 export const getLastDate = (state: RootState) => {
   if (state.comments.comments.comments && state.comments.comments.comments.length > 0)
     return state.comments.comments.comments[0].created_at;
-  return dayjs('2020').format();
+  return dayjs().format();
 };
 
 export default commentsSlice.reducer;

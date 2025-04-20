@@ -87,12 +87,8 @@ const CommentList: React.FC = () => {
           doSmoothScroll={false}
           smoothScrollTarget={0}
           scrollAmount={filteredComments.length}
-          addData={function (data: any[]): void {
-            console.log('Объяви меня в CommentList');
-          }}
-          setScroll={function (scroll: number): void {
-            console.log('Объяви меня в CommentList');
-          }}
+          addData={function (data: any[]): void {}}
+          setScroll={function (scroll: number): void {}}
         />
       )}
       {filteredComments.length === 0 && (

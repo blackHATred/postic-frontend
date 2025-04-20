@@ -1,5 +1,5 @@
-import React from 'react';
-import { Avatar, Divider, Space, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Avatar, Carousel, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
@@ -13,6 +13,7 @@ import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import 'dayjs/locale/ru';
 import utc from 'dayjs/plugin/utc';
+import config from '../../../constants/appConfig';
 
 // часовой пояс и отображение времени
 dayjs.locale('ru');
@@ -24,16 +25,9 @@ interface CommentProps {
 }
 
 const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
-  const {
-    id,
-    post_union_id,
-    username,
-    text = 'Загрузка...',
-    created_at = dayjs('0000-00-00 00:00:00'),
-  } = comment;
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
-
+  const [sticker, setSticker] = useState<object>();
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
     dispatch(setAnswerDialog(true));
@@ -51,26 +45,25 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   };
 
   const deleteComment = () => {
-    console.log('Удаление комментария', selectedTeamId, post_union_id, false);
+    console.log('Удаление комментария', selectedTeamId, comment.post_union_id, false);
     const res: DeleteComment = {
       team_id: selectedTeamId,
-      post_comment_id: Number(id),
+      post_comment_id: Number(comment.id),
       ban_user: false,
     };
     Delete(res);
   };
-
   const handlePostClick = () => {
     dispatch(setActiveTab('1'));
     dispatch(setScrollToPost(true));
-    dispatch(setSelectedPostId(post_union_id));
+    dispatch(setSelectedPostId(comment.post_union_id));
   };
 
   return (
     <div className={styles.comment}>
       <div className={styles['comment-header']}>
         <Avatar
-          src={null}
+          src={config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id}
           onError={() => {
             console.log('img-error');
             return true;
@@ -79,9 +72,9 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
         <div className={styles['comment-header-text']}>
           <div className={styles['comment-author']}>
             <div>
-              <Text strong>{username}</Text>
+              <Text strong>{comment.username}</Text>
               <Text type='secondary' className={styles['comment-time']}>
-                {dayjs.utc(created_at).format('D MMMM YYYY [в] HH:mm')}
+                {dayjs.utc(comment.created_at).format('D MMMM YYYY [в] HH:mm')}
               </Text>
               <Space
                 size={0}
@@ -109,8 +102,21 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
       </div>
 
       <div className={styles['comment-content']}>
-        <Text>{text}</Text>
+        <Text>{comment.text}</Text>
       </div>
+      {comment.attachments.length > 0 && (
+        <Carousel arrows>
+          {comment.attachments.map((preview) => (
+            <div key={preview.id}>
+              {preview.file_type == 'sticker' ? (
+                <>[Стикер]</>
+              ) : (
+                <img src={'http://localhost:80/api/upload/get/' + preview.id} />
+              )}
+            </div>
+          ))}
+        </Carousel>
+      )}
       <div>
         <ClickableButton
           type='default'
