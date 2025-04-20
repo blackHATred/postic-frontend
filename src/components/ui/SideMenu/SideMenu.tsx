@@ -6,13 +6,7 @@ import { useAppDispatch } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { setHelpMode } from '../../../stores/settingsSlice';
 
-interface SideMenuProps {
-  setActivePage: (page: string) => void;
-}
-
-const { Text } = Typography;
-
-const SideMenu: React.FC<SideMenuProps> = ({ setActivePage }) => {
+const SideMenu: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const handleSettingsMode = (checked: boolean) => {

@@ -8,7 +8,12 @@ interface SSEOptions {
   withCredentials?: boolean;
 }
 
-export function useAuthenticatedSSE({ url, onMessage, onError, withCredentials = true }: SSEOptions): {
+export function useAuthenticatedSSE({
+  url,
+  onMessage,
+  onError,
+  withCredentials = true,
+}: SSEOptions): {
   isConnected: boolean;
   close: () => void;
 } {

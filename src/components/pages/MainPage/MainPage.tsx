@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import ButtonHeader from '../../widgets/Header/Header';
-import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setSelectedPostId } from '../../../stores/postsSlice';
-import { setActiveTab } from '../../../stores/basePageDialogsSlice';
+import { useAppDispatch } from '../../../stores/hooks';
 import MainContainer from '../MainContainer/MainContainer';
 import styles from './styles.module.scss';
 import { Team } from '../../../models/Team/types';
@@ -11,13 +9,6 @@ import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamS
 import { Me } from '../../../api/api';
 const MainPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-
-  // для того, чтоб сбрасывать состояние ленты и миниленты
-  const handleTabChange = (key: string) => {
-    dispatch(setActiveTab(key));
-    dispatch(setSelectedPostId(0));
-  };
 
   useEffect(() => {
     dispatch(setAuthorized('loading'));
@@ -49,7 +40,7 @@ const MainPage: React.FC = () => {
 
   return (
     <div className={styles['main-page']}>
-      <ButtonHeader activeTab={activeTab} onTabChange={handleTabChange} />
+      <ButtonHeader />
 
       <MainContainer />
     </div>

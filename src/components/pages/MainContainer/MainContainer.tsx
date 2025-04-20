@@ -1,30 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './styles.module.scss';
-import CommentList from '../../widgets/CommentList/CommentList';
-import PostList from '../../widgets/PostList/PostList';
-import PostStatusDialog from '../../widgets/PostStatusDialog/PostStatusDialog';
-import WelcomeDialog from '../../widgets/auth/WelcomeDialog';
-import LoginDialog from '../../widgets/auth/LoginDialog';
-import RegisterDialog from '../../widgets/auth/RegisterDialog';
-import MeDialog from '../../widgets/auth/MeDialog';
-import TeamList from '../../widgets/TeamList/TeamList';
-import TeamAddMemberDialog from '../../widgets/TeamDialog/TeamAddMemberDialog';
+import CommentList from '../../lists/CommentList/CommentList';
+import PostList from '../../lists/PostList/PostList';
+import PostStatusDialog from '../../modals/PostStatusDialog/PostStatusDialog';
+import WelcomeDialog from '../../modals/auth/WelcomeDialog';
+import LoginDialog from '../../modals/auth/LoginDialog';
+import RegisterDialog from '../../modals/auth/RegisterDialog';
+import MeDialog from '../../modals/auth/MeDialog';
+import TeamList from '../../lists/TeamList/TeamList';
+import TeamAddMemberDialog from '../../modals/TeamDialog/TeamAddMemberDialog';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
-import DialogBoxSummary from '../../widgets/SummaryDialog/SummaryDialog';
+import DialogBoxSummary from '../../modals/SummaryDialog/SummaryDialog';
 import Sidebar from '../../ui/Sidebar/Sidebar';
-import TeamCreateDialog from '../../widgets/TeamDialog/TeamCreateDialog';
-import TeamEditMemberDialog from '../../widgets/TeamDialog/TeamEditMemberDialog';
-import CreatePostDialog from '../../widgets/CreatePostDialog/CreatePostDialog';
-import TeamRenameDialog from '../../widgets/TeamDialog/TeamRenameDialog';
-import AnswerDialog from '../../widgets/AnswerDialog/AnswerDialog';
+import TeamCreateDialog from '../../modals/TeamDialog/TeamCreateDialog';
+import TeamEditMemberDialog from '../../modals/TeamDialog/TeamEditMemberDialog';
+import CreatePostDialog from '../../modals/CreatePostDialog/CreatePostDialog';
+import TeamRenameDialog from '../../modals/TeamDialog/TeamRenameDialog';
+import AnswerDialog from '../../modals/AnswerDialog/AnswerDialog';
 import { Alert } from 'antd';
 import SideMenu from '../../ui/SideMenu/SideMenu';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 const MainContainer: React.FC = () => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-  const [activePage, setActivePage] = useState<string>('posts');
-  const [, setShowCreatePostDialog] = useState(false);
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
 
@@ -60,7 +58,7 @@ const MainContainer: React.FC = () => {
             )}
           </div>
           <div className={styles['right-sidebar']}>
-            <SideMenu setActivePage={handleSidebarClick} />
+            <SideMenu />
           </div>
         </div>
       )}

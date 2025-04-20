@@ -44,10 +44,10 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
   className,
 }) => {
   return withPopover ? (
-    <Popover 
-    placement='bottom' 
-    content={<div className={styles['popover-content']}>{popoverContent}</div>} 
-    trigger='hover'
+    <Popover
+      placement='bottom'
+      content={<div className={styles['popover-content']}>{popoverContent}</div>}
+      trigger='hover'
     >
       <Button
         type={type}

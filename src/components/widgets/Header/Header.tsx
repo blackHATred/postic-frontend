@@ -18,12 +18,8 @@ import {
   setRegiserDialog,
 } from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
-interface ButtonHeaderProps {
-  activeTab?: string; // Сделаем необязательным, так как вкладки могут отсутствовать
-  onTabChange?: (key: string) => void; // Сделаем необязательным
-}
 
-const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange }) => {
+const ButtonHeader: React.FC = () => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
   const activeTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
@@ -85,17 +81,6 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ activeTab, onTabChange }) =
     items,
     onClick: handleMenuClick,
   };
-
-  const tabItems = [
-    {
-      key: '1',
-      label: 'Посты',
-    },
-    {
-      key: '2',
-      label: 'Все комментарии',
-    },
-  ];
 
   const teamOptions = teams.map((team) => ({
     value: team.id.toString(),
