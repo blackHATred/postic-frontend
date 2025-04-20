@@ -53,7 +53,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
     };
 
     if (teamId) loadPosts();
-  }, [dispatch, teamId]);
+  }, [dispatch, teamId, filter]);
 
   const setScroll = (scroll: number) => {
     dispatch(setPostsScroll(scroll));
