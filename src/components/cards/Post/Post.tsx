@@ -12,13 +12,20 @@ import Icon, {
 import './selected_style.css';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setActiveTab, setSummaryDialog } from '../../../stores/basePageDialogsSlice';
+import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '../../../app/App.routes';
 
 const { Text } = Typography;
 
-const PostComponent: React.FC<Post> = (props: Post) => {
+interface PostProps {
+  post: Post;
+  isDetailed?: boolean;
+}
+
+const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const getIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
@@ -35,17 +42,18 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
-  const attach_files = props.attachments
-    ? props.attachments.filter((el) => el.file_type != 'photo')
+  const attach_files = post.attachments
+    ? post.attachments.filter((el) => el.file_type != 'photo')
     : [];
-  const attach_images = props.attachments
-    ? props.attachments.filter((el) => el.file_type === 'photo')
+  const attach_images = post.attachments
+    ? post.attachments.filter((el) => el.file_type === 'photo')
     : [];
-  const isOpened = useAppSelector((state) => state.posts.isOpened[props.id]);
+  const isOpened = useAppSelector((state) => state.posts.isOpened[post.id]);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (props.id === selectedPostId) setSelected();
+    if (post.id === selectedPostId) setSelected();
   }, [scrollToPost]);
 
   const setSelected = async () => {
@@ -60,48 +68,56 @@ const PostComponent: React.FC<Post> = (props: Post) => {
   };
 
   const onCommentClick = () => {
-    dispatch(setSelectedPostId(props.id));
-    dispatch(setActiveTab('2'));
+    dispatch(setSelectedPostId(post.id));
+    navigate(routes.post(post.id));
   };
 
   const onSummaryClick = async () => {
     // При нажатии кнопки суммаризации
     dispatch(setSummaryDialog(true));
-    dispatch(setSelectedPostId(props.id));
+    dispatch(setSelectedPostId(post.id));
   };
 
   return (
-    <div ref={refer} className={styles['post']}>
+    <div
+      ref={refer}
+      {...(isDetailed ? { className: styles.postDetailed } : { className: styles.post })}
+      id={String(post.id)}
+    >
       {/* хедер*/}
       <div className={styles['post-header']}>
         <div className={styles['post-header-info']}>
           <div className={styles['post-header-info-text']}>
             {/* NOTE: заменить потом на информацию пользователя */}
             <Text strong className={styles['post-name']}>
-              Модератор {props.user_id}
+              Модератор {post.user_id}
             </Text>
 
             <Text type='secondary' className={styles['post-time']}>
-              {dayjs(props.created_at).format('DD.MM.YYYY HH:mm')}
+              {dayjs(post.created_at).format('DD.MM.YYYY HH:mm')}
             </Text>
             <Space size={0} split={<Divider type='vertical' />}>
-              {props.platforms?.map((plat) => {
+              {post.platforms?.map((plat) => {
                 return getIcon(plat);
               })}
             </Space>
           </div>
         </div>
         <div className={styles['post-header-buttons']}>
-          {(!props.pub_datetime || new Date(props.pub_datetime) <= new Date()) && (
+          {(!post.pub_datetime || new Date(post.pub_datetime) <= new Date()) && (
             <>
-              <ClickableButton
-                text='Комментарии'
-                type='link'
-                icon={<CommentOutlined />}
-                onButtonClick={() => {
-                  onCommentClick();
-                }}
-              />
+              {!isDetailed ? (
+                <ClickableButton
+                  text='Комментарии'
+                  type='link'
+                  icon={<CommentOutlined />}
+                  onButtonClick={() => {
+                    onCommentClick();
+                  }}
+                />
+              ) : (
+                <></>
+              )}
 
               {help_mode ? (
                 <ClickableButton
@@ -122,9 +138,9 @@ const PostComponent: React.FC<Post> = (props: Post) => {
               )}
             </>
           )}
-          {props.pub_datetime && new Date(props.pub_datetime) > new Date() && (
+          {post.pub_datetime && new Date(post.pub_datetime) > new Date() && (
             <Text type='secondary'>
-              Будет опубликовано {dayjs(props.pub_datetime).format('D MMMM YYYY [в] HH:mm')}
+              Будет опубликовано {dayjs(post.pub_datetime).format('D MMMM YYYY [в] HH:mm')}
             </Text>
           )}
         </div>
@@ -132,7 +148,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
       <Divider className={styles.customDivider} />
       <div className={styles['post-content']}>
         <div className={styles['post-content-text']}>
-          <Text style={{ whiteSpace: 'pre-line' }}>{props.text}</Text>
+          <Text style={{ whiteSpace: 'pre-line' }}>{post.text}</Text>
         </div>
         <div className={styles['post-content-attachments']}>
           {attach_files.length > 0 &&
@@ -145,7 +161,7 @@ const PostComponent: React.FC<Post> = (props: Post) => {
           {attach_images.length > 0 && (
             <Collapse
               size='small'
-              onChange={(key) => dispatch(setIsOpened({ key: props.id, value: key.length >= 1 }))}
+              onChange={(key) => dispatch(setIsOpened({ key: post.id, value: key.length >= 1 }))}
               defaultActiveKey={isOpened ? '1' : undefined}
               items={[
                 {
