@@ -13,15 +13,12 @@ import { Post } from '../../../models/Post/types';
 import RowVirtualizerDynamic from '../../ui/stickyScroll/InfiniteScroll';
 import { getPosts } from '../../../api/api';
 import dayjs from 'dayjs';
-import { Empty, Radio, Spin } from 'antd';
-import { RadioChangeEvent } from 'antd/es/radio';
+import { Empty, Spin } from 'antd';
 
 interface PostListProps {
   isLoading?: boolean;
   hasMore?: boolean;
 }
-
-type PostFilter = '' | 'published' | 'scheduled';
 
 const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   const dispatch = useAppDispatch();
@@ -30,7 +27,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const scrollAmount = useAppSelector((state) => state.posts.postsScroll);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const [filter, setFilter] = useState<PostFilter>('');
+  const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -43,7 +40,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
       setLoading(true);
       try {
         const currentDate = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z';
-        const result = await getPosts(teamId, 20, currentDate, filter || undefined);
+        const result = await getPosts(teamId, 20, currentDate, activeFilter || undefined);
         dispatch(setPosts(result.posts));
       } catch (error) {
         console.error('Ошибка при загрузке постов:', error);
@@ -53,7 +50,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
     };
 
     if (teamId) loadPosts();
-  }, [dispatch, teamId, filter]);
+  }, [dispatch, teamId, activeFilter]);
 
   const setScroll = (scroll: number) => {
     dispatch(setPostsScroll(scroll));
@@ -64,25 +61,8 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
     return new_data;
   };
 
-  const handleFilterChange = (e: RadioChangeEvent) => {
-    setFilter(e.target.value as PostFilter);
-  };
-
   return (
     <div className={styles.postListContainer}>
-      <div className={styles.filterContainer}>
-        <Radio.Group
-          defaultValue=''
-          buttonStyle='solid'
-          onChange={handleFilterChange}
-          value={filter}
-        >
-          <Radio.Button value=''>Все посты</Radio.Button>
-          <Radio.Button value='published'>Опубликованные</Radio.Button>
-          <Radio.Button value='scheduled'>Отложенные</Radio.Button>
-        </Radio.Group>
-      </div>
-
       {loading ? (
         <div className={styles.loaderContainer}>
           <Spin tip='Загрузка постов...' />
@@ -112,9 +92,9 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           styles={{ image: { height: 60 } }}
           description={
             <span>
-              {filter === 'scheduled'
+              {activeFilter === 'scheduled'
                 ? 'Нет отложенных постов'
-                : filter === 'published'
+                : activeFilter === 'published'
                   ? 'Нет опубликованных постов'
                   : 'Нет постов'}
             </span>
