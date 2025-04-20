@@ -24,10 +24,12 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
     dispatch(setPosts([]));
   }, [activeFilter]);
 
-  const loadPosts = async () => {
+  const loadPosts = async (before: boolean, limit: number, last_object?: Post) => {
     try {
-      const currentDate = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z';
-      const result = await getPosts(teamId, 20, currentDate, activeFilter || undefined);
+      const currentDate = last_object
+        ? dayjs(last_object.created_at).utc().format()
+        : dayjs().utc().format();
+      const result = await getPosts(teamId, limit, currentDate, activeFilter || undefined, before);
       return result.posts;
     } catch (error) {
       console.error('Ошибка при загрузке постов:', error);

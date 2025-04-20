@@ -177,7 +177,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         <div className={styles['spin']}></div>
       )}
       {isLoading && <Spin className={styles.empty} />}
-      {!isLoading && props.data && props.data.length == 0 && (
+      {!isLoading && props.data.length == 0 && (
         <Empty className={styles.empty} description={<span>{props.empty_text}</span>} />
       )}
     </div>
