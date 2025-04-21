@@ -15,6 +15,7 @@ export const createCommentTree = (comments: Comment[]) => {
     map[comment.id] = { ...comment, children: [], realLevel: 0 };
   });
 
+  // сорт, чтоб видеть сперва корневые комменты
   const sortedComments = [...comments].sort((a, b) => {
     const aIsRoot = !a.reply_to_comment_id || a.reply_to_comment_id === 0;
     const bIsRoot = !b.reply_to_comment_id || b.reply_to_comment_id === 0;
@@ -25,18 +26,21 @@ export const createCommentTree = (comments: Comment[]) => {
     return 0;
   });
 
+  // связываем узлы - дочерние с родительскими
   sortedComments.forEach((comment) => {
     if (comment.reply_to_comment_id === 0 || comment.reply_to_comment_id === null) {
       roots.push(map[comment.id]);
     } else if (map[comment.reply_to_comment_id]) {
       const parent = map[comment.reply_to_comment_id];
+      // вложенности ребенка - родитель + 1
       map[comment.id].realLevel = (parent.realLevel || 0) + 1;
       parent.children.push(map[comment.id]);
     } else {
+      // если кто-то удалил родительский коммент или это просто что-то странное, пусть будет корневым
       roots.push(map[comment.id]);
     }
   });
-
+  // сорт корневых комментариев и их дочерних элементов по дате
   const sortNodeChildren = (node: CommentWithChildren) => {
     if (node.children.length > 0) {
       node.children.sort(
@@ -46,13 +50,13 @@ export const createCommentTree = (comments: Comment[]) => {
     }
   };
 
-  // сорт корневых комментариев и их дочерних элементов
   roots.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   roots.forEach(sortNodeChildren);
 
   return roots;
 };
 
+// сворачивание
 export const useCollapsedComments = () => {
   const [collapsedComments, setCollapsedComments] = useState<Record<number, boolean>>({});
 
