@@ -76,3 +76,12 @@
 .comment-content {
   margin: 7px;
 }
+
+.comment-buttons {
+    display: flex;
+    flex-direction: row;
+}
+
+.comment-buttons-right {
+    margin-left: auto;
+}

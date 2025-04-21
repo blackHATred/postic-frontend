@@ -6,6 +6,7 @@ import TeamsPage from '../components/pages/TeamsPage/TeamsPage';
 import { routes } from './App.routes';
 import PageLayout from '../components/pages/Layout/Layout';
 import PostDetailsPage from '../components/pages/PostDetailsPage/PostDetailsPage';
+import TicketPage from '../components/pages/TicketPage/TicketPage';
 
 export const AppRouter = () => {
   return (
@@ -16,6 +17,7 @@ export const AppRouter = () => {
         <Route path={routes.posts()} element={<PostsPage />} />
         <Route path={routes.post(':id')} element={<PostDetailsPage />} />
         <Route path={routes.comments()} element={<CommentsPage />} />
+        <Route path={routes.ticket()} element={<TicketPage />} />
         <Route path={routes.teams()} element={<TeamsPage />} />
       </Route>
     </Routes>

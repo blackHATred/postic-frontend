@@ -65,6 +65,12 @@ export interface Answ {
   comment_id: number;
 }
 
+export interface Ticket {
+  team_id: number;
+  comment_id: number;
+  marked_as_ticket: boolean;
+}
+
 export const mockAnswers: QuickAnswer[] = [
   {
     ideas: ['А ты кто?', 'И тебе привет', 'Я администратор тестового канала'],

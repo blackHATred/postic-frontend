@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
-import { TeamOutlined, MessageOutlined, CommentOutlined } from '@ant-design/icons';
+import { TeamOutlined, MessageOutlined, CommentOutlined, TagOutlined } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Switch, Typography } from 'antd';
@@ -52,6 +52,16 @@ const Sidebar: React.FC = () => {
               text={'Все комментарии'}
               icon={<CommentOutlined className={styles['icon-primary']} />}
               onButtonClick={() => handleTabChange('2', routes.comments())}
+            />
+          </div>
+          <div
+            className={`${styles['sidebar-options']} ${location.pathname === routes.ticket() ? styles['active'] : ''}`}
+          >
+            <ClickableButton
+              type='text'
+              text={'Тикет-система'}
+              icon={<TagOutlined className={styles['icon-primary']} />}
+              onButtonClick={() => handleTabChange('4', routes.ticket())}
             />
           </div>
           <div className={styles['sidebar-divider']}></div>
