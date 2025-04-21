@@ -173,7 +173,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       {isLoadingTop ? <Spin className={styles['spin']} /> : <div className={styles['space']}></div>}
       {props.data &&
         props.data.length > 0 &&
-        props.data.toReversed().map((element, index) => {
+        [...props.data].reverse().map((element: any, index: number) => {
           return props.getObjectFromData(element, index);
         })}
       {isLoadingBottom ? (

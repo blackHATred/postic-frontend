@@ -1,4 +1,3 @@
-// src/hooks/useComments.ts
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { addComment, addComments, getLastDate } from '../../../stores/commentSlice';
@@ -15,6 +14,8 @@ export const useComments = (postId?: number) => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const effectivePostId = postId || selectedPostId;
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+  const activeTicketFilter = useAppSelector((state) => state.comments.ticketFilter);
 
   const url = getSseUrl(selectedTeamId, selectedPostId || 0);
 
@@ -42,33 +43,97 @@ export const useComments = (postId?: number) => {
     if (!effectivePostId || !selectedTeamId) return;
 
     setLoading(true);
-    getComments(selectedTeamId, effectivePostId, 20, last_date)
-      .then((val) => {
-        if (val.comments) {
-          dispatch(addComments(val.comments));
-        }
-      })
-      .catch((error) => {
-        console.error('Ошибка при загрузке комментариев:', error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [effectivePostId, selectedTeamId]);
 
-  useEffect(() => {
-    const union_id = selectedPostId ? Number(selectedPostId) : 0;
-
-    if (filteredComments.length < requestSize) {
-      getComments(selectedTeamId, union_id, requestSize, last_date)
+    if (activeTab === '4' && activeTicketFilter === 'done') {
+      getComments(selectedTeamId, effectivePostId, 20, last_date, false)
         .then((val) => {
           if (val.comments) {
             dispatch(addComments(val.comments));
           }
         })
         .catch((error) => {
-          console.error('Ошибка при загрузке комментариев:', error.response?.data || error.message);
+          console.error('Ошибка при загрузке комментариев:', error);
+        })
+        .finally(() => {
+          setLoading(false);
         });
+    }
+    if (activeTab === '4' && activeTicketFilter === 'not_done') {
+      console.log('Загрузка комментариев с фильтром not_done');
+      getComments(selectedTeamId, effectivePostId, 20, last_date, true)
+        .then((val) => {
+          if (val.comments) {
+            dispatch(addComments(val.comments));
+          }
+        })
+        .catch((error) => {
+          console.error('Ошибка при загрузке комментариев:', error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      getComments(selectedTeamId, effectivePostId, requestSize, last_date)
+        .then((val) => {
+          if (val.comments) {
+            dispatch(addComments(val.comments));
+          }
+        })
+        .catch((error) => {
+          console.error('Ошибка при загрузке комментариев:', error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [effectivePostId, selectedTeamId]);
+
+  useEffect(() => {
+    const union_id = selectedPostId ? Number(selectedPostId) : 0;
+
+    if (filteredComments.length < requestSize) {
+      if (activeTab === '4' && activeTicketFilter === 'done') {
+        getComments(selectedTeamId, union_id, requestSize, last_date, false)
+          .then((val) => {
+            if (val.comments) {
+              dispatch(addComments(val.comments));
+            }
+          })
+          .catch((error) => {
+            console.error(
+              'Ошибка при загрузке комментариев:',
+              error.response?.data || error.message,
+            );
+          });
+      }
+      if (activeTab === '4' && activeTicketFilter === 'not_done') {
+        console.log('Загрузка комментариев с фильтром not_done');
+        getComments(selectedTeamId, union_id, requestSize, last_date, true)
+          .then((val) => {
+            if (val.comments) {
+              dispatch(addComments(val.comments));
+            }
+          })
+          .catch((error) => {
+            console.error(
+              'Ошибка при загрузке комментариев:',
+              error.response?.data || error.message,
+            );
+          });
+      } else {
+        getComments(selectedTeamId, union_id, requestSize, last_date)
+          .then((val) => {
+            if (val.comments) {
+              dispatch(addComments(val.comments));
+            }
+          })
+          .catch((error) => {
+            console.error(
+              'Ошибка при загрузке комментариев:',
+              error.response?.data || error.message,
+            );
+          });
+      }
     }
 
     return () => {

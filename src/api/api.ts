@@ -13,6 +13,7 @@ import {
   GetSummarizeMarkdownResponse,
   GetSummarizeResult,
   Answ,
+  Ticket,
 } from '../models/Comment/types';
 import { AxiosError, isAxiosError } from 'axios';
 import config from '../constants/appConfig';
@@ -186,6 +187,7 @@ export const getComments = async (
   union_id: number,
   limit: number,
   offset?: string,
+  marked_as_ticket?: boolean,
 ) => {
   try {
     const response = await axiosInstance.get<Comments>(
@@ -197,6 +199,7 @@ export const getComments = async (
           post_union_id: union_id,
           limit: limit,
           offset: offset,
+          marked_as_ticket: marked_as_ticket,
         },
       },
     );
@@ -239,6 +242,17 @@ export const ReplyIdeas = async (req: Answ): Promise<{ ideas: string[] }> => {
     {
       withCredentials: true,
       params: req,
+    },
+  );
+  return response.data;
+};
+
+export const MarkAsTicket = async (req: Ticket): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>(
+    `${config.api.baseURL}${routes.comments()}/ticket`,
+    req,
+    {
+      withCredentials: true,
     },
   );
   return response.data;

@@ -1,14 +1,21 @@
 import React from 'react';
 import { Avatar, Carousel, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
-import { Comment, DeleteComment } from '../../../models/Comment/types';
+import { Comment, DeleteComment, Ticket } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import ClickableButton from '../../ui/Button/Button';
-import { DeleteOutlined, DoubleRightOutlined, TagOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  DisconnectOutlined,
+  DoubleRightOutlined,
+  TagOutlined,
+  TeamOutlined,
+} from '@ant-design/icons';
+import { message } from 'antd';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Delete } from '../../../api/api';
+import { Delete, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
@@ -26,6 +33,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const teams = useAppSelector((state) => state.teams.teams);
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -64,6 +72,30 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     dispatch(setActiveTab('1'));
     dispatch(setScrollToPost(true));
     dispatch(setSelectedPostId(comment.post_union_id));
+  };
+
+  const handleMarkTicket = (isTicket: boolean) => {
+    const ticketData: Ticket = {
+      team_id: selectedTeamId,
+      comment_id: Number(comment.id),
+      marked_as_ticket: isTicket,
+    };
+    console.log(ticketData);
+    MarkAsTicket(ticketData)
+      .then((r) => {
+        message.success({
+          content: !isTicket ? 'Тикет создан' : 'Тикет удален',
+          key: 'ticketOperation',
+        });
+        console.log('Результат операции с тикетом:', r);
+      })
+      .catch((error) => {
+        message.error({
+          content: `Ошибка сети: ${error.message}. Пожалуйста, проверьте соединение с сервером.`,
+          key: 'ticketOperation',
+        });
+        console.error('Ошибка при операции с тикетом:', error);
+      });
   };
 
   return (
@@ -153,8 +185,11 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
           <ClickableButton
             type='default'
             variant='outlined'
-            icon={<TagOutlined />}
-            onButtonClick={deleteComment}
+            color={'default'}
+            icon={activeTab === '4' ? <DisconnectOutlined /> : <TagOutlined />}
+            onButtonClick={
+              activeTab === '4' ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
+            }
           />
         </div>
       </div>
