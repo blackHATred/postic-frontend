@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu } from 'antd';
 import { KeyOutlined, PlusOutlined, TeamOutlined } from '@ant-design/icons';
@@ -12,10 +12,11 @@ import { PostFilter, setActivePostFilter } from '../../../stores/postsSlice';
 const SideMenu: React.FC = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
+  const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
 
-  // Функция для установки фильтра
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
   };
@@ -23,8 +24,7 @@ const SideMenu: React.FC = () => {
   return (
     <div className={styles['sidebar-right']}>
       <Menu className={styles['menu']} mode='vertical' selectable={false}>
-        {/* Меню для страницы постов */}
-        {currentPath === routes.posts() && (
+        {currentPath === routes.posts() && selectedTeam !== 0 && (
           <>
             <Menu.Item
               key='all-posts'
@@ -67,10 +67,10 @@ const SideMenu: React.FC = () => {
               onClick={() => dispatch(setCreateTeamDialog(true))}
               icon={<TeamOutlined className={styles['icon-primary']} />}
             >
-              Добавить команду
+              Создать команду
             </Menu.Item>
             <Menu.Item
-              key='add-team'
+              key='secret-key'
               className={styles['sidebar-options']}
               onClick={() => dispatch(setPersonalInfoDialog(true))}
               icon={<KeyOutlined className={styles['icon-primary']} />}

@@ -1,238 +1,122 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Breadcrumb, Empty, Typography, Button } from 'antd';
-import CommentComponent from '../../cards/Comment/Comment';
+import React, { useMemo } from 'react';
+import { Button, Empty } from 'antd';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { addComment, addComments, getLastDate } from '../../../stores/commentSlice';
-import { getComment, getComments } from '../../../api/api';
-import { getSseUrl } from '../../../constants/appConfig';
-import { setActiveTab } from '../../../stores/basePageDialogsSlice';
-import { setScrollToPost } from '../../../stores/postsSlice';
-import { useAuthenticatedSSE } from '../../../api/newSSE';
-import { Comment, mockComments } from '../../../models/Comment/types';
-import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
-
-// уровень вложенности для отображения
-const MAX_NESTING_LEVEL = 4;
+import CommentTreeItem from './CommentTreeItem';
+import { useComments } from './useComments';
+import { CommentWithChildren, createCommentTree, useCollapsedComments } from './commentTree';
+import { Comment } from '../../../models/Comment/types';
 
 interface CommentListProps {
   postId?: number;
   isDetailed?: boolean;
 }
 
-interface CommentWithChildren extends Comment {
-  children: CommentWithChildren[];
-  realLevel?: number;
-}
-
 const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
-  const comments = mockComments;
-  const last_date = useAppSelector(getLastDate);
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const requestSize = 20;
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const filteredComments = comments.comments
-    ? selectedPostId !== 0
-      ? comments.comments.filter((comment) => comment.post_union_id === Number(selectedPostId))
-      : comments.comments.filter((el) => el.post_union_id != null)
-    : [];
-  const selectedteamid = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const url = getSseUrl(selectedteamid, selectedPostId || 0);
-  // Получаем ID поста для фильтрации комментариев
-  const effectivePostId = postId || useAppSelector((state) => state.posts.selectedPostId);
-  /*
-  // Фильтруем комментарии по ID активного поста
-  const filteredComments = comments.comments.filter(
-    (comment) => comment.post_union_id === effectivePostId,
-  );*/
-  // Загружаем комментарии при изменении ID поста
-  useEffect(() => {
-    if (!effectivePostId || !selectedteamid) return;
+  const { filteredComments, loading } = useComments(postId);
+  const commentsData = useAppSelector((state) => state.comments.comments);
+  const { collapsedComments, toggleCollapse } = useCollapsedComments();
 
-    setLoading(true);
-    getComments(selectedteamid, effectivePostId, 20, last_date)
-      .then((val) => {
-        if (val.comments) {
-          dispatch(addComments(val.comments));
-        }
-      })
-      .catch((error) => {
-        console.error('Ошибка при загрузке комментариев:', error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [effectivePostId, selectedteamid]);
-
-  // для отслеживания свернутых комментариев
-  const [collapsedComments, setCollapsedComments] = useState<Record<number, boolean>>({});
-
+  // Создаем дерево комментариев
   const commentTree = useMemo(() => {
-    const createTree = (comments: Comment[]) => {
-      // map - хранит комментарии по их id, roots - комменты без родителя
-      const map: Record<number, CommentWithChildren> = {};
-      const roots: CommentWithChildren[] = [];
+    const tree = createCommentTree(filteredComments);
 
-      // первый проход - создаем узлы
-      comments.forEach((comment) => {
-        map[comment.id] = { ...comment, children: [], realLevel: 0 };
-      });
+    // Логируем дерево комментариев в более читабельном виде
+    console.log(
+      'Дерево комментариев:',
+      JSON.stringify(
+        tree,
+        (key, value) => {
+          if (key === 'children') {
+            return value.map((child: CommentWithChildren) => ({
+              id: child.id,
+              text: child.text.substring(0, 30) + (child.text.length > 30 ? '...' : ''),
+              reply_to: child.reply_to_comment_id,
+              children_count: child.children.length,
+            }));
+          }
+          return value;
+        },
+        2,
+      ),
+    );
 
-      // второй проходик - строим дерево комментов
-      comments.forEach((comment) => {
-        if (comment.reply_to_comment_id !== null && map[comment.reply_to_comment_id]) {
-          // находим родительский коммент в мапе
-          const parent = map[comment.reply_to_comment_id];
-          // реальный уровень вложенности - на 1 больше, чем у родителя
-          map[comment.id].realLevel = (parent.realLevel || 0) + 1;
-          // теперь он чилдрен родителя
-          parent.children.push(map[comment.id]);
-        } else {
-          roots.push(map[comment.id]);
-        }
-      });
-
-      return roots;
-    };
-
-    return createTree(filteredComments);
+    return tree;
   }, [filteredComments]);
 
-  const newComment = (data: any) => {
-    if (data.type == 'new') {
-      getComment(selectedteamid, data.comment_id).then((data) => {
-        dispatch(addComment(data.comment));
-      });
-    }
-  };
+  // Функция отладки для вывода структуры комментариев
+  const debugComments = () => {
+    console.group('🔍 ОТЛАДКА КОММЕНТАРИЕВ');
 
-  const { isConnected, close } = useAuthenticatedSSE({ url: url, onMessage: newComment });
+    console.log('📊 Все комментарии в store:', commentsData.comments);
+    console.log('🔍 Отфильтрованные комментарии:', filteredComments);
+    console.log('🌳 Дерево комментариев:', commentTree);
 
-  useEffect(() => {
-    const union_id = selectedPostId ? Number(selectedPostId) : 0;
+    // Анализ вложенности
+    const replyStructure: Record<number, Array<{ id: number; text: string }>> = {};
 
-    if (filteredComments.length < requestSize) {
-      getComments(selectedteamid, union_id, requestSize, last_date)
-        .then((val) => {
-          if (val.comments) {
-            dispatch(addComments(val.comments));
-          }
-        })
-        .catch((error) => {
-          console.error('Ошибка при загрузке комментариев:', error.response?.data || error.message);
+    filteredComments.forEach((c: Comment) => {
+      if (c.reply_to_comment_id) {
+        if (!replyStructure[c.reply_to_comment_id]) {
+          replyStructure[c.reply_to_comment_id] = [];
+        }
+        replyStructure[c.reply_to_comment_id].push({
+          id: c.id,
+          text: c.text.substring(0, 20),
         });
-    }
-    return () => {
-      close();
+      }
+    });
+
+    console.log('👪 Структура ответов (комментарий -> [ответы]):', replyStructure);
+
+    // Анализ по уровням вложенности
+    const commentsByLevel: Record<number, Comment[]> = { 0: [] };
+
+    const findLevel = (comment: Comment, level = 0): number => {
+      if (!comment.reply_to_comment_id) return 0;
+
+      const parentComment = filteredComments.find((c) => c.id === comment.reply_to_comment_id);
+      return parentComment ? findLevel(parentComment, level + 1) + 1 : 0;
     };
-  }, []);
 
-  const handleBreadcrumbClick = () => {
-    dispatch(setActiveTab('1'));
-    dispatch(setScrollToPost(true));
+    filteredComments.forEach((comment) => {
+      const level = findLevel(comment);
+      if (!commentsByLevel[level]) commentsByLevel[level] = [];
+      commentsByLevel[level].push(comment);
+    });
+
+    console.log('Комментарии по уровням вложенности:', commentsByLevel);
+    console.groupEnd();
   };
-
-  // сворачивание
-  const toggleCollapse = (commentId: number) => {
-    setCollapsedComments((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
-  };
-
-  // Мемоизируем компонент для отображения одного комментария, чтобы улучшить производительность
-  const CommentItem = React.memo(
-    ({
-      comment,
-      level,
-    }: {
-      comment: CommentWithChildren;
-      level: number;
-      isLastInChain?: boolean;
-    }) => {
-      const isCollapsed = collapsedComments[comment.id];
-      const hasChildren = comment.children.length > 0;
-      const visibleLevel = level % MAX_NESTING_LEVEL;
-      const isResetLevel = level > 0 && visibleLevel === 0;
-
-      const levelColors = ['#ddeffd', '#BAE0FF', '#91CAFF', '#69B1FF'];
-      const lineColor = levelColors[visibleLevel % levelColors.length];
-
-      return (
-        <div className={styles.commentTreeItem}>
-          <div className={`${styles.commentWrapper} ${isResetLevel ? styles.resetLevel : ''}`}>
-            {isResetLevel && (
-              <div className={styles.continuationIndicator}>
-                <div
-                  className={styles.continuationLine}
-                  style={{ backgroundColor: lineColor }}
-                ></div>
-                <span className={styles.levelInfo}>Продолжение ветки (уровень {level})</span>
-              </div>
-            )}
-            <CommentComponent comment={comment} />
-            {hasChildren && (
-              <Button
-                type='text'
-                icon={isCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
-                onClick={() => toggleCollapse(comment.id)}
-                className={styles.collapseButton}
-              >
-                {isCollapsed ? 'Показать ответы' : 'Скрыть ответы'} ({comment.children.length})
-              </Button>
-            )}
-          </div>
-
-          {!isCollapsed && hasChildren && (
-            <div
-              className={styles.commentReplies}
-              style={{
-                borderLeft: `2px solid ${lineColor}`,
-                paddingLeft: isResetLevel ? '15px' : '10px',
-              }}
-            >
-              {comment.children.map((child, index) => (
-                <CommentItem
-                  key={child.id}
-                  comment={child}
-                  level={level + 1}
-                  isLastInChain={index === comment.children.length - 1}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      );
-    },
-  );
 
   return (
     <div className={styles.commentListContainer}>
-      {selectedPostId != 0 && (
-        <Breadcrumb className={styles['breadcrumb']}>
-          <Breadcrumb.Item
-            onClick={handleBreadcrumbClick}
-            className={styles['breadcrumb-item-link']}
-          >
-            <a>{'Пост #' + selectedPostId}</a>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>Комментарии</Breadcrumb.Item>
-        </Breadcrumb>
-      )}
-
       {commentTree.length > 0 ? (
         <div className={styles.commentTreeContainer}>
           {commentTree.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} level={0} />
+            <CommentTreeItem
+              key={comment.id}
+              comment={comment}
+              level={0}
+              isCollapsed={!!collapsedComments[comment.id]}
+              onToggleCollapse={toggleCollapse}
+              collapsedComments={collapsedComments}
+            />
           ))}
         </div>
       ) : (
         <Empty
-          styles={{ image: { height: 60 }, root: { paddingTop: 25 } }}
-          description={<Typography.Text>Нет комментариев</Typography.Text>}
-        ></Empty>
+          description={loading ? 'Загрузка комментариев...' : 'Комментарии отсутствуют'}
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
       )}
+
+      {/* Кнопка отладки */}
+      <Button onClick={debugComments} style={{ marginBottom: 10 }} type='dashed'>
+        Отладить комментарии
+      </Button>
     </div>
   );
 };

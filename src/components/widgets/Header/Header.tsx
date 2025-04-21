@@ -4,7 +4,6 @@ import {
   BellOutlined,
   LoginOutlined,
   LogoutOutlined,
-  PlusOutlined,
   QuestionCircleOutlined,
   TeamOutlined,
   UserOutlined,
@@ -12,18 +11,13 @@ import {
 import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import {
-  setCreatePostDialog,
-  setLoginDialog,
-  setRegiserDialog,
-} from '../../../stores/basePageDialogsSlice';
+import { setLoginDialog, setRegiserDialog } from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
 import { setPosts } from '../../../stores/postsSlice';
 
 const ButtonHeader: React.FC = () => {
   const dispatch = useAppDispatch();
   const teams = useAppSelector(getTeamsFromStore);
-  const activeTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(undefined);
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
 
@@ -130,14 +124,6 @@ const ButtonHeader: React.FC = () => {
                   options={teamOptions}
                 />
               </div>
-              {activeTeam != 0 && (
-                <ClickableButton
-                  className={styles['icon']}
-                  icon={<PlusOutlined />}
-                  type='default'
-                  onButtonClick={() => dispatch(setCreatePostDialog(true))}
-                />
-              )}
               <ClickableButton
                 className={styles['icon']}
                 icon={<BellOutlined />}

@@ -14,6 +14,13 @@
   justify-content: center;
 }
 
+.alert-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
 .layout {
   display: flex;
   align-items: flex-start;
@@ -45,4 +52,5 @@
   display: flex;
   flex-direction: column;
   text-align: center;
+  max-width: 300px;
 }
