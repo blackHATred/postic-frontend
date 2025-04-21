@@ -3,7 +3,7 @@ import { Input, Divider, Form } from 'antd';
 import DialogBox, { DialogBoxProps } from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setCreateTeamDialog, addTeam, setTeams } from '../../../stores/teamSlice';
+import { setCreateTeamDialog, setTeams } from '../../../stores/teamSlice';
 import { MyTeams, TeamCreate } from '../../../api/teamApi';
 import { Team, TeamCreateRequest } from '../../../models/Team/types';
 import { NotificationContext } from '../../../api/notification';
@@ -19,11 +19,11 @@ const TeamCreateDialog: React.FC = () => {
   const isOpen = useAppSelector((state) => state.teams.createTeamDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
 
-  const updateTeamList = () => {
+  const updateTeamList = (created_team: Team) => {
     MyTeams()
       .then((res: { teams: Team[] }) => {
         if (res.teams) {
-          dispatch(setTeams(res.teams));
+          if (!res.teams.includes(created_team)) dispatch(setTeams(res.teams));
         }
       })
       .catch(() => {
@@ -49,8 +49,7 @@ const TeamCreateDialog: React.FC = () => {
           users: [],
           created_at: new Date().toISOString(),
         };
-
-        dispatch(addTeam(createdTeam));
+        updateTeamList(createdTeam);
 
         notificationManager.createNotification(
           'success',
@@ -70,7 +69,6 @@ const TeamCreateDialog: React.FC = () => {
           error.message || 'Не удалось создать команду',
         );
       });
-    updateTeamList();
   };
 
   return (

@@ -33,6 +33,7 @@ const Sidebar: React.FC = () => {
           text={'Посты'}
           icon={<MessageOutlined className={styles['icon-primary']} />}
           onButtonClick={() => handleTabChange('1', routes.posts())}
+          className={styles['button']}
         />
       </div>
       <div
@@ -43,10 +44,10 @@ const Sidebar: React.FC = () => {
           text={'Все комментарии'}
           icon={<CommentOutlined className={styles['icon-primary']} />}
           onButtonClick={() => handleTabChange('2', routes.comments())}
+          className={styles['button']}
         />
       </div>
 
-      <div className={styles['sidebar-divider']}></div>
       <div
         className={`${styles['sidebar-options']} ${location.pathname === routes.teams() ? styles['active'] : ''}`}
       >
@@ -55,8 +56,10 @@ const Sidebar: React.FC = () => {
           text={'Команды'}
           icon={<TeamOutlined className={styles['icon-primary']} />}
           onButtonClick={() => handleTabChange('3', routes.teams())}
+          className={styles['button']}
         />
       </div>
+      <div className={styles['sidebar-divider']}></div>
       <div className={styles['sidebar-option-mode']}>
         <Switch size='default' onChange={(checked) => handleSettingsMode(checked)} />
         <Typography.Text> Подсказки </Typography.Text>

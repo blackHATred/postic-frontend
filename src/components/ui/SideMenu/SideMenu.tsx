@@ -70,7 +70,7 @@ const SideMenu: React.FC = () => {
               Добавить команду
             </Menu.Item>
             <Menu.Item
-              key='add-team'
+              key='personal-info'
               className={styles['sidebar-options']}
               onClick={() => dispatch(setPersonalInfoDialog(true))}
               icon={<KeyOutlined className={styles['icon-primary']} />}

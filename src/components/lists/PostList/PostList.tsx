@@ -32,7 +32,6 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
       const result = await getPosts(teamId, limit, currentDate, activeFilter || undefined, before);
       return result.posts;
     } catch (error) {
-      console.error('Ошибка при загрузке постов:', error);
       return [];
     }
   };

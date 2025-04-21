@@ -1,17 +1,20 @@
-import React from 'react';
-import { List, Spin } from 'antd';
+import React, { useEffect } from 'react';
+import { Spin } from 'antd';
 import styles from './styles.module.scss';
 import TeamCard from '../../cards/TeamCard/TeamCard';
 import { useAppSelector } from '../../../stores/hooks';
 import { getTeamsFromStore } from '../../../stores/teamSlice';
+import InfiniteScroll from '../../ui/stickyScroll/batchLoadScroll';
+import { Team } from '../../../models/Team/types';
 
 interface TeamListProps {
   isLoading?: boolean;
-  hasMore?: boolean;
 }
 
-const TeamList: React.FC<TeamListProps> = ({ isLoading, hasMore }) => {
+const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
   const teams = useAppSelector(getTeamsFromStore);
+
+  useEffect(() => {}, [teams]);
   return (
     <div className={styles.teamList} title='Команды'>
       {isLoading && (
@@ -20,22 +23,21 @@ const TeamList: React.FC<TeamListProps> = ({ isLoading, hasMore }) => {
         </div>
       )}
 
-      <div>
-        <List
-          dataSource={teams}
-          renderItem={(team) => (
-            <List.Item>
-              <TeamCard teamcard={team} />
-            </List.Item>
-          )}
-        />
-      </div>
-
-      {hasMore && (
-        <div className={styles.spinnerContainer}>
-          <Spin />
-        </div>
-      )}
+      <InfiniteScroll
+        getObjectFromData={function (team: Team, index: number): React.ReactNode {
+          return <TeamCard teamcard={team} key={index} />;
+        }}
+        data={teams}
+        setData={() => {}}
+        getNewData={() => {
+          return new Promise(() => {
+            return [];
+          });
+        }}
+        initialScroll={0}
+        frame_size={0}
+        empty_text={'Нет комманд'}
+      />
     </div>
   );
 };

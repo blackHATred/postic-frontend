@@ -40,8 +40,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       const isAdmin = userMember?.roles.includes('admin') || false;
 
       setIsUserAdmin(isAdmin);
-      console.log('Текущий пользователь (ID):', currentUserId);
-      console.log('Является администратором:', isAdmin);
     }
   }, [currentUserId, team_members]);
 
@@ -186,22 +184,24 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
               onButtonClick={handleRename}
             />
           )}
-          <ClickableButton
-            text='Покинуть команду'
-            type='primary'
-            color='danger'
-            variant='solid'
-            icon={<MinusOutlined />}
-            onButtonClick={handleKick}
-          />
-          {isUserAdmin && (
+          <div className={styles['post-header-buttons-big']}>
             <ClickableButton
-              text='Добавить участника'
-              icon={<PlusOutlined />}
-              color='primary'
-              onButtonClick={handleAddMember}
+              text='Покинуть команду'
+              type='primary'
+              color='danger'
+              variant='solid'
+              icon={<MinusOutlined />}
+              onButtonClick={handleKick}
             />
-          )}
+            {isUserAdmin && (
+              <ClickableButton
+                text='Добавить участника'
+                icon={<PlusOutlined />}
+                color='primary'
+                onButtonClick={handleAddMember}
+              />
+            )}
+          </div>
         </div>
       </div>
       <Divider className={styles.customDivider} />

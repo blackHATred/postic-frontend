@@ -84,7 +84,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       //Если есть данные
       if (props.data && props.data.length > 0) {
         setIsLoading(false);
-        if (props.data.length < props.frame_size) {
+        if (props.data.length < props.frame_size || props.frame_size == 0) {
           // Загружены все объекты
           setHasMoreTop(false);
         }
@@ -141,7 +141,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         scrollToBottom == 'no' &&
         !isLoading &&
         props.data &&
-        props.data.length > 0
+        props.data.length > 0 &&
+        props.frame_size != 0
       ) {
         //NOTE: load more data bottom
         setIsLoadingTop(true);
@@ -154,7 +155,9 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         hasMoreBottom &&
         !isLoadingBottom &&
         !isLoading &&
-        props.data
+        props.data &&
+        props.data.length > 0 &&
+        props.frame_size != 0
       ) {
         //NOTE: load more data top
         setIsLoadingBottom(true);
@@ -167,7 +170,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
 
   return (
     <div className={styles.container} ref={ref} onScroll={handleScroll}>
-      {isLoadingTop && <Spin className={styles['spin']} />}
+      {isLoadingTop ? <Spin className={styles['spin']} /> : <div className={styles['space']}></div>}
       {props.data &&
         props.data.length > 0 &&
         props.data.toReversed().map((element, index) => {
@@ -176,7 +179,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       {isLoadingBottom ? (
         <Spin className={styles['spin']} />
       ) : (
-        <div className={styles['spin']}></div>
+        <div className={styles['space']}></div>
       )}
       {isLoading && <Spin className={styles.empty} />}
       {!isLoading && props.data.length == 0 && (
