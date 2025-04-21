@@ -6,7 +6,6 @@
   padding: 16px;
   margin-bottom: 16px;
   background-color: $container-color;
-  width: 668px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: $border-radius;
 }
@@ -24,16 +23,35 @@
 .post-header-info {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .post-header-info-text {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 10px;
+  height: 100%;
+  white-space: nowrap;
 }
 
 .post-header-buttons {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.post-header-buttons-pair {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: stretch;
+}
+
+@media (max-width: 1200px) {
+  .post-header-buttons-pair {
+    flex-direction: column;
+  }
 }
 
 .post-time {

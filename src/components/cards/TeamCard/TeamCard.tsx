@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Divider, Table, TableColumnsType, Typography } from 'antd';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
-import { EditOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, KeyOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Team } from '../../../models/Team/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
@@ -15,6 +15,7 @@ import {
   setSelectRoles,
 } from '../../../stores/teamSlice';
 import { Kick } from '../../../api/teamApi';
+import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 
 const { Text } = Typography;
 
@@ -40,8 +41,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       const isAdmin = userMember?.roles.includes('admin') || false;
 
       setIsUserAdmin(isAdmin);
-      console.log('Текущий пользователь (ID):', currentUserId);
-      console.log('Является администратором:', isAdmin);
     }
   }, [currentUserId, team_members]);
 
@@ -161,6 +160,11 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     setPagination(newPagination);
   };
 
+  const handleKeyClick = () => {
+    dispatch(setSelectedTeamId?.(id));
+    dispatch(setPersonalInfoDialog(true));
+  };
+
   const startIndex = (pagination.current - 1) * pagination.pageSize;
   const endIndex = startIndex + pagination.pageSize;
   const paginatedData = tabledata.slice(startIndex, endIndex);
@@ -169,39 +173,48 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     <div className={styles['post']}>
       {/* хедер*/}
       <div className={styles['post-header']}>
-        <div className={styles['post-header-info']}>
-          <div className={styles['post-header-info-text']}>
-            <Text strong>Команда: </Text>
-            <Text className={styles['teamName']} strong>
-              {team_name}
-            </Text>
-          </div>
+        <div className={styles['post-header-info-text']}>
+          <Text strong>Команда: </Text>
+          <Text className={styles['teamName']} strong>
+            {team_name}
+          </Text>
         </div>
         <div className={styles['post-header-buttons']}>
           {isUserAdmin && (
+            <div className={styles['post-header-buttons-pair']}>
+              <ClickableButton
+                type='text'
+                variant='solid'
+                icon={<EditOutlined />}
+                onButtonClick={handleRename}
+              />
+              <ClickableButton
+                type='text'
+                variant='solid'
+                onButtonClick={handleKeyClick}
+                icon={<KeyOutlined className={styles['icon-primary']} />}
+              />
+            </div>
+          )}
+
+          <div className={styles['post-header-buttons-pair']}>
             <ClickableButton
-              type='text'
+              text='Покинуть команду'
+              type='primary'
+              color='danger'
               variant='solid'
-              icon={<EditOutlined />}
-              onButtonClick={handleRename}
+              icon={<MinusOutlined />}
+              onButtonClick={handleKick}
             />
-          )}
-          <ClickableButton
-            text='Покинуть команду'
-            type='primary'
-            color='danger'
-            variant='solid'
-            icon={<MinusOutlined />}
-            onButtonClick={handleKick}
-          />
-          {isUserAdmin && (
-            <ClickableButton
-              text='Добавить участника'
-              icon={<PlusOutlined />}
-              color='primary'
-              onButtonClick={handleAddMember}
-            />
-          )}
+            {isUserAdmin && (
+              <ClickableButton
+                text='Добавить участника'
+                icon={<PlusOutlined />}
+                color='primary'
+                onButtonClick={handleAddMember}
+              />
+            )}
+          </div>
         </div>
       </div>
       <Divider className={styles.customDivider} />

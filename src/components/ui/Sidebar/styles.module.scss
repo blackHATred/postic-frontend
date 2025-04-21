@@ -12,8 +12,10 @@
 
 .sidebar-options {
   display: flex;
-  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  border-radius: $border-radius;
+  margin-right: 10px;
 
   &:hover .sidebar-option {
     color: $primary-color;
@@ -33,4 +35,14 @@
 
 .icon-primary {
   color: $primary-color;
+}
+
+.active {
+  background-color: rgba($primary-color, 0.1);
+  color: $primary-color !important;
+}
+
+.button {
+  width: 100%;
+  justify-content: left;
 }
