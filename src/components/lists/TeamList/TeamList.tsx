@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Spin } from 'antd';
 import styles from './styles.module.scss';
 import TeamCard from '../../cards/TeamCard/TeamCard';
 import { useAppSelector } from '../../../stores/hooks';
 import { getTeamsFromStore } from '../../../stores/teamSlice';
-import InfiniteScroll from '../../ui/stickyScroll/batchLoadScroll';
 import { Team } from '../../../models/Team/types';
 
 interface TeamListProps {
@@ -13,8 +12,8 @@ interface TeamListProps {
 
 const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
   const teams = useAppSelector(getTeamsFromStore);
+  const Scroll = React.lazy(() => import('../../ui/stickyScroll/batchLoadScroll'));
 
-  useEffect(() => {}, [teams]);
   return (
     <div className={styles.teamList} title='Команды'>
       {isLoading && (
@@ -22,22 +21,23 @@ const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
           <Spin />
         </div>
       )}
-
-      <InfiniteScroll
-        getObjectFromData={function (team: Team, index: number): React.ReactNode {
-          return <TeamCard teamcard={team} key={index} />;
-        }}
-        data={teams}
-        setData={() => {}}
-        getNewData={() => {
-          return new Promise(() => {
-            return [];
-          });
-        }}
-        initialScroll={0}
-        frame_size={0}
-        empty_text={'Нет комманд'}
-      />
+      <React.Suspense fallback={<Spin className={styles['spin']} />}>
+        <Scroll
+          getObjectFromData={function (team: Team, index: number): React.ReactNode {
+            return <TeamCard teamcard={team} key={index} />;
+          }}
+          data={teams}
+          setData={() => {}}
+          getNewData={() => {
+            return new Promise(() => {
+              return [];
+            });
+          }}
+          initialScroll={0}
+          frame_size={0}
+          empty_text={'Нет комманд'}
+        />
+      </React.Suspense>
     </div>
   );
 };

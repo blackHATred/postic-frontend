@@ -24,12 +24,6 @@ const Sidebar: React.FC = () => {
     dispatch(setHelpMode(checked));
   };
 
-  React.useEffect(() => {
-    if (selectedTeam === 0 && location.pathname !== routes.teams()) {
-      handleTabChange('3', routes.teams());
-    }
-  }, [selectedTeam, location.pathname]);
-
   return (
     <div className={styles['sidebar']}>
       <div
