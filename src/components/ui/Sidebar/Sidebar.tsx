@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { TeamOutlined, MessageOutlined, CommentOutlined } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
-import { useAppDispatch } from '../../../stores/hooks';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Switch, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
@@ -13,6 +13,7 @@ const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const handleTabChange = (key: string, route: string) => {
     dispatch(setActiveTab(key));
@@ -22,6 +23,12 @@ const Sidebar: React.FC = () => {
   const handleSettingsMode = (checked: boolean) => {
     dispatch(setHelpMode(checked));
   };
+
+  React.useEffect(() => {
+    if (selectedTeam === 0 && location.pathname !== routes.teams()) {
+      handleTabChange('3', routes.teams());
+    }
+  }, [selectedTeam, location.pathname]);
 
   return (
     <div className={styles['sidebar']}>

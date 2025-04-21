@@ -14,6 +14,13 @@
   justify-content: center;
 }
 
+.alert-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
 .layout {
   display: flex;
   align-items: flex-start;

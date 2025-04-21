@@ -36,8 +36,9 @@ export const commentsSlice = createSlice({
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
       if (
+        (console.log('Получен новый комментарий через SSE: ', action.payload),
         state.comments.comments &&
-        !state.comments.comments.some((el) => el.id === action.payload.id)
+          !state.comments.comments.some((el) => el.id === action.payload.id))
       ) {
         state.comments.comments = [action.payload, ...state.comments.comments];
       } else {
