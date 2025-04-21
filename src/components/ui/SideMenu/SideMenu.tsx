@@ -2,11 +2,11 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu } from 'antd';
-import { KeyOutlined, PlusOutlined, TeamOutlined } from '@ant-design/icons';
+import { PlusOutlined, TeamOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { routes } from '../../../app/App.routes';
-import { setCreatePostDialog, setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
+import { setCreatePostDialog } from '../../../stores/basePageDialogsSlice';
 import { PostFilter, setActivePostFilter } from '../../../stores/postsSlice';
 
 const SideMenu: React.FC = () => {
@@ -68,14 +68,6 @@ const SideMenu: React.FC = () => {
               icon={<TeamOutlined className={styles['icon-primary']} />}
             >
               Добавить команду
-            </Menu.Item>
-            <Menu.Item
-              key='personal-info'
-              className={styles['sidebar-options']}
-              onClick={() => dispatch(setPersonalInfoDialog(true))}
-              icon={<KeyOutlined className={styles['icon-primary']} />}
-            >
-              Секретный ключ
             </Menu.Item>
           </>
         )}

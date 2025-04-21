@@ -4,7 +4,7 @@ import PostStatusDialog from '../../components/modals/PostStatusDialog/PostStatu
 import CreatePostDialog from '../../components/modals/CreatePostDialog/CreatePostDialog';
 import LoginDialog from '../../components/modals/auth/LoginDialog';
 import RegisterDialog from '../../components/modals/auth/RegisterDialog';
-import MeDialog from '../../components/modals/auth/MeDialog';
+import MeDialog from '../../components/modals/auth/keyDialog';
 import WelcomeDialog from '../../components/modals/auth/WelcomeDialog';
 import TeamAddMemberDialog from '../../components/modals/TeamDialog/TeamAddMemberDialog';
 import TeamCreateDialog from '../../components/modals/TeamDialog/TeamCreateDialog';
