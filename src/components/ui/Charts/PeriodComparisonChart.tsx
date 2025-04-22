@@ -1,4 +1,3 @@
-// src/components/ui/Charts/PeriodComparisonChart.tsx
 import React, { useState, useMemo } from 'react';
 import { Card, Select, Row, Col, Statistic, Divider, Space, Tooltip, Radio } from 'antd';
 import { InfoCircleOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
@@ -216,11 +215,11 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
             seriesField: 'period',
             lineStyle: {
               lineWidth: 3,
-              opacity: 0,
+              opacity: 1,
             },
             point: {
               shape: 'circle',
-              size: 0,
+              size: 1,
             },
           },
         ],
@@ -309,8 +308,8 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
       }
       loading={loading}
     >
-      <Row gutter={16} style={{ marginBottom: '16px' }}>
-        <Col span={7}>
+      <div className={styles.analyticsCardButtons}>
+        <div className={styles.analyticsCardButton}>
           <Select
             value={periodType}
             onChange={setPeriodType}
@@ -320,8 +319,6 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
               { value: 'month', label: 'Месяц' },
             ]}
           />
-        </Col>
-        <Col span={7}>
           <Select
             value={metricType}
             onChange={setMetricType}
@@ -333,8 +330,6 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
               { value: 'er', label: 'ER (%)' },
             ]}
           />
-        </Col>
-        <Col span={6}>
           <Select
             value={platform}
             onChange={setPlatform}
@@ -345,20 +340,18 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
               { value: 'vk', label: 'ВКонтакте' },
             ]}
           />
-        </Col>
-        <Col span={4}>
+        </div>
+        <div className={styles.analyticsCardButton}>
           <Radio.Group
             value={displayMode}
             onChange={(e) => setDisplayMode(e.target.value)}
             buttonStyle='solid'
-            size='small'
-            style={{ display: 'flex', flexDirection: 'column' }}
           >
             <Radio.Button value='default'>С метками</Radio.Button>
             <Radio.Button value='clean'>Без меток</Radio.Button>
           </Radio.Group>
-        </Col>
-      </Row>
+        </div>
+      </div>
 
       <Row gutter={16} justify='center' style={{ marginBottom: '10px' }}>
         <Col span={8} style={{ textAlign: 'center' }}>

@@ -1,6 +1,5 @@
 // src/components/widgets/Analytics/Analytics.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card } from 'antd';
 import styles from './styles.module.scss';
 import { mockData } from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
@@ -37,9 +36,7 @@ const AnalyticsComponent: React.FC = () => {
     <div className={styles.analyticsContainer}>
       {activeAnalytics === '' && (
         <>
-          <Card className={styles.analyticsCard} title='Аналитика публикаций в соцсетях'>
-            <LineChart data={mockData} loading={loading} height={400} />
-          </Card>
+          <LineChart data={mockData} loading={loading} height={400} />
           <CircularChart data={mockData} loading={loading} />
         </>
       )}

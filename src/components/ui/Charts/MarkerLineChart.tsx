@@ -142,7 +142,7 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
             start: ['min', 'mean'],
             end: ['max', 'mean'],
             style: {
-              stroke: '#ffbf00',
+              stroke: '#ffe58f',
               lineDash: [4, 4],
               lineWidth: 2,
             },
@@ -155,7 +155,7 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
             offsetX: -20,
             offsetY: -5,
             style: {
-              fill: '#ffbf00',
+              fill: '#8c8c8c',
               fontSize: 12,
               textAlign: 'end',
             },
@@ -229,7 +229,7 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
     // Создаем копию данных для маркеров
     const markerData: any[] = [];
 
-    // Опре��еляем, какие точки выделять маркерами
+    //  какие точки выделять маркерами
     if (highlight === 'peaks') {
       // Находим локальные пики (точки, которые выше соседей)
       chartData.forEach((item, index, array) => {
@@ -343,28 +343,43 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
         </Space>
       }
     >
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '16px' }}>
-        <Select
-          value={metricType}
-          onChange={setMetricType}
-          style={{ width: '180px' }}
-          options={[
-            { value: 'comments', label: 'Комментарии' },
-            { value: 'reactions', label: 'Реакции' },
-            { value: 'views', label: 'Просмотры' },
-            { value: 'er', label: 'ER (%)' },
-          ]}
-        />
-        <Select
-          value={platform}
-          onChange={setPlatform}
-          style={{ width: '180px' }}
-          options={[
-            { value: 'all', label: 'Все платформы' },
-            { value: 'telegram', label: 'Telegram' },
-            { value: 'vk', label: 'ВКонтакте' },
-          ]}
-        />
+      <div
+        style={{
+          display: 'flex',
+          gap: '10px',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+          }}
+        >
+          <Select
+            value={metricType}
+            onChange={setMetricType}
+            style={{ width: '180px' }}
+            options={[
+              { value: 'comments', label: 'Комментарии' },
+              { value: 'reactions', label: 'Реакции' },
+              { value: 'views', label: 'Просмотры' },
+              { value: 'er', label: 'ER (%)' },
+            ]}
+          />
+          <Select
+            value={platform}
+            onChange={setPlatform}
+            style={{ width: '180px' }}
+            options={[
+              { value: 'all', label: 'Все платформы' },
+              { value: 'telegram', label: 'Telegram' },
+              { value: 'vk', label: 'ВКонтакте' },
+            ]}
+          />
+        </div>
+
         <Radio.Group
           value={highlightType}
           onChange={(e) => setHighlightType(e.target.value)}

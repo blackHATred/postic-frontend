@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Spin } from 'antd';
+import { Card, Space, Spin, Tooltip } from 'antd';
 import { Area } from '@antv/g2plot';
 import { PostAnalytics } from '../../../models/Analytics/types';
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 interface LineChartProps {
   data: PostAnalytics[];
@@ -16,11 +17,11 @@ const LineChart: React.FC<LineChartProps> = ({
   height = 400,
   colors = [
     '#4096ff', // Просмотры TG
-    '#36cfc9', // Реакции TG
-    '#527d80', // Коммента��ии TG
+    '#1d39c4', // Реакции TG
+    '#36cfc9', // Комментырии TG
     '#f759ab', // Просмотры VK
-    '#d099d5', // Реакции VK
-    '#c09ac6', // Комментарии VK
+    '#b37feb', // Реакции VK
+    '#ffadd2', // Комментарии VK
   ],
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
@@ -195,13 +196,37 @@ const LineChart: React.FC<LineChartProps> = ({
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height }}>
-        <Spin size='large' />
-      </div>
+      <Card
+        title={
+          <Space>
+            Топ вовлекающих постов
+            <Tooltip title='График показывает общую динамику активности по всем соцсетям'>
+              <InfoCircleOutlined />
+            </Tooltip>
+          </Space>
+        }
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height }}>
+          <Spin size='large' />
+        </div>
+      </Card>
     );
   }
 
-  return <div ref={chartRef} style={{ height }} />;
+  return (
+    <Card
+      title={
+        <Space>
+          Топ вовлекающих постов
+          <Tooltip title='График показывает общую динамику активности по всем соцсетям'>
+            <InfoCircleOutlined />
+          </Tooltip>
+        </Space>
+      }
+    >
+      <div ref={chartRef} style={{ height }} />
+    </Card>
+  );
 };
 
 export default LineChart;

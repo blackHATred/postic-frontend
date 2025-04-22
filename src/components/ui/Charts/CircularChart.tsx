@@ -55,7 +55,7 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
             };
           },
         },
-        color: ['#4096ff', '#f759ab', '#73d13d', '#ffec3d', '#ff7a45'],
+        color: ['#4096ff', '#f759ab', '#69b1ff', '#ff85c0', '#5cdbd3'],
       });
 
       pie.render();

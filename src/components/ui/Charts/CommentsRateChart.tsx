@@ -28,7 +28,7 @@ const CommentsRateChart: React.FC<CommentsRateChartProps> = ({ data, loading }) 
         data={commentsRateData}
         loading={loading}
         height={400}
-        colors={['#73d13d', '#ffec3d']}
+        colors={['#69b1ff', '#ff85c0']}
       />
     </Card>
   );

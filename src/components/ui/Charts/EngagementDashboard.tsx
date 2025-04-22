@@ -69,7 +69,7 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
         data={chartData}
         loading={loading}
         height={400}
-        colors={metricType === 'reactions' ? ['#4096ff', '#f759ab'] : ['#73d13d', '#ffec3d']}
+        colors={metricType === 'reactions' ? ['#4096ff', '#f759ab'] : ['#5cdbd3', '#b37feb']}
       />
     </Card>
   );
