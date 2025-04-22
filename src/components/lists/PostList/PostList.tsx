@@ -21,7 +21,9 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
 
   // Загрузка постов при изменении фильтра или команды
   React.useEffect(() => {
-    dispatch(setPosts([]));
+    if (activeFilter) {
+      dispatch(setPosts([]));
+    }
   }, [activeFilter]);
 
   const loadPosts = async (before: boolean, limit: number, last_object?: Post) => {
@@ -57,6 +59,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
                 ? 'Нет опубликованных постов'
                 : 'Нет постов'
           }
+          refresh={activeFilter}
         />
       )}
     </div>

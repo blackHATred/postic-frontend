@@ -36,7 +36,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
       limit,
       last_object
         ? dayjs(
-            top && last_object.children.length > 0
+            !top && last_object.children.length > 0
               ? last_object.children[last_object.children.length - 1].created_at
               : last_object.created_at,
           )
@@ -81,7 +81,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
           getNewData={getData}
           initialScroll={0}
           frame_size={4}
-          empty_text={''}
+          empty_text={'нет комментариев'}
         />
       )}
     </div>

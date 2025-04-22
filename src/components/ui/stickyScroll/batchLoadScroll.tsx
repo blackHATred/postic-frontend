@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './styles.module.scss';
-import { Spin } from 'antd';
+import { Empty, Spin } from 'antd';
 interface coolScroll {
   getObjectFromData: (data: any, index: number) => React.ReactNode;
   data: any[];
@@ -9,6 +9,7 @@ interface coolScroll {
   initialScroll: number;
   frame_size: number;
   empty_text: string;
+  refresh?: any;
 }
 
 const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
@@ -94,18 +95,21 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   }, [ref]);
 
   React.useEffect(() => {
-    if (ref.current && finalScroll != 0) {
-      ref.current.scrollTop = finalScroll;
-      setFinalScroll(0);
-      return;
-    }
-    if (!isLoading && ref.current && props.data.length == 0) {
+    if (!isLoading && ref.current) {
       setIsLoading(true);
       setHasMoreBottom(false);
       setHasMoreTop(false);
       setAddedTop(0);
       setAddedBottom(0);
       props.getNewData(true, props.frame_size * 3).then((data) => addFirstData(data));
+    }
+  }, [props.refresh]);
+
+  React.useEffect(() => {
+    if (ref.current && finalScroll != 0) {
+      ref.current.scrollTop = finalScroll;
+      setFinalScroll(0);
+      return;
     }
 
     if (addedTop != 0 && ref.current) {
@@ -189,6 +193,9 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
             </div>
           );
         })}
+      {!isLoading && props.data.length == 0 && (
+        <Empty className={styles.empty} description={<span>{props.empty_text}</span>} />
+      )}
       {isLoadingBottom ? (
         <Spin className={styles['spin']} />
       ) : (
