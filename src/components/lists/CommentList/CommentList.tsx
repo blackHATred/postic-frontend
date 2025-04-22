@@ -1,10 +1,14 @@
-import React, { useMemo } from 'react';
-import { Empty } from 'antd';
+import React from 'react';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import CommentTreeItem from './CommentTreeItem';
-import { useComments } from './useComments';
-import { createCommentTree, useCollapsedComments } from './commentTree';
+import { addComment, setComments } from '../../../stores/commentSlice';
+import InfiniteScroll from '../../ui/stickyScroll/batchLoadScroll';
+import { CommentWithChildren, createCommentTree, useCollapsedComments } from './commentTree';
+import { getSseUrl } from '../../../constants/appConfig';
+import { getComment, getComments } from '../../../api/api';
+import { useAuthenticatedSSE } from '../../../api/newSSE';
+import dayjs from 'dayjs';
 
 interface CommentListProps {
   postId?: number;
@@ -13,37 +17,72 @@ interface CommentListProps {
 
 const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
   const dispatch = useAppDispatch();
-  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const { filteredComments, loading } = useComments(postId);
-  const commentsData = useAppSelector((state) => state.comments.comments);
+  const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const { collapsedComments, toggleCollapse } = useCollapsedComments();
+  const comments = useAppSelector((state) => state.comments.comments);
+  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
+  const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const effectivePostId = postId || selectedPostId;
 
-  // Создаем дерево комментариев
-  const commentTree = useMemo(() => {
-    const tree = createCommentTree(filteredComments);
+  const getData = async (
+    before: boolean,
+    limit: number,
+    last_object?: CommentWithChildren,
+    top?: boolean,
+  ) => {
+    const union_id = effectivePostId ? effectivePostId : 0;
+    const res = await getComments(
+      selectedTeamId,
+      union_id,
+      limit,
+      last_object
+        ? dayjs(
+            !top && last_object.children.length > 0
+              ? last_object.children[last_object.children.length - 1].created_at
+              : last_object.created_at,
+          )
+            .utc()
+            .format()
+        : dayjs().utc().format(),
+      before,
+    );
+    return createCommentTree(res.comments ? res.comments : []);
+  };
 
-    return tree;
-  }, [filteredComments]);
+  const url = getSseUrl(selectedTeamId, selectedPostId || 0);
+
+  const newComment = (data: any) => {
+    if (data.type === 'new') {
+      getComment(selectedTeamId, data.comment_id).then((data) => {
+        dispatch(addComment(data.comment));
+      });
+    }
+  };
+
+  const { isConnected, close } = useAuthenticatedSSE({ url, onMessage: newComment });
 
   return (
     <div className={styles.commentListContainer}>
-      {commentTree.length > 0 ? (
-        <div className={styles.commentTreeContainer}>
-          {commentTree.map((comment) => (
+      {teamId != 0 && (
+        <InfiniteScroll
+          getObjectFromData={(comment: CommentWithChildren, index: number) => (
             <CommentTreeItem
-              key={comment.id}
+              key={index}
               comment={comment}
               level={0}
               isCollapsed={!!collapsedComments[comment.id]}
               onToggleCollapse={toggleCollapse}
               collapsedComments={collapsedComments}
             />
-          ))}
-        </div>
-      ) : (
-        <Empty
-          description={loading ? 'Загрузка комментариев...' : 'Комментарии отсутствуют'}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          )}
+          data={comments.comments}
+          setData={(data: CommentWithChildren[]) => {
+            dispatch(setComments(data));
+          }}
+          getNewData={getData}
+          initialScroll={0}
+          frame_size={10}
+          empty_text={'нет комментариев'}
         />
       )}
     </div>

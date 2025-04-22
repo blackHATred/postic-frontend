@@ -6,9 +6,22 @@
   padding: 16px;
   margin-bottom: 16px;
   background-color: $container-color;
-  max-width: 768px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.post {
+  //border: 1px solid #f0f0f0;
+  border-radius: $border-radius;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: lighten($primary-color, 35%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image {
+  height: 250px;
 }
 
 .team-avatar {

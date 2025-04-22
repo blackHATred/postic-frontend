@@ -16,7 +16,7 @@ const PostDetailsPage: React.FC = () => {
     if (id) {
       dispatch(setSelectedPostId(Number(id)));
     }
-  }, [id, dispatch]);
+  }, [dispatch]);
 
   // Находим пост по ID
   const post = posts.find((post) => post.id === Number(id));

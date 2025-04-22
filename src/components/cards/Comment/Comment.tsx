@@ -26,9 +26,10 @@ const { Text } = Typography;
 
 interface CommentProps {
   comment: Comment;
+  onDelete: () => void;
 }
 
-const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
+const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const { created_at = dayjs('0000-00-00 00:00:00') } = comment;
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
@@ -67,6 +68,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
       ban_user: false,
     };
     Delete(res);
+    onDelete();
   };
   const handlePostClick = () => {
     dispatch(setActiveTab('1'));
@@ -99,21 +101,24 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   };
 
   return (
-    <div className={styles.comment}>
+    <div className={comment.username || comment.is_team_reply ? styles.comment : styles.post}>
       <div className={styles['comment-header']}>
-        <Avatar
-          src={
-            comment.avatar_mediafile
-              ? config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
-              : ''
-          }
-          onError={() => {
-            console.log('img-error');
-            return true;
-          }}
-          icon={comment.is_team_reply ? <TeamOutlined /> : null}
-          className={comment.is_team_reply ? styles['team-avatar'] : ''}
-        />
+        {comment.username || comment.is_team_reply ? (
+          <Avatar
+            src={
+              comment.avatar_mediafile &&
+              config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
+            }
+            onError={() => {
+              console.log('img-error');
+              return true;
+            }}
+            icon={<TeamOutlined />}
+            className={comment.is_team_reply ? styles['team-avatar'] : ''}
+          />
+        ) : (
+          <Text strong>Пост</Text>
+        )}
         <div className={styles['comment-header-text']}>
           <div className={styles['comment-author']}>
             <div>
@@ -129,20 +134,24 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
                 {getIcon(comment.platform)}
               </Space>
             </div>
+            {comment.username ||
+              (comment.is_team_reply && (
+                <div>
+                  <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
+                </div>
+              ))}
+          </div>
+          {comment.post_union_id && (
             <div>
-              <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
+              <Text
+                type='secondary'
+                style={{ marginTop: 'auto', marginBottom: 'auto' }}
+                onClick={handlePostClick}
+              >
+                К <a>посту</a>
+              </Text>
             </div>
-          </div>
-
-          <div>
-            <Text
-              type='secondary'
-              style={{ marginTop: 'auto', marginBottom: 'auto' }}
-              onClick={handlePostClick}
-            >
-              К <a>посту</a>
-            </Text>
-          </div>
+          )}
         </div>
       </div>
 
@@ -150,13 +159,16 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
         <Text>{comment.text}</Text>
       </div>
       {comment.attachments.length > 0 && (
-        <Carousel arrows>
+        <Carousel arrows className={styles['image']}>
           {comment.attachments.map((preview) => (
-            <div key={preview.id}>
+            <div key={preview.id} className={styles['image']}>
               {preview.file_type == 'sticker' ? (
                 <>[Стикер]</>
               ) : (
-                <img src={'http://localhost:80/api/upload/get/' + preview.id} />
+                <img
+                  src={'http://localhost:80/api/upload/get/' + preview.id}
+                  className={styles['image']}
+                />
               )}
             </div>
           ))}

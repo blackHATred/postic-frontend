@@ -17,6 +17,7 @@ import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
+import { setComments } from '../../../stores/commentSlice';
 
 const { Text } = Typography;
 
@@ -52,8 +53,10 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const navigate = useNavigate();
 
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+
   useEffect(() => {
-    if (post.id === selectedPostId) setSelected();
+    if (post.id === selectedPostId && activeTab) setSelected();
   }, [scrollToPost]);
 
   const setSelected = async () => {
@@ -69,6 +72,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
 
   const onCommentClick = () => {
     dispatch(setSelectedPostId(post.id));
+    dispatch(setComments([]));
     navigate(routes.post(post.id));
   };
 

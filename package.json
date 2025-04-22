@@ -67,6 +67,7 @@
     ]
   },
   "devDependencies": {
+    "@types/loadable__component": "^5.13.9",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.29.0",
