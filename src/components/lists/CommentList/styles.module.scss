@@ -1,42 +1,17 @@
 .commentListContainer {
   width: 100%;
   height: 100%;
-}
-
-.spinnerContainer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100px;
-  margin: 20px 0;
+  flex-direction: column;
 }
-
 .commentTreeContainer {
   width: 100%;
-}
-
-.commentTreeItem {
-  margin-bottom: 16px;
 }
 
 .commentReplies {
   padding-left: 20px;
   border-left: 2px solid #e8e8e8;
   margin-top: 8px;
-}
-
-.spinnerContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100px;
-  margin: 20px 0;
-}
-
-.commentWrapper {
-  position: relative;
 }
 
 .collapseButton {
@@ -49,7 +24,7 @@
   position: relative;
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     left: -4px;
     top: 0;

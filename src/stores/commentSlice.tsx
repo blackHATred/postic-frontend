@@ -2,6 +2,24 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Comment, Comments } from '../models/Comment/types';
 import { RootState } from './store';
 import dayjs from 'dayjs';
+import {
+  CommentWithChildren,
+  createCommentTree,
+} from '../components/lists/CommentList/commentTree';
+
+function flat(r: any, a: any) {
+  const b: any = {};
+  Object.keys(a).forEach(function (k) {
+    if (k !== 'children') {
+      b[k] = a[k];
+    }
+  });
+  r.push(b);
+  if (Array.isArray(a.children)) {
+    return a.children.reduce(flat, r);
+  }
+  return r;
+}
 
 interface basicDialogState {
   isOpen: boolean;
@@ -30,39 +48,28 @@ export const commentsSlice = createSlice({
     setSelectedComment: (state, action: PayloadAction<Comment>) => {
       state.selectedComment = action.payload;
     },
-    addComment: (state, action: PayloadAction<Comment>) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      if (
-        (console.log('Получен новый комментарий через SSE: ', action.payload),
-        state.comments.comments &&
-          !state.comments.comments.some((el) => el.id === action.payload.id))
-      ) {
-        state.comments.comments = [action.payload, ...state.comments.comments];
-      } else {
-        state.comments.comments = [action.payload];
-      }
-    },
-    addComments: (state, action: PayloadAction<Comment[]>) => {
-      console.log(action.payload);
-      const to_add: Comment[] = [];
-      action.payload.forEach((element) => {
-        if (!state.comments.comments.some((comment) => comment.id === element.id)) {
-          to_add.push(element);
-        }
-      });
-      state.comments.comments = [...to_add, ...state.comments.comments];
-    },
-    setComments: (state, action: PayloadAction<Comment[]>) => {
+    setComments: (state, action: PayloadAction<CommentWithChildren[]>) => {
       state.comments.comments = action.payload ? action.payload : [];
+    },
+
+    addComment: (state, action: PayloadAction<Comment>) => {
+      const el: any = [];
+
+      state.comments.comments.reduce(flat, el);
+      if (action.payload.reply_to_comment_id) {
+        if (el.filter((el: any) => el.id == action.payload.reply_to_comment_id).length > 0) {
+          el.push(action.payload);
+        }
+      } else {
+        el.push(action.payload);
+      }
+      state.comments.comments = createCommentTree(el);
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addComment, addComments, setComments, setAnswerDialog, setSelectedComment } =
+export const { setComments, setAnswerDialog, setSelectedComment, addComment } =
   commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;

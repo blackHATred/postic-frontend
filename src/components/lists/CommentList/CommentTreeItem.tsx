@@ -33,7 +33,7 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
 
   return (
     <div className={styles.commentTreeItem}>
-      <div className={`${styles.commentWrapper} ${isResetLevel ? styles.resetLevel : ''}`}>
+      <div className={` ${isResetLevel ? styles.resetLevel : ''}`}>
         {isResetLevel && (
           <div className={styles.continuationIndicator}>
             <div className={styles.continuationLine} style={{ backgroundColor: lineColor }}></div>

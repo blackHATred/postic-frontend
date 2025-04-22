@@ -186,6 +186,7 @@ export const getComments = async (
   union_id: number,
   limit: number,
   offset?: string,
+  before = true,
 ) => {
   try {
     const response = await axiosInstance.get<Comments>(
@@ -197,6 +198,7 @@ export const getComments = async (
           post_union_id: union_id,
           limit: limit,
           offset: offset,
+          before: before,
         },
       },
     );
