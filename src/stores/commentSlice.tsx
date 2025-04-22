@@ -33,10 +33,13 @@ interface basicDialogState {
   isOpen: boolean;
 }
 
+export type TicketFilter = '' | 'done' | 'not_done';
+
 export interface CommentSliceState {
   comments: Comments;
   answerDialog: basicDialogState;
   selectedComment: Comment | null;
+  ticketFilter: TicketFilter;
 }
 
 // Define the initial state using that type
@@ -44,6 +47,7 @@ const initialState: CommentSliceState = {
   comments: { comments: [], status: '' },
   answerDialog: { isOpen: false },
   selectedComment: null,
+  ticketFilter: '',
 };
 
 export const commentsSlice = createSlice({
@@ -91,11 +95,20 @@ export const commentsSlice = createSlice({
         }),
       );
     },
+    setTicketFilter: (state, action: PayloadAction<TicketFilter>) => {
+      state.ticketFilter = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setComments, setAnswerDialog, setSelectedComment, addComment, removeComment } =
+export const { 
+setComments, 
+setAnswerDialog, 
+setSelectedComment, 
+addComment, 
+removeComment,
+setTicketFilter, } =
   commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;

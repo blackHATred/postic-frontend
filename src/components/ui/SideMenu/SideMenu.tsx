@@ -8,6 +8,8 @@ import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { routes } from '../../../app/App.routes';
 import { setCreatePostDialog } from '../../../stores/basePageDialogsSlice';
 import { PostFilter, setActivePostFilter } from '../../../stores/postsSlice';
+import { AnalyticsFilter, setActiveAnalyticsFilter } from '../../../stores/analyticsSlice';
+import { setTicketFilter, TicketFilter } from '../../../stores/commentSlice';
 
 const SideMenu: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -16,9 +18,20 @@ const SideMenu: React.FC = () => {
   const currentPath = location.pathname;
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const activeAnalyticsFilter = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
+  const ticketFilter = useAppSelector((state) => state.comments.ticketFilter);
 
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
+  };
+
+  const handleFilterAnalyticsChange = (filter: AnalyticsFilter) => {
+    dispatch(setActiveAnalyticsFilter(filter));
+  };
+
+  const handleFilterTicketChange = (filter: TicketFilter) => {
+    console.log('filter', filter);
+    dispatch(setTicketFilter(filter));
   };
 
   return (
@@ -68,6 +81,51 @@ const SideMenu: React.FC = () => {
               icon={<TeamOutlined className={styles['icon-primary']} />}
             >
               Создать команду
+            </Menu.Item>
+          </>
+        )}
+
+        {currentPath === routes.ticket() && (
+          <>
+            <Menu.Item
+              key='all-posts'
+              className={`${styles['sidebar-options']} ${ticketFilter === 'done' ? styles['active'] : ''}`}
+              onClick={() => handleFilterTicketChange('done')}
+            >
+              Решенные тикеты
+            </Menu.Item>
+            <Menu.Item
+              key='published-posts'
+              className={`${styles['sidebar-options']} ${ticketFilter === 'not_done' ? styles['active'] : ''}`}
+              onClick={() => handleFilterTicketChange('not_done')}
+            >
+              Нерешенные тикеты
+            </Menu.Item>
+          </>
+        )}
+
+        {currentPath === routes.analytics() && (
+          <>
+            <Menu.Item
+              key='all-posts'
+              className={`${styles['sidebar-options']} ${activeAnalyticsFilter === '' ? styles['active'] : ''}`}
+              onClick={() => handleFilterAnalyticsChange('')}
+            >
+              Общая сводка
+            </Menu.Item>
+            <Menu.Item
+              key='published-posts'
+              className={`${styles['sidebar-options']} ${activeAnalyticsFilter === 'audience' ? styles['active'] : ''}`}
+              onClick={() => handleFilterAnalyticsChange('audience')}
+            >
+              Вовлеченность аудитории
+            </Menu.Item>
+            <Menu.Item
+              key='scheduled-posts'
+              className={`${styles['sidebar-options']} ${activeAnalyticsFilter === 'growth' ? styles['active'] : ''}`}
+              onClick={() => handleFilterAnalyticsChange('growth')}
+            >
+              Рост и динамика
             </Menu.Item>
           </>
         )}

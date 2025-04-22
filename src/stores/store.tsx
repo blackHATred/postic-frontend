@@ -4,6 +4,7 @@ import postsReducer from './postsSlice';
 import basePageDialogsReducer from './basePageDialogsSlice';
 import teamsReducer from './teamSlice';
 import settingsReducer from './settingsSlice';
+import analyticsReducer from './analyticsSlice';
 // ...
 
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
     basePageDialogs: basePageDialogsReducer,
     teams: teamsReducer,
     settings: settingsReducer,
+    analytics: analyticsReducer,
   },
 });
 

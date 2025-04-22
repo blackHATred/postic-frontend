@@ -3,6 +3,8 @@ class Routes {
   posts = () => '/posts' as const;
   comments = () => '/comments' as const;
   teams = () => '/teams' as const;
+  ticket = () => '/ticket' as const;
+  analytics = () => '/analytics' as const;
 
   // Новые маршруты
   post = (id: string | number) => `/posts/${id}` as const;

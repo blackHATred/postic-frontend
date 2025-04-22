@@ -1,0 +1,61 @@
+@import '../../../styles/variables';
+.analyticsContainer {
+  padding: 24px;
+  width: 100%;
+}
+
+.analyticsContainer,
+.analyticsCard {
+  font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', sans-serif; /* Пример шрифтов с кириллицей */
+}
+
+.analyticsCard {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}.analyticsContainer {
+   width: 100%;
+ }
+
+.analyticsCard {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}
+
+.cardStyle {
+  //border: 1px solid #f0f0f0;
+  border-radius: $border-radius;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: $container-color;
+  max-width: 768px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.analyticsCardButtons {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+  gap: 10px;
+}
+
+.analyticsCardButton {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 5px;
+}
