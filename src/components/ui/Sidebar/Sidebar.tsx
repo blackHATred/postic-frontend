@@ -55,6 +55,28 @@ const Sidebar: React.FC = () => {
             />
           </div>
           <div className={styles['sidebar-divider']}></div>
+
+          <div
+            className={`${styles['sidebar-options']} ${location.pathname === routes.ticket() ? styles['active'] : ''}`}
+          >
+            <ClickableButton
+              type='text'
+              text={'Тикет-система'}
+              icon={<TagOutlined className={styles['icon-primary']} />}
+              onButtonClick={() => handleTabChange('4', routes.ticket())}
+            />
+          </div>
+
+          <div
+            className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
+          >
+            <ClickableButton
+              type='text'
+              text={'Аналитика'}
+              icon={<LineChartOutlined className={styles['icon-primary']} />}
+              onButtonClick={() => handleTabChange('5', routes.analytics())}
+            />
+          </div>
         </>
       )}
 
@@ -76,28 +98,6 @@ const Sidebar: React.FC = () => {
             onButtonClick={() => handleTabChange('3', routes.teams())}
           />
         )}
-      </div>
-
-      <div
-        className={`${styles['sidebar-options']} ${location.pathname === routes.ticket() ? styles['active'] : ''}`}
-      >
-        <ClickableButton
-          type='text'
-          text={'Тикет-система'}
-          icon={<TagOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => handleTabChange('4', routes.ticket())}
-        />
-      </div>
-
-      <div
-        className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
-      >
-        <ClickableButton
-          type='text'
-          text={'Аналитика'}
-          icon={<LineChartOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => handleTabChange('5', routes.analytics())}
-        />
       </div>
 
       <div className={styles['sidebar-divider']}></div>

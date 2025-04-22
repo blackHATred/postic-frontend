@@ -17,9 +17,6 @@ const PageLayout: React.FC = () => {
       <div className={styles['main-container']}>
         <div className={styles['layout']}>
           {/* Навигационная панель (Sidebar) */}
-          <div className={styles['left-sidebar']}>
-            <Sidebar />
-          </div>
 
           {isAuthorized === 'loading' && <Spin className={styles.spin} />}
 
@@ -32,23 +29,35 @@ const PageLayout: React.FC = () => {
           )}
 
           {isAuthorized === 'authorized' && selectedTeam === 0 && (
-            <Alert
-              className={styles['loginDiv']}
-              message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
-              type='info'
-            />
+            <>
+              <div className={styles['left-sidebar']}>
+                <Sidebar />
+              </div>
+              <Alert
+                className={styles['loginDiv']}
+                message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
+                type='info'
+              />
+              <div className={styles['right-sidebar']}>
+                <SideMenu />
+              </div>
+            </>
           )}
 
           {/* Основной контент */}
           {isAuthorized === 'authorized' && selectedTeam !== 0 && (
-            <div className={styles['content']}>
-              <Outlet />
-            </div>
+            <>
+              <div className={styles['left-sidebar']}>
+                <Sidebar />
+              </div>
+              <div className={styles['content']}>
+                <Outlet />
+              </div>
+              <div className={styles['right-sidebar']}>
+                <SideMenu />
+              </div>
+            </>
           )}
-
-          <div className={styles['right-sidebar']}>
-            <SideMenu />
-          </div>
         </div>
       </div>
     </div>

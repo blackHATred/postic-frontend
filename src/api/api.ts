@@ -249,7 +249,7 @@ export const ReplyIdeas = async (req: Answ): Promise<{ ideas: string[] }> => {
 
 export const MarkAsTicket = async (req: Ticket): Promise<{ message: string }> => {
   const response = await axiosInstance.post<{ message: string }>(
-    `${config.api.baseURL}${routes.comments()}/ticket`,
+    `${config.api.baseURL}${routes.comments()}/mark`,
     req,
     {
       withCredentials: true,

@@ -4,6 +4,8 @@ import { addComment, addComments, getLastDate } from '../../../stores/commentSli
 import { getSseUrl } from '../../../constants/appConfig';
 import { getComment, getComments } from '../../../api/api';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
+import { routes } from '../../../app/App.routes';
+import { useLocation } from 'react-router-dom';
 
 export const useComments = (postId?: number) => {
   const dispatch = useAppDispatch();
@@ -16,6 +18,7 @@ export const useComments = (postId?: number) => {
   const effectivePostId = postId || selectedPostId;
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const activeTicketFilter = useAppSelector((state) => state.comments.ticketFilter);
+  const location = useLocation();
 
   const url = getSseUrl(selectedTeamId, selectedPostId || 0);
 
@@ -44,22 +47,8 @@ export const useComments = (postId?: number) => {
 
     setLoading(true);
 
-    if (activeTab === '4' && activeTicketFilter === 'done') {
-      getComments(selectedTeamId, effectivePostId, 20, last_date, false)
-        .then((val) => {
-          if (val.comments) {
-            dispatch(addComments(val.comments));
-          }
-        })
-        .catch((error) => {
-          console.error('Ошибка при загрузке комментариев:', error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-    if (activeTab === '4' && activeTicketFilter === 'not_done') {
-      console.log('Загрузка комментариев с фильтром not_done');
+    if (location.pathname === routes.ticket()) {
+      console.log('Загрузка комментариев с  тикет');
       getComments(selectedTeamId, effectivePostId, 20, last_date, true)
         .then((val) => {
           if (val.comments) {
@@ -73,6 +62,7 @@ export const useComments = (postId?: number) => {
           setLoading(false);
         });
     } else {
+      console.log('Загрузка комментариев без фильтра');
       getComments(selectedTeamId, effectivePostId, requestSize, last_date)
         .then((val) => {
           if (val.comments) {
@@ -92,7 +82,8 @@ export const useComments = (postId?: number) => {
     const union_id = selectedPostId ? Number(selectedPostId) : 0;
 
     if (filteredComments.length < requestSize) {
-      if (activeTab === '4' && activeTicketFilter === 'done') {
+      if (location.pathname === routes.ticket() && activeTicketFilter === 'done') {
+        console.log('Загрузка2 комментариев с фильтром done');
         getComments(selectedTeamId, union_id, requestSize, last_date, false)
           .then((val) => {
             if (val.comments) {
@@ -106,8 +97,8 @@ export const useComments = (postId?: number) => {
             );
           });
       }
-      if (activeTab === '4' && activeTicketFilter === 'not_done') {
-        console.log('Загрузка комментариев с фильтром not_done');
+      if (location.pathname === routes.ticket() && activeTicketFilter === 'not_done') {
+        console.log('Загрузка2 комментариев с фильтром not_done');
         getComments(selectedTeamId, union_id, requestSize, last_date, true)
           .then((val) => {
             if (val.comments) {
@@ -121,6 +112,7 @@ export const useComments = (postId?: number) => {
             );
           });
       } else {
+        console.log('Загрузка2 комментариев без фильтра');
         getComments(selectedTeamId, union_id, requestSize, last_date)
           .then((val) => {
             if (val.comments) {
@@ -141,5 +133,5 @@ export const useComments = (postId?: number) => {
     };
   }, []);
 
-  return { filteredComments, loading, isConnected };
+  return { filteredComments, activeTicketFilter, loading, isConnected };
 };
