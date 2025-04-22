@@ -198,37 +198,30 @@ const CreatePostDialog: FC = () => {
             onChange={(e) => setPostText(e.target.value)}
           />
           <div className={styles['post-icons']}>
-            {help_mode ? (
-              <>
-                <ClickableButton
-                  icon={<EditOutlined />}
-                  type='default'
-                  size='small'
-                  withPopover={true}
-                  popoverContent={
-                    'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
-                  }
-                />
-                <ClickableButton
-                  icon={<ThunderboltOutlined />}
-                  type='default'
-                  size='small'
-                  withPopover={true}
-                  popoverContent={'ИИ-генерация текста поста'}
-                />
-              </>
-            ) : (
-              <>
-                <ClickableButton icon={<EditOutlined />} type='default' size='small' />
-                <ClickableButton icon={<ThunderboltOutlined />} type='default' size='small' />
-              </>
-            )}
+            <ClickableButton
+              icon={<EditOutlined />}
+              type='default'
+              size='small'
+              withPopover={help_mode}
+              popoverContent={
+                'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
+              }
+            />
+            <ClickableButton
+              icon={<ThunderboltOutlined />}
+              type='default'
+              size='small'
+              withPopover={help_mode}
+              popoverContent={'ИИ-генерация текста поста'}
+            />
 
             <ClickableButton
               icon={<SmileOutlined />}
               type='default'
               size='small'
+              withPopover={help_mode}
               onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)} //панель смайликов
+              popoverContent={'Эмодзи'}
             />
           </div>
         </div>

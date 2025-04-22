@@ -46,9 +46,14 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   const addNewDataTop = (data: any[]) => {
     setIsLoadingTop(false);
     if (data && props.data && props.data.length > 0) {
+      if (data.length != props.frame_size) {
+        setHasMoreTop(false);
+      }
+
       if (ref.current) {
         setAddedTop(ref.current.scrollTop - ref.current.scrollHeight);
       }
+
       setHasMoreBottom(true);
       setAddedItems(data);
       props.setData([...props.data, ...data]);
@@ -61,10 +66,14 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
     setIsLoadingBottom(false);
     if (data && props.data) {
       data = data.slice(1);
+      if (data.length != props.frame_size) {
+        setHasMoreBottom(false);
+      }
       if (ref.current) {
         setAddedBottom(ref.current.scrollTop - ref.current.scrollHeight);
       }
       setHasMoreTop(true);
+
       setAddedItems(data);
       props.setData(props.data.slice(0, props.data.length - data.length));
     } else {
@@ -84,6 +93,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
           setHasMoreBottom(false);
         }
         //ref.current.scrollTop = props.initialScroll;
+
         setAtBottom(true);
         ref.current.scrollTop = 1000000;
         setIsLoading(false);
@@ -120,6 +130,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
 
     if (addedBottom != 0 && ref.current) {
       ref.current.scrollTop = addedBottom + ref.current.scrollHeight;
+
       setAddedBottom(0);
       setFinalScroll(ref.current.scrollTop);
       props.setData([...addedItems, ...props.data]);
@@ -144,10 +155,9 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   const handleScroll = (event: React.UIEvent) => {
     if (ref.current) {
       const max_scroll = ref.current.scrollHeight - ref.current.clientHeight;
-      console.log(ref.current.scrollTop >= max_scroll - 100);
       setAtBottom(ref.current.scrollTop >= max_scroll - 100);
       if (
-        ref.current.scrollTop <= max_scroll * 0.01 &&
+        ref.current.scrollTop <= max_scroll * 0.1 &&
         hasMoreTop &&
         !isLoadingTop &&
         scrollToBottom == 'no' &&
@@ -174,7 +184,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         //NOTE: load more data top
         setIsLoadingBottom(true);
         props
-          .getNewData(false, props.frame_size, props.data[0], false)
+          .getNewData(false, props.frame_size + 1, props.data[0], false)
           .then((data) => addNewDataBottom(data));
       }
     }

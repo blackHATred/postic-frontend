@@ -1,0 +1,5 @@
+.animation {
+  height: 0;
+  transition: height 0.35s ease;
+  overflow-y: clip;
+}

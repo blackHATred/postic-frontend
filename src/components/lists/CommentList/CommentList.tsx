@@ -80,7 +80,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
           }}
           getNewData={getData}
           initialScroll={0}
-          frame_size={4}
+          frame_size={10}
           empty_text={'нет комментариев'}
         />
       )}

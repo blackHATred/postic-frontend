@@ -51,7 +51,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           }}
           getNewData={loadPosts}
           initialScroll={0}
-          frame_size={3}
+          frame_size={10}
           empty_text={
             activeFilter === 'scheduled'
               ? 'Нет отложенных постов'

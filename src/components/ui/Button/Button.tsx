@@ -48,6 +48,7 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
       placement='bottom'
       content={<div className={styles['popover-content']}>{popoverContent}</div>}
       trigger='hover'
+      mouseEnterDelay={0.5}
     >
       <Button
         type={type}

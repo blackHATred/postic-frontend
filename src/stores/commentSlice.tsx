@@ -21,6 +21,14 @@ function flat(r: any, a: any) {
   return r;
 }
 
+function flat_id(r: any, a: any) {
+  r.push(a.id);
+  if (Array.isArray(a.children)) {
+    return a.children.reduce(flat_id, r);
+  }
+  return r;
+}
+
 interface basicDialogState {
   isOpen: boolean;
 }
@@ -65,11 +73,29 @@ export const commentsSlice = createSlice({
       }
       state.comments.comments = createCommentTree(el);
     },
+
+    removeComment: (state, action: PayloadAction<CommentWithChildren[]>) => {
+      const el1: any = [];
+
+      state.comments.comments.reduce(flat, el1);
+
+      const el2: any = [];
+
+      action.payload.reduce(flat_id, el2);
+
+      console.log(el2);
+
+      state.comments.comments = createCommentTree(
+        el1.filter((el: any) => {
+          return !el2.includes(el.id);
+        }),
+      );
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setComments, setAnswerDialog, setSelectedComment, addComment } =
+export const { setComments, setAnswerDialog, setSelectedComment, addComment, removeComment } =
   commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;
