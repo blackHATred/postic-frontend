@@ -102,14 +102,14 @@ export const commentsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { 
-setComments, 
-setAnswerDialog, 
-setSelectedComment, 
-addComment, 
-removeComment,
-setTicketFilter, } =
-  commentsSlice.actions;
+export const {
+  setComments,
+  setAnswerDialog,
+  setSelectedComment,
+  addComment,
+  removeComment,
+  setTicketFilter,
+} = commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;
 
