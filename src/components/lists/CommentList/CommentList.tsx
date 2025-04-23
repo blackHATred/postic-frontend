@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import CommentTreeItem from './CommentTreeItem';
@@ -30,6 +30,12 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
 
   const isTicketPage = location.pathname === routes.ticket();
 
+  useEffect(() => {
+    if (!isDetailed) {
+      dispatch(setComments([]));
+    }
+  }, [isTicketPage]);
+
   const getData = async (
     before: boolean,
     limit: number,
@@ -43,11 +49,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
     if (!isTicketPage) {
       marked_as_ticket = undefined;
     } else {
-      if (activeTicketFilter === 'done') {
-        marked_as_ticket = false;
-      } else if (activeTicketFilter === 'not_done') {
-        marked_as_ticket = true;
-      }
+      marked_as_ticket = true;
     }
 
     const res = await getComments(

@@ -35,6 +35,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const teams = useAppSelector((state) => state.teams.teams);
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+  const help_mode = useAppSelector((state) => state.settings.helpMode);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -194,12 +195,20 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           <ClickableButton
             type='default'
             variant='outlined'
+            withPopover={true}
+            popoverContent={
+              help_mode
+                ? activeTab === '4'
+                  ? 'Решить тикет'
+                  : 'Отправить в тикет-систему'
+                : undefined
+            }
             color={'default'}
             icon={activeTab === '4' ? <DisconnectOutlined /> : <TagOutlined />}
             onButtonClick={
               activeTab === '4' ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
             }
-          />
+          ></ClickableButton>
         </div>
       </div>
     </div>

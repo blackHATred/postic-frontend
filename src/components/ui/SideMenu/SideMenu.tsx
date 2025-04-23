@@ -94,13 +94,6 @@ const SideMenu: React.FC = () => {
             >
               Нерешенные тикеты
             </Menu.Item>
-            <Menu.Item
-              key='all-posts'
-              className={`${styles['sidebar-options']} ${ticketFilter === 'done' ? styles['active'] : ''}`}
-              onClick={() => handleFilterTicketChange('done')}
-            >
-              Решенные тикеты
-            </Menu.Item>
           </>
         )}
 
