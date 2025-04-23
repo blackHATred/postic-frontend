@@ -42,6 +42,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
     dispatch(setSelectedComment?.(comment));
     dispatch(setAnswerDialog(true));
   };
+  const [isTicket, setIsTicket] = useState(comment.marked_as_ticket);
   const getIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
@@ -91,6 +92,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           content: !isTicket ? 'Тикет создан' : 'Тикет удален',
           key: 'ticketOperation',
         });
+        setIsTicket(isTicket);
         console.log('Результат операции с тикетом:', r);
       })
       .catch((error) => {
@@ -249,10 +251,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                 : undefined
             }
             color={'default'}
-            icon={activeTab === '4' ? <DisconnectOutlined /> : <TagOutlined />}
-            onButtonClick={
-              activeTab === '4' ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
-            }
+            icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
+            onButtonClick={isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)}
           ></ClickableButton>
         </div>
       </div>

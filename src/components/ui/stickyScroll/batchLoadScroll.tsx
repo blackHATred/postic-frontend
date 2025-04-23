@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './styles.module.scss';
-import { Divider, Empty, Spin } from 'antd';
+import { Divider, Empty, Spin, Typography } from 'antd';
 interface InfiniteScroll {
   getObjectFromData: (data: any) => React.ReactNode;
   data: any[];
@@ -16,6 +16,7 @@ interface InfiniteScroll {
   frame_size: number;
   empty_text: string;
 }
+const { Text } = Typography;
 
 const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   const [hasMoreTop, setHasMoreTop] = React.useState(true);
@@ -212,9 +213,9 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
         <Divider
           className={styles.end}
           variant='dashed'
-          style={{ borderColor: 'rgba(11, 11, 11, 0.3)' }}
+          style={{ borderColor: 'rgb(140,140,140)' }}
         >
-          Начало
+          <Text color={'#bfbfbf'}>Начало</Text>
         </Divider>
       ) : (
         <></>
