@@ -10,6 +10,112 @@ export interface PostAnalytics {
   timestamp: string;
 }
 
+export interface GetPostStatsResponse {
+  posts: GetPostStatsResponseUnit[];
+}
+
+export interface GetPostStatsResponseUnit {
+  team_id: number;
+  post_union_id: number;
+  platform: string;
+  views: number;
+  comments: number;
+  reactions: number;
+}
+
+export interface GetStats {
+  team_id: number;
+  start: string;
+  end: string;
+}
+
+export interface GetStatsResponse {
+  posts: Array<{
+    post_union_id: number;
+    telegram: {
+      views: number;
+      reactions: number;
+      comments: number;
+    };
+  }>;
+}
+
+export interface GetPostStats {
+  team_id: number;
+  post_union_id: number;
+}
+
+export interface UpdateStats {
+  team_id: number;
+  post_union_id: number;
+}
+
+export const mockDataGetStatsResponse: GetPostStatsResponseUnit[] = [
+  {
+    team_id: 1,
+    post_union_id: 1,
+    platform: 'tg',
+    views: 100,
+    comments: 50,
+    reactions: 200,
+  },
+  {
+    team_id: 1,
+    post_union_id: 1,
+    platform: 'tg',
+    views: 10,
+    comments: 50,
+    reactions: 2,
+  },
+  {
+    team_id: 1,
+    post_union_id: 1,
+    platform: 'tg',
+    views: 1000,
+    comments: 50,
+    reactions: 2,
+  },
+];
+
+export const mockGetStatsResponse: GetStatsResponse[] = [
+  {
+    posts: [
+      {
+        post_union_id: 1,
+        telegram: {
+          views: 1000,
+          reactions: 200,
+          comments: 50,
+        },
+      },
+      {
+        post_union_id: 2,
+        telegram: {
+          views: 800,
+          reactions: 150,
+          comments: 30,
+        },
+      },
+      {
+        post_union_id: 3,
+        telegram: {
+          views: 1200,
+          reactions: 250,
+          comments: 70,
+        },
+      },
+      {
+        post_union_id: 4,
+        telegram: {
+          views: 900,
+          reactions: 180,
+          comments: 40,
+        },
+      },
+    ],
+  },
+];
+
 export const mockData: PostAnalytics[] = [
   {
     post_union_id: 1,

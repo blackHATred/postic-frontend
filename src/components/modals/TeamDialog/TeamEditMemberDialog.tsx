@@ -20,6 +20,7 @@ const TeamEditMemberDialog: React.FC = () => {
   const [permissions, setPermissions] = useState({
     comments: false,
     posts: false,
+    analytics: false,
   });
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
   const [, setInviteUserId] = useState('');
@@ -46,6 +47,7 @@ const TeamEditMemberDialog: React.FC = () => {
     setPermissions({
       comments: hasAdminRole || roles.includes('comments'),
       posts: hasAdminRole || roles.includes('posts'),
+      analytics: hasAdminRole || roles.includes('analytics'),
     });
     if (hasAdminRole || roles.includes('comments') || roles.includes('posts')) {
       setEmptyCheckbox('');
@@ -55,24 +57,24 @@ const TeamEditMemberDialog: React.FC = () => {
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
     if (checked) {
-      setPermissions({ comments: true, posts: true });
+      setPermissions({ analytics: false, comments: true, posts: true });
       setEmptyCheckbox('');
     } else {
-      setPermissions({ comments: false, posts: false });
+      setPermissions({ comments: false, posts: false, analytics: false });
     }
   };
 
-  const handlePermissionChange = (key: 'comments' | 'posts', checked: boolean) => {
+  const handlePermissionChange = (key: 'comments' | 'posts' | 'analytics', checked: boolean) => {
     const newPermissions = { ...permissions, [key]: checked };
     setPermissions(newPermissions);
 
-    if (isAdmin || newPermissions.comments || newPermissions.posts) {
+    if (isAdmin || newPermissions.comments || newPermissions.posts || newPermissions.analytics) {
       setEmptyCheckbox('');
     }
   };
 
   const onOk = async () => {
-    if (!isAdmin && !permissions.comments && !permissions.posts) {
+    if (!isAdmin && !permissions.comments && !permissions.posts && !permissions.analytics) {
       setEmptyCheckbox('Пожалуйста, выберите хотя бы одно право доступа');
       return;
     }
@@ -87,6 +89,9 @@ const TeamEditMemberDialog: React.FC = () => {
     }
     if (permissions.posts) {
       roles.push('posts');
+    }
+    if (permissions.analytics) {
+      roles.push('analytics');
     }
 
     await UpdateRole({
@@ -146,6 +151,13 @@ const TeamEditMemberDialog: React.FC = () => {
             checked={permissions.posts}
             disabled={isAdmin}
             onChange={(e) => handlePermissionChange('posts', e.target.checked)}
+          >
+            Посты
+          </Checkbox>
+          <Checkbox
+            checked={permissions.analytics}
+            disabled={isAdmin}
+            onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
           >
             Посты
           </Checkbox>

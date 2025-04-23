@@ -88,6 +88,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     admin: 'администратор',
     comments: 'комментарии',
     posts: 'посты',
+    analytics: 'аналитика',
   };
 
   const formatRoles = (roles: string[]): string => {

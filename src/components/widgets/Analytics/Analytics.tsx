@@ -1,7 +1,11 @@
 // src/components/widgets/Analytics/Analytics.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import styles from './styles.module.scss';
-import { mockData } from '../../../models/Analytics/types';
+import {
+  mockData,
+  mockDataGetStatsResponse,
+  mockGetStatsResponse,
+} from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
@@ -14,6 +18,8 @@ import CircularChart from '../../ui/Charts/CircularChart';
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
+  const DataGetStatsResponse = mockDataGetStatsResponse;
+  const GetStatsResponse = mockGetStatsResponse;
 
   // Преобразуем данные для графика динамики
   const dynamicsData = useMemo(() => {
@@ -36,16 +42,16 @@ const AnalyticsComponent: React.FC = () => {
     <div className={styles.analyticsContainer}>
       {activeAnalytics === '' && (
         <>
-          <LineChart data={mockData} loading={loading} height={400} />
           <CircularChart data={mockData} loading={loading} />
+          <LineChart data={mockData} loading={loading} height={400} />
         </>
       )}
       {activeAnalytics === 'audience' && (
         <>
-          <TopEngagingPostsList data={mockData} loading={loading} />
-          <HeatmapChart data={mockData} loading={loading} />
           <MarkerLineChart data={mockData} loading={loading} />
           <EngagementDashboard data={mockData} loading={loading} />
+          <TopEngagingPostsList data={mockData} loading={loading} />
+          <HeatmapChart data={mockData} loading={loading} />
         </>
       )}
       {activeAnalytics === 'growth' && (

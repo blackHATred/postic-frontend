@@ -259,3 +259,39 @@ export const MarkAsTicket = async (req: Ticket): Promise<{ message: string }> =>
   );
   return response.data;
 };
+
+/*
+
+export const GetStats = async (req: GetStats): Promise<{ resp: GetStatsResponse }> => {
+  const response = await axiosInstance.get<{ resp: GetStatsResponse }>(
+    `${config.api.baseURL}${routes.analytics()}/stats`,
+    {
+      withCredentials: true,
+      params: req,
+    },
+  );
+  return response.data;
+};
+
+export const GetPostStats = async (req: GetPostStats): Promise<{ resp: GetPostStatsResponse }> => {
+  const response = await axiosInstance.get<{ resp: GetPostStatsResponse }>(
+    `${config.api.baseURL}${routes.analytics()}/stats/post`,
+    {
+      withCredentials: true,
+      params: req,
+    },
+  );
+  return response.data;
+};
+
+export const UpdateStats = async (req: UpdateStats): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>(
+    `${config.api.baseURL}${routes.analytics()}/stats/post`,
+    req,
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
+*/
