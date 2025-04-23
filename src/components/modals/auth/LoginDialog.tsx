@@ -28,7 +28,7 @@ const LoginDialog: React.FC = () => {
               Login(parseInt(args['id']))
                 .then((res: RegisterResult) => {
                   dispatch(setLoginDialog(false));
-                  setAuthorized('loading');
+                  dispatch(setAuthorized('loading'));
                   Me()
                     .then((userData) => {
                       if (userData && userData.user_id) {

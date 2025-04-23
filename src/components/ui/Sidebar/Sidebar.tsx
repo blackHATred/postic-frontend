@@ -38,6 +38,7 @@ const Sidebar: React.FC = () => {
             className={`${styles['sidebar-options']} ${location.pathname === routes.posts() ? styles['active'] : ''}`}
           >
             <ClickableButton
+              className={styles['button']}
               type='text'
               text={'Посты'}
               icon={<MessageOutlined className={styles['icon-primary']} />}
@@ -48,6 +49,7 @@ const Sidebar: React.FC = () => {
             className={`${styles['sidebar-options']} ${location.pathname === routes.comments() ? styles['active'] : ''}`}
           >
             <ClickableButton
+              className={styles['button']}
               type='text'
               text={'Все комментарии'}
               icon={<CommentOutlined className={styles['icon-primary']} />}
@@ -60,6 +62,7 @@ const Sidebar: React.FC = () => {
             className={`${styles['sidebar-options']} ${location.pathname === routes.ticket() ? styles['active'] : ''}`}
           >
             <ClickableButton
+              className={styles['button']}
               type='text'
               text={'Тикет-система'}
               icon={<TagOutlined className={styles['icon-primary']} />}
@@ -71,6 +74,7 @@ const Sidebar: React.FC = () => {
             className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
           >
             <ClickableButton
+              className={styles['button']}
               type='text'
               text={'Аналитика'}
               icon={<LineChartOutlined className={styles['icon-primary']} />}
@@ -85,6 +89,7 @@ const Sidebar: React.FC = () => {
       >
         {selectedTeam === 0 ? (
           <ClickableButton
+            className={styles['button']}
             type='text'
             text={'Команды'}
             icon={<TeamOutlined className={styles['icon-primary']} />}
@@ -92,6 +97,7 @@ const Sidebar: React.FC = () => {
           />
         ) : (
           <ClickableButton
+            className={styles['button']}
             type='text'
             text={'Команды'}
             icon={<TeamOutlined className={styles['icon-primary']} />}

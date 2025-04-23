@@ -13,6 +13,8 @@ import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setLoginDialog, setRegiserDialog } from '../../../stores/basePageDialogsSlice';
 import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
+import { setPosts } from '../../../stores/postsSlice';
+import { setComments } from '../../../stores/commentSlice';
 
 const ButtonHeader: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -91,6 +93,9 @@ const ButtonHeader: React.FC = () => {
     if (teamOptions[0] && !selectedTeam) {
       const number = Number(teamOptions[0].value);
       dispatch(setGlobalActiveTeamId(number));
+
+      dispatch(setPosts([]));
+      dispatch(setComments([]));
       setSelectedTeam(teamOptions[0].value);
     }
   }, [teamOptions, selectedTeam]);
@@ -98,6 +103,9 @@ const ButtonHeader: React.FC = () => {
   const handleChange = (value: string) => {
     setSelectedTeam(value);
     dispatch(setGlobalActiveTeamId(Number(value)));
+
+    dispatch(setPosts([]));
+    dispatch(setComments([]));
   };
 
   return (

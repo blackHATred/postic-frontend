@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Divider, Space, Typography, Image, Collapse, Carousel } from 'antd';
+import { Divider, Space, Typography, Image, Carousel } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
 import ClickableButton from '../../ui/Button/Button';
@@ -13,7 +13,7 @@ import './selected_style.css';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
-import { setIsOpened, setSelectedPostId } from '../../../stores/postsSlice';
+import { setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
@@ -63,7 +63,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     if (refer.current) {
       refer.current.className += ' selected';
       setTimeout(() => {
-        dispatch(setSelectedPostId(0));
         if (refer.current)
           refer.current.className = refer.current.className.replace(' selected', '');
       }, 3000);
@@ -163,26 +162,13 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               </div>
             ))}
           {attach_images.length > 0 && (
-            <Collapse
-              size='small'
-              onChange={(key) => dispatch(setIsOpened({ key: post.id, value: key.length >= 1 }))}
-              defaultActiveKey={isOpened ? '1' : undefined}
-              items={[
-                {
-                  key: '1',
-                  label: 'Фотографии',
-                  children: (
-                    <Carousel arrows>
-                      {attach_images.map((preview) => (
-                        <div key={preview.id}>
-                          <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
-                        </div>
-                      ))}
-                    </Carousel>
-                  ),
-                },
-              ]}
-            />
+            <Carousel arrows>
+              {attach_images.map((preview) => (
+                <div key={preview.id}>
+                  <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
+                </div>
+              ))}
+            </Carousel>
           )}
         </div>
         <div className={styles['post-content-buttons']}>
