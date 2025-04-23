@@ -159,7 +159,7 @@ const TeamEditMemberDialog: React.FC = () => {
             disabled={isAdmin}
             onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
           >
-            Посты
+            Аналитика
           </Checkbox>
           <Checkbox checked={isAdmin} onChange={(e) => handleAdminChange(e.target.checked)}>
             Администратор

@@ -10,20 +10,16 @@ export interface PostAnalytics {
   timestamp: string;
 }
 
-export interface GetPostStatsResponse {
-  posts: GetPostStatsResponseUnit[];
-}
-
-export interface GetPostStatsResponseUnit {
+export type GetPostStatsResponse = Array<{
   team_id: number;
   post_union_id: number;
   platform: string;
   views: number;
   comments: number;
   reactions: number;
-}
+}>;
 
-export interface GetStats {
+export interface GetStatsReq {
   team_id: number;
   start: string;
   end: string;
@@ -34,46 +30,38 @@ export interface GetStatsResponse {
     post_union_id: number;
     telegram: {
       views: number;
-      reactions: number;
       comments: number;
+      reactions: number;
     };
   }>;
 }
 
-export interface GetPostStats {
+export interface GetPostStatsReq {
   team_id: number;
   post_union_id: number;
 }
 
-export interface UpdateStats {
+export interface UpdateStatsReq {
   team_id: number;
   post_union_id: number;
 }
 
-export const mockDataGetStatsResponse: GetPostStatsResponseUnit[] = [
-  {
-    team_id: 1,
-    post_union_id: 1,
-    platform: 'tg',
-    views: 100,
-    comments: 50,
-    reactions: 200,
-  },
-  {
-    team_id: 1,
-    post_union_id: 1,
-    platform: 'tg',
-    views: 10,
-    comments: 50,
-    reactions: 2,
-  },
+export const mockDataGetStatsResponse: GetPostStatsResponse = [
   {
     team_id: 1,
     post_union_id: 1,
     platform: 'tg',
     views: 1000,
     comments: 50,
-    reactions: 2,
+    reactions: 200,
+  },
+  {
+    team_id: 1,
+    post_union_id: 2,
+    platform: 'tg',
+    views: 800,
+    comments: 30,
+    reactions: 150,
   },
 ];
 

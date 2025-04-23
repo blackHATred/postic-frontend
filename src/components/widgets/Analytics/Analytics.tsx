@@ -1,11 +1,7 @@
 // src/components/widgets/Analytics/Analytics.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './styles.module.scss';
-import {
-  mockData,
-  mockDataGetStatsResponse,
-  mockGetStatsResponse,
-} from '../../../models/Analytics/types';
+import { PostAnalytics } from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
@@ -14,49 +10,80 @@ import PeriodComparisonChart from '../../ui/Charts/PeriodComparisonChart';
 import HeatmapChart from '../../ui/Charts/HeatmapChart';
 import MarkerLineChart from '../../ui/Charts/MarkerLineChart';
 import CircularChart from '../../ui/Charts/CircularChart';
+import { getPosts, UpdateStats, GetStats } from '../../../api/api';
+import { transformStatsToAnalytics } from '../../../utils/transformData';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
+  const [analyticsData, setAnalyticsData] = useState<PostAnalytics[]>([]);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
-  const DataGetStatsResponse = mockDataGetStatsResponse;
-  const GetStatsResponse = mockGetStatsResponse;
-
-  // Преобразуем данные для графика динамики
-  const dynamicsData = useMemo(() => {
-    return mockData.map((item, index) => {
-      return {
-        ...item,
-        timestamp: `День ${index + 1}`,
-      };
-    });
-  }, []);
+  const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname;
 
   useEffect(() => {
-    // Имитация загрузки данных
-    setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-  }, []);
+    const fetchAndUpdateData = async () => {
+      setLoading(true);
+      try {
+        const postsResponse = await getPosts(
+          selectedTeamId,
+          50,
+          '2025-04-23T12:38:41Z',
+          'published',
+        );
+        const postIds = postsResponse.posts.map((post) => post.id);
+
+        for (const postId of postIds) {
+          await UpdateStats({
+            team_id: selectedTeamId,
+            post_union_id: postId,
+          });
+        }
+
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+
+        const statsResponse = await GetStats({
+          team_id: selectedTeamId,
+          start: startDate.toISOString(),
+          end: new Date().toISOString(),
+        });
+        console.log('статистика', statsResponse);
+        // statsResponse уже содержит нужные данные
+        const transformedData = await transformStatsToAnalytics(statsResponse, selectedTeamId);
+        setAnalyticsData(transformedData);
+        console.log('Преобразованные данные:', transformedData);
+      } catch (error) {
+        console.error('Ошибка при получении аналитики:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    console.log('исходные данные', analyticsData);
+    fetchAndUpdateData();
+  }, [selectedTeamId, currentPath]);
 
   return (
     <div className={styles.analyticsContainer}>
       {activeAnalytics === '' && (
         <>
-          <CircularChart data={mockData} loading={loading} />
-          <LineChart data={mockData} loading={loading} height={400} />
+          <LineChart data={analyticsData} loading={loading} height={400} />
+          <CircularChart data={analyticsData} loading={loading} />
         </>
       )}
       {activeAnalytics === 'audience' && (
         <>
-          <MarkerLineChart data={mockData} loading={loading} />
-          <EngagementDashboard data={mockData} loading={loading} />
-          <TopEngagingPostsList data={mockData} loading={loading} />
-          <HeatmapChart data={mockData} loading={loading} />
+          <MarkerLineChart data={analyticsData} loading={loading} />
+          <EngagementDashboard data={analyticsData} loading={loading} />
+          <TopEngagingPostsList data={analyticsData} loading={loading} />
+          <HeatmapChart data={analyticsData} loading={loading} />
         </>
       )}
       {activeAnalytics === 'growth' && (
         <>
-          <PeriodComparisonChart data={mockData} loading={loading} />
+          <PeriodComparisonChart data={analyticsData} loading={loading} />
         </>
       )}
     </div>
