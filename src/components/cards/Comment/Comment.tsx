@@ -207,9 +207,11 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                 : undefined
             }
             color={'default'}
-            icon={activeTab === '4' ? <DisconnectOutlined /> : <TagOutlined />}
+            icon={comment.marked_as_ticket ? <DisconnectOutlined /> : <TagOutlined />}
             onButtonClick={
-              activeTab === '4' ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
+              comment.marked_as_ticket
+                ? () => handleMarkTicket(false)
+                : () => handleMarkTicket(true)
             }
           ></ClickableButton>
         </div>

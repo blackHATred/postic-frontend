@@ -25,6 +25,7 @@ export interface Comment {
   is_team_reply: boolean;
   created_at: string;
   attachments: CommentAttachments[];
+  marked_as_ticket: boolean;
 }
 
 interface CommentAttachments {
