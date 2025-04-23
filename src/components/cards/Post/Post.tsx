@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Divider, Space, Typography, Image, Carousel } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 interface PostProps {
   post: Post;
@@ -38,6 +38,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     }
     return <LiaQuestionCircle className={styles.icon} />;
   };
+  const [ellipsis, setEllipsis] = useState(true);
 
   const dispatch = useAppDispatch();
   const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
@@ -151,7 +152,12 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
       <Divider className={styles.customDivider} />
       <div className={styles['post-content']}>
         <div className={styles['post-content-text']}>
-          <Text style={{ whiteSpace: 'pre-line' }}>{post.text}</Text>
+          <Paragraph
+            style={{ whiteSpace: 'pre-line' }}
+            ellipsis={ellipsis ? { rows: 4, expandable: true, symbol: 'Читать далее' } : false}
+          >
+            {post.text}
+          </Paragraph>
         </div>
         <div className={styles['post-content-attachments']}>
           {attach_files.length > 0 &&

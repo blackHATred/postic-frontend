@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Avatar, Carousel, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment, Ticket } from '../../../models/Comment/types';
@@ -20,9 +20,7 @@ import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
 
-// часовой пояс и отображение времени
-
-const { Text } = Typography;
+const { Paragraph, Text } = Typography;
 
 interface CommentProps {
   comment: Comment;
@@ -36,6 +34,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const teams = useAppSelector((state) => state.teams.teams);
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
+  const [ellipsis, setEllipsis] = useState(true);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -154,7 +153,11 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       </div>
 
       <div className={styles['comment-content']}>
-        <Text>{comment.text}</Text>
+        <Paragraph
+          ellipsis={ellipsis ? { rows: 4, expandable: true, symbol: 'Читать далее' } : false}
+        >
+          {comment.text}
+        </Paragraph>
       </div>
       {comment.attachments.length > 0 && (
         <Carousel arrows className={styles['image']}>
