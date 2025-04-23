@@ -1,7 +1,11 @@
 // src/components/widgets/Analytics/Analytics.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import styles from './styles.module.scss';
-import { mockData } from '../../../models/Analytics/types';
+import {
+  mockData,
+  mockDataGetStatsResponse,
+  mockGetStatsResponse,
+} from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
@@ -14,6 +18,8 @@ import CircularChart from '../../ui/Charts/CircularChart';
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
+  const DataGetStatsResponse = mockDataGetStatsResponse;
+  const GetStatsResponse = mockGetStatsResponse;
 
   // Преобразуем данные для графика динамики
   const dynamicsData = useMemo(() => {

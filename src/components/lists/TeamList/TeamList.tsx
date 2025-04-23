@@ -10,9 +10,10 @@ interface TeamListProps {
   isLoading?: boolean;
 }
 
+const Scroll = React.lazy(() => import('../../ui/stickyScroll/batchLoadScroll'));
+
 const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
   const teams = useAppSelector(getTeamsFromStore);
-  const Scroll = React.lazy(() => import('../../ui/stickyScroll/batchLoadScroll'));
 
   return (
     <div className={styles.teamList} title='Команды'>

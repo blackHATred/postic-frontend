@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu } from 'antd';
-import { PlusOutlined, TeamOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { routes } from '../../../app/App.routes';
@@ -78,7 +78,7 @@ const SideMenu: React.FC = () => {
               key='add-team'
               className={styles['sidebar-options']}
               onClick={() => dispatch(setCreateTeamDialog(true))}
-              icon={<TeamOutlined className={styles['icon-primary']} />}
+              icon={<PlusOutlined className={styles['icon-primary']} />}
             >
               Создать команду
             </Menu.Item>

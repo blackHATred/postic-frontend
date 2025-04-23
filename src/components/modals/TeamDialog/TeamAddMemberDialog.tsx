@@ -20,6 +20,7 @@ const TeamAddMemberDialog: React.FC = () => {
   const [permissions, setPermissions] = useState({
     comments: false,
     posts: false,
+    analytics: false,
   });
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
   const [inviteUserId, setInviteUserId] = useState('');
@@ -39,14 +40,14 @@ const TeamAddMemberDialog: React.FC = () => {
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
     if (checked) {
-      setPermissions({ comments: true, posts: true });
+      setPermissions({ comments: true, posts: true, analytics: true });
       setEmptyCheckbox('');
     } else {
-      setPermissions({ comments: false, posts: false });
+      setPermissions({ comments: false, posts: false, analytics: false });
     }
   };
 
-  const handlePermissionChange = (key: 'comments' | 'posts', checked: boolean) => {
+  const handlePermissionChange = (key: 'comments' | 'posts' | 'analytics', checked: boolean) => {
     const newPermissions = { ...permissions, [key]: checked };
     setPermissions(newPermissions);
 
@@ -56,7 +57,7 @@ const TeamAddMemberDialog: React.FC = () => {
   };
 
   const onOk = async () => {
-    if (!isAdmin && !permissions.comments && !permissions.posts) {
+    if (!isAdmin && !permissions.comments && !permissions.posts && !permissions.analytics) {
       setEmptyCheckbox('Пожалуйста, выберите хотя бы одно право доступа');
       return;
     }
@@ -71,6 +72,9 @@ const TeamAddMemberDialog: React.FC = () => {
     }
     if (permissions.posts) {
       roles.push('posts');
+    }
+    if (permissions.analytics) {
+      roles.push('analytics');
     }
 
     await Invite({
@@ -130,6 +134,13 @@ const TeamAddMemberDialog: React.FC = () => {
             onChange={(e) => handlePermissionChange('posts', e.target.checked)}
           >
             Посты
+          </Checkbox>
+          <Checkbox
+            checked={permissions.analytics}
+            disabled={isAdmin}
+            onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
+          >
+            Аналитика
           </Checkbox>
           <Checkbox checked={isAdmin} onChange={(e) => handleAdminChange(e.target.checked)}>
             Администратор
