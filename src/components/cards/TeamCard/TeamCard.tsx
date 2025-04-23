@@ -134,7 +134,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
           <ClickableButton
             type='link'
             color='danger'
-            variant='link'
+            variant='filled'
             icon={<MinusOutlined />}
             onButtonClick={() => handleKickMember(row.id)}
           />

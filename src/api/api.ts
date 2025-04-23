@@ -21,6 +21,13 @@ import { MeInfo, RegisterResult } from '../models/User/types';
 import { routes } from './routers/routes';
 
 import axiosInstance from './axiosConfig';
+import {
+  GetPostStatsReq,
+  GetPostStatsResponse,
+  GetStatsReq,
+  GetStatsResponse,
+  UpdateStatsReq,
+} from '../models/Analytics/types';
 
 export const uploadFile = async (file: File): Promise<UploadResult> => {
   try {
@@ -260,10 +267,8 @@ export const MarkAsTicket = async (req: Ticket): Promise<{ message: string }> =>
   return response.data;
 };
 
-/*
-
-export const GetStats = async (req: GetStats): Promise<{ resp: GetStatsResponse }> => {
-  const response = await axiosInstance.get<{ resp: GetStatsResponse }>(
+export const GetStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
+  const response = await axiosInstance.get<GetStatsResponse>(
     `${config.api.baseURL}${routes.analytics()}/stats`,
     {
       withCredentials: true,
@@ -273,7 +278,9 @@ export const GetStats = async (req: GetStats): Promise<{ resp: GetStatsResponse 
   return response.data;
 };
 
-export const GetPostStats = async (req: GetPostStats): Promise<{ resp: GetPostStatsResponse }> => {
+export const GetPostStats = async (
+  req: GetPostStatsReq,
+): Promise<{ resp: GetPostStatsResponse }> => {
   const response = await axiosInstance.get<{ resp: GetPostStatsResponse }>(
     `${config.api.baseURL}${routes.analytics()}/stats/post`,
     {
@@ -284,9 +291,9 @@ export const GetPostStats = async (req: GetPostStats): Promise<{ resp: GetPostSt
   return response.data;
 };
 
-export const UpdateStats = async (req: UpdateStats): Promise<{ message: string }> => {
+export const UpdateStats = async (req: UpdateStatsReq): Promise<{ message: string }> => {
   const response = await axiosInstance.post<{ message: string }>(
-    `${config.api.baseURL}${routes.analytics()}/stats/post`,
+    `${config.api.baseURL}${routes.analytics()}/stats/update`,
     req,
     {
       withCredentials: true,
@@ -294,4 +301,3 @@ export const UpdateStats = async (req: UpdateStats): Promise<{ message: string }
   );
   return response.data;
 };
-*/
