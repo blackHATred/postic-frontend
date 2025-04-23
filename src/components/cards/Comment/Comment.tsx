@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Avatar, Carousel, Divider, Space, Typography } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Avatar, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment, Ticket } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
@@ -15,10 +15,11 @@ import {
 import { message } from 'antd';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Delete, MarkAsTicket } from '../../../api/api';
+import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
+import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 
 const { Paragraph, Text } = Typography;
 
@@ -35,7 +36,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const [ellipsis, setEllipsis] = useState(true);
-
+  const [sticker, setSticker] = useState(null);
+  const LottieRef = useRef<LottieRefCurrentProps>(null);
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
     dispatch(setAnswerDialog(true));
@@ -100,6 +102,22 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       });
   };
 
+  useEffect(() => {
+    if (
+      comment &&
+      comment.attachments &&
+      comment.attachments.length > 0 &&
+      comment.attachments[0]
+    ) {
+      getUpload(comment.attachments[0].id).then((data: any) => {
+        console.log('sticker');
+        setSticker(data);
+      });
+    } else {
+      return;
+    }
+  }, []);
+
   return (
     <div className={comment.username || comment.is_team_reply ? styles.comment : styles.post}>
       <div className={styles['comment-header']}>
@@ -159,12 +177,36 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           {comment.text}
         </Paragraph>
       </div>
-      {comment.attachments.length > 0 && (
-        <Carousel arrows className={styles['image']}>
+      {comment.attachments && comment.attachments.length > 0 && (
+        <>
           {comment.attachments.map((preview) => (
             <div key={preview.id} className={styles['image']}>
-              {preview.file_type == 'sticker' ? (
-                <>[Стикер]</>
+              {preview.file_type == 'sticker' && preview.file_path.endsWith('.json') ? (
+                <Lottie
+                  lottieRef={LottieRef}
+                  className={styles['image']}
+                  animationData={sticker}
+                  loop={false}
+                  onClick={() => {
+                    LottieRef.current?.goToAndPlay(0);
+                  }}
+                />
+              ) : preview.file_path.endsWith('.webm') ? (
+                <video
+                  height={250}
+                  width={'100%'}
+                  autoPlay
+                  playsInline
+                  muted
+                  onClick={(event) => {
+                    event.currentTarget.play();
+                  }}
+                >
+                  <source
+                    src={'http://localhost:80/api/upload/get/' + preview.id}
+                    type='video/webm'
+                  />
+                </video>
               ) : (
                 <img
                   src={'http://localhost:80/api/upload/get/' + preview.id}
@@ -173,7 +215,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
               )}
             </div>
           ))}
-        </Carousel>
+        </>
       )}
       <div className={styles['comment-buttons']}>
         <div className={styles['comment-buttons-left']}>
