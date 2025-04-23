@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import CommentTreeItem from './CommentTreeItem';
@@ -65,8 +65,10 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
         : dayjs().utc().format(),
       before,
       marked_as_ticket,
-    );
-    return createCommentTree(res.comments ? res.comments : []);
+    ).catch(() => {
+      console.log('bad');
+    });
+    return createCommentTree(res ? (res.comments ? res.comments : []) : []);
   };
 
   const url = getSseUrl(selectedTeamId, selectedPostId || 0);
@@ -81,26 +83,12 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
 
   const { isConnected, close } = useAuthenticatedSSE({ url, onMessage: newComment });
 
-  // чтоб загрузить первоначальные комменты при изменении фильтра и роута
-  useEffect(() => {
-    if (isTicketPage && teamId !== 0) {
-      getData(true, 10)
-        .then((data) => {
-          dispatch(setComments(data));
-        })
-        .catch((error) => {
-          console.error('Ошибка при загрузке комментариев:', error);
-        });
-    }
-  }, [activeTicketFilter, isTicketPage, teamId, location.pathname]);
-
   return (
     <div className={styles.commentListContainer}>
       {teamId != 0 && (
         <InfiniteScroll
-          getObjectFromData={(comment: CommentWithChildren, index: number) => (
+          getObjectFromData={(comment: CommentWithChildren) => (
             <CommentTreeItem
-              key={index}
               comment={comment}
               level={0}
               isCollapsed={!!collapsedComments[comment.id]}

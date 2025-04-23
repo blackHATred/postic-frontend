@@ -29,6 +29,7 @@ export interface ClickableButtonProps {
   withPopover?: boolean;
   popoverContent?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 const ClickableButton: React.FC<ClickableButtonProps> = ({
@@ -42,6 +43,7 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
   popoverContent,
   withPopover = false,
   className,
+  disabled,
 }) => {
   return withPopover ? (
     <Popover
@@ -58,6 +60,7 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
         onClick={onButtonClick}
         size={size}
         className={styles['blueButton'] + ' ' + className}
+        disabled={disabled}
       >
         {text}
       </Button>
@@ -71,6 +74,7 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
       onClick={onButtonClick}
       size={size}
       className={styles['blueButton'] + ' ' + className}
+      disabled={disabled}
     >
       {text}
     </Button>

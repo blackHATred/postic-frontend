@@ -14,7 +14,7 @@ export const AppRouter = () => {
     <Routes>
       {/* Защищенные маршруты с Layout */}
       <Route path={routes.root()} element={<PageLayout />}>
-        <Route index element={<Navigate to={routes.posts()} replace />} />
+        <Route index element={<Navigate to={routes.teams()} replace />} />
         <Route path={routes.posts()} element={<PostsPage />} />
         <Route path={routes.post(':id')} element={<PostDetailsPage />} />
         <Route path={routes.comments()} element={<CommentsPage />} />

@@ -25,7 +25,13 @@ const TeamEditMemberDialog: React.FC = () => {
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
   const [, setInviteUserId] = useState('');
   const selectedMemberId = useAppSelector((state) => state.teams.selectedMemberId);
-  const roles = useAppSelector((state) => state.teams.selectRoles);
+  const roles = useAppSelector((state) => state.teams.teams)
+    .find((value) => {
+      return value.id == teamId;
+    })
+    ?.users.find((value) => {
+      return value.user_id == selectedMemberId;
+    })?.roles;
 
   const [empty_checkbox, setEmptyCheckbox] = useState('');
 
@@ -42,17 +48,24 @@ const TeamEditMemberDialog: React.FC = () => {
   };
 
   useEffect(() => {
-    const hasAdminRole = roles.includes('admin');
-    setIsAdmin(hasAdminRole);
-    setPermissions({
-      comments: hasAdminRole || roles.includes('comments'),
-      posts: hasAdminRole || roles.includes('posts'),
-      analytics: hasAdminRole || roles.includes('analytics'),
-    });
-    if (hasAdminRole || roles.includes('comments') || roles.includes('posts')) {
-      setEmptyCheckbox('');
+    if (isOpen) {
+      console.log(selectedMemberId, teamId, roles);
+      if (roles) {
+        const hasAdminRole = roles.includes('admin');
+        setIsAdmin(hasAdminRole);
+        setPermissions({
+          comments: hasAdminRole || roles.includes('comments'),
+          posts: hasAdminRole || roles.includes('posts'),
+          analytics: hasAdminRole || roles.includes('analytics'),
+        });
+        if (hasAdminRole || roles.includes('comments') || roles.includes('posts')) {
+          setEmptyCheckbox('');
+        }
+      } else {
+        console.error('Error');
+      }
     }
-  }, [roles]);
+  }, [roles, selectedMemberId, teamId]);
 
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);

@@ -22,61 +22,68 @@ export function useAuthenticatedSSE({
   const MAX_RETRIES = 3;
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  useEffect(() => {
-    const setupSSE = async () => {
-      if (retryCount >= MAX_RETRIES) {
-        console.log(`Достигнут лимит попыток (${MAX_RETRIES}). SSE отключен.`);
-        return;
-      }
-      try {
-        // Create EventSource with authentication
-        const eventSource = new EventSource(`${url}`, {
-          withCredentials,
-        });
+  const setupSSE = async () => {
+    if (retryCount >= MAX_RETRIES) {
+      console.log(`Достигнут лимит попыток (${MAX_RETRIES}). SSE отключен.`);
+      return;
+    }
+    try {
+      // Create EventSource with authentication
+      const eventSource = new EventSource(`${url}`, {
+        withCredentials,
+      });
 
-        eventSourceRef.current = eventSource;
+      eventSourceRef.current = eventSource;
 
-        eventSource.onopen = (ev) => {
-          if (ev.type == 'open') {
-            console.log('SSE подключение установлено');
-            setIsConnected(true);
-            setRetryCount(0);
-          } else {
-            console.warn(`SSE подключение не удалось. Статус: ${ev.type}`);
-            setIsConnected(false);
-            setRetryCount((prev) => prev + 1);
-            setTimeout(setupSSE, 2000);
-          }
-        };
-
-        eventSource.addEventListener('comment', (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            onMessage(data);
-          } catch (err) {
-            console.error('Failed to parse SSE data:', err);
-          }
-        });
-
-        eventSource.onerror = (error) => {
-          console.error('SSE ошибка:', error);
-
+      eventSource.onopen = (ev) => {
+        if (ev.type == 'open') {
+          console.log('SSE подключение установлено');
+          setIsConnected(true);
+          setRetryCount(0);
+        } else {
+          console.warn(`SSE подключение не удалось. Статус: ${ev.type}`);
           setIsConnected(false);
-          if (onError) {
-            onError(error);
-          }
-          eventSource.close();
           setRetryCount((prev) => prev + 1);
-          setTimeout(setupSSE, 5000);
-        };
-      } catch (err) {
-        console.error('Failed to establish SSE connection:', err);
-        setTimeout(setupSSE, 5000);
-      }
-    };
+          setTimeout(setupSSE, 2000);
+        }
+      };
 
+      eventSource.addEventListener('comment', (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          onMessage(data);
+        } catch (err) {
+          console.error('Failed to parse SSE data:', err);
+        }
+      });
+
+      eventSource.onerror = (error) => {
+        console.error('SSE ошибка:', error);
+
+        setIsConnected(false);
+        if (onError) {
+          onError(error);
+        }
+        eventSource.close();
+        setRetryCount((prev) => prev + 1);
+        if (eventSource.url == url) setTimeout(setupSSE, 5000);
+      };
+    } catch (err) {
+      console.error('Failed to establish SSE connection:', err);
+      //setTimeout(setupSSE, 5000);
+    }
+  };
+
+  useEffect(() => {
     setupSSE();
   }, []);
+
+  useEffect(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    setupSSE();
+  }, [url]);
 
   useEffect(() => {
     return close;

@@ -24,8 +24,8 @@ const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
       )}
       <React.Suspense fallback={<Spin className={styles['spin']} />}>
         <Scroll
-          getObjectFromData={function (team: Team, index: number): React.ReactNode {
-            return <TeamCard teamcard={team} key={index} />;
+          getObjectFromData={function (team: Team): React.ReactNode {
+            return <TeamCard teamcard={team} />;
           }}
           data={teams}
           setData={() => {}}

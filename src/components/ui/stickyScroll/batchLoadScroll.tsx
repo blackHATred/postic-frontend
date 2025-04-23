@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './styles.module.scss';
 import { Empty, Spin } from 'antd';
 interface coolScroll {
-  getObjectFromData: (data: any, index: number) => React.ReactNode;
+  getObjectFromData: (data: any) => React.ReactNode;
   data: any[];
   setData: (data: any[]) => void;
   getNewData: (
@@ -40,6 +40,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
       setHasMoreTop(true);
     } else {
       setHasMoreTop(false);
+      setHasMoreBottom(false);
     }
     if (data && data.length > 0) props.setData(data);
     if (ref.current) {
@@ -200,8 +201,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         props.data.length > 0 &&
         [...props.data].reverse().map((element: any, index: number) => {
           return (
-            <div style={{ visibility: isLoading ? 'hidden' : 'visible' }}>
-              {props.getObjectFromData(element, index)}
+            <div style={{ visibility: isLoading ? 'hidden' : 'visible' }} key={index}>
+              {props.getObjectFromData(element)}
             </div>
           );
         })}

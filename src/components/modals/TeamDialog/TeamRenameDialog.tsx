@@ -19,7 +19,12 @@ const TeamRenameDialog: React.FC = () => {
   const isOpen = useAppSelector((state) => state.teams.renameTeamDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
-  const oldName = useAppSelector((state) => state.teams.oldTeamName);
+  const oldName = useAppSelector(
+    (state) =>
+      state.teams.teams.find((value) => {
+        return value.id == teamId;
+      })?.name,
+  );
 
   const updateTeamList = () => {
     MyTeams()

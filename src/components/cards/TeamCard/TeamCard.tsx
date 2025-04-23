@@ -8,11 +8,9 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
   setAddMemberDialog,
   setEditMemberDialog,
-  setOldTeamName,
   setRenameTeamDialog,
   setSelectedMemberId,
   setSelectedTeamId,
-  setSelectRoles,
 } from '../../../stores/teamSlice';
 import { Kick } from '../../../api/teamApi';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
@@ -69,7 +67,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     dispatch(setRenameTeamDialog(true));
     //dispatch(setOldTeamName(oldTeamName));
     dispatch(setSelectedTeamId?.(id));
-    dispatch(setOldTeamName?.(team_name));
   };
 
   const onEditMemberClick = async (userId: number) => {
@@ -78,11 +75,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     dispatch(setEditMemberDialog(true));
     dispatch(setSelectedTeamId?.(id));
     dispatch(setSelectedMemberId(userId));
-    if (member) {
-      dispatch(setSelectRoles(member.roles));
-    } else {
-      dispatch(setSelectRoles([]));
-    }
   };
   const roleTranslations: Record<string, string> = {
     admin: 'администратор',

@@ -20,6 +20,14 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const selectedUser = useAppSelector((state) => state.teams.currentUserId);
+  const roles = useAppSelector((state) => state.teams.teams)
+    .find((team) => {
+      return team.id == selectedTeam;
+    })
+    ?.users.find((user) => {
+      return user.user_id == selectedUser;
+    })?.roles;
 
   const handleTabChange = (key: string, route: string) => {
     dispatch(setActiveTab(key));
@@ -43,6 +51,13 @@ const Sidebar: React.FC = () => {
               text={'Посты'}
               icon={<MessageOutlined className={styles['icon-primary']} />}
               onButtonClick={() => handleTabChange('1', routes.posts())}
+              disabled={
+                roles
+                  ? roles.find((r) => {
+                      return r == 'posts' || r == 'admin';
+                    }) == undefined
+                  : true
+              }
             />
           </div>
           <div
@@ -54,6 +69,13 @@ const Sidebar: React.FC = () => {
               text={'Все комментарии'}
               icon={<CommentOutlined className={styles['icon-primary']} />}
               onButtonClick={() => handleTabChange('2', routes.comments())}
+              disabled={
+                roles
+                  ? roles.find((r) => {
+                      return r == 'comments' || r == 'admin';
+                    }) == undefined
+                  : true
+              }
             />
           </div>
           <div className={styles['sidebar-divider']}></div>
@@ -67,6 +89,13 @@ const Sidebar: React.FC = () => {
               text={'Тикет-система'}
               icon={<TagOutlined className={styles['icon-primary']} />}
               onButtonClick={() => handleTabChange('4', routes.ticket())}
+              disabled={
+                roles
+                  ? roles.find((r) => {
+                      return r == 'ticket' || r == 'admin';
+                    }) == undefined
+                  : true
+              }
             />
           </div>
 
@@ -79,6 +108,13 @@ const Sidebar: React.FC = () => {
               text={'Аналитика'}
               icon={<LineChartOutlined className={styles['icon-primary']} />}
               onButtonClick={() => handleTabChange('5', routes.analytics())}
+              disabled={
+                roles
+                  ? roles.find((r) => {
+                      return r == 'analitics' || r == 'admin';
+                    }) == undefined
+                  : true
+              }
             />
           </div>
         </>
