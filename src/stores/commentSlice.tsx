@@ -47,7 +47,7 @@ const initialState: CommentSliceState = {
   comments: { comments: [], status: '' },
   answerDialog: { isOpen: false },
   selectedComment: null,
-  ticketFilter: '',
+  ticketFilter: 'not_done',
 };
 
 export const commentsSlice = createSlice({

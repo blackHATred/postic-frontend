@@ -8,6 +8,7 @@
   position: sticky;
   //top: 100px;
   height: fit-content;
+  margin-right: 10px;
 }
 
 .sidebar-options {
@@ -33,4 +34,15 @@
 
 .icon-primary {
   color: $primary-color;
+}
+
+.active {
+  background-color: rgba($primary-color, 0.1);
+  color: $primary-color !important;
+  border-radius: $border-radius;
+}
+
+.button {
+  width: 100%;
+  justify-content: left;
 }

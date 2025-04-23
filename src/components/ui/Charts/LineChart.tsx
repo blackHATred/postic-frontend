@@ -196,20 +196,9 @@ const LineChart: React.FC<LineChartProps> = ({
 
   if (loading) {
     return (
-      <Card
-        title={
-          <Space>
-            Топ вовлекающих постов
-            <Tooltip title='График показывает общую динамику активности по всем соцсетям'>
-              <InfoCircleOutlined />
-            </Tooltip>
-          </Space>
-        }
-      >
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height }}>
-          <Spin size='large' />
-        </div>
-      </Card>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height }}>
+        <Spin size='large' />
+      </div>
     );
   }
 

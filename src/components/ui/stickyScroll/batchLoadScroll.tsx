@@ -15,7 +15,6 @@ interface coolScroll {
   initialScroll: number;
   frame_size: number;
   empty_text: string;
-  refresh?: any;
 }
 
 const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
@@ -37,12 +36,12 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const addFirstData = (data: any[]) => {
-    if (data && data.length < props.frame_size) {
-      setHasMoreTop(false);
-    } else if (data && data.length == props.frame_size * 3) {
+    if (data && data.length == props.frame_size * 3) {
       setHasMoreTop(true);
+    } else {
+      setHasMoreTop(false);
     }
-    if (data) props.setData(data);
+    if (data && data.length > 0) props.setData(data);
     if (ref.current) {
       setScrollToBottom('instant');
       setIsLoading(false);
@@ -111,21 +110,18 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   }, [ref]);
 
   React.useEffect(() => {
-    if (!isLoading && ref.current) {
+    if (ref.current && finalScroll != 0) {
+      ref.current.scrollTop = finalScroll;
+      setFinalScroll(0);
+      return;
+    }
+    if (!isLoading && ref.current && props.data.length == 0) {
       setIsLoading(true);
       setHasMoreBottom(false);
       setHasMoreTop(false);
       setAddedTop(0);
       setAddedBottom(0);
       props.getNewData(true, props.frame_size * 3).then((data) => addFirstData(data));
-    }
-  }, [props.refresh]);
-
-  React.useEffect(() => {
-    if (ref.current && finalScroll != 0) {
-      ref.current.scrollTop = finalScroll;
-      setFinalScroll(0);
-      return;
     }
 
     if (addedTop != 0 && ref.current) {

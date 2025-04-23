@@ -2,11 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
 import DialogBox from '../dialogBox/DialogBox';
 import BlueDashedTextBox from '../../ui/BlueDashedTextBox/BlueDashedTextBox';
-import { Register } from '../../../api/api';
+import { Me, Register } from '../../../api/api';
 import { RegisterResult } from '../../../models/User/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setRegiserDialog } from '../../../stores/basePageDialogsSlice';
-import { useCookies } from 'react-cookie';
+import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
+import { MyTeams } from '../../../api/teamApi';
+import { Team } from '../../../models/Team/types';
 
 const RegisterDialog: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -14,7 +16,6 @@ const RegisterDialog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.registerDialog.isOpen);
-  const [, setCookie] = useCookies();
 
   useEffect(() => {
     setLoading(true);
@@ -22,7 +23,27 @@ const RegisterDialog: React.FC = () => {
       Register()
         .then((res: RegisterResult) => {
           setID(res.user_id.toString());
-          setCookie('session', res.user_id.toString());
+          dispatch(setAuthorized('loading'));
+          Me().then((userData) => {
+            if (userData && userData.user_id) {
+              const userId = Number(userData.user_id);
+              dispatch(setCurrentUserId(userId));
+
+              MyTeams()
+                .then((res: { teams: Team[] }) => {
+                  if (res.teams) {
+                    dispatch(setTeams(res.teams));
+                    dispatch(setAuthorized('authorized'));
+                  }
+                })
+                .catch(() => {
+                  console.log('Error getting teams');
+                  dispatch(setAuthorized('authorized'));
+                });
+            } else {
+              dispatch(setAuthorized('not_authorized'));
+            }
+          });
         })
         .catch(() => {
           notificationManager.createNotification('error', 'Ошибка регистрации', '');

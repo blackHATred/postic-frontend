@@ -35,18 +35,18 @@ const AnalyticsComponent: React.FC = () => {
   return (
     <div className={styles.analyticsContainer}>
       {activeAnalytics === '' && (
-        <>
+        <div className={styles['spacer']}>
           <LineChart data={mockData} loading={loading} height={400} />
           <CircularChart data={mockData} loading={loading} />
-        </>
+        </div>
       )}
       {activeAnalytics === 'audience' && (
-        <>
+        <div className={styles['spacer']}>
           <TopEngagingPostsList data={mockData} loading={loading} />
           <HeatmapChart data={mockData} loading={loading} />
           <MarkerLineChart data={mockData} loading={loading} />
           <EngagementDashboard data={mockData} loading={loading} />
-        </>
+        </div>
       )}
       {activeAnalytics === 'growth' && (
         <>

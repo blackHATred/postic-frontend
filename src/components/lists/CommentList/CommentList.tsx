@@ -81,12 +81,6 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
 
   const { isConnected, close } = useAuthenticatedSSE({ url, onMessage: newComment });
 
-  useEffect(() => {
-    return () => {
-      close();
-    };
-  }, [close]);
-
   // чтоб загрузить первоначальные комменты при изменении фильтра и роута
   useEffect(() => {
     if (isTicketPage && teamId !== 0) {
