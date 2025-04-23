@@ -195,7 +195,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           <ClickableButton
             type='default'
             variant='outlined'
-            withPopover={true}
+            withPopover={help_mode ? true : false}
             popoverContent={
               help_mode
                 ? activeTab === '4'
