@@ -236,10 +236,10 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
           onChange={setMetricType}
           style={{ width: '180px' }}
           options={[
-            { value: 'er', label: 'ER (%)' },
             { value: 'views', label: 'Просмотры' },
             { value: 'reactions', label: 'Реакции' },
             { value: 'comments', label: 'Комментарии' },
+            { value: 'er', label: 'ER (%)' },
           ]}
         />
         <Select

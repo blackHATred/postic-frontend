@@ -95,7 +95,7 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
 
     // Вычисляем процент изменения
     const percentDiff =
-      previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 100;
+      previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
 
     // Формируем данные для графика
     const chartData = [];
@@ -366,8 +366,18 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
             title='Изменение'
             value={percentChange.toFixed(1)}
             precision={1}
-            valueStyle={{ color: percentChange >= 0 ? '#3f8600' : '#cf1322' }}
-            prefix={percentChange >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+            valueStyle={{
+              color: percentChange != 0 ? (percentChange > 0 ? '#3f8600' : '#cf1322') : '#ffc53d',
+            }}
+            prefix={
+              percentChange != 0 ? (
+                percentChange > 0 ? (
+                  <ArrowUpOutlined />
+                ) : (
+                  <ArrowDownOutlined />
+                )
+              ) : null
+            }
             suffix='%'
           />
           <div style={{ fontSize: '12px', color: '#8c8c8c', marginTop: '8px' }}>

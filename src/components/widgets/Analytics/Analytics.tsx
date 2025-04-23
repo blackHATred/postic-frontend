@@ -30,11 +30,12 @@ const AnalyticsComponent: React.FC = () => {
         const postsResponse = await getPosts(
           selectedTeamId,
           50,
-          '2025-04-23T12:38:41Z',
+          '2024-04-23T12:38:41Z',
           'published',
+          false,
         );
         const postIds = postsResponse.posts.map((post) => post.id);
-
+        console.log(postIds);
         for (const postId of postIds) {
           await UpdateStats({
             team_id: selectedTeamId,
@@ -82,9 +83,9 @@ const AnalyticsComponent: React.FC = () => {
         </div>
       )}
       {activeAnalytics === 'growth' && (
-        <>
+        <div className={styles['spacer']}>
           <PeriodComparisonChart data={analyticsData} loading={loading} />
-        </>
+        </div>
       )}
     </div>
   );

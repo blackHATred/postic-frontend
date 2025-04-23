@@ -51,7 +51,7 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
           formatter: (datum) => {
             return {
               name: datum.platform,
-              value: `${datum.value.toLocaleString()} (${datum.percentage}%)`,
+              value: datum.value,
             };
           },
         },
@@ -109,12 +109,12 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
       {
         platform: 'Telegram',
         value: tgTotal,
-        percentage: total > 0 ? `${((tgTotal / total) * 100).toFixed(1)}%` : '0%',
+        percentage: total > 0 ? ((tgTotal / total) * 100).toFixed(1) : '0',
       },
       {
         platform: 'ВКонтакте',
         value: vkTotal,
-        percentage: total > 0 ? `${((vkTotal / total) * 100).toFixed(1)}%` : '0%',
+        percentage: total > 0 ? ((vkTotal / total) * 100).toFixed(1) : '0',
       },
     ];
   };
