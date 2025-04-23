@@ -121,24 +121,21 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   }, []);
 
   return (
-    <div className={comment.username || comment.is_team_reply ? styles.comment : styles.post}>
+    <div className={styles.comment}>
       <div className={styles['comment-header']}>
-        {comment.username || comment.is_team_reply ? (
-          <Avatar
-            src={
-              comment.avatar_mediafile &&
-              config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
-            }
-            onError={() => {
-              console.log('img-error');
-              return true;
-            }}
-            icon={<TeamOutlined />}
-            className={comment.is_team_reply ? styles['team-avatar'] : ''}
-          />
-        ) : (
-          <Text strong>Пост</Text>
-        )}
+        <Avatar
+          src={
+            comment.avatar_mediafile &&
+            config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
+          }
+          onError={() => {
+            console.log('img-error');
+            return true;
+          }}
+          icon={<TeamOutlined />}
+          className={comment.is_team_reply ? styles['team-avatar'] : ''}
+        />
+
         <div className={styles['comment-header-text']}>
           <div className={styles['comment-author']}>
             <div>
