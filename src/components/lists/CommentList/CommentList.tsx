@@ -24,7 +24,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
   const comments = useAppSelector((state) => state.comments.comments);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const effectivePostId = postId || selectedPostId;
+  const effectivePostId = postId != undefined ? postId : selectedPostId;
   const activeTicketFilter = useAppSelector((state) => state.comments.ticketFilter);
   const location = useLocation();
 
@@ -102,7 +102,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
           }}
           getNewData={getData}
           initialScroll={0}
-          frame_size={10}
+          frame_size={3}
           empty_text={'нет комментариев'}
         />
       )}

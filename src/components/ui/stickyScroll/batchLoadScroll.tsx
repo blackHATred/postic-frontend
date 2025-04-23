@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from './styles.module.scss';
-import { Empty, Spin } from 'antd';
-interface coolScroll {
+import { Divider, Empty, Spin } from 'antd';
+interface InfiniteScroll {
   getObjectFromData: (data: any) => React.ReactNode;
   data: any[];
   setData: (data: any[]) => void;
@@ -17,7 +17,7 @@ interface coolScroll {
   empty_text: string;
 }
 
-const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
+const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   const [hasMoreTop, setHasMoreTop] = React.useState(true);
   const [hasMoreBottom, setHasMoreBottom] = React.useState(false);
 
@@ -33,7 +33,15 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   const [finalScroll, setFinalScroll] = React.useState(0);
   const [addedItems, setAddedItems] = React.useState<any>([]);
 
+  const [shouldshowLoadTop, setShould] = React.useState(true);
+
   const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!(hasMoreTop || isLoadingTop) && ref.current) {
+      ref.current.scrollTop = ref.current.scrollTop + 50;
+    }
+  }, [hasMoreTop, isLoadingTop]);
 
   const addFirstData = (data: any[]) => {
     if (data && data.length == props.frame_size * 3) {
@@ -97,6 +105,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
           // Загружены все объекты
           setHasMoreTop(false);
           setHasMoreBottom(false);
+          setIsLoadingTop(false);
+          setIsLoadingBottom(false);
         }
         //ref.current.scrollTop = props.initialScroll;
 
@@ -111,6 +121,8 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   }, [ref]);
 
   React.useEffect(() => {
+    console.log(ref.current?.scrollHeight, ref.current?.clientHeight);
+    if (ref.current) setShould(ref.current.scrollHeight <= ref.current.clientHeight);
     if (ref.current && finalScroll != 0) {
       ref.current.scrollTop = finalScroll;
       setFinalScroll(0);
@@ -158,7 +170,7 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
   const handleScroll = (event: React.UIEvent) => {
     if (ref.current) {
       const max_scroll = ref.current.scrollHeight - ref.current.clientHeight;
-      setAtBottom(ref.current.scrollTop >= max_scroll - 100);
+      setAtBottom(ref.current.scrollTop >= max_scroll * 0.1);
       if (
         ref.current.scrollTop <= max_scroll * 0.1 &&
         hasMoreTop &&
@@ -195,8 +207,19 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
 
   return (
     <div className={styles.container} ref={ref} onScroll={handleScroll}>
-      {!isLoadingTop && !isLoadingBottom && isLoading && <Spin className={styles['spin']} />}
-      {isLoadingTop ? <Spin className={styles['spin']} /> : <div className={styles['spin']}></div>}
+      {hasMoreTop || isLoadingTop ? (
+        <Spin className={styles.spinner} />
+      ) : props.frame_size != 0 && !shouldshowLoadTop ? (
+        <Divider
+          className={styles.end}
+          variant='dashed'
+          style={{ borderColor: 'rgba(11, 11, 11, 0.3)' }}
+        >
+          Начало
+        </Divider>
+      ) : (
+        <></>
+      )}
       {props.data &&
         props.data.length > 0 &&
         [...props.data].reverse().map((element: any, index: number) => {
@@ -210,9 +233,9 @@ const InfiniteScroll: React.FC<coolScroll> = (props: coolScroll) => {
         <Empty className={styles.empty} description={<span>{props.empty_text}</span>} />
       )}
       {isLoadingBottom ? (
-        <Spin className={styles['spin']} />
+        <Spin className={styles['spinner']} />
       ) : (
-        <div className={styles['spin']}></div>
+        <div className={styles['spinner']}></div>
       )}
     </div>
   );

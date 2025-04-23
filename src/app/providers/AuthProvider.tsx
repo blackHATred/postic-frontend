@@ -31,10 +31,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               dispatch(setAuthorized('authorized'));
             });
         } else {
+          dispatch(setTeams([]));
+          dispatch(setCurrentUserId(0));
           dispatch(setAuthorized('not_authorized'));
         }
       })
       .catch(() => {
+        dispatch(setTeams([]));
+        dispatch(setCurrentUserId(0));
         dispatch(setAuthorized('not_authorized'));
       });
   }, [dispatch]);

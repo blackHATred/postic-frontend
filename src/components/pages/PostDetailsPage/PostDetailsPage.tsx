@@ -6,6 +6,7 @@ import { setSelectedPostId } from '../../../stores/postsSlice';
 import CommentList from '../../lists/CommentList/CommentList';
 import styles from './styles.module.scss';
 import PostDetailed from '../../cards/PostDetailed/PostDetailed';
+import { setComments } from '../../../stores/commentSlice';
 
 const PostDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,10 @@ const PostDetailsPage: React.FC = () => {
     if (id) {
       dispatch(setSelectedPostId(Number(id)));
     }
+    return () => {
+      dispatch(setSelectedPostId(0));
+      dispatch(setComments([]));
+    };
   }, [dispatch]);
 
   // Находим пост по ID

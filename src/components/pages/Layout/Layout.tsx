@@ -15,24 +15,29 @@ const PageLayout: React.FC = () => {
   const auth = useAppSelector((state) => state.teams.authorize_status);
   const loc = useLocation().pathname;
   const navigate = useNavigate();
-  const roles = useAppSelector((state) => state.teams.teams)
-    .find((team) => {
-      return team.id == selectedTeam;
-    })
-    ?.users.find((user) => {
-      return user.user_id == selectedUser;
-    })?.roles;
+  const teams = useAppSelector((state) => state.teams.teams);
 
   useEffect(() => {
+    const roles = teams
+      .find((team) => {
+        return team.id == selectedTeam;
+      })
+      ?.users.find((user) => {
+        return user.user_id == selectedUser;
+      })?.roles;
     if (
-      auth != 'loading' &&
-      roles?.find((el) => {
-        return '/' + el == loc || el == 'admin';
-      }) == undefined
+      auth == 'not_authorized' ||
+      (selectedUser != 0 &&
+        selectedTeam &&
+        teams &&
+        roles?.find((el) => {
+          return '/' + el == loc || el == 'admin';
+        }) == undefined)
     ) {
+      console.log(auth, selectedUser, teams, roles);
       navigate(routes.teams());
     }
-  }, [roles, loc]);
+  }, [teams, loc, auth]);
 
   return (
     <div className={styles['main-page']}>
