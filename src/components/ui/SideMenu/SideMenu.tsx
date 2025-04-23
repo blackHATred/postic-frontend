@@ -88,18 +88,18 @@ const SideMenu: React.FC = () => {
         {currentPath === routes.ticket() && (
           <>
             <Menu.Item
-              key='all-posts'
-              className={`${styles['sidebar-options']} ${ticketFilter === 'done' ? styles['active'] : ''}`}
-              onClick={() => handleFilterTicketChange('done')}
-            >
-              Решенные тикеты
-            </Menu.Item>
-            <Menu.Item
               key='published-posts'
               className={`${styles['sidebar-options']} ${ticketFilter === 'not_done' ? styles['active'] : ''}`}
               onClick={() => handleFilterTicketChange('not_done')}
             >
               Нерешенные тикеты
+            </Menu.Item>
+            <Menu.Item
+              key='all-posts'
+              className={`${styles['sidebar-options']} ${ticketFilter === 'done' ? styles['active'] : ''}`}
+              onClick={() => handleFilterTicketChange('done')}
+            >
+              Решенные тикеты
             </Menu.Item>
           </>
         )}

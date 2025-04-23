@@ -5,7 +5,13 @@ interface coolScroll {
   getObjectFromData: (data: any, index: number) => React.ReactNode;
   data: any[];
   setData: (data: any[]) => void;
-  getNewData: (before: boolean, limit: number, last_object?: any, top?: boolean) => Promise<any[]>;
+  getNewData: (
+    before: boolean,
+    limit: number,
+    last_object?: any,
+    top?: boolean,
+    marked_as_ticket?: boolean,
+  ) => Promise<any[]>;
   initialScroll: number;
   frame_size: number;
   empty_text: string;

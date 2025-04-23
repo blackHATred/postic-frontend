@@ -134,12 +134,9 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                 {getIcon(comment.platform)}
               </Space>
             </div>
-            {comment.username ||
-              (comment.is_team_reply && (
-                <div>
-                  <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
-                </div>
-              ))}
+            <div>
+              <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
+            </div>
           </div>
           {comment.post_union_id && (
             <div>
