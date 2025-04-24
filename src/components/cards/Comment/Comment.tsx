@@ -202,13 +202,13 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                   }}
                 >
                   <source
-                    src={'http://localhost:80/api/upload/get/' + preview.id}
+                    src={`${config.api.baseURL}/upload/get/` + preview.id}
                     type='video/webm'
                   />
                 </video>
               ) : (
                 <img
-                  src={'http://localhost:80/api/upload/get/' + preview.id}
+                  src={`${config.api.baseURL}/upload/get/` + preview.id}
                   className={styles['image']}
                 />
               )}
