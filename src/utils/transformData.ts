@@ -20,14 +20,15 @@ export const transformStatsToAnalytics = async (
       const timestamp = postInfo.post?.pub_datetime || new Date().toISOString();
 
       // Формируем объект PostAnalytics
+      // Формируем объект PostAnalytics
       const analytics: PostAnalytics = {
         post_union_id: postData.post_union_id,
         tg_views: postData.telegram?.views || 0,
         tg_comments: postData.telegram?.comments || 0,
         tg_reactions: postData.telegram?.reactions || 0,
-        vk_views: 0, // Заполняем нулями, если в ответе нет данных VK
-        vk_comments: 0,
-        vk_reactions: 0,
+        vk_views: postData.vkontakte?.views || 0,
+        vk_comments: postData.vkontakte?.comments || 0,
+        vk_reactions: postData.vkontakte?.reactions || 0,
         user_id: postInfo.post?.user_id || 0,
         timestamp: timestamp,
       };

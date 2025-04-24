@@ -33,6 +33,11 @@ export interface GetStatsResponse {
       comments: number;
       reactions: number;
     };
+    vkontakte: {
+      views: number;
+      comments: number;
+      reactions: number;
+    };
   }>;
 }
 
@@ -62,45 +67,6 @@ export const mockDataGetStatsResponse: GetPostStatsResponse = [
     views: 800,
     comments: 30,
     reactions: 150,
-  },
-];
-
-export const mockGetStatsResponse: GetStatsResponse[] = [
-  {
-    posts: [
-      {
-        post_union_id: 1,
-        telegram: {
-          views: 1000,
-          reactions: 200,
-          comments: 50,
-        },
-      },
-      {
-        post_union_id: 2,
-        telegram: {
-          views: 800,
-          reactions: 150,
-          comments: 30,
-        },
-      },
-      {
-        post_union_id: 3,
-        telegram: {
-          views: 1200,
-          reactions: 250,
-          comments: 70,
-        },
-      },
-      {
-        post_union_id: 4,
-        telegram: {
-          views: 900,
-          reactions: 180,
-          comments: 40,
-        },
-      },
-    ],
   },
 ];
 
