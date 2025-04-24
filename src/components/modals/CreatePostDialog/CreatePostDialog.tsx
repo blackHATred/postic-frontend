@@ -143,6 +143,7 @@ const CreatePostDialog: FC = () => {
       });
       dispatch(setSelectedPostId(data.post_id));
     });
+    console.log('selectedPlatforms', selectedPlatforms);
     dispatch(setPostStatusDialog(true));
     dispatch(setCreatePostDialog(false));
   };

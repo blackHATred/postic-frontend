@@ -96,10 +96,14 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
             <Text strong className={styles['post-name']}>
               Модератор {post.user_id}
             </Text>
+            {post.pub_datetime && new Date(post.pub_datetime) > new Date() ? (
+              <Text type='secondary' className={styles['post-name']}></Text>
+            ) : (
+              <Text type='secondary' className={styles['post-time']}>
+                {dayjs(post.created_at).format('DD.MM.YYYY HH:mm')}
+              </Text>
+            )}
 
-            <Text type='secondary' className={styles['post-time']}>
-              {dayjs(post.created_at).format('DD.MM.YYYY HH:mm')}
-            </Text>
             <Space size={0} split={<Divider type='vertical' />}>
               {post.platforms?.map((plat) => {
                 return getIcon(plat);
