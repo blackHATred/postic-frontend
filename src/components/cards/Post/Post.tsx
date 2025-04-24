@@ -18,6 +18,7 @@ import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/l
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
+import config from '../../../constants/appConfig';
 
 const { Text, Paragraph } = Typography;
 
@@ -175,7 +176,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
             <Carousel arrows>
               {attach_images.map((preview) => (
                 <div key={preview.id}>
-                  <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
+                  <Image src={`${config.api.baseURL}/upload/get/` + preview.id} />
                 </div>
               ))}
             </Carousel>
