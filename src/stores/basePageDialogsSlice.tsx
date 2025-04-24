@@ -9,7 +9,7 @@ interface summaryDialogState extends basicDialogState {
 }
 
 interface createPostDialogState extends basicDialogState {
-  files: { id: string; file: any }[];
+  files: string[];
 }
 
 export interface basePageDialogsSliceState {
@@ -80,12 +80,12 @@ export const basePageDialogsSlice = createSlice({
       state.activeTab = action.payload;
     },
 
-    addFile: (state, action: PayloadAction<{ id: string; file: any }>) => {
+    addFile: (state, action: PayloadAction<string>) => {
       state.createPostDialog.files.push(action.payload);
     },
-    removeFile: (state, action: PayloadAction<{ file: any }>) => {
+    removeFile: (state, action: PayloadAction<string>) => {
       state.createPostDialog.files = state.createPostDialog.files.filter(
-        (f) => f.file.uid !== action.payload.file.uid,
+        (f) => f !== action.payload,
       );
     },
     clearFiles: (state) => {

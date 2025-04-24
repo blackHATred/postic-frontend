@@ -15,7 +15,7 @@ import {
 import { message } from 'antd';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
+import { Delete, getUpload, getUploadUrl, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
@@ -190,7 +190,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                     LottieRef.current?.goToAndPlay(0);
                   }}
                 />
-              ) : preview.file_path.endsWith('.webm') ? (
+              ) : preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
                 <video
                   height={250}
                   width={'100%'}
@@ -201,16 +201,10 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                     event.currentTarget.play();
                   }}
                 >
-                  <source
-                    src={'http://localhost:80/api/upload/get/' + preview.id}
-                    type='video/webm'
-                  />
+                  <source src={getUploadUrl(preview.id)} type='video/webm' />
                 </video>
               ) : (
-                <img
-                  src={'http://localhost:80/api/upload/get/' + preview.id}
-                  className={styles['image']}
-                />
+                <img src={getUploadUrl(preview.id)} className={styles['image']} />
               )}
             </div>
           ))}

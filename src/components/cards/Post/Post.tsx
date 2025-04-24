@@ -18,6 +18,7 @@ import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/l
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
+import { getUploadUrl } from '../../../api/api';
 
 const { Text, Paragraph } = Typography;
 
@@ -171,15 +172,28 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 <Text className={styles.primaryText}>{attachment.file_path}</Text>
               </div>
             ))}
-          {attach_images.length > 0 && (
-            <Carousel arrows>
-              {attach_images.map((preview) => (
-                <div key={preview.id}>
-                  <Image src={'http://localhost:80/api/upload/get/' + preview.id} />
-                </div>
-              ))}
-            </Carousel>
-          )}
+          {attach_images.length > 0 &&
+            (attach_images.length > 0 ? (
+              <Carousel arrows className={styles['images']}>
+                {attach_images.map((preview) => (
+                  <div key={preview.id}>
+                    <Image
+                      className={styles['image']}
+                      height={250}
+                      src={getUploadUrl(preview.id)}
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            ) : (
+              <div key={attach_images[0].id}>
+                <Image
+                  className={styles['image']}
+                  height={250}
+                  src={getUploadUrl(attach_images[0].id)}
+                />
+              </div>
+            ))}
         </div>
         <div className={styles['post-content-buttons']}>
           <ClickableButton

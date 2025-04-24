@@ -8,7 +8,12 @@ import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 
 import FileUploader from '../CreatePostDialog/FileUploader';
-import { setAnswerDialog } from '../../../stores/commentSlice';
+import {
+  addFileComm,
+  clearFilesComm,
+  removeFileComm,
+  setAnswerDialog,
+} from '../../../stores/commentSlice';
 import { RightOutlined } from '@ant-design/icons';
 import { SendOutlined } from '@ant-design/icons/lib/icons';
 import { Answ, CommentReply } from '../../../models/Comment/types';
@@ -19,12 +24,13 @@ const { Text } = Typography;
 const AnswerDialog: FC = () => {
   const [replyText, setReplyText] = useState(''); // Состояние для текста поста
   const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
-  const [fileIDs, setFilesIDs] = useState<string[]>([]); // ID загруженных изображений
+  const fileIds = useAppSelector((state) => state.comments.answerDialog.files);
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.comments.answerDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const selectedComment = useAppSelector((state) => state.comments.selectedComment);
+  const [files, setFiles] = useState<{ id: string; files: any }[]>([]);
 
   const [answers, setAnswers] = useState<{ ideas: string[] }[]>([]);
   useEffect(() => {
@@ -70,6 +76,10 @@ const AnswerDialog: FC = () => {
     }
   }, [isOpen, selectedComment, team_id]);
 
+  useEffect(() => {
+    clearFields();
+  }, [selectedComment]);
+
   const setQuickAnswer = (q_ans: string) => {
     setReplyText(q_ans);
   };
@@ -77,7 +87,7 @@ const AnswerDialog: FC = () => {
   const onOk = () => {
     const errors: string[] = [];
 
-    if (fileIDs.length === 0) {
+    if (fileIds.length === 0) {
       const postTextError = validateMinLength(replyText, 3);
       if (postTextError) {
         errors.push(postTextError);
@@ -95,10 +105,10 @@ const AnswerDialog: FC = () => {
       team_id: team_id,
       comment_id: Number(selectedComment?.id),
       text: replyText,
-      attachments: fileIDs,
+      attachments: fileIds,
     };
     console.log('Ответ на коммент', req);
-    Reply(req);
+    Reply(req).then(() => clearFields());
     dispatch(setAnswerDialog(false));
   };
 
@@ -106,8 +116,29 @@ const AnswerDialog: FC = () => {
     dispatch(setAnswerDialog(false));
   };
 
-  const addFileIDs = (id: string) => {
-    setFilesIDs([...fileIDs, id]);
+  const clearFields = () => {
+    setReplyText('');
+    setValidationErrors([]);
+    setAnswers([]);
+    dispatch(clearFilesComm());
+    setFiles([]);
+  };
+
+  const addFiles = (id: string, file: any) => {
+    setFiles([...files, { id: id, files: file }]);
+    dispatch(addFileComm(id));
+  };
+
+  const removeFiles = (file: any) => {
+    const id = files.filter((filed) => {
+      return filed.files.uid == file.uid;
+    })[0].id;
+    dispatch(removeFileComm(id));
+    setFiles(
+      files.filter((filed) => {
+        return filed.files.uid != file.uid;
+      }),
+    );
   };
 
   return (
@@ -190,7 +221,11 @@ const AnswerDialog: FC = () => {
           </div>
         )}
 
-        <FileUploader addFiles={addFileIDs} removeFile={() => {}} />
+        <FileUploader
+          addFiles={addFiles}
+          removeFile={removeFiles}
+          files={files.map((file) => file.files)}
+        />
       </div>
     </DialogBox>
   );

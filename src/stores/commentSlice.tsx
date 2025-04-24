@@ -31,6 +31,7 @@ function flat_id(r: any, a: any) {
 
 interface basicDialogState {
   isOpen: boolean;
+  files: string[];
 }
 
 export type TicketFilter = '' | 'done' | 'not_done';
@@ -45,7 +46,7 @@ export interface CommentSliceState {
 // Define the initial state using that type
 const initialState: CommentSliceState = {
   comments: { comments: [], status: '' },
-  answerDialog: { isOpen: false },
+  answerDialog: { isOpen: false, files: [] },
   selectedComment: null,
   ticketFilter: 'not_done',
 };
@@ -98,6 +99,16 @@ export const commentsSlice = createSlice({
     setTicketFilter: (state, action: PayloadAction<TicketFilter>) => {
       state.ticketFilter = action.payload;
     },
+
+    addFileComm: (state, action: PayloadAction<string>) => {
+      state.answerDialog.files.push(action.payload);
+    },
+    removeFileComm: (state, action: PayloadAction<string>) => {
+      state.answerDialog.files = state.answerDialog.files.filter((f) => f !== action.payload);
+    },
+    clearFilesComm: (state) => {
+      state.answerDialog.files = [];
+    },
   },
 });
 
@@ -109,6 +120,9 @@ export const {
   addComment,
   removeComment,
   setTicketFilter,
+  addFileComm,
+  removeFileComm,
+  clearFilesComm,
 } = commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;
