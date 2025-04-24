@@ -23,6 +23,7 @@ const SideMenu: React.FC = () => {
 
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
+    console.log(filter);
   };
 
   const handleFilterAnalyticsChange = (filter: AnalyticsFilter) => {
@@ -41,8 +42,8 @@ const SideMenu: React.FC = () => {
           <>
             <Menu.Item
               key='all-posts'
-              className={`${styles['sidebar-options']} ${activeFilter === '' ? styles['active'] : ''}`}
-              onClick={() => handleFilterChange('')}
+              className={`${styles['sidebar-options']} ${activeFilter === 'all' ? styles['active'] : ''}`}
+              onClick={() => handleFilterChange('all')}
             >
               Все посты
             </Menu.Item>

@@ -145,13 +145,13 @@ export const Login = async (id: number): Promise<RegisterResult> => {
   return response.data;
 };
 
-export const getSummarize = async (postId: number): Promise<GetSummarizeResult> => {
+export const getSummarize = async (teamId: number, postId: number): Promise<GetSummarizeResult> => {
   try {
     const response = await axiosInstance.get<GetSummarizeResult>(
       `${config.api.baseURL}${routes.comments()}/summarize`,
       {
         params: {
-          team_id: 1,
+          team_id: teamId,
           post_union_id: postId,
         },
         withCredentials: true,

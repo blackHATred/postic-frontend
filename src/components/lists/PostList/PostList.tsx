@@ -32,7 +32,13 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
       const currentDate = last_object
         ? dayjs(last_object.created_at).utc().format()
         : dayjs().utc().format();
-      const result = await getPosts(teamId, limit, currentDate, activeFilter || undefined, before);
+      let result;
+      if (activeFilter === 'all') {
+        result = await getPosts(teamId, limit, currentDate, undefined, before);
+      } else {
+        result = await getPosts(teamId, limit, currentDate, activeFilter, before);
+      }
+      console.log('loadPosts', result, activeFilter);
       return result.posts;
     } catch (error) {
       return [];

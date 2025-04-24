@@ -19,11 +19,12 @@ const DialogBoxSummary: FC = () => {
   const isLoading = useAppSelector((state) => state.basePageDialogs.summaryDialog.isLoading);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
+  const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {
     dispatch(setSummaryLoading(true));
     if (isOpen) {
-      getSummarize(selectedPostId)
+      getSummarize(selectedTeamId, selectedPostId)
         .then((summary: GetSummarizeResult) => {
           setSummaryText(summary.summarize.markdown);
           dispatch(setSummaryLoading(false));

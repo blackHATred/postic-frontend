@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { Post } from '../models/Post/types';
 
-export type PostFilter = '' | 'published' | 'scheduled';
+export type PostFilter = 'all' | 'published' | 'scheduled';
 
 export interface PostSliceState {
   posts: Post[];
@@ -17,7 +17,7 @@ export interface PostSliceState {
 // Define the initial state using that type
 const initialState: PostSliceState = {
   posts: [],
-  activePostFilter: '',
+  activePostFilter: 'all',
   scheduled_posts: [],
   isOpened: {},
   selectedPostId: 0,
