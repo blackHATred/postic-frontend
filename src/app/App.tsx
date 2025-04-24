@@ -19,7 +19,11 @@ dayjs.extend(utc);
 const App: React.FC = () => {
   return (
     <div id='App'>
-      <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
+      <ConfigProvider
+        theme={{
+          algorithm: theme.defaultAlgorithm,
+        }}
+      >
         <QueryClientProvider client={queryClient}>
           <CookiesProvider defaultSetOptions={{ path: '/', httpOnly: false }}>
             <NotificationManager>

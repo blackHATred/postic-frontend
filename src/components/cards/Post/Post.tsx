@@ -130,7 +130,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
 
               {help_mode ? (
                 <ClickableButton
-                  text='Суммаризация'
+                  text='Сводка комментариев'
                   variant='dashed'
                   color='primary'
                   onButtonClick={onSummaryClick}
@@ -139,7 +139,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 />
               ) : (
                 <ClickableButton
-                  text='Суммаризация'
+                  text='Сводка комментариев'
                   variant='dashed'
                   color='primary'
                   onButtonClick={onSummaryClick}
@@ -173,7 +173,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               </div>
             ))}
           {attach_images.length > 0 &&
-            (attach_images.length > 0 ? (
+            (attach_images.length > 1 ? (
               <Carousel arrows className={styles['images']}>
                 {attach_images.map((preview) => (
                   <div key={preview.id}>
@@ -186,12 +186,8 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 ))}
               </Carousel>
             ) : (
-              <div key={attach_images[0].id}>
-                <Image
-                  className={styles['image']}
-                  height={250}
-                  src={getUploadUrl(attach_images[0].id)}
-                />
+              <div key={attach_images[0].id} className={styles['image']}>
+                <Image height={250} src={getUploadUrl(attach_images[0].id)} />
               </div>
             ))}
         </div>
