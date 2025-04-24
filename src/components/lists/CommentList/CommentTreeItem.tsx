@@ -6,7 +6,6 @@ import styles from './styles.module.scss';
 import { CommentWithChildren } from './commentTree';
 import './selected_style.css';
 import { useAppDispatch } from '../../../stores/hooks';
-import { removeComment } from '../../../stores/commentSlice';
 
 const MAX_NESTING_LEVEL = 4;
 
@@ -38,10 +37,6 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
 
   const deleteElement = () => {
     if (refer.current) refer.current.className += ' animation';
-    setTimeout(() => {
-      //WARNING: Заменить на удаление комментария на уровне
-      dispatch(removeComment([comment]));
-    }, 1000);
   };
 
   return (

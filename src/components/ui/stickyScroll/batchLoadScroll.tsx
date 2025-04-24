@@ -80,7 +80,6 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   const addNewDataBottom = (data: any[]) => {
     setIsLoadingBottom(false);
     if (data && props.data) {
-      data = data.slice(1);
       if (data.length != props.frame_size) {
         setHasMoreBottom(false);
       }
@@ -200,7 +199,7 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
         //NOTE: load more data top
         setIsLoadingBottom(true);
         props
-          .getNewData(false, props.frame_size + 1, props.data[0], false)
+          .getNewData(false, props.frame_size, props.data[0], false)
           .then((data) => addNewDataBottom(data));
       }
     }

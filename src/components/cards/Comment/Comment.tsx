@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Avatar, Carousel, Divider, Space, Typography } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Avatar, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment, Ticket } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
@@ -15,10 +15,11 @@ import {
 import { message } from 'antd';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Delete, MarkAsTicket } from '../../../api/api';
+import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
+import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 
 const { Paragraph, Text } = Typography;
 
@@ -35,11 +36,13 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const [ellipsis, setEllipsis] = useState(true);
-
+  const [sticker, setSticker] = useState(null);
+  const LottieRef = useRef<LottieRefCurrentProps>(null);
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
     dispatch(setAnswerDialog(true));
   };
+  const [isTicket, setIsTicket] = useState(comment.marked_as_ticket);
   const getIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
@@ -89,6 +92,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           content: !isTicket ? 'Тикет создан' : 'Тикет удален',
           key: 'ticketOperation',
         });
+        setIsTicket(isTicket);
         console.log('Результат операции с тикетом:', r);
       })
       .catch((error) => {
@@ -100,25 +104,38 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       });
   };
 
+  useEffect(() => {
+    if (
+      comment &&
+      comment.attachments &&
+      comment.attachments.length > 0 &&
+      comment.attachments[0]
+    ) {
+      getUpload(comment.attachments[0].id).then((data: any) => {
+        console.log('sticker');
+        setSticker(data);
+      });
+    } else {
+      return;
+    }
+  }, []);
+
   return (
-    <div className={comment.username || comment.is_team_reply ? styles.comment : styles.post}>
+    <div className={styles.comment}>
       <div className={styles['comment-header']}>
-        {comment.username || comment.is_team_reply ? (
-          <Avatar
-            src={
-              comment.avatar_mediafile &&
-              config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
-            }
-            onError={() => {
-              console.log('img-error');
-              return true;
-            }}
-            icon={<TeamOutlined />}
-            className={comment.is_team_reply ? styles['team-avatar'] : ''}
-          />
-        ) : (
-          <Text strong>Пост</Text>
-        )}
+        <Avatar
+          src={
+            comment.avatar_mediafile &&
+            config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
+          }
+          onError={() => {
+            console.log('img-error');
+            return true;
+          }}
+          icon={<TeamOutlined />}
+          className={comment.is_team_reply ? styles['team-avatar'] : ''}
+        />
+
         <div className={styles['comment-header-text']}>
           <div className={styles['comment-author']}>
             <div>
@@ -159,12 +176,36 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           {comment.text}
         </Paragraph>
       </div>
-      {comment.attachments.length > 0 && (
-        <Carousel arrows className={styles['image']}>
+      {comment.attachments && comment.attachments.length > 0 && (
+        <>
           {comment.attachments.map((preview) => (
             <div key={preview.id} className={styles['image']}>
-              {preview.file_type == 'sticker' ? (
-                <>[Стикер]</>
+              {preview.file_type == 'sticker' && preview.file_path.endsWith('.json') ? (
+                <Lottie
+                  lottieRef={LottieRef}
+                  className={styles['image']}
+                  animationData={sticker}
+                  loop={false}
+                  onClick={() => {
+                    LottieRef.current?.goToAndPlay(0);
+                  }}
+                />
+              ) : preview.file_path.endsWith('.webm') ? (
+                <video
+                  height={250}
+                  width={'100%'}
+                  autoPlay
+                  playsInline
+                  muted
+                  onClick={(event) => {
+                    event.currentTarget.play();
+                  }}
+                >
+                  <source
+                    src={'http://localhost:80/api/upload/get/' + preview.id}
+                    type='video/webm'
+                  />
+                </video>
               ) : (
                 <img
                   src={'http://localhost:80/api/upload/get/' + preview.id}
@@ -173,7 +214,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
               )}
             </div>
           ))}
-        </Carousel>
+        </>
       )}
       <div className={styles['comment-buttons']}>
         <div className={styles['comment-buttons-left']}>
@@ -207,12 +248,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
                 : undefined
             }
             color={'default'}
-            icon={comment.marked_as_ticket ? <DisconnectOutlined /> : <TagOutlined />}
-            onButtonClick={
-              comment.marked_as_ticket
-                ? () => handleMarkTicket(false)
-                : () => handleMarkTicket(true)
-            }
+            icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
+            onButtonClick={isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)}
           ></ClickableButton>
         </div>
       </div>

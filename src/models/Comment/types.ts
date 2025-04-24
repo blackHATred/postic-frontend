@@ -32,8 +32,8 @@ interface CommentAttachments {
   id: number;
   comment_id: number;
   file_type: string;
-  file_id: string;
-  RawBytes: null | string;
+  file_path: string;
+  created_at: string;
 }
 
 export interface GetSummarizeResult {
