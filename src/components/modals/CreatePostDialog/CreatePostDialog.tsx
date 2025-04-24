@@ -89,7 +89,7 @@ const CreatePostDialog: FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map(
+  let fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map(
     (file) => file.id,
   );
   const help_mode = useAppSelector((state) => state.settings.helpMode);
@@ -155,6 +155,7 @@ const CreatePostDialog: FC = () => {
     setSelectedDate(null);
     setSelectedPlatforms([]);
     setShowEmojiPicker(false);
+    fileIds = [];
     dispatch(clearFiles());
   };
 

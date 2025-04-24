@@ -86,7 +86,7 @@ const DialogBoxSummary: FC = () => {
       isCenter={true}
     >
       <BlueDashedTextBox isLoading={isLoading}>
-        <div className='reactMarkDown'>
+        <div>
           <ReactMarkdown>{summaryText}</ReactMarkdown>
         </div>
       </BlueDashedTextBox>
