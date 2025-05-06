@@ -303,12 +303,13 @@ export const UpdateStats = async (req: UpdateStatsReq): Promise<{ message: strin
 };
 
 export const getUpload = async (id: number): Promise<any> => {
-  const response = await axiosInstance.get<{ message: string }>(
-    `${config.api.baseURL}/upload/get/` + id,
-    {
-      withCredentials: true,
-      responseType: 'json',
-    },
-  );
+  const response = await axiosInstance.get<{ message: string }>(getUploadUrl(id), {
+    withCredentials: true,
+    responseType: 'json',
+  });
   return response.data;
+};
+
+export const getUploadUrl = (ID: number): string => {
+  return `${config.api.baseURL}/upload/get/${ID}`;
 };

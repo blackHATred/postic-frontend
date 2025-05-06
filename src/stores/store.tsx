@@ -16,6 +16,13 @@ export const store = configureStore({
     settings: settingsReducer,
     analytics: analyticsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these action types
+        ignoredActions: ['basePageDialogs/addFile', 'basePageDialogs/removeFile'],
+      },
+    }),
 });
 
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself

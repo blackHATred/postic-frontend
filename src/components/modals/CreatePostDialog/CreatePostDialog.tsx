@@ -89,10 +89,9 @@ const CreatePostDialog: FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
-  let fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map(
-    (file) => file.id,
-  );
+  const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
+  const [files, setFiles] = useState<{ id: string; files: any }[]>([]);
 
   const onOk = () => {
     const errors: string[] = [];
@@ -155,8 +154,8 @@ const CreatePostDialog: FC = () => {
     setSelectedDate(null);
     setSelectedPlatforms([]);
     setShowEmojiPicker(false);
-    fileIds = [];
     dispatch(clearFiles());
+    setFiles([]);
   };
 
   const onCancel = async () => {
@@ -168,12 +167,21 @@ const CreatePostDialog: FC = () => {
     setPostText((prevText) => prevText + emojiObject.emoji);
   };
 
-  const addFileIDs = (id: string, file: any) => {
-    dispatch(addFile({ id: id, file: file }));
+  const addFiles = (id: string, file: any) => {
+    setFiles([...files, { id: id, files: file }]);
+    dispatch(addFile(id));
   };
 
   const removeFiles = (file: any) => {
-    dispatch(removeFile({ file: file }));
+    const id = files.filter((filed) => {
+      return filed.files.uid == file.uid;
+    })[0].id;
+    dispatch(removeFile(id));
+    setFiles(
+      files.filter((filed) => {
+        return filed.files.uid != file.uid;
+      }),
+    );
   };
 
   return (
@@ -278,7 +286,11 @@ const CreatePostDialog: FC = () => {
             />
           </div>
         )}
-        <FileUploader addFiles={addFileIDs} removeFile={removeFiles} />
+        <FileUploader
+          addFiles={addFiles}
+          removeFile={removeFiles}
+          files={files.map((file) => file.files)}
+        />
       </div>
 
       {/* Отображение ошибок валидации */}
