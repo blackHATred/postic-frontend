@@ -185,8 +185,6 @@ const CreatePostDialog: FC = () => {
       pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined,
     };
 
-    console.log('Отправляем пост:', postPayload);
-
     sendPostRequest(postPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {
         if (res.post) {
@@ -237,7 +235,6 @@ const CreatePostDialog: FC = () => {
   const addFiles = (id: string, file: any) => {
     setFiles([...files, { id: id, files: file }]);
     dispatch(addFile(id));
-    // пост уже не пустой - ошибки нет
     setContentError(null);
   };
 

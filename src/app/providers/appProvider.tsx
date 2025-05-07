@@ -8,7 +8,6 @@ export const AppContext = createContext({
 });
 
 interface AppProviderProps {
-  // любой реакт узел
   children: ReactNode;
 }
 

@@ -1,4 +1,3 @@
-// hooks/useAuthenticatedSSE.ts
 import { useState, useEffect, useRef } from 'react';
 
 interface SSEOptions {
@@ -27,7 +26,6 @@ export function useAuthenticatedSSE({
       return;
     }
     try {
-      // Create EventSource with authentication
       const eventSource = new EventSource(`${url}`, {
         withCredentials,
       });

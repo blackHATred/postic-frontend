@@ -1,4 +1,3 @@
-// src/components/widgets/Analytics/EngagementRateChart.tsx
 import React from 'react';
 import { Card } from 'antd';
 import styles from './styles.module.scss';

@@ -68,14 +68,12 @@ const TeamRenameDialog: React.FC = () => {
   };
 
   useEffect(() => {
-    // Устанавливаем название, только когда диалог открывается
     if (isOpen && oldName) {
-      setTeamName(oldName); // Инициализируем teamName значением из oldName
+      setTeamName(oldName);
 
-      // Также обновляем значение в форме
       form.setFieldsValue({ teamName: oldName });
     }
-  }, [isOpen, oldName, form]); // Зависимость от oldName вместо teamName
+  }, [isOpen, oldName, form]);
 
   return (
     <DialogBox

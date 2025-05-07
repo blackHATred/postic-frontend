@@ -43,7 +43,6 @@ export interface CommentSliceState {
   ticketFilter: TicketFilter;
 }
 
-// Define the initial state using that type
 const initialState: CommentSliceState = {
   comments: { comments: [], status: '' },
   answerDialog: { isOpen: false, files: [] },
@@ -110,7 +109,6 @@ export const commentsSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
   setComments,
   setAnswerDialog,

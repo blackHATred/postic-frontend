@@ -7,7 +7,7 @@
 
 .post {
   height: auto;
-  padding: 16px 24px;
+  padding: 5px 24px;
   background-color: $container-color;
   display: flex;
   flex-direction: row;
@@ -29,6 +29,6 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 8px 0;
+  gap: 5px;
+  padding: 5px 0;
 }

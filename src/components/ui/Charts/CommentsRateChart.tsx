@@ -1,4 +1,3 @@
-// src/components/ui/Charts/CommentsRateChart.tsx
 import React from 'react';
 import { Card } from 'antd';
 import styles from './styles.module.scss';

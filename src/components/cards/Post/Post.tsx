@@ -66,7 +66,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   };
 
   const onSummaryClick = async () => {
-    // При нажатии кнопки суммаризации
     dispatch(setSummaryDialog(true));
     dispatch(setSelectedPostId(post.id));
   };

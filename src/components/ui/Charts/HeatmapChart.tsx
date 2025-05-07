@@ -22,7 +22,6 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
-      // Подготовка данных для тепловой карты
       const heatmapData = processDataForHeatmap(data, metricType, platform);
 
       if (chartInstance.current) {
@@ -73,7 +72,6 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
         },
         legend: {
           position: 'bottom',
-          // Добавляем форматирование для легенды
           itemValue: {
             formatter: (text, item) => {
               if (metricType === 'er') {
@@ -126,7 +124,6 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
       'Суббота',
     ];
 
-    // Создаём пустую структуру данных для всех комбинаций день/час
     for (let day = 0; day < 7; day++) {
       for (let hour = 0; hour < 24; hour++) {
         const key = `${weekdays[day]}-${hour}`;
@@ -186,7 +183,6 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
     if (metric === 'er') {
       return `${value.toFixed(2)}%`;
     }
-    // Округляем значения для целочисленных метрик
     if (metric === 'views' || metric === 'reactions' || metric === 'comments') {
       const roundedValue = Math.round(value);
       return roundedValue > 1000 ? `${(roundedValue / 1000).toFixed(1)}K` : roundedValue.toString();

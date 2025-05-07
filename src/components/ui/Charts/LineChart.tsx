@@ -29,12 +29,10 @@ const LineChart: React.FC<LineChartProps> = ({
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
-      // Сначала сортируем данные по дате
       const sortedData = [...data].sort(
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
       );
 
-      // Создаем Map для агрегации данных по датам
       const aggregatedData = new Map();
 
       sortedData.forEach((item) => {
@@ -61,16 +59,13 @@ const LineChart: React.FC<LineChartProps> = ({
         current.vk_comments += item.vk_comments;
       });
 
-      // Преобразуем данные для графика
       const transformedData: any[] = [];
 
-      // Преобразуем Map в массив в хронологическом порядке
       Array.from(aggregatedData.entries())
         .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
         .forEach(([dateStr, metrics]) => {
           const formattedDate = new Date(dateStr).toLocaleDateString();
 
-          // Данные для TG
           transformedData.push({
             date: dateStr,
             formattedDate,
@@ -79,7 +74,6 @@ const LineChart: React.FC<LineChartProps> = ({
             platform: 'Telegram',
           });
 
-          // И так далее для остальных метрик...
           transformedData.push({
             date: dateStr,
             formattedDate,
@@ -88,7 +82,6 @@ const LineChart: React.FC<LineChartProps> = ({
             platform: 'Telegram',
           });
 
-          // Добавьте остальные метрики аналогично
           transformedData.push({
             date: dateStr,
             formattedDate,
@@ -97,7 +90,6 @@ const LineChart: React.FC<LineChartProps> = ({
             platform: 'Telegram',
           });
 
-          // VK метрики
           transformedData.push({
             date: dateStr,
             formattedDate,
@@ -123,7 +115,6 @@ const LineChart: React.FC<LineChartProps> = ({
           });
         });
 
-      // Если график уже создан, уничтожаем его
       if (chartInstance.current) {
         try {
           chartInstance.current.destroy();
@@ -133,7 +124,6 @@ const LineChart: React.FC<LineChartProps> = ({
         }
       }
 
-      // Создаем новый график
       const newChart = new Area(chartRef.current, {
         data: transformedData,
         xField: 'date',

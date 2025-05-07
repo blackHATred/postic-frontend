@@ -16,7 +16,7 @@ interface SocialStatus {
 }
 const PostStatusDialog: FC = () => {
   const dispatch = useAppDispatch();
-  const [, setSelectedPlatforms] = useState<string[]>([]); // Состояние для выбранной даты
+  const [, setSelectedPlatforms] = useState<string[]>([]);
   const postId = useAppSelector((state) => state.posts.selectedPostId);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const isOpen = useAppSelector((state) => state.basePageDialogs.postStatusDialog.isOpen);
@@ -161,7 +161,6 @@ const PostStatusDialog: FC = () => {
           onButtonClick: () => {
             dispatch(setPostStatusDialog(false));
             setSelectedPlatforms([]);
-            // очищение платформ
             selectedPlatforms = [];
           },
         },

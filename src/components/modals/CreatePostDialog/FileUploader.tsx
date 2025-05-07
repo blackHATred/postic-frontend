@@ -79,7 +79,6 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
 
   const handleFileUpload = async (file: File) => {
     if (!isFileAlreadyAdded(props.files, file)) {
-      //  (для всех файлов)
       try {
         let t = '';
         switch (file_types) {
@@ -95,7 +94,6 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
             t = 'raw';
           }
         }
-        console.log('file');
         const uploadResult = await uploadFile(file, t);
         props.addFiles(uploadResult.file_id, file);
         return true;
@@ -143,7 +141,7 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         listType='picture'
         multiple={true}
         defaultFileList={props.files}
-        onRemove={handleFileRemove} // Используйте onRemove вместо action для удаления файлов
+        onRemove={handleFileRemove}
         maxCount={10}
         accept={file_types}
         openFileDialogOnClick={open_da}

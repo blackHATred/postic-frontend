@@ -1,4 +1,3 @@
-// src/components/ui/Charts/BarChart.tsx
 import React, { useEffect, useRef } from 'react';
 import styles from './styles.module.scss';
 import { Spin } from 'antd';
@@ -31,7 +30,6 @@ const BarChart: React.FC<BarChartProps> = ({
         const tgER =
           item.tg_views > 0 ? ((item.tg_reactions / item.tg_views) * 100).toFixed(2) : '0';
 
-        // ER для ВКонтакте
         const vkER =
           item.vk_views > 0 ? ((item.vk_reactions / item.vk_views) * 100).toFixed(2) : '0';
 

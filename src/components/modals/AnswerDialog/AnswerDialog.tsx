@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { Typography, Input, Divider, Avatar, Button } from 'antd';
+import { Typography, Input, Divider, Avatar, Button, Spin } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 
@@ -22,8 +22,8 @@ import { Reply, ReplyIdeas } from '../../../api/api';
 const { Text } = Typography;
 
 const AnswerDialog: FC = () => {
-  const [replyText, setReplyText] = useState(''); // Состояние для текста поста
-  const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
+  const [replyText, setReplyText] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const fileIds = useAppSelector((state) => state.comments.answerDialog.files);
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.comments.answerDialog.isOpen);
@@ -50,18 +50,15 @@ const AnswerDialog: FC = () => {
         try {
           const response = await ReplyIdeas(request);
 
-          // Проверка формата ответа и соответствующая обработка
           if (response && typeof response === 'object' && response.ideas) {
             setAnswers([{ ideas: response.ideas }]);
           } else if (typeof response === 'string') {
             try {
-              // Попытка парсить как JSON
               const parsedResponse = JSON.parse(response);
               if (parsedResponse.ideas) {
                 setAnswers([{ ideas: parsedResponse.ideas }]);
               }
             } catch (parseError) {
-              // Если не JSON, используем старый подход со split
               const formattedAnswers = (response as string)
                 .split('\n')
                 .filter((text) => text.trim())
@@ -188,8 +185,11 @@ const AnswerDialog: FC = () => {
           {isLoading ? (
             <div>
               <Divider>Быстрый ответ</Divider>
-              <div className={styles['answers']}>
-                <Text type='secondary'>Загрузка вариантов ответа...</Text>
+              <div
+                className={styles['answers']}
+                style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}
+              >
+                <Spin />
               </div>
             </div>
           ) : hasError ? (
@@ -199,23 +199,26 @@ const AnswerDialog: FC = () => {
                 <Text type='danger'>Не удалось загрузить варианты ответа</Text>
               </div>
             </div>
-          ) : answers.length > 0 && answers.some((answer) => answer.ideas.length > 0) ? (
+          ) : answers.length > 0 &&
+            answers.some((answer) => answer.ideas.some((idea) => idea.trim() !== '')) ? (
             <div>
               <Divider>Быстрый ответ</Divider>
               <div className={styles['answers']}>
                 {answers.map((answer, answerIndex) =>
-                  answer.ideas.map((text, index) => (
-                    <Button
-                      className={styles['answ-button']}
-                      shape='round'
-                      key={`${answerIndex}-${index}`}
-                      icon={<RightOutlined />}
-                      type='default'
-                      onClick={() => setQuickAnswer(text)}
-                    >
-                      {text}
-                    </Button>
-                  )),
+                  answer.ideas
+                    .filter((text) => text.trim() !== '')
+                    .map((text, index) => (
+                      <Button
+                        className={styles['answ-button']}
+                        shape='round'
+                        key={`${answerIndex}-${index}`}
+                        icon={<RightOutlined />}
+                        type='default'
+                        onClick={() => setQuickAnswer(text)}
+                      >
+                        {text}
+                      </Button>
+                    )),
                 )}
               </div>
             </div>

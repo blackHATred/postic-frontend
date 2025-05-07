@@ -17,11 +17,9 @@ type Platform = 'all' | 'telegram' | 'vk';
 const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loading }) => {
   const [platform, setPlatform] = useState<Platform>('all');
 
-  // Группируем данные по post_union_id и берем последние записи
   const postsData = useMemo(() => {
     const postsMap = new Map();
 
-    // Сгруппируем данные по post_union_id
     data.forEach((item) => {
       if (
         !postsMap.has(item.post_union_id) ||
@@ -31,7 +29,6 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
       }
     });
 
-    // Преобразуем Map в массив
     return Array.from(postsMap.values()).map((post) => {
       const tgER = post.tg_views > 0 ? (post.tg_reactions / post.tg_views) * 100 : 0;
       const vkER = post.vk_views > 0 ? (post.vk_reactions / post.vk_views) * 100 : 0;
@@ -52,7 +49,6 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
     });
   }, [data]);
 
-  // Фильтрация данных по выбранной платформе
   const filteredData = useMemo(() => {
     return postsData;
   }, [postsData, platform]);

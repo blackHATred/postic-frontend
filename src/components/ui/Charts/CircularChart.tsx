@@ -21,15 +21,12 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
-      // Собираем данные для круговой диаграммы
       const chartData = processDataForCircularChart(data, metricType);
 
-      // Разрушаем старый график если существует
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
 
-      // Создаем круговую диаграмму
       const pie = new Pie(chartRef.current, {
         data: chartData,
         angleField: 'value',
@@ -70,15 +67,11 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
     };
   }, [data, loading, metricType]);
 
-  // Обработка данных для круговой диаграммы
   const processDataForCircularChart = (sourceData: PostAnalytics[], metric: MetricType) => {
     if (!sourceData.length) return [];
 
-    // Суммируем данные по платформам
     let tgTotal = 0;
     let vkTotal = 0;
-
-    // Берем последние записи для каждого post_union_id
     const uniquePosts = new Map<number, PostAnalytics>();
 
     sourceData.forEach((item) => {
@@ -88,7 +81,6 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
       }
     });
 
-    // Суммируем метрики
     uniquePosts.forEach((post) => {
       if (metric === 'views') {
         tgTotal += post.tg_views;
@@ -104,7 +96,6 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
 
     const total = tgTotal + vkTotal;
 
-    // Формируем данные для диаграммы
     return [
       {
         platform: 'Telegram',

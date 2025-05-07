@@ -24,7 +24,6 @@ export interface basePageDialogsSliceState {
   activeTab: string;
 }
 
-// Define the initial state using that type
 const initialState: basePageDialogsSliceState = {
   apiBoxDialog: { isOpen: false },
   summaryDialog: { isOpen: false, isLoading: false },
@@ -94,7 +93,6 @@ export const basePageDialogsSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
   setCreatePostDialog,
   setLoginDialog,

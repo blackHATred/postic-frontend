@@ -100,10 +100,8 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   React.useEffect(() => {
     if (ref.current) {
       setHasMoreBottom(false);
-      //Если есть данные
       if (props.data && props.data.length > 0) {
         if (props.data.length < props.frame_size || props.frame_size == 0) {
-          // Загружены все объекты
           setHasMoreTop(false);
           setHasMoreBottom(false);
           setIsLoadingTop(false);

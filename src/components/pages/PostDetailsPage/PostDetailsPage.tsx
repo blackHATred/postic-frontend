@@ -23,7 +23,6 @@ const PostDetailsPage: React.FC = () => {
     };
   }, [dispatch]);
 
-  // Находим пост по ID
   const post = posts.find((post) => post.id === Number(id));
 
   if (!post) {

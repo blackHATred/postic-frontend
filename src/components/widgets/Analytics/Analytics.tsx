@@ -1,4 +1,3 @@
-// src/components/widgets/Analytics/Analytics.tsx
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.scss';
 import { PostAnalytics } from '../../../models/Analytics/types';

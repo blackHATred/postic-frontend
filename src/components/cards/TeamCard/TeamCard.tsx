@@ -32,7 +32,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const currentUserId = useAppSelector((state) => state.teams.currentUserId);
 
-  // Проверяем, является ли текущий пользователь администратором команды
   useEffect(() => {
     if (currentUserId !== null) {
       const userMember = team_members.find((member) => member.user_id === currentUserId);
@@ -71,7 +70,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const onEditMemberClick = async (userId: number) => {
     const member = team_members.find((member) => member.user_id === userId);
-    // При нажатии кнопки смены доступа
     dispatch(setEditMemberDialog(true));
     dispatch(setSelectedTeamId?.(id));
     dispatch(setSelectedMemberId(userId));

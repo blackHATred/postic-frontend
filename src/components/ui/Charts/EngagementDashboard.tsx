@@ -15,13 +15,10 @@ type MetricType = 'reactions' | 'comments';
 const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading }) => {
   const [metricType, setMetricType] = useState<MetricType>('reactions');
 
-  // Модифицируем данные для выбранной метрики
   const chartData = useMemo(() => {
     if (metricType === 'reactions') {
-      // Для ER используем оригинальные данные
       return data;
     } else {
-      // Для соотношения комментариев подменяем реакции комментариями
       return data.map((item) => ({
         ...item,
         tg_reactions: item.tg_comments,
@@ -30,7 +27,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
     }
   }, [data, metricType]);
 
-  // Название и описание метрики
   const metricInfo = {
     reactions: {
       title: 'Engagement Rate (отношение реакций к просмотрам)',

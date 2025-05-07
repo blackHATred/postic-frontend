@@ -15,12 +15,9 @@ export const transformStatsToAnalytics = async (
 
   for (const postData of data.posts) {
     try {
-      // Получаем данные поста для timestamp
       const postInfo = await getPost(teamId, postData.post_union_id);
       const timestamp = postInfo.post?.pub_datetime || new Date().toISOString();
 
-      // Формируем объект PostAnalytics
-      // Формируем объект PostAnalytics
       const analytics: PostAnalytics = {
         post_union_id: postData.post_union_id,
         tg_views: postData.telegram?.views || 0,
@@ -55,7 +52,6 @@ export const transformPostStatsToAnalytics = async (
   const result: PostAnalytics[] = [];
   const groupedData: Record<number, { tg?: any; vk?: any }> = {};
 
-  // Группируем данные по post_union_id и платформе
   for (const item of data) {
     if (!groupedData[item.post_union_id]) {
       groupedData[item.post_union_id] = {};
@@ -68,7 +64,6 @@ export const transformPostStatsToAnalytics = async (
     };
   }
 
-  // Преобразуем сгруппированные данные в формат PostAnalytics
   for (const postId in groupedData) {
     try {
       const postInfo = await getPost(teamId, parseInt(postId));

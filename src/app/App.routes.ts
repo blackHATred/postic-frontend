@@ -6,7 +6,6 @@ class Routes {
   ticket = () => '/ticket' as const;
   analytics = () => '/analytics' as const;
 
-  // Новые маршруты
   post = (id: string | number) => `/posts/${id}` as const;
   login = () => '/login' as const;
   register = () => '/register' as const;

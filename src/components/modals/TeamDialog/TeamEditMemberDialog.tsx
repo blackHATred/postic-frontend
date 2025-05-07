@@ -87,7 +87,6 @@ const TeamEditMemberDialog: React.FC = () => {
       return;
     }
 
-    // Prepare roles array based on permissions
     const roles: string[] = [];
     if (isAdmin) {
       roles.push('admin');

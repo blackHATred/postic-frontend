@@ -21,7 +21,6 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   const scroll = useAppSelector((state) => state.posts.postsScroll);
   const [lastActive, setLast] = useState('');
 
-  // Загрузка постов при изменении фильтра или команды
   React.useEffect(() => {
     if (activeFilter && lastActive) {
       //dispatch(setSelectedPostId(0));

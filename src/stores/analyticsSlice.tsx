@@ -6,7 +6,6 @@ export interface AnalyticsSliceState {
   activeAnalyticsFilter: AnalyticsFilter;
 }
 
-// Define the initial state using that type
 const initialState: AnalyticsSliceState = {
   activeAnalyticsFilter: '',
 };
@@ -21,7 +20,6 @@ export const analyticsSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const { setActiveAnalyticsFilter } = analyticsSlice.actions;
 
 export default analyticsSlice.reducer;

@@ -23,7 +23,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
-      // Подготовка данных для графика
       const lineData = processDataForLineChart(data, metricType, platform, highlightType);
 
       if (chartInstance.current) {
@@ -44,7 +43,7 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
         },
         color: ({ type }) => {
           if (type === 'Значение') return '#4096ff';
-          return 'transparent'; // Скрываем линию для маркеров
+          return 'transparent';
         },
         point: {
           size: ({ type }) => (type === 'Маркер' ? 8 : 0),
@@ -116,7 +115,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
                 datum.value > 1000 ? `${(datum.value / 1000).toFixed(1)}K` : datum.value.toString();
             }
 
-            // Добавляем пояснение для маркера
             if (datum.type === 'Маркер') {
               const marker = lineData.find(
                 (item) => item.date === datum.date && item.type === 'Маркер',
@@ -136,7 +134,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
           position: 'top',
         },
         annotations: [
-          // Добавляем горизонтальную линию для среднего значения
           {
             type: 'line',
             start: ['min', 'mean'],
@@ -147,7 +144,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
               lineWidth: 2,
             },
           },
-          // Добавляем текстовую аннотацию для среднего значения
           {
             type: 'text',
             position: ['max', 'mean'],
@@ -175,24 +171,20 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
     };
   }, [loading, data, metricType, platform, highlightType]);
 
-  // Функция для обработки данных и выделения пиков
   const processDataForLineChart = (
     sourceData: PostAnalytics[],
     metric: MetricType,
     platform: PlatformType,
     highlight: 'peaks' | 'growth' | 'top3',
   ) => {
-    // Сортируем данные по дате
     const sortedData = [...sourceData].sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
 
-    // Создаем массив с данными для графика
     const chartData = sortedData.map((item) => {
       const date = new Date(item.timestamp).toLocaleDateString();
       let value = 0;
 
-      // Получаем значение метрики в зависимости от платформы
       if (metric === 'views') {
         if (platform === 'all') value = item.tg_views + item.vk_views;
         else if (platform === 'telegram') value = item.tg_views;
@@ -226,19 +218,16 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
       };
     });
 
-    // Создаем копию данных для маркеров
     const markerData: any[] = [];
 
     //  какие точки выделять маркерами
     if (highlight === 'peaks') {
-      // Находим локальные пики (точки, которые выше соседей)
       chartData.forEach((item, index, array) => {
         if (index > 0 && index < array.length - 1) {
           const prev = array[index - 1].originalValue;
           const current = item.originalValue;
           const next = array[index + 1].originalValue;
 
-          // Выделяем точку маркером, если она выше соседей на 5%
           if (current > prev * 1.05 && current > next * 1.05) {
             markerData.push({
               ...item,
@@ -249,7 +238,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
         }
       });
     } else if (highlight === 'growth') {
-      // Находим наибольший рост (изменение относительно предыдущей точки)
       let maxGrowth = -Infinity;
       let maxGrowthIndex = -1;
 
@@ -274,7 +262,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
         });
       }
     } else if (highlight === 'top3') {
-      // Выделяем 3 наибольших значения
       const sortedByValue = [...chartData]
         .sort((a, b) => b.originalValue - a.originalValue)
         .slice(0, 3);
@@ -291,7 +278,6 @@ const MarkerLineChart: React.FC<MarkerLineChartProps> = ({ data, loading }) => {
     return [...chartData, ...markerData];
   };
 
-  // Получение названия метрики для подписи оси
   const getMetricLabel = (metric: MetricType) => {
     switch (metric) {
       case 'views':

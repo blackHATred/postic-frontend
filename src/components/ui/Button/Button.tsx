@@ -3,7 +3,7 @@ import { Button, Popover } from 'antd';
 import styles from './styles.module.scss';
 
 export interface ClickableButtonProps {
-  type?: 'primary' | 'default' | 'dashed' | 'text' | 'link'; // Ограничиваем типы
+  type?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
   text?: string;
   icon?: React.ReactNode;
   variant?: 'dashed' | 'text' | 'link' | 'outlined' | 'solid' | 'filled';

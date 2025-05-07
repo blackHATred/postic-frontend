@@ -10,12 +10,10 @@ export const createCommentTree = (comments: Comment[]) => {
   const map: Record<number, CommentWithChildren> = {};
   const roots: CommentWithChildren[] = [];
 
-  // Первый проход - создаем узлы
   comments.forEach((comment) => {
     map[comment.id] = { ...comment, children: [], realLevel: 0 };
   });
 
-  // сорт, чтоб видеть сперва корневые комменты
   const sortedComments = [...comments].sort((a, b) => {
     const aIsRoot = !a.reply_to_comment_id || a.reply_to_comment_id === 0;
     const bIsRoot = !b.reply_to_comment_id || b.reply_to_comment_id === 0;
@@ -26,7 +24,6 @@ export const createCommentTree = (comments: Comment[]) => {
     return 0;
   });
 
-  // связываем узлы - дочерние с родительскими
   sortedComments.forEach((comment) => {
     if (comment.reply_to_comment_id === 0 || comment.reply_to_comment_id === null) {
       roots.push(map[comment.id]);
@@ -40,7 +37,6 @@ export const createCommentTree = (comments: Comment[]) => {
       roots.push(map[comment.id]);
     }
   });
-  // сорт корневых комментариев и их дочерних элементов по дате
   const sortNodeChildren = (node: CommentWithChildren) => {
     if (node.children.length > 0) {
       node.children.sort(

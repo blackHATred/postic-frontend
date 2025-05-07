@@ -6,7 +6,7 @@
 
 .headerContainer {
   display: flex;
-  justify-content: center; // Центрируем содержимое
+  justify-content: center;
   align-items: center;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   z-index: 100;
@@ -20,11 +20,11 @@
 
 .headerComponents {
   display: flex;
-  justify-content: space-between; // Равномерное распределение
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 0 50px; // Отступы по бокам
-  margin: 0 auto; // Центрирование
+  padding: 0 50px;
+  margin: 0 auto;
 }
 
 .headerIcons {
@@ -38,7 +38,7 @@
 }
 
 .tabs {
-  width: 200px; // Фиксированная ширина, даже если контент скрыт
+  width: 200px;
   display: flex;
   justify-content: center;
 }
