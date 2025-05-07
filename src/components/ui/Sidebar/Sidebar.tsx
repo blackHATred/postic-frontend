@@ -10,13 +10,15 @@ import {
 } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Switch, Typography } from 'antd';
+import { Switch, Tooltip, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { routes } from '../../../app/App.routes';
 
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
+  const posts = useAppSelector((state) => state.posts.posts);
+  const hasPosts = posts.length > 0;
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
@@ -99,24 +101,30 @@ const Sidebar: React.FC = () => {
             />
           </div>
 
-          <div
-            className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
+          <Tooltip
+            title={!hasPosts ? 'Для доступа к аналитике необходимо создать хотя бы один пост' : ''}
+            placement='right'
           >
-            <ClickableButton
-              className={styles['button']}
-              type='text'
-              text={'Аналитика'}
-              icon={<LineChartOutlined className={styles['icon-primary']} />}
-              onButtonClick={() => handleTabChange('5', routes.analytics())}
-              disabled={
-                roles
-                  ? roles.find((r) => {
-                      return r == 'analitics' || r == 'admin';
-                    }) == undefined
-                  : true
-              }
-            />
-          </div>
+            <div
+              className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
+            >
+              <ClickableButton
+                className={styles['button']}
+                type='text'
+                text={'Аналитика'}
+                icon={<LineChartOutlined className={styles['icon-primary']} />}
+                onButtonClick={() => handleTabChange('5', routes.analytics())}
+                disabled={
+                  !hasPosts ||
+                  (roles
+                    ? roles.find((r) => {
+                        return r == 'analitics' || r == 'admin';
+                      }) == undefined
+                    : true)
+                }
+              />
+            </div>
+          </Tooltip>
         </>
       )}
 

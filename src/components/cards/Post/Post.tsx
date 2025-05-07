@@ -227,18 +227,21 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               </div>
             ))}
         </div>
+
         <div className={styles['post-content-buttons']}>
           <ClickableButton
             text='Редактировать'
             variant='outlined'
             color='primary'
             icon={<EditOutlined />}
+            disabled={true}
           />
           <ClickableButton
             text='Удалить'
             variant='outlined'
             color='danger'
             icon={<DeleteOutlined />}
+            disabled={true}
           />
         </div>
       </div>
