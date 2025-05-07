@@ -6,14 +6,18 @@ import { EditOutlined, KeyOutlined, MinusOutlined, PlusOutlined } from '@ant-des
 import { Team } from '../../../models/Team/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
+  getTeamsFromStore,
   setAddMemberDialog,
   setEditMemberDialog,
+  setGlobalActiveTeamId,
   setRenameTeamDialog,
   setSelectedMemberId,
   setSelectedTeamId,
+  setTeams,
 } from '../../../stores/teamSlice';
-import { Kick } from '../../../api/teamApi';
+import { Kick, MyTeams } from '../../../api/teamApi';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
+import { setComments } from '../../../stores/commentSlice';
 
 const { Text } = Typography;
 
@@ -24,6 +28,8 @@ interface TeamCardProps {
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const dispatch = useAppDispatch();
   const { id, name: team_name, users: team_members } = teamcard;
+  const teams = useAppSelector(getTeamsFromStore);
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -46,11 +52,22 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     dispatch(setAddMemberDialog(true));
   };
 
-  const handleKick = () => {
+  const handleKick = async () => {
     if (currentUserId !== null) {
-      Kick({ kicked_user_id: currentUserId, team_id: id });
+      try {
+        await Kick({ kicked_user_id: currentUserId, team_id: id });
+        const response = await MyTeams();
+        if (response) {
+          dispatch(setTeams(response.teams));
+
+          dispatch(setGlobalActiveTeamId(0));
+          dispatch(setComments([]));
+        }
+      } catch (error) {
+        console.error('Ошибка при выходе из команды:', error);
+      }
     } else {
-      console.error('Current user ID is null. Cannot kick user.');
+      console.error('ID пользователя отсутствует. Невозможно выйти из команды.');
     }
   };
 

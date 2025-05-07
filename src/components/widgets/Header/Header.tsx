@@ -89,14 +89,19 @@ const ButtonHeader: React.FC = () => {
   }, [teams, selectedTeam]);
 
   useEffect(() => {
-    if (teamOptions[0] && !selectedTeam) {
-      const number = Number(teamOptions[0].value);
-      dispatch(setGlobalActiveTeamId(number));
-
+    // Если у пользователя есть команды, но не выбрана конкретная команда
+    if (teams.length > 0 && !selectedTeam) {
+      setSelectedTeam(teams[0].id.toString());
+      dispatch(setGlobalActiveTeamId(teams[0].id));
       dispatch(setComments([]));
-      setSelectedTeam(teamOptions[0].value);
     }
-  }, [teamOptions, selectedTeam]);
+    // Если у пользователя нет команд, сбрасываем выбранную команду
+    else if (teams.length === 0) {
+      setSelectedTeam(undefined);
+      dispatch(setGlobalActiveTeamId(0));
+      dispatch(setComments([]));
+    }
+  }, [teams, selectedTeam, dispatch]);
 
   const handleChange = (value: string) => {
     setSelectedTeam(value);
