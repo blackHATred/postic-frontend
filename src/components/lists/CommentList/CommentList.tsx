@@ -104,9 +104,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
           initialScroll={0}
           frame_size={3}
           empty_text={'нет комментариев'}
-          setInitialScroll={function (scroll: number): void {
-            throw new Error('Function not implemented.');
-          }}
+          setInitialScroll={function (scroll: number): void {}}
         />
       )}
     </div>

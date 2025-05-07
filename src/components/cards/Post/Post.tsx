@@ -44,10 +44,14 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const dispatch = useAppDispatch();
   const refer = useRef<HTMLDivElement>(null);
   const attach_files = post.attachments
-    ? post.attachments.filter((el) => el.file_type != 'photo' && el.file_type != 'video')
+    ? post.attachments.filter(
+        (el) => el.file_type != 'photo' && el.file_type != 'video' && el.file_type != 'sticker',
+      )
     : [];
   const attach_images = post.attachments
-    ? post.attachments.filter((el) => el.file_type === 'photo' || el.file_type === 'video')
+    ? post.attachments.filter(
+        (el) => el.file_type === 'photo' || el.file_type === 'video' || el.file_type === 'sticker',
+      )
     : [];
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const navigate = useNavigate();

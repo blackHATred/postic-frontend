@@ -37,9 +37,7 @@ const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
           initialScroll={0}
           frame_size={0}
           empty_text={'Нет комманд'}
-          setInitialScroll={function (scroll: number): void {
-            throw new Error('Function not implemented.');
-          }}
+          setInitialScroll={(scroll: number) => {}}
         />
       </React.Suspense>
     </div>

@@ -29,17 +29,21 @@ import {
   UpdateStatsReq,
 } from '../models/Analytics/types';
 
-export const uploadFile = async (file: File): Promise<UploadResult> => {
+export const uploadFile = async (file: File, type: string): Promise<UploadResult> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('type', 'photo');
+    formData.append('type', type);
 
-    const response = await axiosInstance.post<UploadResult>(`/upload/`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const response = await axiosInstance.post<UploadResult>(
+      `${config.api.baseURL}/upload/`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       },
-    });
+    );
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

@@ -67,10 +67,14 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const LazyVideo = React.lazy(() => import('react-player'));
 
   const attach_files = comment.attachments
-    ? comment.attachments.filter((el) => el.file_type != 'photo' && el.file_type != 'video')
+    ? comment.attachments.filter(
+        (el) => el.file_type != 'photo' && el.file_type != 'video' && el.file_type != 'sticker',
+      )
     : [];
   const attach_images = comment.attachments
-    ? comment.attachments.filter((el) => el.file_type === 'photo' || el.file_type === 'video')
+    ? comment.attachments.filter(
+        (el) => el.file_type === 'photo' || el.file_type === 'video' || el.file_type === 'sticker',
+      )
     : [];
 
   const deleteComment = () => {
@@ -170,69 +174,63 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           {comment.text}
         </Paragraph>
       </div>
-      <div className={styles['image']}>
-        {attach_files.length > 0 &&
-          attach_files?.map((attachment, index) => (
-            <div className={styles['post-content-attachment']} key={index}>
-              <Icon component={PaperClipOutlined} />
-              <Text className={styles.primaryText}>{attachment.file_path}</Text>
-            </div>
-          ))}
-        {attach_images.length > 0 &&
-          (attach_images.length > 1 ? (
-            <Carousel arrows className={styles['images']}>
-              {attach_images.map((preview) => (
-                <div key={preview.id}>
-                  {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
-                    <Suspense fallback={<div className={styles['images']}></div>}>
-                      <LazyVideo
-                        controls
-                        light
-                        url={getUploadUrl(preview.id)}
-                        height={250}
-                        width={'100%'}
-                        className={styles['video']}
-                      />
-                    </Suspense>
-                  ) : (
-                    <Image
-                      className={styles['image']}
+      {attach_files.length > 0 &&
+        attach_files?.map((attachment, index) => (
+          <div className={styles['post-content-attachment']} key={index}>
+            <Icon component={PaperClipOutlined} />
+            <Text className={styles.primaryText}>{attachment.file_path}</Text>
+          </div>
+        ))}
+      {attach_images.length > 0 &&
+        (attach_images.length > 1 ? (
+          <Carousel arrows className={styles['images']}>
+            {attach_images.map((preview) => (
+              <div key={preview.id}>
+                {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
+                  <Suspense fallback={<div className={styles['images']}></div>}>
+                    <LazyVideo
+                      controls
+                      light
+                      url={getUploadUrl(preview.id)}
                       height={250}
-                      src={getUploadUrl(preview.id)}
+                      width={'100%'}
+                      className={styles['video']}
                     />
-                  )}
-                </div>
-              ))}
-            </Carousel>
-          ) : attach_images[0].file_path.endsWith('.webm') ||
-            attach_images[0].file_path.endsWith('.mp4') ? (
-            <Suspense fallback={<div className={styles['images']}></div>}>
-              <LazyVideo
-                controls
-                light
-                url={getUploadUrl(attach_images[0].id)}
-                height={250}
-                width={'100%'}
-                className={styles['video']}
-              />
-            </Suspense>
-          ) : attach_images[0].file_type == 'sticker' &&
-            attach_images[0].file_path.endsWith('.json') ? (
-            <Lottie
-              lottieRef={LottieRef}
-              className={styles['image']}
-              animationData={sticker}
-              loop={false}
-              onClick={() => {
-                LottieRef.current?.goToAndPlay(0);
-              }}
+                  </Suspense>
+                ) : (
+                  <Image className={styles['image']} height={250} src={getUploadUrl(preview.id)} />
+                )}
+              </div>
+            ))}
+          </Carousel>
+        ) : attach_images[0].file_path.endsWith('.webm') ||
+          attach_images[0].file_path.endsWith('.mp4') ? (
+          <Suspense fallback={<div className={styles['images']}></div>}>
+            <LazyVideo
+              controls
+              light
+              url={getUploadUrl(attach_images[0].id)}
+              height={250}
+              width={'100%'}
+              className={styles['video']}
             />
-          ) : (
-            <div key={attach_images[0].id} className={styles['image']}>
-              <Image height={250} src={getUploadUrl(attach_images[0].id)} />
-            </div>
-          ))}
-      </div>
+          </Suspense>
+        ) : attach_images[0].file_type == 'sticker' &&
+          attach_images[0].file_path.endsWith('.json') ? (
+          <Lottie
+            lottieRef={LottieRef}
+            className={styles['image']}
+            animationData={sticker}
+            loop={false}
+            onClick={() => {
+              LottieRef.current?.goToAndPlay(0);
+            }}
+          />
+        ) : (
+          <div key={attach_images[0].id} className={styles['image']}>
+            <Image height={250} src={getUploadUrl(attach_images[0].id)} />
+          </div>
+        ))}
       <div className={styles['comment-buttons']}>
         <div className={styles['comment-buttons-left']}>
           <ClickableButton
