@@ -10,12 +10,12 @@ const PlatformSettings: React.FC<PlatformSettingsProps> = ({ selectedPlatforms }
     {
       key: 'vk',
       label: 'VK',
-      children: <p>Настройки для VK</p>,
+      children: <p>Длина поста - не более 16 384 символа</p>,
     },
     {
       key: 'tg',
       label: 'Telegram',
-      children: <p>Настройки для Telegram</p>,
+      children: <p>Длина поста - не более 4096 символа</p>,
     },
   ];
 

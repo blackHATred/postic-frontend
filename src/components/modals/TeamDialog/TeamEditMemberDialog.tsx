@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Typography, Input, Divider, Form, Checkbox } from 'antd';
+import { Typography, Input, Divider, Form } from 'antd';
 import DialogBox, { DialogBoxProps } from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setEditMemberDialog, setTeams } from '../../../stores/teamSlice';
 import { MyTeams, UpdateRole } from '../../../api/teamApi';
 import { Team } from '../../../models/Team/types';
+import PermissionCheckboxes from '../../dummy/PermissionCheckboxes';
 
 const { Text } = Typography;
 
@@ -151,34 +152,13 @@ const TeamEditMemberDialog: React.FC = () => {
           </Form.Item>
         </Form>
 
-        <div className={styles['checkboxes']}>
-          <Text strong>Права доступа</Text>
-          <Checkbox
-            checked={permissions.comments}
-            disabled={isAdmin}
-            onChange={(e) => handlePermissionChange('comments', e.target.checked)}
-          >
-            Комментарии
-          </Checkbox>
-          <Checkbox
-            checked={permissions.posts}
-            disabled={isAdmin}
-            onChange={(e) => handlePermissionChange('posts', e.target.checked)}
-          >
-            Посты
-          </Checkbox>
-          <Checkbox
-            checked={permissions.analytics}
-            disabled={isAdmin}
-            onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
-          >
-            Аналитика
-          </Checkbox>
-          <Checkbox checked={isAdmin} onChange={(e) => handleAdminChange(e.target.checked)}>
-            Администратор
-          </Checkbox>
-          {empty_checkbox && <Text type='danger'>{empty_checkbox}</Text>}
-        </div>
+        <PermissionCheckboxes
+          permissions={permissions}
+          isAdmin={isAdmin}
+          empty_checkbox={empty_checkbox}
+          handlePermissionChange={handlePermissionChange}
+          handleAdminChange={handleAdminChange}
+        />
       </div>
     </DialogBox>
   );

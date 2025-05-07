@@ -23,13 +23,11 @@ const BarChart: React.FC<BarChartProps> = ({
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
-      // Рассчитываем Engagement Rate для каждой записи
       const transformedData: any[] = [];
 
       data.forEach((item) => {
         const date = new Date(item.timestamp).toLocaleDateString();
 
-        // ER для Telegram (реакции / просмотры * 100%)
         const tgER =
           item.tg_views > 0 ? ((item.tg_reactions / item.tg_views) * 100).toFixed(2) : '0';
 

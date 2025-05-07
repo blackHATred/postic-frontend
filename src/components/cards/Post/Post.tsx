@@ -19,7 +19,6 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
 import { getUploadUrl } from '../../../api/api';
-import config from '../../../constants/appConfig';
 
 const { Text, Paragraph } = Typography;
 
@@ -131,7 +130,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
 
               {help_mode ? (
                 <ClickableButton
-                  text='Суммаризация'
+                  text='Анализ комментариев'
                   variant='dashed'
                   color='primary'
                   onButtonClick={onSummaryClick}
@@ -140,7 +139,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 />
               ) : (
                 <ClickableButton
-                  text='Суммаризация'
+                  text='Анализ комментариев'
                   variant='dashed'
                   color='primary'
                   onButtonClick={onSummaryClick}

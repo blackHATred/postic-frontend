@@ -1,12 +1,11 @@
-import { FC, useState } from 'react';
-import { Typography, Input, Divider, Select, Switch, DatePicker } from 'antd';
+import React, { FC, useEffect, useState } from 'react';
+import { Typography, Input, Divider, Select, Switch, DatePicker, Form } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
-import { EditOutlined, SmileOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { EditOutlined, RobotOutlined, SmileOutlined } from '@ant-design/icons';
 import PlatformSettings from './PlatformSettings';
 import FileUploader from './FileUploader';
-import { validateMinLength } from '../../../utils/validation';
 import { Dayjs } from 'dayjs';
 import Picker from 'emoji-picker-react';
 import { getPost, sendPostRequest } from '../../../api/api';
@@ -25,6 +24,7 @@ import { EmojiStyle } from 'emoji-picker-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
+import debounce from 'lodash/debounce';
 
 dayjs.extend(utc);
 
@@ -38,6 +38,11 @@ const buddhistLocale: typeof ru = {
     yearFormat: 'YYYY',
     cellYearFormat: 'YYYY',
   },
+};
+
+const MAX_TEXT_LENGTH = {
+  vk: 16384,
+  tg: 4096,
 };
 
 const emoji_config = [
@@ -80,12 +85,13 @@ const emoji_config = [
 ];
 
 const CreatePostDialog: FC = () => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
-  const [postText, setPostText] = useState(''); // Состояние для текста поста
-  const [validationErrors, setValidationErrors] = useState<string[]>([]); // Состояние для ошибок валидации
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(); // Состояние для выбранной даты
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]); // Состояние для выбранной даты
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Состояние для отображения панели смайликов
+  const [postText, setPostText] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>();
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
@@ -93,35 +99,89 @@ const CreatePostDialog: FC = () => {
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const [files, setFiles] = useState<{ id: string; files: any }[]>([]);
 
+  const [platformError, setPlatformError] = useState<string | null>(null);
+  const [contentError, setContentError] = useState<string | null>(null);
+
+  const validateTextWithDebounce = React.useRef(
+    debounce((text: string, fileCount: number, platforms: string[]) => {
+      if (text.trim() === '' && fileCount === 0) {
+        setContentError('Добавьте текст или прикрепите файл');
+        return;
+      }
+
+      for (const platform of platforms) {
+        if (text.length > MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]) {
+          setContentError(`Длина текста превышает лимит для ${platform}`);
+          return;
+        }
+      }
+      setContentError(null);
+    }, 300),
+  );
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+    setPostText(newText);
+    validateTextWithDebounce.current(newText, files.length, selectedPlatforms);
+  };
+
+  useEffect(() => {
+    return () => validateTextWithDebounce.current.cancel();
+  }, []);
+
+  const validateTextLength = (): string | null => {
+    if (!postText.trim() && files.length === 0) {
+      return 'Добавьте текст или прикрепите файл';
+    }
+
+    for (const platform of selectedPlatforms) {
+      if (
+        platform in MAX_TEXT_LENGTH &&
+        postText.length > MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]
+      ) {
+        return `Длина текста превышает максимально допустимую для ${platform}: ${MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]} символов`;
+      }
+    }
+
+    return null;
+  };
+
+  const goToNextStep = () => {
+    if (currentStep === 1) {
+      if (selectedPlatforms.length === 0) {
+        setPlatformError('Выберите хотя бы одну платформу для публикации');
+        return;
+      }
+      setPlatformError(null);
+    } else if (currentStep === 2) {
+      const textError = validateTextLength();
+      if (textError) {
+        setContentError(textError);
+        return;
+      }
+      setContentError(null);
+    }
+
+    setCurrentStep(currentStep + 1);
+  };
+
+  const goToPreviousStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
   const onOk = () => {
-    const errors: string[] = [];
-
-    // Валидация текста поста
-    const postTextError = validateMinLength(postText, 3);
-    if (postTextError) {
-      errors.push(postTextError);
-    }
-
-    // Валидация выбранных платформ
-    const platformsError = validateNotEmptyArray(selectedPlatforms);
-    if (platformsError !== null) {
-      errors.push(platformsError);
-    }
-
-    // Если есть ошибки, отображаем их и не закрываем диалог
-    if (errors.length > 0) {
-      setValidationErrors(errors);
+    const textError = validateTextLength();
+    if (textError) {
+      setContentError(textError);
       return;
     }
-    setValidationErrors([]);
 
-    // Формируем объект для отправки
     const postPayload = {
       text: postText,
       attachments: fileIds,
       platforms: selectedPlatforms,
       team_id: team_id,
-      pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined, // Используем pub_datetime
+      pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined,
     };
 
     console.log('Отправляем пост:', postPayload);
@@ -129,7 +189,6 @@ const CreatePostDialog: FC = () => {
     sendPostRequest(postPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {
         if (res.post) {
-          // если у поста есть время публикации и оно в будущем, добавляем его в отложенные
           if (res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date()) {
             dispatch(addScheduledPost(res.post));
           } else {
@@ -142,15 +201,18 @@ const CreatePostDialog: FC = () => {
       });
       dispatch(setSelectedPostId(data.post_id));
     });
-    console.log('selectedPlatforms', selectedPlatforms);
+
     dispatch(setPostStatusDialog(true));
     dispatch(setCreatePostDialog(false));
   };
 
   const clearFields = () => {
+    setCurrentStep(1);
     setIsTimePickerVisible(false);
     setPostText('');
     setValidationErrors([]);
+    setPlatformError(null);
+    setContentError(null);
     setSelectedDate(null);
     setSelectedPlatforms([]);
     setShowEmojiPicker(false);
@@ -161,6 +223,7 @@ const CreatePostDialog: FC = () => {
   const onCancel = async () => {
     dispatch(setCreatePostDialog(false));
     setShowEmojiPicker(false);
+    clearFields();
   };
 
   const onEmojiClick = (emojiObject: any) => {
@@ -170,6 +233,8 @@ const CreatePostDialog: FC = () => {
   const addFiles = (id: string, file: any) => {
     setFiles([...files, { id: id, files: file }]);
     dispatch(addFile(id));
+    // пост уже не пустой - ошибки нет
+    setContentError(null);
   };
 
   const removeFiles = (file: any) => {
@@ -182,118 +247,206 @@ const CreatePostDialog: FC = () => {
         return filed.files.uid != file.uid;
       }),
     );
+    if (currentStep === 2 && postText.trim() === '' && files.length <= 1) {
+      setContentError('Добавьте текст или прикрепите файл');
+    }
   };
 
-  return (
-    <DialogBox
-      bottomButtons={[
-        {
-          text: 'Опубликовать',
-          onButtonClick: onOk,
-        },
-      ]}
-      isOpen={isOpen}
-      onCancelClick={onCancel}
-      title={'Создать пост'}
-      isCenter={true}
-    >
-      <Divider>Содержание поста</Divider>
-
+  const renderStep1 = () => (
+    <>
       <div className={styles['post']}>
-        <div className={styles['post-text']}>
-          <Input.TextArea
-            rows={3}
-            placeholder='Введите текст поста'
-            value={postText}
-            onChange={(e) => setPostText(e.target.value)}
-          />
-          <div className={styles['post-icons']}>
-            <ClickableButton
-              icon={<EditOutlined />}
-              type='default'
-              size='small'
-              withPopover={help_mode}
-              popoverContent={
-                'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
-              }
-            />
-            <ClickableButton
-              icon={<ThunderboltOutlined />}
-              type='default'
-              size='small'
-              withPopover={help_mode}
-              popoverContent={'ИИ-генерация текста поста'}
-            />
-
-            <ClickableButton
-              icon={<SmileOutlined />}
-              type='default'
-              size='small'
-              withPopover={help_mode}
-              onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)} //панель смайликов
-              popoverContent={'Эмодзи'}
-            />
-          </div>
-        </div>
-        {showEmojiPicker && (
-          <div className={styles.emojiPicker}>
-            <Picker
-              onEmojiClick={onEmojiClick}
-              lazyLoadEmojis={true}
-              emojiStyle={EmojiStyle.APPLE}
-              previewConfig={{
-                showPreview: false,
-              }}
-              categories={emoji_config}
-              searchPlaceHolder='Поиск'
-            />
-          </div>
-        )}
+        <Text strong>Выберите платформы для публикации</Text>
         <Select
           size='middle'
           placeholder='Выберите платформы для публикации'
+          status={platformError ? 'error' : ''}
           mode='multiple'
           options={[
             { value: 'vk', label: 'VK' },
             { value: 'tg', label: 'Telegram' },
           ]}
           value={selectedPlatforms}
-          onChange={(values: string[]) => setSelectedPlatforms(values)}
+          onChange={(values: string[]) => {
+            setSelectedPlatforms(values);
+            setPlatformError(values.length === 0 ? 'Выберите хотя бы одну платформу' : null);
+          }}
         />
+        {platformError && <div className={styles['error-message']}>{platformError}</div>}
+
         <PlatformSettings selectedPlatforms={selectedPlatforms} />
-        <div className={styles['post-time']}>
-          <Switch
-            size='default'
-            onChange={(checked) => {
-              setIsTimePickerVisible(checked);
-              if (!checked) {
-                setSelectedDate(null);
-              }
-            }}
-          />
-          <Text> Настроить дату и время публикации </Text>
-        </div>
-        {isTimePickerVisible && (
-          <div className={styles['time-and-data']}>
-            <DatePicker
-              placeholder='Выберите дату и время'
-              showTime
-              locale={buddhistLocale}
-              defaultValue={dayjs()}
-              onChange={(date: Dayjs | null) => {
-                setSelectedDate(date);
-              }}
+      </div>
+    </>
+  );
+
+  const renderStep2 = () => (
+    <>
+      <div className={styles['post']}>
+        <Form.Item validateStatus={contentError ? 'error' : ''} help={contentError}>
+          <div className={styles['post-text']}>
+            <Input.TextArea
+              rows={3}
+              placeholder='Введите текст поста'
+              value={postText}
+              onChange={handleTextChange}
+            />
+            <div className={styles['post-icons']}>
+              <ClickableButton
+                icon={<EditOutlined />}
+                type='default'
+                size='small'
+                withPopover={help_mode}
+                popoverContent={
+                  'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
+                }
+              />
+              <ClickableButton
+                icon={<RobotOutlined />}
+                type='default'
+                size='small'
+                withPopover={help_mode}
+                popoverContent={'ИИ-генерация текста поста'}
+              />
+              <ClickableButton
+                icon={<SmileOutlined />}
+                type='default'
+                size='small'
+                withPopover={help_mode}
+                onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                popoverContent={'Эмодзи'}
+              />
+            </div>
+          </div>
+        </Form.Item>
+
+        {showEmojiPicker && (
+          <div className={styles.emojiPicker}>
+            <Picker
+              onEmojiClick={onEmojiClick}
+              lazyLoadEmojis={true}
+              emojiStyle={EmojiStyle.APPLE}
+              previewConfig={{ showPreview: false }}
+              categories={emoji_config}
+              searchPlaceHolder='Поиск'
             />
           </div>
         )}
+
         <FileUploader
           addFiles={addFiles}
           removeFile={removeFiles}
           files={files.map((file) => file.files)}
         />
-      </div>
 
-      {/* Отображение ошибок валидации */}
+        <PlatformSettings selectedPlatforms={selectedPlatforms} />
+      </div>
+    </>
+  );
+
+  const renderStep3 = () => (
+    <>
+      <div className={styles['post']}>
+        <div className={styles['post-time']}>
+          <Text strong>Дата и время публикации</Text>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0' }}>
+            <Switch
+              size='default'
+              checked={isTimePickerVisible}
+              onChange={(checked) => {
+                setIsTimePickerVisible(checked);
+                if (!checked) {
+                  setSelectedDate(null);
+                } else if (!selectedDate) {
+                  setSelectedDate(dayjs());
+                }
+              }}
+            />
+            <Text style={{ marginLeft: 8 }}>
+              {isTimePickerVisible ? 'Отложенная публикация' : 'Опубликовать сейчас'}
+            </Text>
+          </div>
+
+          {isTimePickerVisible && (
+            <div className={styles['time-and-data']}>
+              <DatePicker
+                placeholder='Выберите дату и время'
+                showTime
+                locale={buddhistLocale}
+                value={selectedDate || null}
+                onChange={(date: Dayjs | null) => {
+                  setSelectedDate(date);
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        <PlatformSettings selectedPlatforms={selectedPlatforms} />
+      </div>
+    </>
+  );
+
+  const getButtonsForCurrentStep = () => {
+    if (currentStep === 1) {
+      return [
+        {
+          text: 'Далее',
+          onButtonClick: goToNextStep,
+        },
+      ];
+    } else if (currentStep === 2) {
+      return [
+        {
+          text: 'Назад',
+          onButtonClick: goToPreviousStep,
+          type: 'default' as const,
+        },
+        {
+          text: 'Далее',
+          onButtonClick: goToNextStep,
+        },
+      ];
+    } else {
+      return [
+        {
+          text: 'Назад',
+          onButtonClick: goToPreviousStep,
+          type: 'default' as const,
+        },
+        {
+          text: 'Опубликовать',
+          onButtonClick: onOk,
+        },
+      ];
+    }
+  };
+
+  const getTitle = () => {
+    switch (currentStep) {
+      case 1:
+        return 'Создание поста: Выбор платформ';
+      case 2:
+        return 'Создание поста: Содержание';
+      case 3:
+        return 'Создание поста: Время публикации';
+      default:
+        return 'Создание поста';
+    }
+  };
+
+  return (
+    <DialogBox
+      bottomButtons={getButtonsForCurrentStep()}
+      isOpen={isOpen}
+      onCancelClick={onCancel}
+      title={getTitle()}
+      isCenter={true}
+    >
+      <Divider>{`Шаг ${currentStep} из 3`}</Divider>
+
+      {currentStep === 1 && renderStep1()}
+      {currentStep === 2 && renderStep2()}
+      {currentStep === 3 && renderStep3()}
+
       {validationErrors.length > 0 && (
         <div style={{ marginTop: 16 }}>
           {validationErrors.map((error, index) => (
@@ -308,6 +461,3 @@ const CreatePostDialog: FC = () => {
 };
 
 export default CreatePostDialog;
-function validateNotEmptyArray(selectedPlatforms: string[]): string | null {
-  return selectedPlatforms.length > 0 ? null : 'Не выбраны платформы для публикации.';
-}

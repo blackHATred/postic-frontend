@@ -28,7 +28,6 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
   const [id, setID] = useState(0);
 
   useEffect(() => {
-    console.log(props.files);
     if (props.files.length == 0) {
       setID(Math.random());
     }
