@@ -196,7 +196,7 @@ const CreatePostDialog: FC = () => {
           if (isScheduledPost) {
             if (activeFilter != 'published') dispatch(addPost(res.post));
           } else {
-            dispatch(addPost(res.post));
+            if (activeFilter != 'scheduled') dispatch(addPost(res.post));
             dispatch(setPostStatusDialog(true));
           }
           dispatch(setSelectedPostId(data.post_id));

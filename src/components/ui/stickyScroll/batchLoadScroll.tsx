@@ -109,7 +109,7 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
           setIsLoadingTop(false);
           setIsLoadingBottom(false);
         }
-        ref.current.scrollTop = props.initialScroll;
+        ref.current.scrollTop = props.initialScroll - 50;
         setAtBottom(false);
         setIsLoading(false);
       } else {
