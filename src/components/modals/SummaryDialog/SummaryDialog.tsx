@@ -70,6 +70,7 @@ const DialogBoxSummary: FC = () => {
 
   return (
     <DialogBox
+      /*
       bottomButtons={[
         {
           text: 'Повторная суммаризация',
@@ -78,6 +79,8 @@ const DialogBoxSummary: FC = () => {
           popoverContent: help_mode ? 'Сделать краткий анализ содержания комментариев' : undefined,
         },
       ]}
+       */
+
       isOpen={isOpen}
       onCancelClick={onCancel}
       title={'Суммаризация'}

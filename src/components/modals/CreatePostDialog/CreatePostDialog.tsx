@@ -189,20 +189,23 @@ const CreatePostDialog: FC = () => {
     sendPostRequest(postPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {
         if (res.post) {
-          if (res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date()) {
+          const isScheduledPost =
+            res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date();
+
+          if (isScheduledPost) {
             dispatch(addScheduledPost(res.post));
           } else {
             dispatch(addPost(res.post));
+            dispatch(setPostStatusDialog(true));
           }
+          dispatch(setSelectedPostId(data.post_id));
         } else {
           console.error('Ошибка получения поста:', res);
         }
         clearFields();
       });
-      dispatch(setSelectedPostId(data.post_id));
     });
 
-    dispatch(setPostStatusDialog(true));
     dispatch(setCreatePostDialog(false));
   };
 
@@ -272,8 +275,6 @@ const CreatePostDialog: FC = () => {
           }}
         />
         {platformError && <div className={styles['error-message']}>{platformError}</div>}
-
-        <PlatformSettings selectedPlatforms={selectedPlatforms} />
       </div>
     </>
   );
@@ -298,6 +299,7 @@ const CreatePostDialog: FC = () => {
                 popoverContent={
                   'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
                 }
+                disabled={true}
               />
               <ClickableButton
                 icon={<RobotOutlined />}
@@ -305,6 +307,7 @@ const CreatePostDialog: FC = () => {
                 size='small'
                 withPopover={help_mode}
                 popoverContent={'ИИ-генерация текста поста'}
+                disabled={true}
               />
               <ClickableButton
                 icon={<SmileOutlined />}
@@ -346,41 +349,30 @@ const CreatePostDialog: FC = () => {
     <>
       <div className={styles['post']}>
         <div className={styles['post-time']}>
-          <Text strong>Дата и время публикации</Text>
-          <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0' }}>
-            <Switch
-              size='default'
-              checked={isTimePickerVisible}
-              onChange={(checked) => {
-                setIsTimePickerVisible(checked);
-                if (!checked) {
-                  setSelectedDate(null);
-                } else if (!selectedDate) {
-                  setSelectedDate(dayjs());
-                }
+          <Switch
+            size='default'
+            onChange={(checked) => {
+              setIsTimePickerVisible(checked);
+              if (!checked) {
+                setSelectedDate(null);
+              }
+            }}
+          />
+          <Text> {isTimePickerVisible ? 'Отложенная публикация' : 'Опубликовать сейчас'}</Text>
+        </div>
+        {isTimePickerVisible && (
+          <div className={styles['time-and-data']}>
+            <DatePicker
+              placeholder='Выберите дату и время'
+              showTime
+              locale={buddhistLocale}
+              defaultValue={dayjs()}
+              onChange={(date: Dayjs | null) => {
+                setSelectedDate(date);
               }}
             />
-            <Text style={{ marginLeft: 8 }}>
-              {isTimePickerVisible ? 'Отложенная публикация' : 'Опубликовать сейчас'}
-            </Text>
           </div>
-
-          {isTimePickerVisible && (
-            <div className={styles['time-and-data']}>
-              <DatePicker
-                placeholder='Выберите дату и время'
-                showTime
-                locale={buddhistLocale}
-                value={selectedDate || null}
-                onChange={(date: Dayjs | null) => {
-                  setSelectedDate(date);
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        <PlatformSettings selectedPlatforms={selectedPlatforms} />
+        )}
       </div>
     </>
   );

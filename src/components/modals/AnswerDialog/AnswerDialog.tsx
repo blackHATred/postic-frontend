@@ -33,8 +33,14 @@ const AnswerDialog: FC = () => {
   const [files, setFiles] = useState<{ id: string; files: any }[]>([]);
 
   const [answers, setAnswers] = useState<{ ideas: string[] }[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(false);
+
   useEffect(() => {
     if (isOpen && selectedComment) {
+      setIsLoading(true);
+      setHasError(false);
+
       const fetchAnswers = async () => {
         const request: Answ = {
           comment_id: Number(selectedComment?.id),
@@ -47,7 +53,6 @@ const AnswerDialog: FC = () => {
 
           // Проверка формата ответа и соответствующая обработка
           if (response && typeof response === 'object' && response.ideas) {
-            // Если ответ уже является объектом с полем ideas
             setAnswers([{ ideas: response.ideas }]);
           } else if (typeof response === 'string') {
             try {
@@ -65,8 +70,12 @@ const AnswerDialog: FC = () => {
               setAnswers(formattedAnswers);
             }
           }
+          setIsLoading(false);
         } catch (err) {
           console.error('Ошибка при получении идей ответа:', err);
+          setIsLoading(false);
+          setHasError(true);
+          setAnswers([]);
         }
       };
 
@@ -177,27 +186,45 @@ const AnswerDialog: FC = () => {
       </div>
       <Text>{selectedComment?.text}</Text>
 
-      {selectedComment?.text && answers.length > 0 ? (
-        <div>
-          <Divider>Быстрый ответ</Divider>
-          <div className={styles['answers']}>
-            {answers.map((answer, answerIndex) =>
-              answer.ideas.map((text, index) => (
-                <Button
-                  className={styles['answ-button']}
-                  shape='round'
-                  key={`${answerIndex}-${index}`}
-                  icon={<RightOutlined />}
-                  type='default'
-                  onClick={() => setQuickAnswer(text)}
-                >
-                  {text}
-                </Button>
-              )),
-            )}
-          </div>
-        </div>
-      ) : null}
+      {selectedComment?.text && (
+        <>
+          {isLoading ? (
+            <div>
+              <Divider>Быстрый ответ</Divider>
+              <div className={styles['answers']}>
+                <Text type='secondary'>Загрузка вариантов ответа...</Text>
+              </div>
+            </div>
+          ) : hasError ? (
+            <div>
+              <Divider>Быстрый ответ</Divider>
+              <div className={styles['answers']}>
+                <Text type='danger'>Не удалось загрузить варианты ответа</Text>
+              </div>
+            </div>
+          ) : answers.length > 0 && answers.some((answer) => answer.ideas.length > 0) ? (
+            <div>
+              <Divider>Быстрый ответ</Divider>
+              <div className={styles['answers']}>
+                {answers.map((answer, answerIndex) =>
+                  answer.ideas.map((text, index) => (
+                    <Button
+                      className={styles['answ-button']}
+                      shape='round'
+                      key={`${answerIndex}-${index}`}
+                      icon={<RightOutlined />}
+                      type='default'
+                      onClick={() => setQuickAnswer(text)}
+                    >
+                      {text}
+                    </Button>
+                  )),
+                )}
+              </div>
+            </div>
+          ) : null}
+        </>
+      )}
 
       <Divider>Свой ответ</Divider>
 
