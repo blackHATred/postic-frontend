@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Popover } from 'antd';
+import React, { useState } from 'react';
+import { Button, Popconfirm, Popover } from 'antd';
 import styles from './styles.module.scss';
 
 export interface ClickableButtonProps {
@@ -30,6 +30,7 @@ export interface ClickableButtonProps {
   popoverContent?: string;
   className?: string;
   disabled?: boolean;
+  confirm?: boolean;
 }
 
 const ClickableButton: React.FC<ClickableButtonProps> = ({
@@ -42,9 +43,11 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
   onButtonClick,
   popoverContent,
   withPopover = false,
+  confirm = false,
   className,
   disabled,
 }) => {
+  const [open, setOpen] = useState(false);
   return withPopover ? (
     <Popover
       placement='bottom'
@@ -52,32 +55,60 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
       trigger='hover'
       mouseEnterDelay={0.5}
     >
+      <Popconfirm
+        title='Подтвердить действие'
+        onConfirm={() => {
+          if (onButtonClick) onButtonClick();
+          setOpen(false);
+        }}
+        onCancel={() => {
+          setOpen(false);
+        }}
+        okText='Да'
+        cancelText='Нет'
+        open={open}
+      >
+        <Button
+          type={type}
+          icon={icon}
+          color={color}
+          variant={variant}
+          size={size}
+          className={styles['blueButton'] + ' ' + className}
+          disabled={disabled}
+          onClick={confirm ? () => setOpen(!open) : onButtonClick}
+        >
+          {text}
+        </Button>
+      </Popconfirm>
+    </Popover>
+  ) : (
+    <Popconfirm
+      title='Подтвердить действие'
+      onConfirm={() => {
+        if (onButtonClick) onButtonClick();
+        setOpen(false);
+      }}
+      onCancel={() => {
+        setOpen(false);
+      }}
+      okText='Да'
+      cancelText='Нет'
+      open={open}
+    >
       <Button
         type={type}
         icon={icon}
         color={color}
         variant={variant}
-        onClick={onButtonClick}
         size={size}
         className={styles['blueButton'] + ' ' + className}
         disabled={disabled}
+        onClick={confirm ? () => setOpen(!open) : onButtonClick}
       >
         {text}
       </Button>
-    </Popover>
-  ) : (
-    <Button
-      type={type}
-      icon={icon}
-      color={color}
-      variant={variant}
-      onClick={onButtonClick}
-      size={size}
-      className={styles['blueButton'] + ' ' + className}
-      disabled={disabled}
-    >
-      {text}
-    </Button>
+    </Popconfirm>
   );
 };
 

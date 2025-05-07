@@ -195,6 +195,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
               color='danger'
               variant='solid'
               icon={<MinusOutlined />}
+              confirm
               onButtonClick={handleKick}
             />
             {isUserAdmin && (

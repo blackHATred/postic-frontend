@@ -54,7 +54,7 @@ const LoginDialog: React.FC = () => {
                     });
                 })
                 .catch(() => {
-                  notificationManager.createNotification('error', 'Ошибка регистрации', '');
+                  notificationManager.createNotification('error', 'Ошибка входа в аккаунт', '');
                 });
             }
           },

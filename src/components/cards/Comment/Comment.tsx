@@ -44,6 +44,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
     dispatch(setAnswerDialog(true));
   };
   const [isTicket, setIsTicket] = useState(comment.marked_as_ticket);
+
   const getIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
@@ -241,12 +242,14 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
             icon={<DoubleRightOutlined />}
             onButtonClick={openAnswerDialog}
           />
+
           <ClickableButton
             type='default'
             variant='outlined'
             color='danger'
             text='Удалить'
             icon={<DeleteOutlined />}
+            confirm
             onButtonClick={deleteComment}
           />
         </div>
