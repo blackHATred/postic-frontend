@@ -30,7 +30,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "obfuscate": "uglifyjs build/static/js/main.*.js -o build/static/js/bundle.min.js -c -m"
   },
   "browserslist": {
     "production": [
@@ -53,7 +54,9 @@
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-unused-imports": "^4.1.4",
     "sass": "^1.85.1",
-    "sass-resources-loader": "^2.2.5"
+    "sass-resources-loader": "^2.2.5",
+    "terser": "^5.39.0",
+    "uglify-js": "^3.19.3"
   },
   "resolutions": {
     "react": "^19.0.0",
