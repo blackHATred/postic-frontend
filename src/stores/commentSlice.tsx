@@ -88,8 +88,6 @@ export const commentsSlice = createSlice({
 
       action.payload.reduce(flat_id, el2);
 
-      console.log(el2);
-
       state.comments.comments = createCommentTree(
         el1.filter((el: any) => {
           return !el2.includes(el.id);

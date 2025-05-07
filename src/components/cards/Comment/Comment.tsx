@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Avatar, Divider, Space, Typography } from 'antd';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
+import { Avatar, Carousel, Divider, Image, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, DeleteComment, Ticket } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import ClickableButton from '../../ui/Button/Button';
-import {
+import Icon, {
   DeleteOutlined,
   DisconnectOutlined,
   DoubleRightOutlined,
+  PaperClipOutlined,
   TagOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
@@ -63,8 +64,16 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
     return comment.full_name;
   }, [comment.team_id, comment.full_name, comment.is_team_reply, teams]);
 
+  const LazyVideo = React.lazy(() => import('react-player'));
+
+  const attach_files = comment.attachments
+    ? comment.attachments.filter((el) => el.file_type != 'photo' && el.file_type != 'video')
+    : [];
+  const attach_images = comment.attachments
+    ? comment.attachments.filter((el) => el.file_type === 'photo' || el.file_type === 'video')
+    : [];
+
   const deleteComment = () => {
-    console.log('Удаление комментария', selectedTeamId, comment.post_union_id, false);
     const res: DeleteComment = {
       team_id: selectedTeamId,
       post_comment_id: Number(comment.id),
@@ -85,7 +94,6 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       comment_id: Number(comment.id),
       marked_as_ticket: isTicket,
     };
-    console.log(ticketData);
     MarkAsTicket(ticketData)
       .then((r) => {
         message.success({
@@ -93,14 +101,12 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           key: 'ticketOperation',
         });
         setIsTicket(isTicket);
-        console.log('Результат операции с тикетом:', r);
       })
       .catch((error) => {
         message.error({
           content: `Ошибка сети: ${error.message}. Пожалуйста, проверьте соединение с сервером.`,
           key: 'ticketOperation',
         });
-        console.error('Ошибка при операции с тикетом:', error);
       });
   };
 
@@ -109,10 +115,10 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       comment &&
       comment.attachments &&
       comment.attachments.length > 0 &&
-      comment.attachments[0]
+      comment.attachments[0] &&
+      comment.attachments[0].file_type == 'sticker'
     ) {
       getUpload(comment.attachments[0].id).then((data: any) => {
-        console.log('sticker');
         setSticker(data);
       });
     } else {
@@ -129,7 +135,6 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
             config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
           }
           onError={() => {
-            console.log('img-error');
             return true;
           }}
           icon={<TeamOutlined />}
@@ -155,17 +160,6 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
               <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
             </div>
           </div>
-          {comment.post_union_id && (
-            <div>
-              <Text
-                type='secondary'
-                style={{ marginTop: 'auto', marginBottom: 'auto' }}
-                onClick={handlePostClick}
-              >
-                К <a>посту</a>
-              </Text>
-            </div>
-          )}
         </div>
       </div>
 
@@ -176,40 +170,69 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           {comment.text}
         </Paragraph>
       </div>
-      {comment.attachments && comment.attachments.length > 0 && (
-        <>
-          {comment.attachments.map((preview) => (
-            <div key={preview.id} className={styles['image']}>
-              {preview.file_type == 'sticker' && preview.file_path.endsWith('.json') ? (
-                <Lottie
-                  lottieRef={LottieRef}
-                  className={styles['image']}
-                  animationData={sticker}
-                  loop={false}
-                  onClick={() => {
-                    LottieRef.current?.goToAndPlay(0);
-                  }}
-                />
-              ) : preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
-                <video
-                  height={250}
-                  width={'100%'}
-                  autoPlay
-                  playsInline
-                  muted
-                  onClick={(event) => {
-                    event.currentTarget.play();
-                  }}
-                >
-                  <source src={getUploadUrl(preview.id)} type='video/webm' />
-                </video>
-              ) : (
-                <img src={getUploadUrl(preview.id)} className={styles['image']} />
-              )}
+      <div className={styles['image']}>
+        {attach_files.length > 0 &&
+          attach_files?.map((attachment, index) => (
+            <div className={styles['post-content-attachment']} key={index}>
+              <Icon component={PaperClipOutlined} />
+              <Text className={styles.primaryText}>{attachment.file_path}</Text>
             </div>
           ))}
-        </>
-      )}
+        {attach_images.length > 0 &&
+          (attach_images.length > 1 ? (
+            <Carousel arrows className={styles['images']}>
+              {attach_images.map((preview) => (
+                <div key={preview.id}>
+                  {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
+                    <Suspense fallback={<div className={styles['images']}></div>}>
+                      <LazyVideo
+                        controls
+                        light
+                        url={getUploadUrl(preview.id)}
+                        height={250}
+                        width={'100%'}
+                        className={styles['video']}
+                      />
+                    </Suspense>
+                  ) : (
+                    <Image
+                      className={styles['image']}
+                      height={250}
+                      src={getUploadUrl(preview.id)}
+                    />
+                  )}
+                </div>
+              ))}
+            </Carousel>
+          ) : attach_images[0].file_path.endsWith('.webm') ||
+            attach_images[0].file_path.endsWith('.mp4') ? (
+            <Suspense fallback={<div className={styles['images']}></div>}>
+              <LazyVideo
+                controls
+                light
+                url={getUploadUrl(attach_images[0].id)}
+                height={250}
+                width={'100%'}
+                className={styles['video']}
+              />
+            </Suspense>
+          ) : attach_images[0].file_type == 'sticker' &&
+            attach_images[0].file_path.endsWith('.json') ? (
+            <Lottie
+              lottieRef={LottieRef}
+              className={styles['image']}
+              animationData={sticker}
+              loop={false}
+              onClick={() => {
+                LottieRef.current?.goToAndPlay(0);
+              }}
+            />
+          ) : (
+            <div key={attach_images[0].id} className={styles['image']}>
+              <Image height={250} src={getUploadUrl(attach_images[0].id)} />
+            </div>
+          ))}
+      </div>
       <div className={styles['comment-buttons']}>
         <div className={styles['comment-buttons-left']}>
           <ClickableButton

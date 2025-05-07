@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Divider, Space, Typography, Image, Carousel } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -9,7 +9,6 @@ import Icon, {
   EditOutlined,
   PaperClipOutlined,
 } from '@ant-design/icons';
-import './selected_style.css';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
@@ -18,7 +17,8 @@ import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/l
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
-import { getUploadUrl } from '../../../api/api';
+import { getUpload, getUploadUrl } from '../../../api/api';
+import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 
 const { Text, Paragraph } = Typography;
 
@@ -42,34 +42,18 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const [ellipsis, setEllipsis] = useState(true);
 
   const dispatch = useAppDispatch();
-  const scrollToPost = useAppSelector((state) => state.posts.scrollToPost);
-  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const refer = useRef<HTMLDivElement>(null);
   const attach_files = post.attachments
-    ? post.attachments.filter((el) => el.file_type != 'photo')
+    ? post.attachments.filter((el) => el.file_type != 'photo' && el.file_type != 'video')
     : [];
   const attach_images = post.attachments
-    ? post.attachments.filter((el) => el.file_type === 'photo')
+    ? post.attachments.filter((el) => el.file_type === 'photo' || el.file_type === 'video')
     : [];
-  const isOpened = useAppSelector((state) => state.posts.isOpened[post.id]);
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const navigate = useNavigate();
-
-  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-
-  useEffect(() => {
-    if (post.id === selectedPostId && activeTab) setSelected();
-  }, [scrollToPost]);
-
-  const setSelected = async () => {
-    if (refer.current) {
-      refer.current.className += ' selected';
-      setTimeout(() => {
-        if (refer.current)
-          refer.current.className = refer.current.className.replace(' selected', '');
-      }, 3000);
-    }
-  };
+  const LazyVideo = React.lazy(() => import('react-player'));
+  const LottieRef = useRef<LottieRefCurrentProps>(null);
+  const [sticker, setSticker] = useState(null);
 
   const onCommentClick = () => {
     dispatch(setSelectedPostId(post.id));
@@ -82,6 +66,22 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     dispatch(setSummaryDialog(true));
     dispatch(setSelectedPostId(post.id));
   };
+
+  useEffect(() => {
+    if (
+      post &&
+      post.attachments &&
+      post.attachments.length > 0 &&
+      post.attachments[0] &&
+      post.attachments[0].file_type == 'sticker'
+    ) {
+      getUpload(post.attachments[0].id).then((data: any) => {
+        setSticker(data);
+      });
+    } else {
+      return;
+    }
+  }, []);
 
   return (
     <div
@@ -177,14 +177,50 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               <Carousel arrows className={styles['images']}>
                 {attach_images.map((preview) => (
                   <div key={preview.id}>
-                    <Image
-                      className={styles['image']}
-                      height={250}
-                      src={getUploadUrl(preview.id)}
-                    />
+                    {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
+                      <Suspense fallback={<div className={styles['images']}></div>}>
+                        <LazyVideo
+                          controls
+                          light
+                          url={getUploadUrl(preview.id)}
+                          height={250}
+                          width={'100%'}
+                          className={styles['video']}
+                        />
+                      </Suspense>
+                    ) : (
+                      <Image
+                        className={styles['image']}
+                        height={250}
+                        src={getUploadUrl(preview.id)}
+                      />
+                    )}
                   </div>
                 ))}
               </Carousel>
+            ) : attach_images[0].file_path.endsWith('.webm') ||
+              attach_images[0].file_path.endsWith('.mp4') ? (
+              <Suspense fallback={<div className={styles['images']}></div>}>
+                <LazyVideo
+                  controls
+                  light
+                  url={getUploadUrl(attach_images[0].id)}
+                  height={250}
+                  width={'100%'}
+                  className={styles['video']}
+                />
+              </Suspense>
+            ) : attach_images[0].file_type == 'sticker' &&
+              attach_images[0].file_path.endsWith('.json') ? (
+              <Lottie
+                lottieRef={LottieRef}
+                className={styles['image']}
+                animationData={sticker}
+                loop={false}
+                onClick={() => {
+                  LottieRef.current?.goToAndPlay(0);
+                }}
+              />
             ) : (
               <div key={attach_images[0].id} className={styles['image']}>
                 <Image height={250} src={getUploadUrl(attach_images[0].id)} />

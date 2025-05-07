@@ -37,7 +37,6 @@ const RegisterDialog: React.FC = () => {
                   }
                 })
                 .catch(() => {
-                  console.log('Error getting teams');
                   dispatch(setAuthorized('authorized'));
                 });
             } else {

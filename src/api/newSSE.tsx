@@ -24,7 +24,6 @@ export function useAuthenticatedSSE({
 
   const setupSSE = async () => {
     if (retryCount >= MAX_RETRIES) {
-      console.log(`Достигнут лимит попыток (${MAX_RETRIES}). SSE отключен.`);
       return;
     }
     try {
@@ -37,7 +36,6 @@ export function useAuthenticatedSSE({
 
       eventSource.onopen = (ev) => {
         if (ev.type == 'open') {
-          console.log('SSE подключение установлено');
           setIsConnected(true);
           setRetryCount(0);
         } else {
@@ -91,7 +89,6 @@ export function useAuthenticatedSSE({
 
   const close = () => {
     if (eventSourceRef.current) {
-      console.log('close');
       eventSourceRef.current.close();
       eventSourceRef.current = null;
       setIsConnected(false);

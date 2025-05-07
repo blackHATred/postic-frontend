@@ -40,8 +40,6 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
         'Content-Type': 'multipart/form-data',
       },
     });
-
-    console.log('Файл успешно загружен:', response.data);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -146,23 +144,17 @@ export const Login = async (id: number): Promise<RegisterResult> => {
 };
 
 export const getSummarize = async (teamId: number, postId: number): Promise<GetSummarizeResult> => {
-  try {
-    const response = await axiosInstance.get<GetSummarizeResult>(
-      `${config.api.baseURL}${routes.comments()}/summarize`,
-      {
-        params: {
-          team_id: teamId,
-          post_union_id: postId,
-        },
-        withCredentials: true,
+  const response = await axiosInstance.get<GetSummarizeResult>(
+    `${config.api.baseURL}${routes.comments()}/summarize`,
+    {
+      params: {
+        team_id: teamId,
+        post_union_id: postId,
       },
-    );
-    return response.data;
-  } catch (error) {
-    if (isAxiosError(error))
-      console.log('Error getting summarize: ' + (error as AxiosError).status);
-    throw error;
-  }
+      withCredentials: true,
+    },
+  );
+  return response.data;
 };
 
 export const Summarize = async (postId: number): Promise<GetSummarizeMarkdownResponse | null> => {

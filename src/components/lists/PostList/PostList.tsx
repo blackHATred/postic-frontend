@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './styles.module.scss';
 import PostComponent from '../../cards/Post/Post';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { getPostsStore, setPosts } from '../../../stores/postsSlice';
+import { getPostsStore, setPosts, setPostsScroll } from '../../../stores/postsSlice';
 import { Post } from '../../../models/Post/types';
 import { getPosts } from '../../../api/api';
 import dayjs from 'dayjs';
@@ -18,12 +18,17 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   const posts = useAppSelector(getPostsStore);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
+  const scroll = useAppSelector((state) => state.posts.postsScroll);
+  const [lastActive, setLast] = useState('');
 
   // Загрузка постов при изменении фильтра или команды
   React.useEffect(() => {
-    if (activeFilter) {
+    if (activeFilter && lastActive) {
       //dispatch(setSelectedPostId(0));
+
       dispatch(setPosts([]));
+    } else {
+      setLast(activeFilter);
     }
   }, [activeFilter]);
 
@@ -38,7 +43,6 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
       } else {
         result = await getPosts(teamId, limit, currentDate, activeFilter, before);
       }
-      console.log('loadPosts', result, activeFilter);
       return result.posts;
     } catch (error) {
       return [];
@@ -57,7 +61,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
             dispatch(setPosts(data));
           }}
           getNewData={loadPosts}
-          initialScroll={0}
+          initialScroll={scroll}
           frame_size={10}
           empty_text={
             activeFilter === 'scheduled'
@@ -66,6 +70,9 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
                 ? 'Нет опубликованных постов'
                 : 'Нет постов'
           }
+          setInitialScroll={(scroll: number) => {
+            dispatch(setPostsScroll(scroll));
+          }}
         />
       )}
     </div>

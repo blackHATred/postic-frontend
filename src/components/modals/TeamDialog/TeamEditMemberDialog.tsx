@@ -37,20 +37,15 @@ const TeamEditMemberDialog: React.FC = () => {
   const [empty_checkbox, setEmptyCheckbox] = useState('');
 
   const updateTeamList = () => {
-    MyTeams()
-      .then((res: { teams: Team[] }) => {
-        if (res.teams) {
-          dispatch(setTeams(res.teams));
-        }
-      })
-      .catch(() => {
-        console.log('Error getting teams');
-      });
+    MyTeams().then((res: { teams: Team[] }) => {
+      if (res.teams) {
+        dispatch(setTeams(res.teams));
+      }
+    });
   };
 
   useEffect(() => {
     if (isOpen) {
-      console.log(selectedMemberId, teamId, roles);
       if (roles) {
         const hasAdminRole = roles.includes('admin');
         setIsAdmin(hasAdminRole);
@@ -63,7 +58,6 @@ const TeamEditMemberDialog: React.FC = () => {
           setEmptyCheckbox('');
         }
       } else {
-        console.error('Error');
       }
     }
   }, [roles, selectedMemberId, teamId]);

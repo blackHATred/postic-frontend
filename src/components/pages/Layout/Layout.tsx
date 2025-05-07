@@ -34,7 +34,6 @@ const PageLayout: React.FC = () => {
           return '/' + el == loc || el == 'admin';
         }) == undefined)
     ) {
-      console.log(auth, selectedUser, teams, roles);
       navigate(routes.teams());
     }
   }, [teams, loc, auth]);

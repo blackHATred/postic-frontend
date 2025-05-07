@@ -20,15 +20,11 @@ const TeamCreateDialog: React.FC = () => {
   const notificationManager = useContext(NotificationContext);
 
   const updateTeamList = (created_team: Team) => {
-    MyTeams()
-      .then((res: { teams: Team[] }) => {
-        if (res.teams) {
-          if (!res.teams.includes(created_team)) dispatch(setTeams(res.teams));
-        }
-      })
-      .catch(() => {
-        console.log('Error getting teams');
-      });
+    MyTeams().then((res: { teams: Team[] }) => {
+      if (res.teams) {
+        if (!res.teams.includes(created_team)) dispatch(setTeams(res.teams));
+      }
+    });
   };
 
   const onOk = () => {

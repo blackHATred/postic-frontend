@@ -43,7 +43,6 @@ const AnswerDialog: FC = () => {
 
         try {
           const response = await ReplyIdeas(request);
-          console.log('Raw response:', response);
 
           // Проверка формата ответа и соответствующая обработка
           if (response && typeof response === 'object' && response.ideas) {
@@ -107,7 +106,6 @@ const AnswerDialog: FC = () => {
       text: replyText,
       attachments: fileIds,
     };
-    console.log('Ответ на коммент', req);
     Reply(req).then(() => clearFields());
     dispatch(setAnswerDialog(false));
   };
@@ -159,7 +157,6 @@ const AnswerDialog: FC = () => {
         <Avatar
           src={null}
           onError={() => {
-            console.log('img-error');
             return true;
           }}
         />

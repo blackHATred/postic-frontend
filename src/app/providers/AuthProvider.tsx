@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               }
             })
             .catch(() => {
-              console.log('Error getting teams');
               dispatch(setAuthorized('authorized'));
             });
         } else {

@@ -67,9 +67,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
         : dayjs().utc().format(),
       before,
       marked_as_ticket,
-    ).catch(() => {
-      console.log('bad');
-    });
+    );
     return createCommentTree(res ? (res.comments ? res.comments : []) : []);
   };
 
@@ -106,6 +104,9 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
           initialScroll={0}
           frame_size={3}
           empty_text={'нет комментариев'}
+          setInitialScroll={function (scroll: number): void {
+            throw new Error('Function not implemented.');
+          }}
         />
       )}
     </div>

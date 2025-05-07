@@ -13,6 +13,7 @@ interface InfiniteScroll {
     marked_as_ticket?: boolean,
   ) => Promise<any[]>;
   initialScroll: number;
+  setInitialScroll: (scroll: number) => void;
   frame_size: number;
   empty_text: string;
 }
@@ -26,7 +27,7 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   const [isLoadingTop, setIsLoadingTop] = React.useState(false);
   const [isLoadingBottom, setIsLoadingBottom] = React.useState(false);
 
-  const [at_bottom, setAtBottom] = React.useState(true);
+  const [at_bottom, setAtBottom] = React.useState(false);
   const [scrollToBottom, setScrollToBottom] = React.useState<'no' | 'smooth' | 'instant'>('no');
 
   const [addedTop, setAddedTop] = React.useState(0);
@@ -108,10 +109,8 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
           setIsLoadingTop(false);
           setIsLoadingBottom(false);
         }
-        //ref.current.scrollTop = props.initialScroll;
-
-        setAtBottom(true);
-        ref.current.scrollTop = 1000000;
+        ref.current.scrollTop = props.initialScroll;
+        setAtBottom(false);
         setIsLoading(false);
       } else {
         setIsLoading(true);
@@ -121,7 +120,6 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   }, [ref]);
 
   React.useEffect(() => {
-    console.log(ref.current?.scrollHeight, ref.current?.clientHeight);
     if (ref.current) setShould(ref.current.scrollHeight <= ref.current.clientHeight);
     if (ref.current && finalScroll != 0) {
       ref.current.scrollTop = finalScroll;
@@ -169,6 +167,7 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
 
   const handleScroll = (event: React.UIEvent) => {
     if (ref.current) {
+      props.setInitialScroll(ref.current.scrollTop);
       const max_scroll = ref.current.scrollHeight - ref.current.clientHeight;
       setAtBottom(ref.current.scrollTop >= max_scroll * 0.1);
       if (

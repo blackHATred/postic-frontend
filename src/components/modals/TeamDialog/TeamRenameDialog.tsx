@@ -27,15 +27,11 @@ const TeamRenameDialog: React.FC = () => {
   );
 
   const updateTeamList = () => {
-    MyTeams()
-      .then((res: { teams: Team[] }) => {
-        if (res.teams) {
-          dispatch(setTeams(res.teams));
-        }
-      })
-      .catch(() => {
-        console.log('Error getting teams');
-      });
+    MyTeams().then((res: { teams: Team[] }) => {
+      if (res.teams) {
+        dispatch(setTeams(res.teams));
+      }
+    });
   };
 
   const onOk = () => {

@@ -43,7 +43,6 @@ const LoginDialog: React.FC = () => {
                             }
                           })
                           .catch(() => {
-                            console.log('Error getting teams');
                             dispatch(setAuthorized('authorized'));
                           });
                       } else {

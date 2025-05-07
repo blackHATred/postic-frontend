@@ -23,7 +23,6 @@ const SideMenu: React.FC = () => {
 
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
-    console.log(filter);
   };
 
   const handleFilterAnalyticsChange = (filter: AnalyticsFilter) => {
@@ -31,7 +30,6 @@ const SideMenu: React.FC = () => {
   };
 
   const handleFilterTicketChange = (filter: TicketFilter) => {
-    console.log('filter', filter);
     dispatch(setTicketFilter(filter));
   };
 

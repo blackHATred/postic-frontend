@@ -35,7 +35,6 @@ const AnalyticsComponent: React.FC = () => {
           false,
         );
         const postIds = postsResponse.posts.map((post) => post.id);
-        console.log(postIds);
         for (const postId of postIds) {
           await UpdateStats({
             team_id: selectedTeamId,
@@ -51,18 +50,14 @@ const AnalyticsComponent: React.FC = () => {
           start: startDate.toISOString(),
           end: new Date().toISOString(),
         });
-        console.log('статистика', statsResponse);
         // statsResponse уже содержит нужные данные
         const transformedData = await transformStatsToAnalytics(statsResponse, selectedTeamId);
         setAnalyticsData(transformedData);
-        console.log('Преобразованные данные:', transformedData);
       } catch (error) {
-        console.error('Ошибка при получении аналитики:', error);
       } finally {
         setLoading(false);
       }
     };
-    console.log('исходные данные', analyticsData);
     fetchAndUpdateData();
   }, [selectedTeamId, currentPath]);
 
