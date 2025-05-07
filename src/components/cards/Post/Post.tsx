@@ -60,7 +60,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const [sticker, setSticker] = useState(null);
 
   const onCommentClick = () => {
-    dispatch(setSelectedPostId(post.id));
     dispatch(setComments([]));
     navigate(routes.post(post.id));
   };

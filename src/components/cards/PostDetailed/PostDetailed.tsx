@@ -19,7 +19,7 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
         <Text type='secondary' className={styles['post-name']}>
           Модератор {props.user_id}
         </Text>
-        {props.text}
+        <Text>{props.text}</Text>
       </div>
     </div>
   );
