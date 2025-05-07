@@ -19,7 +19,7 @@ import {
 } from '../../../stores/basePageDialogsSlice';
 import ru from 'antd/es/date-picker/locale/ru_RU';
 import { Post, sendPostResult } from '../../../models/Post/types';
-import { addPost, addScheduledPost, setSelectedPostId } from '../../../stores/postsSlice';
+import { addPost, setSelectedPostId } from '../../../stores/postsSlice';
 import { EmojiStyle } from 'emoji-picker-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -101,6 +101,7 @@ const CreatePostDialog: FC = () => {
 
   const [platformError, setPlatformError] = useState<string | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
+  const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
 
   const validateTextWithDebounce = React.useRef(
     debounce((text: string, fileCount: number, platforms: string[]) => {
@@ -193,7 +194,7 @@ const CreatePostDialog: FC = () => {
             res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date();
 
           if (isScheduledPost) {
-            dispatch(addScheduledPost(res.post));
+            if (activeFilter != 'published') dispatch(addPost(res.post));
           } else {
             dispatch(addPost(res.post));
             dispatch(setPostStatusDialog(true));

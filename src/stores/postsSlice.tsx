@@ -6,7 +6,6 @@ export type PostFilter = 'all' | 'published' | 'scheduled';
 
 export interface PostSliceState {
   posts: Post[];
-  scheduled_posts: Post[];
   isOpened: { [key: number]: boolean };
   selectedPostId: number;
   scrollToPost: boolean;
@@ -18,7 +17,6 @@ export interface PostSliceState {
 const initialState: PostSliceState = {
   posts: [],
   activePostFilter: 'all',
-  scheduled_posts: [],
   isOpened: {},
   selectedPostId: 0,
   scrollToPost: false,
@@ -35,10 +33,6 @@ export const postsSlice = createSlice({
 
     setScrollToPost: (state, action: PayloadAction<boolean>) => {
       state.scrollToPost = action.payload;
-    },
-
-    addScheduledPost: (state, action: PayloadAction<Post>) => {
-      state.scheduled_posts = [action.payload, ...state.scheduled_posts];
     },
 
     setPosts: (state, action: PayloadAction<Post[]>) => {
@@ -77,7 +71,6 @@ export const {
   setSelectedPostId,
   setScrollToPost,
   addPost,
-  addScheduledPost,
   addPosts,
   setPosts,
   setPostsScroll,
