@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, Table, TableColumnsType, Typography } from 'antd';
+import { Button, Divider, Dropdown, MenuProps, Table, TableColumnsType, Typography } from 'antd';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
-import { EditOutlined, KeyOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  KeyOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { Team } from '../../../models/Team/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
@@ -81,7 +88,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const handleRename = () => {
     dispatch(setRenameTeamDialog(true));
-    //dispatch(setOldTeamName(oldTeamName));
     dispatch(setSelectedTeamId?.(id));
   };
 
@@ -177,34 +183,60 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const endIndex = startIndex + pagination.pageSize;
   const paginatedData = tabledata.slice(startIndex, endIndex);
 
+  const items: MenuProps['items'] = [
+    {
+      label: 'Секретный ключ',
+      key: 'secret',
+      icon: <KeyOutlined />,
+    },
+    {
+      label: 'Привязать платформу',
+      key: 'platform',
+      icon: <QuestionCircleOutlined />,
+    },
+  ];
+
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    switch (e.key) {
+      case 'secret': {
+        dispatch(setSelectedTeamId?.(id));
+        dispatch(setPersonalInfoDialog(true));
+        return;
+      }
+      case 'platform': {
+        //dispatch(setRegiserDialog(true));
+        return;
+      }
+    }
+  };
+
+  const menuProps = {
+    items,
+    onClick: handleMenuClick,
+  };
+
   return (
     <div className={styles['post']}>
       {/* хедер*/}
       <div className={styles['post-header']}>
-        <div className={styles['post-header-info-text']}>
-          <Text strong>Команда: </Text>
-          <Text className={styles['teamName']} strong>
-            {team_name}
-          </Text>
-        </div>
-        <div className={styles['post-header-buttons']}>
+        <div className={styles['post-header-info']}>
+          <div className={styles['post-header-info-text']}>
+            <Text strong>Команда: </Text>
+            <Text className={styles['teamName']} strong>
+              {team_name}
+            </Text>
+          </div>
           {isUserAdmin && (
-            <div className={styles['post-header-buttons-pair']}>
-              <ClickableButton
-                type='text'
-                variant='solid'
-                icon={<EditOutlined />}
-                onButtonClick={handleRename}
-              />
-              <ClickableButton
-                type='text'
-                variant='solid'
-                onButtonClick={handleKeyClick}
-                icon={<KeyOutlined className={styles['icon-primary']} />}
-              />
-            </div>
+            <ClickableButton
+              type='text'
+              size={'small'}
+              icon={<EditOutlined />}
+              onButtonClick={handleRename}
+            />
           )}
+        </div>
 
+        <div className={styles['post-header-buttons']}>
           <div className={styles['post-header-buttons-pair']}>
             <ClickableButton
               text='Покинуть команду'
@@ -216,12 +248,17 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
               onButtonClick={handleKick}
             />
             {isUserAdmin && (
-              <ClickableButton
-                text='Добавить участника'
-                icon={<PlusOutlined />}
-                color='primary'
-                onButtonClick={handleAddMember}
-              />
+              <>
+                <ClickableButton
+                  text='Добавить участника'
+                  icon={<PlusOutlined />}
+                  color='primary'
+                  onButtonClick={handleAddMember}
+                />
+                <Dropdown menu={menuProps} placement='bottom'>
+                  <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
+                </Dropdown>
+              </>
             )}
           </div>
         </div>

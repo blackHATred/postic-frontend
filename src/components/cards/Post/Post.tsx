@@ -161,7 +161,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
         <div className={styles['post-content-text']}>
           <Paragraph
             style={{ whiteSpace: 'pre-line' }}
-            ellipsis={ellipsis ? { rows: 4, expandable: true, symbol: 'Читать далее' } : false}
+            ellipsis={ellipsis ? { rows: 8, expandable: true, symbol: 'Читать далее' } : false}
           >
             {post.text}
           </Paragraph>
