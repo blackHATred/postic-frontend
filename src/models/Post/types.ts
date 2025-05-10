@@ -11,7 +11,7 @@ export interface Post {
   team_id: number;
 }
 
-interface PostAttachment {
+export interface PostAttachment {
   id: number;
   file_path: string;
   file_type: string;

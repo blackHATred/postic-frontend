@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { Divider, Space, Typography, Image, Carousel } from 'antd';
+import React, { useRef, useState } from 'react';
+import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
 import ClickableButton from '../../ui/Button/Button';
@@ -17,8 +17,7 @@ import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/l
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
-import { getUpload, getUploadUrl } from '../../../api/api';
-import Lottie, { LottieRefCurrentProps } from 'lottie-react';
+import MediaRenderer from '../Comment/MediaRenderer';
 
 const { Text, Paragraph } = Typography;
 
@@ -55,9 +54,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     : [];
   const help_mode = useAppSelector((state) => state.settings.helpMode);
   const navigate = useNavigate();
-  const LazyVideo = React.lazy(() => import('react-player'));
-  const LottieRef = useRef<LottieRefCurrentProps>(null);
-  const [sticker, setSticker] = useState(null);
 
   const onCommentClick = () => {
     dispatch(setComments([]));
@@ -68,22 +64,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     dispatch(setSummaryDialog(true));
     dispatch(setSelectedPostId(post.id));
   };
-
-  useEffect(() => {
-    if (
-      post &&
-      post.attachments &&
-      post.attachments.length > 0 &&
-      post.attachments[0] &&
-      post.attachments[0].file_type == 'sticker'
-    ) {
-      getUpload(post.attachments[0].id).then((data: any) => {
-        setSticker(data);
-      });
-    } else {
-      return;
-    }
-  }, []);
 
   return (
     <div
@@ -174,60 +154,12 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 <Text className={styles.primaryText}>{attachment.file_path}</Text>
               </div>
             ))}
-          {attach_images.length > 0 &&
-            (attach_images.length > 1 ? (
-              <Carousel arrows className={styles['images']}>
-                {attach_images.map((preview) => (
-                  <div key={preview.id}>
-                    {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
-                      <Suspense fallback={<div className={styles['images']}></div>}>
-                        <LazyVideo
-                          controls
-                          light
-                          url={getUploadUrl(preview.id)}
-                          height={250}
-                          width={'100%'}
-                          className={styles['video']}
-                        />
-                      </Suspense>
-                    ) : (
-                      <Image
-                        className={styles['image']}
-                        height={250}
-                        src={getUploadUrl(preview.id)}
-                      />
-                    )}
-                  </div>
-                ))}
-              </Carousel>
-            ) : attach_images[0].file_path.endsWith('.webm') ||
-              attach_images[0].file_path.endsWith('.mp4') ? (
-              <Suspense fallback={<div className={styles['images']}></div>}>
-                <LazyVideo
-                  controls
-                  light
-                  url={getUploadUrl(attach_images[0].id)}
-                  height={250}
-                  width={'100%'}
-                  className={styles['video']}
-                />
-              </Suspense>
-            ) : attach_images[0].file_type == 'sticker' &&
-              attach_images[0].file_path.endsWith('.json') ? (
-              <Lottie
-                lottieRef={LottieRef}
-                className={styles['image']}
-                animationData={sticker}
-                loop={false}
-                onClick={() => {
-                  LottieRef.current?.goToAndPlay(0);
-                }}
-              />
-            ) : (
-              <div key={attach_images[0].id} className={styles['image']}>
-                <Image height={250} src={getUploadUrl(attach_images[0].id)} />
-              </div>
-            ))}
+          {attach_images.length > 0 && (
+            <div className={styles['images']}>
+              {' '}
+              <MediaRenderer attach_images={attach_images} />
+            </div>
+          )}
         </div>
 
         <div className={styles['post-content-buttons']}>

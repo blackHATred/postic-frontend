@@ -6,7 +6,7 @@
 }
 
 .post {
-  height: auto;
+  height: 69px;
   padding: 5px 24px;
   background-color: $container-color;
   display: flex;
@@ -31,4 +31,13 @@
   flex-direction: column;
   gap: 5px;
   padding: 5px 0;
+  width: 95%;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  display: inline-block;
 }

@@ -4,16 +4,15 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  text-overflow: ellipsis;
 }
 
 .postSection {
-  height: 50px;
+  height: 69px;
 }
 
 .commentsSection {
-  height: calc(100% - 50px);
-  min-width: 0;
-  border-top: 1px solid #f0f0f0;
+  height: calc(100% - 69px);
   width: 95%;
   margin-left: auto;
   margin-right: auto;
