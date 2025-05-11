@@ -7,12 +7,12 @@
 
 .post {
   height: 69px;
-  padding: 5px 15px;
+  padding: 5px 10px;
   background-color: $container-color;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   z-index: 100;
@@ -37,6 +37,15 @@
   width: auto;
   gap: 5px;
   overflow: hidden;
+  padding-top: 5px;
+}
+
+.preview {
+  height: 100%;
+  width: 75px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .button-right {
@@ -49,4 +58,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+.button-left {
+  aspect-ratio: 1/1;
 }
