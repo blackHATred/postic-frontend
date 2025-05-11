@@ -47,6 +47,7 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
             height={'100%'}
             width={'100%'}
             style={{ objectFit: 'contain' }}
+            preview={false}
             src={getUploadUrl(attach_images[0].id)}
           />
         </div>
