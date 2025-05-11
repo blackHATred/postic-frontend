@@ -6,8 +6,8 @@
 }
 
 .post {
-  height: auto;
-  padding: 5px 24px;
+  height: 69px;
+  padding: 5px 15px;
   background-color: $container-color;
   display: flex;
   flex-direction: row;
@@ -26,9 +26,27 @@
   border-bottom-right-radius: $border-radius;
 }
 
+.post-name {
+  width: 100%;
+}
+
 .content {
-  display: flex;
+  display: inline-block;
+  height: 100%;
   flex-direction: column;
+  width: auto;
   gap: 5px;
-  padding: 5px 0;
+  overflow: hidden;
+}
+
+.button-right {
+  margin-left: auto;
+}
+
+.ellipsis {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }

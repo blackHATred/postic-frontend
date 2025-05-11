@@ -28,7 +28,7 @@ export interface Comment {
   marked_as_ticket: boolean;
 }
 
-interface CommentAttachments {
+export interface CommentAttachments {
   id: number;
   comment_id: number;
   file_type: string;

@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { Divider, Space, Typography, Image, Carousel } from 'antd';
+import React, { useRef, useState } from 'react';
+import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
 import ClickableButton from '../../ui/Button/Button';
@@ -11,14 +11,13 @@ import Icon, {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
-import { setSelectedPostId } from '../../../stores/postsSlice';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
-import { getUpload, getUploadUrl } from '../../../api/api';
-import Lottie, { LottieRefCurrentProps } from 'lottie-react';
+import MediaRenderer from '../Comment/MediaRenderer';
+import { DeletePost } from '../../../api/api';
+import { PostReq } from '../../../models/Analytics/types';
 
 const { Text, Paragraph } = Typography;
 
@@ -53,11 +52,8 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
         (el) => el.file_type === 'photo' || el.file_type === 'video' || el.file_type === 'sticker',
       )
     : [];
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
+
   const navigate = useNavigate();
-  const LazyVideo = React.lazy(() => import('react-player'));
-  const LottieRef = useRef<LottieRefCurrentProps>(null);
-  const [sticker, setSticker] = useState(null);
 
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const selectedUser = useAppSelector((state) => state.teams.currentUserId);
@@ -74,27 +70,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     dispatch(setComments([]));
     navigate(routes.post(post.id));
   };
-
-  const onSummaryClick = async () => {
-    dispatch(setSummaryDialog(true));
-    dispatch(setSelectedPostId(post.id));
-  };
-
-  useEffect(() => {
-    if (
-      post &&
-      post.attachments &&
-      post.attachments.length > 0 &&
-      post.attachments[0] &&
-      post.attachments[0].file_type == 'sticker'
-    ) {
-      getUpload(post.attachments[0].id).then((data: any) => {
-        setSticker(data);
-      });
-    } else {
-      return;
-    }
-  }, []);
 
   return (
     <div
@@ -140,24 +115,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               ) : (
                 <></>
               )}
-
-              {help_mode ? (
-                <ClickableButton
-                  text='Анализ комментариев'
-                  variant='dashed'
-                  color='primary'
-                  onButtonClick={onSummaryClick}
-                  withPopover={true}
-                  popoverContent={'Получить краткий анализ комментариев'}
-                />
-              ) : (
-                <ClickableButton
-                  text='Анализ комментариев'
-                  variant='dashed'
-                  color='primary'
-                  onButtonClick={onSummaryClick}
-                />
-              )}
             </>
           )}
           {post.pub_datetime && new Date(post.pub_datetime) > new Date() && (
@@ -185,60 +142,12 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 <Text className={styles.primaryText}>{attachment.file_path}</Text>
               </div>
             ))}
-          {attach_images.length > 0 &&
-            (attach_images.length > 1 ? (
-              <Carousel arrows className={styles['images']}>
-                {attach_images.map((preview) => (
-                  <div key={preview.id}>
-                    {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
-                      <Suspense fallback={<div className={styles['images']}></div>}>
-                        <LazyVideo
-                          controls
-                          light
-                          url={getUploadUrl(preview.id)}
-                          height={250}
-                          width={'100%'}
-                          className={styles['video']}
-                        />
-                      </Suspense>
-                    ) : (
-                      <Image
-                        className={styles['image']}
-                        height={250}
-                        src={getUploadUrl(preview.id)}
-                      />
-                    )}
-                  </div>
-                ))}
-              </Carousel>
-            ) : attach_images[0].file_path.endsWith('.webm') ||
-              attach_images[0].file_path.endsWith('.mp4') ? (
-              <Suspense fallback={<div className={styles['images']}></div>}>
-                <LazyVideo
-                  controls
-                  light
-                  url={getUploadUrl(attach_images[0].id)}
-                  height={250}
-                  width={'100%'}
-                  className={styles['video']}
-                />
-              </Suspense>
-            ) : attach_images[0].file_type == 'sticker' &&
-              attach_images[0].file_path.endsWith('.json') ? (
-              <Lottie
-                lottieRef={LottieRef}
-                className={styles['image']}
-                animationData={sticker}
-                loop={false}
-                onClick={() => {
-                  LottieRef.current?.goToAndPlay(0);
-                }}
-              />
-            ) : (
-              <div key={attach_images[0].id} className={styles['image']}>
-                <Image height={250} src={getUploadUrl(attach_images[0].id)} />
-              </div>
-            ))}
+          {attach_images.length > 0 && (
+            <div className={styles['images']}>
+              {' '}
+              <MediaRenderer attach_images={attach_images} />
+            </div>
+          )}
         </div>
 
         <div className={styles['post-content-buttons']}>
@@ -253,8 +162,19 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
             text='Удалить'
             variant='outlined'
             color='danger'
+            confirm
             icon={<DeleteOutlined />}
-            disabled={true}
+            onButtonClick={() => {
+              const info: PostReq = {
+                team_id: post.team_id,
+                post_union_id: post.id,
+              };
+              DeletePost(info).then((data: any) => {
+                if (data.status == 'ok') {
+                  console.info('COMMENT DELETED, REMOVE VISUALLY');
+                }
+              });
+            }}
           />
         </div>
       </div>

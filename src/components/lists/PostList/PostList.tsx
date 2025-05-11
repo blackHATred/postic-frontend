@@ -34,13 +34,18 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
   const loadPosts = async (before: boolean, limit: number, last_object?: Post) => {
     try {
       const currentDate = last_object
-        ? dayjs(last_object.created_at).utc().format()
+        ? before
+          ? dayjs(last_object.created_at).utc().format()
+          : dayjs(last_object.created_at).add(1, 'second').utc().format()
         : dayjs().utc().format();
       let result;
       if (activeFilter === 'all') {
         result = await getPosts(teamId, limit, currentDate, undefined, before);
       } else {
         result = await getPosts(teamId, limit, currentDate, activeFilter, before);
+      }
+      if (before == false) {
+        return [...result.posts].reverse();
       }
       return result.posts;
     } catch (error) {
@@ -61,7 +66,7 @@ const PostList: React.FC<PostListProps> = ({ isLoading, hasMore }) => {
           }}
           getNewData={loadPosts}
           initialScroll={scroll}
-          frame_size={10}
+          frame_size={3}
           empty_text={
             activeFilter === 'scheduled'
               ? 'Нет отложенных постов'

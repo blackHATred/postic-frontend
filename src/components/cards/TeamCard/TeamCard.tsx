@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Divider } from 'antd';
 import styles from './styles.module.scss';
 import { Team } from '../../../models/Team/types';
@@ -31,6 +31,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const [isUserAdmin, setIsUserAdmin] = useState(false);
   const currentUserId = useAppSelector((state) => state.teams.currentUserId);
   const [linkedPlatforms, setLinkedPlatforms] = useState<PlatformsRequest | null>(null);
+  const refer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (currentUserId !== null) {
@@ -64,8 +65,8 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
         await Kick({ kicked_user_id: currentUserId, team_id: id });
         const response = await MyTeams();
         if (response) {
-          dispatch(setTeams(response.teams));
-          dispatch(setGlobalActiveTeamId(0));
+          if (refer.current) refer.current.className += ' animation';
+          setTimeout(() => updateTeamList(), 350);
           dispatch(setComments([]));
         }
       } catch (error) {
@@ -78,10 +79,23 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const handleKickMember = (userId: number) => {
     if (userId !== null) {
-      Kick({ kicked_user_id: userId, team_id: id });
+      Kick({ kicked_user_id: userId, team_id: id }).then(() => {
+        updateTeamList();
+      });
     } else {
       console.error('Current user ID is null. Cannot kick user.');
     }
+  };
+
+  const updateTeamList = () => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+          dispatch(setGlobalActiveTeamId(0));
+        }
+      })
+      .catch(() => {});
   };
 
   const handleRename = () => {
@@ -114,7 +128,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   }));
 
   return (
-    <div className={styles['post']}>
+    <div className={styles['post']} ref={refer}>
       <TeamMenu
         teamName={team_name}
         teamID={id}

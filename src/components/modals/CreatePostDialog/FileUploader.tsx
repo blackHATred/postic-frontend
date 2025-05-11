@@ -58,7 +58,7 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
     setOpenDia(true);
     switch (e.key) {
       case '1': {
-        setFileTypes('.png,.jpg');
+        setFileTypes('.png,.jpg,.jpeg');
         break;
       }
       case '2': {
@@ -84,10 +84,20 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
 
   const handleFileUpload = async (file: File) => {
     if (!isFileAlreadyAdded(props.files, file)) {
+      const sizeMb = file.size / 1024 / 1024;
+      if (sizeMb > 100) {
+        NotificationManager.createNotification(
+          'error',
+          `Файл ${file.name} не загружен.`,
+          'Размер файла превышает 100мб.',
+        );
+        return 'Размер файла превышает 100мб';
+      }
+
       try {
         let t = '';
         switch (file_types) {
-          case '.png,.jpg': {
+          case '.png,.jpg,.jpeg': {
             t = 'photo';
             break;
           }
@@ -99,10 +109,18 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
             t = 'raw';
           }
         }
+        if (sizeMb > 10 && t == 'photo') {
+          NotificationManager.createNotification(
+            'error',
+            `Файл ${file.name} не загружен.`,
+            'Размер фото превышает 10мб',
+          );
+          return 'Размер фото превышает 10мб';
+        }
         const uploadResult = await uploadFile(file, t);
         props.addFiles(uploadResult.file_id, file);
-        return true;
-      } catch (error) {
+        return '';
+      } catch (error: any) {
         if (isAxiosError(error)) {
           NotificationManager.createNotification(
             'error',
@@ -116,7 +134,8 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
             'Ошибка обработки файла',
           );
         }
-        return false;
+        console.log(error.code);
+        return 'Ошибка загрузки ресурса';
       }
     } else {
       NotificationManager.createNotification(
@@ -124,7 +143,7 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         `Файл ${file.name} не загружен.`,
         'Дубликаты файлов не разрешены',
       );
-      return false;
+      return 'Дубликаты не разрешены';
     }
   };
 
@@ -151,11 +170,16 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         accept={file_types}
         openFileDialogOnClick={open_da}
         customRequest={(obj: any) => {
-          handleFileUpload(obj.file).then((f: boolean) => {
-            if (f) obj.onSuccess();
-            else obj.onError();
+          handleFileUpload(obj.file).then((f: string) => {
+            if (!f) {
+              obj.response = 'Успех';
+              obj.onSuccess();
+            } else {
+              obj.onError(null, f, obj.file);
+            }
           });
         }}
+        onPreview={() => {}}
       >
         <div style={{ textAlign: 'center', margin: '16px 0' }}>
           <Dropdown menu={menuProps}>
