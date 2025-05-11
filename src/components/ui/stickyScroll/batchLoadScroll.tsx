@@ -54,7 +54,7 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
   };
 
   const onGot = (data: any[], top = true) => {
-    if (data.length > 0) setAddedItems(data);
+    if (data && data.length > 0) setAddedItems(data);
     else {
       setIsLoadingTop(false);
       setIsLoading(false);
