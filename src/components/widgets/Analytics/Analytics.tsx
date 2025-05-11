@@ -12,18 +12,26 @@ import CircularChart from '../../ui/Charts/CircularChart';
 import { getPosts, UpdateStats, GetStats } from '../../../api/api';
 import { transformStatsToAnalytics } from '../../../utils/transformData';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Empty } from 'antd';
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [analyticsData, setAnalyticsData] = useState<PostAnalytics[]>([]);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const posts = useAppSelector((state) => state.posts.posts);
+  const hasPosts = posts.length > 0;
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
   useEffect(() => {
     const fetchAndUpdateData = async () => {
+      if (!hasPosts) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         const postsResponse = await getPosts(
@@ -49,16 +57,27 @@ const AnalyticsComponent: React.FC = () => {
           start: startDate.toISOString(),
           end: new Date().toISOString(),
         });
-        // statsResponse уже содержит нужные данные
         const transformedData = await transformStatsToAnalytics(statsResponse, selectedTeamId);
         setAnalyticsData(transformedData);
       } catch (error) {
+        console.error('Ошибка при загрузке аналитики:', error);
       } finally {
         setLoading(false);
       }
     };
     fetchAndUpdateData();
-  }, [selectedTeamId, currentPath]);
+  }, [selectedTeamId, currentPath, hasPosts]);
+
+  if (!hasPosts) {
+    return (
+      <div className={styles.analyticsContainer}>
+        <Empty
+          description='Для отображения аналитики необходимо создать хотя бы один пост'
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.analyticsContainer}>

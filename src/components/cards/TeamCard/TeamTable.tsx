@@ -57,20 +57,23 @@ const TeamTable: React.FC<TeamTableProps> = ({
     {
       title: 'Права',
       dataIndex: 'access',
-      render: (roles: string[], row: DataType) => (
-        <button
-          onClick={() => onEditMember(row.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#1890ff',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          {formatRoles(roles)}
-        </button>
-      ),
+      render: (roles: string[], row: DataType) =>
+        isUserAdmin ? (
+          <button
+            onClick={() => onEditMember(row.id)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#1890ff',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            {formatRoles(roles)}
+          </button>
+        ) : (
+          <span>{formatRoles(roles)}</span>
+        ),
     },
     {
       title: '',
@@ -106,6 +109,10 @@ const TeamTable: React.FC<TeamTableProps> = ({
         total: members.length,
       }}
       onChange={handleTableChange}
+      rowClassName={(record) => (record.id === currentUserId ? 'current-user-row' : '')}
+      onRow={(record) => ({
+        style: record.id === currentUserId ? { backgroundColor: 'rgba(24,144,255,0.07)' } : {},
+      })}
     />
   );
 };
