@@ -167,14 +167,22 @@ const CreatePostDialog: FC = () => {
   };
 
   const goToPreviousStep = () => {
+    setContentError('');
+    setSelectedDate(null);
+    setIsTimePickerVisible(false);
     setCurrentStep(currentStep - 1);
   };
 
   const onOk = () => {
-    const textError = validateTextLength();
-    if (textError) {
-      setContentError(textError);
-      return;
+    if (selectedDate) {
+      if (selectedDate <= dayjs()) {
+        setContentError('Дата должна быть позже нынешнего времени');
+        return;
+      }
+      if (selectedDate >= dayjs().add(1, 'year')) {
+        setContentError('Дата должна быть не позже чем через год от нынешнего времени');
+        return;
+      }
     }
 
     const postPayload = {
@@ -364,13 +372,28 @@ const CreatePostDialog: FC = () => {
               placeholder='Выберите дату и время'
               showTime
               locale={buddhistLocale}
+              status={contentError ? 'error' : ''}
               defaultValue={dayjs()}
               onChange={(date: Dayjs | null) => {
                 setSelectedDate(date);
+                if (date) {
+                  if (date <= dayjs()) {
+                    setContentError('Дата должна быть позже нынешнего времени');
+                    return;
+                  } else if (date >= dayjs().add(1, 'year')) {
+                    setContentError('Дата должна быть не позже чем через год от нынешнего времени');
+                    return;
+                  } else {
+                    setContentError('');
+                  }
+                } else {
+                  setContentError('');
+                }
               }}
             />
           </div>
         )}
+        <Text type='danger'>{contentError}</Text>
       </div>
     </>
   );
