@@ -32,23 +32,25 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
         </Text>
         <Text className={styles['ellipsis']}>{props.text}</Text>
       </div>
-      {help_mode ? (
-        <ClickableButton
-          text='Анализ комментариев'
-          variant='dashed'
-          color='primary'
-          onButtonClick={onSummaryClick}
-          withPopover={true}
-          popoverContent={'Получить краткий анализ комментариев'}
-        />
-      ) : (
-        <ClickableButton
-          text='Анализ комментариев'
-          variant='dashed'
-          color='primary'
-          onButtonClick={onSummaryClick}
-        />
-      )}
+      <div className={styles['button-right']}>
+        {help_mode ? (
+          <ClickableButton
+            text='Анализ комментариев'
+            variant='dashed'
+            color='primary'
+            onButtonClick={onSummaryClick}
+            withPopover={true}
+            popoverContent={'Получить краткий анализ комментариев'}
+          />
+        ) : (
+          <ClickableButton
+            text='Анализ комментариев'
+            variant='dashed'
+            color='primary'
+            onButtonClick={onSummaryClick}
+          />
+        )}
+      </div>
     </div>
   );
 };

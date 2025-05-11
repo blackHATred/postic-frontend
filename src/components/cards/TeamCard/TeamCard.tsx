@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Divider, Table, TableColumnsType, Typography } from 'antd';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
@@ -11,9 +11,11 @@ import {
   setRenameTeamDialog,
   setSelectedMemberId,
   setSelectedTeamId,
+  setTeams,
 } from '../../../stores/teamSlice';
-import { Kick } from '../../../api/teamApi';
+import { Kick, MyTeams } from '../../../api/teamApi';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
+import './selected_style.css';
 
 const { Text } = Typography;
 
@@ -31,6 +33,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   const currentUserId = useAppSelector((state) => state.teams.currentUserId);
+  const refer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (currentUserId !== null) {
@@ -48,7 +51,10 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const handleKick = () => {
     if (currentUserId !== null) {
-      Kick({ kicked_user_id: currentUserId, team_id: id });
+      Kick({ kicked_user_id: currentUserId, team_id: id }).then(() => {
+        if (refer.current) refer.current.className += ' animation';
+        setTimeout(() => updateTeamList(), 350);
+      });
     } else {
       console.error('Current user ID is null. Cannot kick user.');
     }
@@ -56,10 +62,22 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const handleKickMember = (userId: number) => {
     if (userId !== null) {
-      Kick({ kicked_user_id: userId, team_id: id });
+      Kick({ kicked_user_id: userId, team_id: id }).then(() => {
+        updateTeamList();
+      });
     } else {
       console.error('Current user ID is null. Cannot kick user.');
     }
+  };
+
+  const updateTeamList = () => {
+    MyTeams()
+      .then((res: { teams: Team[] }) => {
+        if (res.teams) {
+          dispatch(setTeams(res.teams));
+        }
+      })
+      .catch(() => {});
   };
 
   const handleRename = () => {
@@ -161,7 +179,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const paginatedData = tabledata.slice(startIndex, endIndex);
 
   return (
-    <div className={styles['post']}>
+    <div className={styles['post']} ref={refer}>
       {/* хедер*/}
       <div className={styles['post-header']}>
         <div className={styles['post-header-info-text']}>

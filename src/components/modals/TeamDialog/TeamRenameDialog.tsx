@@ -4,9 +4,8 @@ import DialogBox, { DialogBoxProps } from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setRenameTeamDialog, setTeams } from '../../../stores/teamSlice';
-import { MyTeams, Rename } from '../../../api/teamApi';
+import { Rename } from '../../../api/teamApi';
 import { NotificationContext } from '../../../api/notification';
-import { Team } from '../../../models/Team/types';
 
 export interface TeamCreateDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
   setOpen: (value: boolean) => void;
@@ -25,14 +24,7 @@ const TeamRenameDialog: React.FC = () => {
         return value.id == teamId;
       })?.name,
   );
-
-  const updateTeamList = () => {
-    MyTeams().then((res: { teams: Team[] }) => {
-      if (res.teams) {
-        dispatch(setTeams(res.teams));
-      }
-    });
-  };
+  const teams = useAppSelector((value) => value.teams.teams);
 
   const onOk = () => {
     if (!teamName.trim()) {
@@ -54,6 +46,15 @@ const TeamRenameDialog: React.FC = () => {
 
         dispatch(setRenameTeamDialog(false));
 
+        dispatch(
+          setTeams(
+            [...teams].map((team) => {
+              if (team.id == teamId) return { ...team, name: teamName };
+              return team;
+            }),
+          ),
+        );
+
         form.resetFields();
         setTeamName('');
       })
@@ -64,7 +65,6 @@ const TeamRenameDialog: React.FC = () => {
           error.message || 'Не удалось создать команду',
         );
       });
-    updateTeamList();
   };
 
   useEffect(() => {
