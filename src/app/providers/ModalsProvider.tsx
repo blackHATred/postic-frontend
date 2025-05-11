@@ -11,6 +11,7 @@ import TeamCreateDialog from '../../components/modals/TeamDialog/TeamCreateDialo
 import TeamEditMemberDialog from '../../components/modals/TeamDialog/TeamEditMemberDialog';
 import TeamRenameDialog from '../../components/modals/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../components/modals/AnswerDialog/AnswerDialog';
+import PlatformsDialog from '../../components/modals/PlatformsDialog/PlatformsDialog';
 
 interface ModalsProviderProps {
   children: ReactNode;
@@ -32,6 +33,7 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <TeamEditMemberDialog />
       <TeamRenameDialog />
       <AnswerDialog />
+      <PlatformsDialog />
     </>
   );
 };

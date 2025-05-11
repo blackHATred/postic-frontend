@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Upload, Typography, MenuProps, Dropdown, Space } from 'antd';
-import { DownOutlined, FileImageOutlined, VideoCameraAddOutlined } from '@ant-design/icons';
+import { Upload, Typography, MenuProps, Dropdown, Space, Button } from 'antd';
+import {
+  DownOutlined,
+  FileImageOutlined,
+  PaperClipOutlined,
+  VideoCameraAddOutlined,
+} from '@ant-design/icons';
 import { isFileAlreadyAdded } from '../../../utils/validation';
 import { uploadFile } from '../../../api/api';
 import { NotificationContext } from '../../../api/notification';
@@ -179,8 +184,10 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         <div style={{ textAlign: 'center', margin: '16px 0' }}>
           <Dropdown menu={menuProps}>
             <Space ref={ref_upload}>
-              Загрузить
-              <DownOutlined />
+              <Button icon={<PaperClipOutlined />} type='dashed'>
+                Загрузить
+                <DownOutlined />
+              </Button>
             </Space>
           </Dropdown>
         </div>

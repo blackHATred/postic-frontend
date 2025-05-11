@@ -55,7 +55,7 @@ const MeDialog: React.FC = () => {
             <Text strong>Командный секретный ключ:</Text>
           </div>
           <div className={styles['secret-text-key']}>
-            <Text copyable> {secretTeamKey}</Text>
+            <Text copyable>{secretTeamKey}</Text>
           </div>
         </div>
       </BlueDashedTextBox>

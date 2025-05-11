@@ -5,6 +5,11 @@ import { Team } from '../models/Team/types';
 interface basicDialogState {
   isOpen: boolean;
 }
+export interface ActivePlatform {
+  platform: string;
+  isLinked: boolean;
+  name: string;
+}
 
 export interface teamSliceState {
   teams: Team[];
@@ -18,6 +23,9 @@ export interface teamSliceState {
   renameTeamDialog: basicDialogState;
   secretTeamDialog: basicDialogState;
   authorize_status: 'not_authorized' | 'loading' | 'authorized';
+  platformsDialog: basicDialogState;
+  selectedPlatform: string;
+  globalActivePlatforms: ActivePlatform[];
 }
 
 const initialState: teamSliceState = {
@@ -32,6 +40,9 @@ const initialState: teamSliceState = {
   renameTeamDialog: { isOpen: false },
   secretTeamDialog: { isOpen: false },
   authorize_status: 'loading',
+  platformsDialog: { isOpen: false },
+  selectedPlatform: '',
+  globalActivePlatforms: [],
 };
 
 export const teamSlice = createSlice({
@@ -79,6 +90,15 @@ export const teamSlice = createSlice({
     setAuthorized: (state, action: PayloadAction<'not_authorized' | 'loading' | 'authorized'>) => {
       state.authorize_status = action.payload;
     },
+    setPlatformsDialog: (state, action: PayloadAction<boolean>) => {
+      state.platformsDialog.isOpen = action.payload;
+    },
+    setSelectedPlatform: (state, action: PayloadAction<string>) => {
+      state.selectedPlatform = action.payload;
+    },
+    setGlobalActivePlatforms: (state, action: PayloadAction<ActivePlatform[]>) => {
+      state.globalActivePlatforms = action.payload;
+    },
   },
 });
 
@@ -96,6 +116,9 @@ export const {
   setRenameTeamDialog,
   setSecretTeamDialog,
   setAuthorized,
+  setPlatformsDialog,
+  setSelectedPlatform,
+  setGlobalActivePlatforms,
 } = teamSlice.actions;
 
 export const getTeamsFromStore = (state: RootState) => state.teams.teams;

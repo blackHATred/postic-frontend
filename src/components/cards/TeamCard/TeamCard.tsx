@@ -1,23 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Divider, Table, TableColumnsType, Typography } from 'antd';
+import { Divider } from 'antd';
 import styles from './styles.module.scss';
-import ClickableButton from '../../ui/Button/Button';
-import { EditOutlined, KeyOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Team } from '../../../models/Team/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
   setAddMemberDialog,
   setEditMemberDialog,
+  setGlobalActiveTeamId,
+  setPlatformsDialog,
   setRenameTeamDialog,
   setSelectedMemberId,
+  setSelectedPlatform,
   setSelectedTeamId,
   setTeams,
 } from '../../../stores/teamSlice';
-import { Kick, MyTeams } from '../../../api/teamApi';
+import { Kick, MyTeams, Platforms } from '../../../api/teamApi';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
-import './selected_style.css';
-
-const { Text } = Typography;
+import { setComments } from '../../../stores/commentSlice';
+import TeamMenu from './TeamMenu';
+import TeamTable, { DataType } from './TeamTable';
+import { PlatformsRequest } from '../../../models/Team/types';
 
 interface TeamCardProps {
   teamcard: Team;
@@ -26,20 +28,15 @@ interface TeamCardProps {
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const dispatch = useAppDispatch();
   const { id, name: team_name, users: team_members } = teamcard;
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-  });
   const [isUserAdmin, setIsUserAdmin] = useState(false);
-
   const currentUserId = useAppSelector((state) => state.teams.currentUserId);
+  const [linkedPlatforms, setLinkedPlatforms] = useState<PlatformsRequest | null>(null);
   const refer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (currentUserId !== null) {
       const userMember = team_members.find((member) => member.user_id === currentUserId);
       const isAdmin = userMember?.roles.includes('admin') || false;
-
       setIsUserAdmin(isAdmin);
     }
   }, [currentUserId, team_members]);
@@ -49,14 +46,34 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     dispatch(setAddMemberDialog(true));
   };
 
-  const handleKick = () => {
+  useEffect(() => {
+    const fetchPlatforms = async () => {
+      try {
+        const platforms = await Platforms(id);
+        setLinkedPlatforms(platforms);
+      } catch (error) {
+        console.error('Ошибка при получении привязанных платформ:', error);
+      }
+    };
+
+    fetchPlatforms();
+  }, [id]);
+
+  const handleKick = async () => {
     if (currentUserId !== null) {
-      Kick({ kicked_user_id: currentUserId, team_id: id }).then(() => {
-        if (refer.current) refer.current.className += ' animation';
-        setTimeout(() => updateTeamList(), 350);
-      });
+      try {
+        await Kick({ kicked_user_id: currentUserId, team_id: id });
+        const response = await MyTeams();
+        if (response) {
+          if (refer.current) refer.current.className += ' animation';
+          setTimeout(() => updateTeamList(), 350);
+          dispatch(setComments([]));
+        }
+      } catch (error) {
+        console.error('Ошибка при выходе из команды:', error);
+      }
     } else {
-      console.error('Current user ID is null. Cannot kick user.');
+      console.error('ID пользователя отсутствует. Невозможно выйти из команды.');
     }
   };
 
@@ -75,6 +92,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       .then((res: { teams: Team[] }) => {
         if (res.teams) {
           dispatch(setTeams(res.teams));
+          dispatch(setGlobalActiveTeamId(0));
         }
       })
       .catch(() => {});
@@ -82,91 +100,13 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const handleRename = () => {
     dispatch(setRenameTeamDialog(true));
-    //dispatch(setOldTeamName(oldTeamName));
     dispatch(setSelectedTeamId?.(id));
   };
 
-  const onEditMemberClick = async (userId: number) => {
-    const member = team_members.find((member) => member.user_id === userId);
+  const handleEditMember = (userId: number) => {
     dispatch(setEditMemberDialog(true));
     dispatch(setSelectedTeamId?.(id));
     dispatch(setSelectedMemberId(userId));
-  };
-  const roleTranslations: Record<string, string> = {
-    admin: 'администратор',
-    comments: 'комментарии',
-    posts: 'посты',
-    analytics: 'аналитика',
-  };
-
-  const formatRoles = (roles: string[]): string => {
-    if (roles.includes('admin')) {
-      return roleTranslations['admin'];
-    }
-    return roles.map((role) => roleTranslations[role] || role).join(', ');
-  };
-
-  interface DataType {
-    key: React.Key;
-    member: string;
-    id: number;
-    access: string[];
-  }
-
-  const columns: TableColumnsType<DataType> = [
-    {
-      title: 'Участники',
-      dataIndex: 'member',
-      render: (text: string) => <a>{text}</a>,
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-    },
-    {
-      title: 'Права',
-      dataIndex: 'access',
-      render: (roles: string[], row: DataType) => (
-        <button
-          onClick={() => onEditMemberClick(row.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#1890ff',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          {formatRoles(roles)}
-        </button>
-      ),
-    },
-    {
-      title: '',
-      dataIndex: '',
-      key: 'x',
-      render: (row: DataType) =>
-        isUserAdmin && row.id !== currentUserId ? (
-          <ClickableButton
-            type='link'
-            color='danger'
-            variant='filled'
-            icon={<MinusOutlined />}
-            onButtonClick={() => handleKickMember(row.id)}
-          />
-        ) : null,
-    },
-  ];
-
-  const tabledata: DataType[] = team_members.map((member) => ({
-    key: member.user_id,
-    member: member.user_id.toString(),
-    id: member.user_id,
-    access: member.roles,
-  }));
-
-  const handleTableChange = (newPagination: any) => {
-    setPagination(newPagination);
   };
 
   const handleKeyClick = () => {
@@ -174,71 +114,42 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     dispatch(setPersonalInfoDialog(true));
   };
 
-  const startIndex = (pagination.current - 1) * pagination.pageSize;
-  const endIndex = startIndex + pagination.pageSize;
-  const paginatedData = tabledata.slice(startIndex, endIndex);
+  const handlePlatformClick = (platform: string) => {
+    dispatch(setSelectedTeamId?.(id));
+    dispatch(setSelectedPlatform(platform));
+    dispatch(setPlatformsDialog(true));
+  };
+
+  const tableData: DataType[] = team_members.map((member) => ({
+    key: member.user_id,
+    member: member.user_id.toString(),
+    id: member.user_id,
+    access: member.roles,
+  }));
 
   return (
     <div className={styles['post']} ref={refer}>
-      {/* хедер*/}
-      <div className={styles['post-header']}>
-        <div className={styles['post-header-info-text']}>
-          <Text strong>Команда: </Text>
-          <Text className={styles['teamName']} strong>
-            {team_name}
-          </Text>
-        </div>
-        <div className={styles['post-header-buttons']}>
-          {isUserAdmin && (
-            <div className={styles['post-header-buttons-pair']}>
-              <ClickableButton
-                type='text'
-                variant='solid'
-                icon={<EditOutlined />}
-                onButtonClick={handleRename}
-              />
-              <ClickableButton
-                type='text'
-                variant='solid'
-                onButtonClick={handleKeyClick}
-                icon={<KeyOutlined className={styles['icon-primary']} />}
-              />
-            </div>
-          )}
-
-          <div className={styles['post-header-buttons-pair']}>
-            <ClickableButton
-              text='Покинуть команду'
-              type='primary'
-              color='danger'
-              variant='solid'
-              icon={<MinusOutlined />}
-              confirm
-              onButtonClick={handleKick}
-            />
-            {isUserAdmin && (
-              <ClickableButton
-                text='Добавить участника'
-                icon={<PlusOutlined />}
-                color='primary'
-                onButtonClick={handleAddMember}
-              />
-            )}
-          </div>
-        </div>
-      </div>
+      <TeamMenu
+        teamName={team_name}
+        teamID={id}
+        isUserAdmin={isUserAdmin}
+        onRename={handleRename}
+        onKick={handleKick}
+        onAddMember={handleAddMember}
+        onKeyClick={handleKeyClick}
+        onPlatformClick={handlePlatformClick}
+        linkedPlatforms={linkedPlatforms}
+      />
       <Divider className={styles.customDivider} />
       <div className={styles['post-content']}>
         <div className={styles['post-content-text']}>
           <div>
-            <Table<DataType>
-              columns={columns}
-              dataSource={paginatedData}
-              pagination={{
-                ...pagination,
-                total: tabledata.length,
-              }}
-              onChange={handleTableChange}
+            <TeamTable
+              members={tableData}
+              isUserAdmin={isUserAdmin}
+              currentUserId={currentUserId}
+              onEditMember={handleEditMember}
+              onKickMember={handleKickMember}
             />
           </div>
         </div>

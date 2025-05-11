@@ -12,8 +12,17 @@ import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setLoginDialog, setRegiserDialog } from '../../../stores/basePageDialogsSlice';
-import { getTeamsFromStore, setGlobalActiveTeamId } from '../../../stores/teamSlice';
+import {
+  ActivePlatform,
+  getTeamsFromStore,
+  setGlobalActivePlatforms,
+  setGlobalActiveTeamId,
+} from '../../../stores/teamSlice';
 import { setComments } from '../../../stores/commentSlice';
+import { Typography } from 'antd';
+import { Platforms } from '../../../api/teamApi';
+
+const { Text } = Typography;
 
 const ButtonHeader: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -79,7 +88,11 @@ const ButtonHeader: React.FC = () => {
 
   const teamOptions = teams.map((team) => ({
     value: team.id.toString(),
-    label: team.name,
+    label: (
+      <span>
+        {team.name} <Text type='secondary'>(id:{team.id})</Text>
+      </span>
+    ),
   }));
 
   useEffect(() => {
@@ -89,20 +102,77 @@ const ButtonHeader: React.FC = () => {
   }, [teams, selectedTeam]);
 
   useEffect(() => {
-    if (teamOptions[0] && !selectedTeam) {
-      const number = Number(teamOptions[0].value);
-      dispatch(setGlobalActiveTeamId(number));
-
+    //  у пользователя есть команды, но не выбрана конкретная команда
+    if (teams.length > 0 && !selectedTeam) {
+      setSelectedTeam(teams[0].id.toString());
+      dispatch(setGlobalActiveTeamId(teams[0].id));
       dispatch(setComments([]));
-      setSelectedTeam(teamOptions[0].value);
     }
-  }, [teamOptions, selectedTeam]);
+    //  у пользователя нет команд, сбрасываем выбранную команду
+    // TODO: проверить удаление всех команд
+    else if (teams.length === 0) {
+      setSelectedTeam(undefined);
+      dispatch(setGlobalActiveTeamId(0));
+      dispatch(setComments([]));
+    }
+  }, [teams, selectedTeam, dispatch]);
+
+  useEffect(() => {
+    // загрузка сохраненной команды при инициализации
+    const savedTeamId = localStorage.getItem('selectedTeamId');
+
+    if (teams.length > 0) {
+      const teamIdToUse =
+        savedTeamId && teams.some((t) => t.id === Number(savedTeamId))
+          ? savedTeamId
+          : teams[0].id.toString();
+
+      setSelectedTeam(teamIdToUse);
+      const teamId = Number(teamIdToUse);
+      dispatch(setGlobalActiveTeamId(teamId));
+
+      loadPlatformsForTeam(teamId);
+    } else {
+      setSelectedTeam(undefined);
+      dispatch(setGlobalActiveTeamId(0));
+      dispatch(setComments([]));
+    }
+  }, [teams, dispatch]);
+
+  const loadPlatformsForTeam = (teamId: number) => {
+    Platforms(teamId)
+      .then((platformsData) => {
+        const platforms: ActivePlatform[] = [
+          {
+            platform: 'vk',
+            isLinked: platformsData.platforms.vk_group_id !== 0,
+            name: 'ВКонтакте',
+          },
+          {
+            platform: 'tg',
+            isLinked: platformsData.platforms.tg_channel_id !== 0,
+            name: 'Telegram',
+          },
+        ];
+        dispatch(setGlobalActivePlatforms(platforms));
+      })
+      .catch((error) => {
+        console.error('Ошибка при получении платформ:', error);
+      });
+  };
 
   const handleChange = (value: string) => {
     setSelectedTeam(value);
-    dispatch(setGlobalActiveTeamId(Number(value)));
+    const teamId = Number(value);
 
+    // команду в localStorage, а то пропадает при перезагрузке
+    localStorage.setItem('selectedTeamId', value);
+
+    dispatch(setGlobalActiveTeamId(teamId));
     dispatch(setComments([]));
+
+    // чтоб платформы обновились
+    loadPlatformsForTeam(teamId);
   };
 
   return (

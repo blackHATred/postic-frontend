@@ -105,3 +105,20 @@
 .character-counter {
   margin-top: 1px;
 }
+
+.platforms-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.platforms-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.platforms-list-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}

@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 const PostDetailed: React.FC<Post> = (props: Post) => {
   const navigate = useNavigate();

@@ -7,6 +7,8 @@ import {
   KickUserRequest,
   TeamCreateRequest,
   MeSecretInfo,
+  PlatformsRequest,
+  SetVKRequest,
 } from '../models/Team/types';
 import { routes } from './routers/routes';
 import axiosInstance from './axiosConfig';
@@ -102,4 +104,31 @@ export const Secret = async (team_id: number): Promise<MeSecretInfo> => {
     },
   );
   return response.data;
+};
+
+export const Platforms = async (team_id: number): Promise<PlatformsRequest> => {
+  const response = await axiosInstance.get<PlatformsRequest>(
+    `${config.api.baseURL}${routes.teams()}/platforms`,
+    {
+      params: { team_id },
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
+
+export const SetVK = async (request: SetVKRequest): Promise<string> => {
+  try {
+    const response = await axiosInstance.put<string>(`${routes.teams()}/set_vk`, request);
+    if (response.status === 200) {
+      return 'ВК сообщество успешно привязано';
+    }
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      return error.response.data.error || 'Неизвестная ошибка';
+    } else {
+      return `Ошибка сети: ${(error as Error).message}`;
+    }
+  }
+  return 'Произошла неизвестная ошибка';
 };
