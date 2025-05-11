@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import { setComments } from '../../../stores/commentSlice';
 import MediaRenderer from '../Comment/MediaRenderer';
+import { DeletePost } from '../../../api/api';
+import { PostReq } from '../../../models/Analytics/types';
 
 const { Text, Paragraph } = Typography;
 
@@ -149,8 +151,19 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
             text='Удалить'
             variant='outlined'
             color='danger'
+            confirm
             icon={<DeleteOutlined />}
-            disabled={true}
+            onButtonClick={() => {
+              const info: PostReq = {
+                team_id: post.team_id,
+                post_union_id: post.id,
+              };
+              DeletePost(info).then((data: any) => {
+                if (data.status == 'ok') {
+                  console.info('COMMENT DELETED, REMOVE VISUALLY');
+                }
+              });
+            }}
           />
         </div>
       </div>

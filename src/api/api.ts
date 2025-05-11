@@ -22,11 +22,10 @@ import { routes } from './routers/routes';
 
 import axiosInstance from './axiosConfig';
 import {
-  GetPostStatsReq,
+  PostReq,
   GetPostStatsResponse,
   GetStatsReq,
   GetStatsResponse,
-  UpdateStatsReq,
 } from '../models/Analytics/types';
 
 export const uploadFile = async (file: File, type: string): Promise<UploadResult> => {
@@ -274,9 +273,7 @@ export const GetStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
   return response.data;
 };
 
-export const GetPostStats = async (
-  req: GetPostStatsReq,
-): Promise<{ resp: GetPostStatsResponse }> => {
+export const GetPostStats = async (req: PostReq): Promise<{ resp: GetPostStatsResponse }> => {
   const response = await axiosInstance.get<{ resp: GetPostStatsResponse }>(
     `${config.api.baseURL}${routes.analytics()}/stats/post`,
     {
@@ -287,7 +284,7 @@ export const GetPostStats = async (
   return response.data;
 };
 
-export const UpdateStats = async (req: UpdateStatsReq): Promise<{ message: string }> => {
+export const UpdateStats = async (req: PostReq): Promise<{ message: string }> => {
   const response = await axiosInstance.post<{ message: string }>(
     `${config.api.baseURL}${routes.analytics()}/stats/update`,
     req,
@@ -308,4 +305,15 @@ export const getUpload = async (id: number): Promise<any> => {
 
 export const getUploadUrl = (ID: number): string => {
   return `${config.api.baseURL}/upload/get/${ID}`;
+};
+
+export const DeletePost = async (req: PostReq): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete<{ message: string }>(
+    `${config.api.baseURL}${routes.posts()}/delete`,
+    {
+      withCredentials: true,
+      data: req,
+    },
+  );
+  return response.data;
 };

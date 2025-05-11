@@ -53,7 +53,7 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
     setOpenDia(true);
     switch (e.key) {
       case '1': {
-        setFileTypes('.png,.jpg');
+        setFileTypes('.png,.jpg,.jpeg');
         break;
       }
       case '2': {

@@ -41,12 +41,7 @@ export interface GetStatsResponse {
   }>;
 }
 
-export interface GetPostStatsReq {
-  team_id: number;
-  post_union_id: number;
-}
-
-export interface UpdateStatsReq {
+export interface PostReq {
   team_id: number;
   post_union_id: number;
 }
