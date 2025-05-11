@@ -26,18 +26,23 @@
   border-bottom-right-radius: $border-radius;
 }
 
+.post-name {
+  width: 100%;
+}
+
 .content {
-  display: flex;
+  display: inline-block;
+  height: 100%;
   flex-direction: column;
+  width: auto;
   gap: 5px;
-  padding: 5px 0;
-  width: 95%;
+  overflow: hidden;
 }
 
 .ellipsis {
+  display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
-  display: inline-block;
 }

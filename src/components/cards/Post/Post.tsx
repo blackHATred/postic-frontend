@@ -10,9 +10,7 @@ import Icon, {
   PaperClipOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
-import { setSelectedPostId } from '../../../stores/postsSlice';
+import { useAppDispatch } from '../../../stores/hooks';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
@@ -52,17 +50,12 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
         (el) => el.file_type === 'photo' || el.file_type === 'video' || el.file_type === 'sticker',
       )
     : [];
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
+
   const navigate = useNavigate();
 
   const onCommentClick = () => {
     dispatch(setComments([]));
     navigate(routes.post(post.id));
-  };
-
-  const onSummaryClick = async () => {
-    dispatch(setSummaryDialog(true));
-    dispatch(setSelectedPostId(post.id));
   };
 
   return (
@@ -108,24 +101,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 />
               ) : (
                 <></>
-              )}
-
-              {help_mode ? (
-                <ClickableButton
-                  text='Анализ комментариев'
-                  variant='dashed'
-                  color='primary'
-                  onButtonClick={onSummaryClick}
-                  withPopover={true}
-                  popoverContent={'Получить краткий анализ комментариев'}
-                />
-              ) : (
-                <ClickableButton
-                  text='Анализ комментариев'
-                  variant='dashed'
-                  color='primary'
-                  onButtonClick={onSummaryClick}
-                />
               )}
             </>
           )}

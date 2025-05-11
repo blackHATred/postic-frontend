@@ -261,9 +261,9 @@ const InfiniteScroll: React.FC<InfiniteScroll> = (props: InfiniteScroll) => {
       )}
       {props.data &&
         props.data.length > 0 &&
-        [...props.data].reverse().map((element: any, index: number) => {
+        [...props.data].reverse().map((element: any) => {
           return (
-            <div style={{ visibility: isLoading ? 'hidden' : 'visible' }} key={index}>
+            <div style={{ visibility: isLoading ? 'hidden' : 'visible' }} key={element.id}>
               {props.getObjectFromData(element)}
             </div>
           );

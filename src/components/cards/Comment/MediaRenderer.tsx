@@ -10,7 +10,6 @@ import { PostAttachment } from '../../../models/Post/types';
 interface MediaRenderer {
   attach_images: CommentAttachments[] | PostAttachment[];
 }
-const LazyVideo = React.lazy(() => import('react-player'));
 
 const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
   const [sticker, setSticker] = useState(null);
@@ -22,6 +21,7 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
       });
     }
   }, [props.attach_images]);
+  const LazyVideo = React.lazy(() => import('react-player'));
 
   if (props.attach_images.length > 1) {
     return (
