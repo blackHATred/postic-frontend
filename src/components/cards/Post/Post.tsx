@@ -59,6 +59,17 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const LottieRef = useRef<LottieRefCurrentProps>(null);
   const [sticker, setSticker] = useState(null);
 
+  const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const selectedUser = useAppSelector((state) => state.teams.currentUserId);
+  const teams = useAppSelector((state) => state.teams.teams);
+
+  const userRoles =
+    teams
+      .find((team) => team.id == selectedTeam)
+      ?.users.find((user) => user.user_id == selectedUser)?.roles || [];
+
+  const hasCommentsAccess = userRoles.some((role) => role === 'comments' || role === 'admin');
+
   const onCommentClick = () => {
     dispatch(setComments([]));
     navigate(routes.post(post.id));
@@ -117,7 +128,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
         <div className={styles['post-header-buttons']}>
           {(!post.pub_datetime || new Date(post.pub_datetime) <= new Date()) && (
             <>
-              {!isDetailed ? (
+              {!isDetailed && hasCommentsAccess ? (
                 <ClickableButton
                   text='Комментарии'
                   type='link'

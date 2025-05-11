@@ -33,6 +33,21 @@ export interface MeSecretInfo {
   secret: string;
 }
 
+export interface PlatformsRequest {
+  platforms: {
+    vk_group_id: number;
+    tg_channel_id: number;
+    tg_discussion_id: number;
+  };
+}
+
+export interface SetVKRequest {
+  team_id: number;
+  group_id: number;
+  admin_api_key: string;
+  group_api_key: string;
+}
+
 export const mockTeams: Team[] = [
   {
     id: 1,

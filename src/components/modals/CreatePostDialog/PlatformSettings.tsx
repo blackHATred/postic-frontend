@@ -15,7 +15,9 @@ const PlatformSettings: React.FC<PlatformSettingsProps> = ({ selectedPlatforms }
     {
       key: 'tg',
       label: 'Telegram',
-      children: <p>Длина поста - не более 4096 символа</p>,
+      children: (
+        <p>Длина поста - не более 4096 символа. При наличии файлов длина поста - не более 1024</p>
+      ),
     },
   ];
 

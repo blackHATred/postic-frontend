@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Typography, Input, Divider, Select, Switch, DatePicker, Form } from 'antd';
+import { Input, Divider, DatePicker, Form } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
@@ -25,6 +25,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
 import debounce from 'lodash/debounce';
+import { Checkbox, Button, Space, Typography } from 'antd';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 dayjs.extend(utc);
 
@@ -43,6 +45,7 @@ const buddhistLocale: typeof ru = {
 const MAX_TEXT_LENGTH = {
   vk: 16384,
   tg: 4096,
+  withFiles: 1024,
 };
 
 const emoji_config = [
@@ -110,9 +113,19 @@ const CreatePostDialog: FC = () => {
         return;
       }
 
+      const hasFiles = fileCount > 0;
+
       for (const platform of platforms) {
-        if (text.length > MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]) {
-          setContentError(`Длина текста превышает лимит для ${platform}`);
+        const maxLength = hasFiles
+          ? MAX_TEXT_LENGTH.withFiles
+          : MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH];
+
+        if (text.length > maxLength) {
+          setContentError(
+            hasFiles
+              ? `При наличии файлов длина текста ограничена до ${MAX_TEXT_LENGTH.withFiles} символов`
+              : `Длина текста превышает лимит для ${platform}`,
+          );
           return;
         }
       }
@@ -135,12 +148,17 @@ const CreatePostDialog: FC = () => {
       return 'Добавьте текст или прикрепите файл';
     }
 
+    const hasFiles = files.length > 0;
+
     for (const platform of selectedPlatforms) {
-      if (
-        platform in MAX_TEXT_LENGTH &&
-        postText.length > MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]
-      ) {
-        return `Длина текста превышает максимально допустимую для ${platform}: ${MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]} символов`;
+      const maxLength = hasFiles
+        ? MAX_TEXT_LENGTH.withFiles
+        : MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH];
+
+      if (postText.length > maxLength) {
+        return hasFiles
+          ? `При наличии файлов длина текста ограничена до ${MAX_TEXT_LENGTH.withFiles} символов`
+          : `Длина текста превышает максимально допустимую для ${platform}: ${MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]} символов`;
       }
     }
 
@@ -243,39 +261,98 @@ const CreatePostDialog: FC = () => {
       return filed.files.uid == file.uid;
     })[0].id;
     dispatch(removeFile(id));
-    setFiles(
-      files.filter((filed) => {
-        return filed.files.uid != file.uid;
-      }),
-    );
-    if (currentStep === 2 && postText.trim() === '' && files.length <= 1) {
-      setContentError('Добавьте текст или прикрепите файл');
+
+    const updatedFiles = files.filter((filed) => {
+      return filed.files.uid != file.uid;
+    });
+
+    setFiles(updatedFiles);
+
+    if (currentStep === 2) {
+      if (postText.trim() === '' && updatedFiles.length === 0) {
+        setContentError('Добавьте текст или прикрепите файл');
+      } else {
+        validateTextWithDebounce.current(postText, updatedFiles.length, selectedPlatforms);
+      }
     }
   };
 
-  const renderStep1 = () => (
-    <>
-      <div className={styles['post']}>
-        <Text strong>Выберите платформы для публикации</Text>
-        <Select
-          size='middle'
-          placeholder='Выберите платформы для публикации'
-          status={platformError ? 'error' : ''}
-          mode='multiple'
-          options={[
-            { value: 'vk', label: 'VK' },
-            { value: 'tg', label: 'Telegram' },
-          ]}
-          value={selectedPlatforms}
-          onChange={(values: string[]) => {
-            setSelectedPlatforms(values);
-            setPlatformError(values.length === 0 ? 'Выберите хотя бы одну платформу' : null);
-          }}
-        />
-        {platformError && <div className={styles['error-message']}>{platformError}</div>}
-      </div>
-    </>
-  );
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+  const linkedPlatforms = activePlatforms.filter((p) => p.isLinked);
+
+  const renderStep1 = () => {
+    const selectAll = () => {
+      setSelectedPlatforms(linkedPlatforms.map((p) => p.platform));
+      setPlatformError(null);
+    };
+
+    const clearAll = () => {
+      setSelectedPlatforms([]);
+    };
+
+    return (
+      <>
+        <div className={styles['post']}>
+          <div className={styles['platforms-header']}>
+            <Text strong>Выберите платформы для публикации</Text>
+          </div>
+
+          <div className={styles['platforms-list']}>
+            {linkedPlatforms.length > 0 ? (
+              <>
+                <div className={styles['platforms-list-buttons']}>
+                  <Button
+                    icon={<CheckOutlined />}
+                    size='small'
+                    variant='text'
+                    color='geekblue'
+                    onClick={selectAll}
+                    disabled={linkedPlatforms.length === 0}
+                  >
+                    Выбрать все
+                  </Button>
+                  <Button
+                    icon={<CloseOutlined />}
+                    size='small'
+                    variant='text'
+                    color='default'
+                    onClick={clearAll}
+                    disabled={selectedPlatforms.length === 0}
+                  >
+                    Очистить выбор
+                  </Button>
+                </div>
+                <div>
+                  <Checkbox.Group
+                    value={selectedPlatforms}
+                    onChange={(values) => {
+                      const selected = values as string[];
+                      setSelectedPlatforms(selected);
+                      setPlatformError(
+                        selected.length === 0 ? 'Выберите хотя бы одну платформу' : null,
+                      );
+                    }}
+                  >
+                    <Space direction='vertical'>
+                      {linkedPlatforms.map((platform) => (
+                        <Checkbox key={platform.platform} value={platform.platform}>
+                          {platform.name}
+                        </Checkbox>
+                      ))}
+                    </Space>
+                  </Checkbox.Group>
+                </div>
+              </>
+            ) : (
+              <Text type='secondary'>К команде не привязано ни одной платформы</Text>
+            )}
+          </div>
+
+          {platformError && <div className={styles['error-message']}>{platformError}</div>}
+        </div>
+      </>
+    );
+  };
 
   const renderStep2 = () => (
     <>
@@ -347,16 +424,18 @@ const CreatePostDialog: FC = () => {
     <>
       <div className={styles['post']}>
         <div className={styles['post-time']}>
-          <Switch
-            size='default'
-            onChange={(checked) => {
+          <Checkbox
+            checked={isTimePickerVisible}
+            onChange={(e) => {
+              const checked = e.target.checked;
               setIsTimePickerVisible(checked);
               if (!checked) {
                 setSelectedDate(null);
               }
             }}
-          />
-          <Text> {isTimePickerVisible ? 'Отложенная публикация' : 'Опубликовать сейчас'}</Text>
+          >
+            Сделать публикацию отложенной
+          </Checkbox>
         </div>
         {isTimePickerVisible && (
           <div className={styles['time-and-data']}>
@@ -413,11 +492,11 @@ const CreatePostDialog: FC = () => {
   const getTitle = () => {
     switch (currentStep) {
       case 1:
-        return 'Создание поста: Выбор платформ';
+        return 'Выбор платформ';
       case 2:
-        return 'Создание поста: Содержание';
+        return 'Содержание';
       case 3:
-        return 'Создание поста: Время публикации';
+        return 'Время публикации';
       default:
         return 'Создание поста';
     }
