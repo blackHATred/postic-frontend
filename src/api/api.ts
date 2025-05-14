@@ -116,6 +116,7 @@ export const sendPostRequest = async (post: sendPost): Promise<sendPostResult> =
       withCredentials: true,
     },
   );
+  console.log('post', post);
   return response.data;
 };
 

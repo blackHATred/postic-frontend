@@ -210,6 +210,7 @@ const CreatePostDialog: FC = () => {
       team_id: team_id,
       pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined,
     };
+    console.log(postPayload);
 
     sendPostRequest(postPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {
@@ -309,26 +310,30 @@ const CreatePostDialog: FC = () => {
             {linkedPlatforms.length > 0 ? (
               <>
                 <div className={styles['platforms-list-buttons']}>
-                  <Button
-                    icon={<CheckOutlined />}
-                    size='small'
-                    variant='text'
-                    color='geekblue'
-                    onClick={selectAll}
-                    disabled={linkedPlatforms.length === 0}
-                  >
-                    Выбрать все
-                  </Button>
-                  <Button
-                    icon={<CloseOutlined />}
-                    size='small'
-                    variant='text'
-                    color='default'
-                    onClick={clearAll}
-                    disabled={selectedPlatforms.length === 0}
-                  >
-                    Очистить выбор
-                  </Button>
+                  {selectedPlatforms.length > 1 && (
+                    <>
+                      <Button
+                        icon={<CheckOutlined />}
+                        size='small'
+                        variant='text'
+                        color='geekblue'
+                        onClick={selectAll}
+                        disabled={linkedPlatforms.length === 0}
+                      >
+                        Выбрать все
+                      </Button>
+                      <Button
+                        icon={<CloseOutlined />}
+                        size='small'
+                        variant='text'
+                        color='default'
+                        onClick={clearAll}
+                        disabled={selectedPlatforms.length === 0}
+                      >
+                        Очистить выбор
+                      </Button>
+                    </>
+                  )}
                 </div>
                 <div>
                   <Checkbox.Group

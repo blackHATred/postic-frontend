@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type AnalyticsFilter = '' | 'audience' | 'growth';
+export type AnalyticsFilter = '' | 'audience' | 'growth' | 'kpi';
 
 export interface AnalyticsSliceState {
   activeAnalyticsFilter: AnalyticsFilter;

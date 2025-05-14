@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.scss';
-import { PostAnalytics } from '../../../models/Analytics/types';
+import { mockUsersAnalytics, PostAnalytics, UserAnalytics } from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
 import TopEngagingPostsList from '../../ui/Charts/TopEngagingPostsList';
 import PeriodComparisonChart from '../../ui/Charts/PeriodComparisonChart';
 import HeatmapChart from '../../ui/Charts/HeatmapChart';
-import MarkerLineChart from '../../ui/Charts/MarkerLineChart';
 import CircularChart from '../../ui/Charts/CircularChart';
 import { getPosts, UpdateStats, GetStats } from '../../../api/api';
 import { transformStatsToAnalytics } from '../../../utils/transformData';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Empty } from 'antd';
+import KPIRadarChart from '../../ui/Charts/RadarChart';
+import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -24,6 +25,8 @@ const AnalyticsComponent: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  const [usersLoading, setUsersLoading] = useState<boolean>(true);
+  const [usersData, setUsersData] = useState<UserAnalytics[]>([]);
 
   useEffect(() => {
     const fetchAndUpdateData = async () => {
@@ -79,6 +82,31 @@ const AnalyticsComponent: React.FC = () => {
     );
   }
 
+  // Эффект для загрузки данных о KPI пользователей
+  useEffect(() => {
+    const fetchUsersData = async () => {
+      if (activeAnalytics !== 'kpi' || !hasPosts) {
+        return;
+      }
+
+      setUsersLoading(true);
+      try {
+        // В реальном приложении здесь должен быть API-запрос
+        // const response = await getUsersAnalytics({ team_id: selectedTeamId });
+
+        // Временно используем моковые данные
+        await new Promise((resolve) => setTimeout(resolve, 800)); // имитация задержки запроса
+        setUsersData(mockUsersAnalytics.users);
+      } catch (error) {
+        console.error('Ошибка при загрузке данных о пользователях:', error);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchUsersData();
+  }, [selectedTeamId, activeAnalytics, hasPosts]);
+
   return (
     <div className={styles.analyticsContainer}>
       {activeAnalytics === '' && (
@@ -89,7 +117,6 @@ const AnalyticsComponent: React.FC = () => {
       )}
       {activeAnalytics === 'audience' && (
         <div className={styles['spacer']}>
-          <MarkerLineChart data={analyticsData} loading={loading} />
           <EngagementDashboard data={analyticsData} loading={loading} />
           <TopEngagingPostsList data={analyticsData} loading={loading} />
           <HeatmapChart data={analyticsData} loading={loading} />
@@ -98,6 +125,12 @@ const AnalyticsComponent: React.FC = () => {
       {activeAnalytics === 'growth' && (
         <div className={styles['spacer']}>
           <PeriodComparisonChart data={analyticsData} loading={loading} />
+        </div>
+      )}
+      {activeAnalytics === 'kpi' && (
+        <div className={styles['spacer']}>
+          <KPIRadarChart data={usersData} loading={usersLoading} height={400} />
+          <KPIColumnChart data={usersData} loading={usersLoading} height={400} />
         </div>
       )}
     </div>
