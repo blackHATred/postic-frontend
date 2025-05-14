@@ -5,15 +5,15 @@ import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
 import TopEngagingPostsList from '../../ui/Charts/TopEngagingPostsList';
-import PeriodComparisonChart from '../../ui/Charts/PeriodComparisonChart';
 import HeatmapChart from '../../ui/Charts/HeatmapChart';
 import CircularChart from '../../ui/Charts/CircularChart';
 import { getPosts, UpdateStats, GetStats } from '../../../api/api';
 import { transformStatsToAnalytics } from '../../../utils/transformData';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Empty } from 'antd';
 import KPIRadarChart from '../../ui/Charts/RadarChart';
 import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
+import { Empty } from 'antd';
+import PeriodComparisonChart1 from '../../ui/Charts/PeriodComparisonChart1';
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -21,20 +21,15 @@ const AnalyticsComponent: React.FC = () => {
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const posts = useAppSelector((state) => state.posts.posts);
-  const hasPosts = posts.length > 0;
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
   const [usersData, setUsersData] = useState<UserAnalytics[]>([]);
+  const [hasPosts, setHasPosts] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchAndUpdateData = async () => {
-      if (!hasPosts) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       try {
         const postsResponse = await getPosts(
@@ -44,33 +39,64 @@ const AnalyticsComponent: React.FC = () => {
           'published',
           false,
         );
-        const postIds = postsResponse.posts.map((post) => post.id);
-        for (const postId of postIds) {
-          await UpdateStats({
+
+        if (postsResponse.posts && postsResponse.posts.length > 0) {
+          setHasPosts(true);
+
+          const postIds = postsResponse.posts.map((post) => post.id);
+          for (const postId of postIds) {
+            await UpdateStats({
+              team_id: selectedTeamId,
+              post_union_id: postId,
+            });
+          }
+
+          const startDate = new Date();
+          startDate.setMonth(startDate.getMonth() - 1);
+
+          const statsResponse = await GetStats({
             team_id: selectedTeamId,
-            post_union_id: postId,
+            start: startDate.toISOString(),
+            end: new Date().toISOString(),
           });
+          const transformedData = await transformStatsToAnalytics(statsResponse, selectedTeamId);
+          setAnalyticsData(transformedData);
+        } else {
+          setHasPosts(false);
         }
-
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 1);
-
-        const statsResponse = await GetStats({
-          team_id: selectedTeamId,
-          start: startDate.toISOString(),
-          end: new Date().toISOString(),
-        });
-        const transformedData = await transformStatsToAnalytics(statsResponse, selectedTeamId);
-        setAnalyticsData(transformedData);
       } catch (error) {
         console.error('Ошибка при загрузке аналитики:', error);
+        setHasPosts(false);
       } finally {
         setLoading(false);
       }
     };
     fetchAndUpdateData();
-  }, [selectedTeamId, currentPath, hasPosts]);
+  }, [selectedTeamId, currentPath]);
 
+  // Перемещаем этот useEffect до условного возврата
+  useEffect(() => {
+    const fetchUsersData = async () => {
+      if (activeAnalytics !== 'kpi') {
+        return;
+      }
+
+      setUsersLoading(true);
+      try {
+        // Здесь был код загрузки данных
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        setUsersData(mockUsersAnalytics.users);
+      } catch (error) {
+        console.error('Ошибка при загрузке данных о пользователях:', error);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchUsersData();
+  }, [selectedTeamId, activeAnalytics]);
+
+  // Теперь условный возврат после всех хуков
   if (!hasPosts) {
     return (
       <div className={styles.analyticsContainer}>
@@ -81,31 +107,6 @@ const AnalyticsComponent: React.FC = () => {
       </div>
     );
   }
-
-  // Эффект для загрузки данных о KPI пользователей
-  useEffect(() => {
-    const fetchUsersData = async () => {
-      if (activeAnalytics !== 'kpi' || !hasPosts) {
-        return;
-      }
-
-      setUsersLoading(true);
-      try {
-        // В реальном приложении здесь должен быть API-запрос
-        // const response = await getUsersAnalytics({ team_id: selectedTeamId });
-
-        // Временно используем моковые данные
-        await new Promise((resolve) => setTimeout(resolve, 800)); // имитация задержки запроса
-        setUsersData(mockUsersAnalytics.users);
-      } catch (error) {
-        console.error('Ошибка при загрузке данных о пользователях:', error);
-      } finally {
-        setUsersLoading(false);
-      }
-    };
-
-    fetchUsersData();
-  }, [selectedTeamId, activeAnalytics, hasPosts]);
 
   return (
     <div className={styles.analyticsContainer}>
@@ -124,7 +125,7 @@ const AnalyticsComponent: React.FC = () => {
       )}
       {activeAnalytics === 'growth' && (
         <div className={styles['spacer']}>
-          <PeriodComparisonChart data={analyticsData} loading={loading} />
+          <PeriodComparisonChart1 data={analyticsData} loading={loading} height={400} />
         </div>
       )}
       {activeAnalytics === 'kpi' && (

@@ -17,7 +17,7 @@ import {
 } from '../models/Comment/types';
 import { AxiosError, isAxiosError } from 'axios';
 import config from '../constants/appConfig';
-import { MeInfo, RegisterResult } from '../models/User/types';
+import { MeInfo, RegisterResult, UserData } from '../models/User/types';
 import { routes } from './routers/routes';
 
 import axiosInstance from './axiosConfig';
@@ -314,6 +314,17 @@ export const DeletePost = async (req: PostReq): Promise<{ message: string }> => 
     {
       withCredentials: true,
       data: req,
+    },
+  );
+  return response.data;
+};
+
+export const RegisterWithUserData = async (userData: UserData): Promise<RegisterResult> => {
+  const response = await axiosInstance.post<RegisterResult>(
+    `${config.api.baseURL}/user/register`,
+    userData,
+    {
+      withCredentials: true,
     },
   );
   return response.data;

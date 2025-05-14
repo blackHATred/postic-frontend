@@ -12,6 +12,7 @@ import TeamEditMemberDialog from '../../components/modals/TeamDialog/TeamEditMem
 import TeamRenameDialog from '../../components/modals/TeamDialog/TeamRenameDialog';
 import AnswerDialog from '../../components/modals/AnswerDialog/AnswerDialog';
 import PlatformsDialog from '../../components/modals/PlatformsDialog/PlatformsDialog';
+import UserRegisterDialog from '../../components/modals/auth/UserRegisterDialog';
 
 interface ModalsProviderProps {
   children: ReactNode;
@@ -34,6 +35,7 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <TeamRenameDialog />
       <AnswerDialog />
       <PlatformsDialog />
+      <UserRegisterDialog />
     </>
   );
 };

@@ -11,7 +11,11 @@ import {
 import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setLoginDialog, setRegiserDialog } from '../../../stores/basePageDialogsSlice';
+import {
+  setLoginDialog,
+  setRegiserDialog,
+  setRegisterEmailDialog,
+} from '../../../stores/basePageDialogsSlice';
 import {
   ActivePlatform,
   getTeamsFromStore,
@@ -44,6 +48,11 @@ const ButtonHeader: React.FC = () => {
             icon: <UserOutlined />,
           },
           {
+            label: 'Регистрация1',
+            key: 'register1',
+            icon: <UserOutlined />,
+          },
+          {
             label: 'Помощь',
             key: 'help',
             icon: <QuestionCircleOutlined />,
@@ -72,6 +81,10 @@ const ButtonHeader: React.FC = () => {
         return;
       }
       case 'register': {
+        dispatch(setRegisterEmailDialog(true));
+        return;
+      }
+      case 'register1': {
         dispatch(setRegiserDialog(true));
         return;
       }

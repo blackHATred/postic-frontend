@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Dropdown, MenuProps, Typography } from 'antd';
+import { Button, Dropdown, MenuProps, Space, Typography } from 'antd';
 import {
   AppstoreAddOutlined,
   EditOutlined,
@@ -11,6 +11,8 @@ import {
 import ClickableButton from '../../ui/Button/Button';
 import styles from './styles.module.scss';
 import { PlatformsRequest } from '../../../models/Team/types';
+import { LiaTelegram, LiaVk } from 'react-icons/lia';
+// Переименован импорт для ясности
 
 const { Text } = Typography;
 
@@ -94,11 +96,29 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
     onClick: handleMenuClick,
   };
 
+  // Вспомогательная функция для отображения иконок платформ
+  const renderPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'vk':
+        return <LiaVk className={styles.icon} />;
+      case 'tg':
+        return <LiaTelegram className={styles.icon} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className={styles['post-header']}>
       <div className={styles['post-header-info']}>
         <div className={styles['post-header-info-text']}>
           <Text strong>Команда: </Text>
+          <Space>
+            {[
+              linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,
+              linkedPlatforms?.platforms?.vk_group_id ? renderPlatformIcon('vk') : null,
+            ].filter(Boolean)}
+          </Space>
           <Text className={styles['teamName']} strong>
             {teamName}
           </Text>
