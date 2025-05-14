@@ -21,6 +21,7 @@ import {
 import { setComments } from '../../../stores/commentSlice';
 import { Typography } from 'antd';
 import { Platforms } from '../../../api/teamApi';
+import { setPosts } from '../../../stores/postsSlice';
 
 const { Text } = Typography;
 
@@ -98,6 +99,8 @@ const ButtonHeader: React.FC = () => {
   useEffect(() => {
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
+      dispatch(setComments([]));
+      dispatch(setPosts([]));
     }
   }, [teams, selectedTeam]);
 
@@ -107,6 +110,7 @@ const ButtonHeader: React.FC = () => {
       setSelectedTeam(teams[0].id.toString());
       dispatch(setGlobalActiveTeamId(teams[0].id));
       dispatch(setComments([]));
+      dispatch(setPosts([]));
     }
     //  у пользователя нет команд, сбрасываем выбранную команду
     // TODO: проверить удаление всех команд
@@ -114,6 +118,7 @@ const ButtonHeader: React.FC = () => {
       setSelectedTeam(undefined);
       dispatch(setGlobalActiveTeamId(0));
       dispatch(setComments([]));
+      dispatch(setPosts([]));
     }
   }, [teams, selectedTeam, dispatch]);
 
@@ -170,6 +175,7 @@ const ButtonHeader: React.FC = () => {
 
     dispatch(setGlobalActiveTeamId(teamId));
     dispatch(setComments([]));
+    dispatch(setPosts([]));
 
     // чтоб платформы обновились
     loadPlatformsForTeam(teamId);

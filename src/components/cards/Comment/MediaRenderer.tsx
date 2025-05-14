@@ -23,6 +23,7 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
       });
     }
   }, [props.attach_images]);
+
   const LazyVideo = React.lazy(() => import('react-player'));
 
   if (props.attach_images.length > 1) {
@@ -38,7 +39,13 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
                   </div>
                 }
               >
-                <LazyVideo controls url={getUploadUrl(preview.id)} height={250} width={'100%'} />
+                <LazyVideo
+                  controls
+                  light
+                  url={getUploadUrl(preview.id)}
+                  height={250}
+                  width={'100%'}
+                />
               </Suspense>
             ) : (
               <Image
@@ -86,6 +93,7 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
           <LazyVideo
             loop
             controls
+            light
             url={getUploadUrl(props.attach_images[0].id)}
             height={250}
             width={'100%'}
@@ -111,6 +119,8 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
           controls
           url={getUploadUrl(props.attach_images[0].id)}
           height={250}
+          light
+          withCredentials
           width={'100%'}
           className={styles['image']}
         />

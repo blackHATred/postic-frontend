@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Button, Image } from 'antd';
-import { LeftOutlined } from '@ant-design/icons';
+import { LeftOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
 import { useNavigate } from 'react-router-dom';
@@ -52,14 +52,15 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
           />
         </div>
       )}
+      {attach_images.length > 0 && attach_images[0].file_type == 'video' && (
+        <VideoCameraOutlined className={styles['preview']} />
+      )}
       <div className={styles['content']}>
         <Text type='secondary' className={styles['post-name']}>
           Модератор {props.user_id}
         </Text>
         {props.text && <Text className={styles['ellipsis']}>{props.text}</Text>}
-        {attach_images.length > 0 && attach_images[0].file_type == 'video' && (
-          <Text className={styles['ellipsis']}>Видео</Text>
-        )}
+
         {attach_images.length > 0 && attach_images[0].file_type == 'sticker' && (
           <Text className={styles['ellipsis']}>Стикер</Text>
         )}

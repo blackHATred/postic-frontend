@@ -5,6 +5,7 @@ interface SSEOptions {
   onMessage: (data: any) => void;
   onError?: (error: Event) => void;
   withCredentials?: boolean;
+  shouldAdd?: boolean;
 }
 
 export function useAuthenticatedSSE({
@@ -12,6 +13,7 @@ export function useAuthenticatedSSE({
   onMessage,
   onError,
   withCredentials = true,
+  shouldAdd = true,
 }: SSEOptions): {
   isConnected: boolean;
   close: () => void;
@@ -47,7 +49,7 @@ export function useAuthenticatedSSE({
       eventSource.addEventListener('comment', (event) => {
         try {
           const data = JSON.parse(event.data);
-          onMessage(data);
+          if (shouldAdd) onMessage(data);
         } catch (err) {
           console.error('Failed to parse SSE data:', err);
         }

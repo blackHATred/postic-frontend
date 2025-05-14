@@ -7,7 +7,7 @@
 
 .post {
   height: 69px;
-  padding: 5px 10px;
+  padding: 5px 15px;
   background-color: $container-color;
   display: flex;
   flex-direction: row;
@@ -45,7 +45,10 @@
   width: 75px;
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
+  color: $primary-color;
+  font-size: 2em;
 }
 
 .button-right {
@@ -62,4 +65,5 @@
 
 .button-left {
   aspect-ratio: 1/1;
+  border-width: 1.5px;
 }
