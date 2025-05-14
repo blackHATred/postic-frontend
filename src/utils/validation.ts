@@ -45,3 +45,10 @@ export const isFileAlreadyAdded = (files: File[], file: File): boolean => {
 export const exceedsMaxFiles = (files: File[], maxFiles: number): boolean => {
   return files.length > maxFiles;
 };
+
+export const validatePasswordSame = (pass1: string, pass2: string): string | null => {
+  if (pass1 !== pass2) {
+    return 'Пароли не совпадают';
+  }
+  return null;
+};

@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
-  setLoginDialog,
+  setLoginEmailDialog,
   setRegiserDialog,
   setRegisterEmailDialog,
 } from '../../../stores/basePageDialogsSlice';
@@ -77,7 +77,7 @@ const ButtonHeader: React.FC = () => {
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     switch (e.key) {
       case 'login': {
-        dispatch(setLoginDialog(true));
+        dispatch(setLoginEmailDialog(true));
         return;
       }
       case 'register': {

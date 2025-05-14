@@ -26,6 +26,7 @@ import {
   GetPostStatsResponse,
   GetStatsReq,
   GetStatsResponse,
+  UserAnalytics,
 } from '../models/Analytics/types';
 
 export const uploadFile = async (file: File, type: string): Promise<UploadResult> => {
@@ -325,6 +326,19 @@ export const RegisterWithUserData = async (userData: UserData): Promise<Register
     userData,
     {
       withCredentials: true,
+    },
+  );
+  return response.data;
+};
+
+export const getKPI = async (teamId: number): Promise<{ kpi: UserAnalytics }> => {
+  const response = await axiosInstance.get<{ kpi: UserAnalytics }>(
+    `${config.api.baseURL}${routes.analytics()}/kpi`,
+    {
+      withCredentials: true,
+      params: {
+        team_id: teamId,
+      },
     },
   );
   return response.data;
