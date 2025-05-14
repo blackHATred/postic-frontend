@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Switch, Tooltip, Typography } from 'antd';
+import { Switch, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { routes } from '../../../app/App.routes';
@@ -101,30 +101,24 @@ const Sidebar: React.FC = () => {
             />
           </div>
 
-          <Tooltip
-            title={!hasPosts ? 'Для доступа к аналитике необходимо создать хотя бы один пост' : ''}
-            placement='right'
+          <div
+            className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
           >
-            <div
-              className={`${styles['sidebar-options']} ${location.pathname === routes.analytics() ? styles['active'] : ''}`}
-            >
-              <ClickableButton
-                className={styles['button']}
-                type='text'
-                text={'Аналитика'}
-                icon={<LineChartOutlined className={styles['icon-primary']} />}
-                onButtonClick={() => handleTabChange('5', routes.analytics())}
-                disabled={
-                  !hasPosts ||
-                  (roles
-                    ? roles.find((r) => {
-                        return r == 'analitics' || r == 'admin';
-                      }) == undefined
-                    : true)
-                }
-              />
-            </div>
-          </Tooltip>
+            <ClickableButton
+              className={styles['button']}
+              type='text'
+              text={'Аналитика'}
+              icon={<LineChartOutlined className={styles['icon-primary']} />}
+              onButtonClick={() => handleTabChange('5', routes.analytics())}
+              disabled={
+                roles
+                  ? roles.find((r) => {
+                      return r == 'analitics' || r == 'admin';
+                    }) == undefined
+                  : true
+              }
+            />
+          </div>
         </>
       )}
 

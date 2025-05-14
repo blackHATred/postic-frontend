@@ -46,6 +46,112 @@ export interface PostReq {
   post_union_id: number;
 }
 
+export interface UserAnalytics {
+  id: number;
+  total_kpi: number;
+  likes: number;
+  views: number;
+  comments: number;
+  posts: number;
+}
+
+export interface GetUsersAnalyticsResponse {
+  users: UserAnalytics[];
+}
+
+export const mockUsersAnalytics: GetUsersAnalyticsResponse = {
+  users: [
+    {
+      id: 1,
+      total_kpi: 95,
+      likes: 10,
+      views: 50,
+      comments: 5,
+      posts: 7,
+    },
+    {
+      id: 2,
+      total_kpi: 78,
+      likes: 8,
+      views: 35,
+      comments: 12,
+      posts: 4,
+    },
+    {
+      id: 3,
+      total_kpi: 87,
+      likes: 15,
+      views: 120,
+      comments: 8,
+      posts: 10,
+    },
+    {
+      id: 4,
+      total_kpi: 62,
+      likes: 5,
+      views: 25,
+      comments: 3,
+      posts: 3,
+    },
+    {
+      id: 5,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+    {
+      id: 6,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+    {
+      id: 7,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+    {
+      id: 8,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+    {
+      id: 9,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+    {
+      id: 10,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+    {
+      id: 11,
+      total_kpi: 91,
+      likes: 25,
+      views: 150,
+      comments: 20,
+      posts: 12,
+    },
+  ],
+};
+
 export const mockDataGetStatsResponse: GetPostStatsResponse = [
   {
     team_id: 1,

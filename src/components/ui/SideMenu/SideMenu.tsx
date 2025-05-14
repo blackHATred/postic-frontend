@@ -119,6 +119,14 @@ const SideMenu: React.FC = () => {
             >
               Рост и динамика
             </Menu.Item>
+            <Divider className={styles['custom-divider']} />
+            <Menu.Item
+              key='scheduled-posts'
+              className={`${styles['sidebar-options']} ${activeAnalyticsFilter === 'kpi' ? styles['active'] : ''}`}
+              onClick={() => handleFilterAnalyticsChange('kpi')}
+            >
+              KPI команды
+            </Menu.Item>
           </>
         )}
       </Menu>

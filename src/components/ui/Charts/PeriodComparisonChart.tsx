@@ -1,5 +1,9 @@
+export interface PeriodComparisonChartProps {
+  loading: boolean;
+}
+/*
 import React, { useState, useMemo } from 'react';
-import { Card, Select, Row, Col, Statistic, Divider, Space, Tooltip, Radio } from 'antd';
+import { Card, Select, Row, Col, Statistic, Divider, Space, Tooltip, Radio, Empty } from 'antd';
 import { InfoCircleOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { DualAxes } from '@antv/g2plot';
 import { useEffect, useRef } from 'react';
@@ -31,18 +35,64 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
     metricLabel,
     metricSummary,
     previousMetricSummary,
+    hasPreviousPeriodData,
     comparisonData,
+    debugInfo,
   } = useMemo(() => {
+    // Отладочная информация
+    const debugLog: string[] = [];
+
+    // Определяем временные границы для текущего и предыдущего периодов
+    let currentPeriodStart: Date, previousPeriodStart: Date, previousPeriodEnd: Date;
+
+    if (periodType === 'week') {
+      // Вычисляем начало текущей недели (сегодня - 6 дней)
+      currentPeriodStart = new Date(now);
+      currentPeriodStart.setDate(now.getDate() - 6);
+      currentPeriodStart.setHours(0, 0, 0, 0);
+
+      // Предыдущая неделя: день перед началом текущей недели - 7 дней до него
+      previousPeriodEnd = new Date(currentPeriodStart);
+      previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1);
+      previousPeriodEnd.setHours(23, 59, 59, 999);
+
+      previousPeriodStart = new Date(previousPeriodEnd);
+      previousPeriodStart.setDate(previousPeriodStart.getDate() - 6);
+      previousPeriodStart.setHours(0, 0, 0, 0);
+    } else {
+      // Текущий месяц: с 1-го числа до сегодня
+      currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // Предыдущий месяц
+      previousPeriodStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      previousPeriodEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+      previousPeriodEnd.setHours(23, 59, 59, 999);
+    }
+
+    // Сортируем данные по дате для более точной обработки
     const sortedData = [...data].sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
-    const midPoint = Math.ceil(sortedData.length / 2);
-    const prev = sortedData.slice(0, midPoint);
-    const current = sortedData.slice(midPoint);
 
-    const getMetricValue = (item: PostAnalytics, metricKey: MetricType) => {
-      const value = 0;
+    // Фильтруем данные по периодам
+    const currentPeriodItems = sortedData.filter((item) => {
+      const itemDate = new Date(item.timestamp);
+      const isInPeriod = itemDate >= currentPeriodStart && itemDate <= now;
 
+      return isInPeriod;
+    });
+
+    const previousPeriodItems = sortedData.filter((item) => {
+      const itemDate = new Date(item.timestamp);
+      const isInPeriod = itemDate >= previousPeriodStart && itemDate <= previousPeriodEnd;
+
+      return isInPeriod;
+    });
+
+    const hasPreviousPeriodData = previousPeriodItems.length > 0;
+
+    // Вычисляем значение метрики для конкретного элемента
+    const getMetricValue = (item: PostAnalytics, metricKey: MetricType): number => {
       if (metricKey === 'views') {
         if (platform === 'all') return item.tg_views + item.vk_views;
         if (platform === 'telegram') return item.tg_views;
@@ -73,54 +123,125 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
         return item.vk_views > 0 ? (item.vk_reactions / item.vk_views) * 100 : 0;
       }
 
-      return value;
+      return 0;
     };
 
-    const calculatePeriodMetrics = (periodData: PostAnalytics[]) => {
-      return periodData.reduce((sum, item) => sum + getMetricValue(item, metricType), 0);
+    // Подготавливаем структуру дней для периода
+    const generateDaysForPeriod = (startDate: Date, endDate: Date): Map<string, Date> => {
+      const days = new Map<string, Date>();
+      const current = new Date(startDate);
+
+      while (current <= endDate) {
+        const dateKey = current.toISOString().split('T')[0];
+        days.set(dateKey, new Date(current));
+        current.setDate(current.getDate() + 1);
+      }
+
+      return days;
     };
 
-    const currentTotal = calculatePeriodMetrics(current);
-    const previousTotal = calculatePeriodMetrics(prev);
+    // Создаём структуру дней для текущего и предыдущего периодов
+    const currentDays = generateDaysForPeriod(currentPeriodStart, now);
+    const previousDays = generateDaysForPeriod(previousPeriodStart, previousPeriodEnd);
 
-    const percentDiff =
-      previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+    // Группируем данные по дням
+    const groupDataByDay = (
+      periodItems: PostAnalytics[],
+      days: Map<string, Date>,
+    ): Map<string, number> => {
+      const dailyMetrics = new Map<string, number>();
 
-    const chartData = [];
+      // Инициализируем каждый день нулевым значением
+      days.forEach((date, dateKey) => {
+        dailyMetrics.set(dateKey, 0);
+      });
+
+      // Агрегируем метрики по дням
+      for (const item of periodItems) {
+        const itemDate = new Date(item.timestamp);
+        const dateKey = itemDate.toISOString().split('T')[0];
+
+        if (dailyMetrics.has(dateKey)) {
+          const metricValue = getMetricValue(item, metricType);
+          const currentValue = dailyMetrics.get(dateKey) || 0;
+          const newValue = currentValue + metricValue;
+          dailyMetrics.set(dateKey, newValue);
+        } else {
+        }
+      }
+
+      return dailyMetrics;
+    };
+
+    // Получаем агрегированные метрики по дням для обоих периодов
+    const currentDailyMetrics = groupDataByDay(currentPeriodItems, currentDays);
+    const previousDailyMetrics = groupDataByDay(previousPeriodItems, previousDays);
+
+    // Форматируем значение метрики
     const formatMetricValue = (value: number) => {
       if (metricType === 'er') {
         return Number(value.toFixed(1));
       }
       return Math.round(value);
     };
-    const prevFormattedData = prev.map((item, index) => {
-      const date = new Date(item.timestamp);
-      const dayNumber = index + 1;
-      const rawValue = getMetricValue(item, metricType);
-      const value = formatMetricValue(rawValue);
+
+    // Форматируем данные для текущего периода
+    const currentFormattedData = Array.from(currentDays.entries()).map(([dateKey, date]) => {
+      const value = currentDailyMetrics.get(dateKey) || 0;
+      const formattedValue = formatMetricValue(value);
+      const dayName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][date.getDay()];
+      const formattedDate = `${date.getDate()}.${date.getMonth() + 1}`;
+
+      const displayDate = periodType === 'week' ? `${dayName} (${formattedDate})` : formattedDate;
 
       return {
-        date: periodType === 'week' ? `День ${dayNumber}` : date.toLocaleDateString(),
-        value,
-        rawValue,
-        period: 'Предыдущий период',
-      };
-    });
-
-    const currentFormattedData = current.map((item, index) => {
-      const date = new Date(item.timestamp);
-      const dayNumber = index + 1;
-      const rawValue = getMetricValue(item, metricType);
-      const value = formatMetricValue(rawValue);
-
-      return {
-        date: periodType === 'week' ? `День ${dayNumber}` : date.toLocaleDateString(),
-        value,
-        rawValue,
+        date: displayDate,
+        value: formattedValue,
+        rawValue: value,
         period: 'Текущий период',
+        dateKey,
+        sortDate: date.getTime(), // для сортировки
       };
     });
 
+    // Форматируем данные для предыдущего периода
+    const previousFormattedData = Array.from(previousDays.entries()).map(([dateKey, date]) => {
+      const value = previousDailyMetrics.get(dateKey) || 0;
+      const formattedValue = formatMetricValue(value);
+      const dayName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][date.getDay()];
+      const formattedDate = `${date.getDate()}.${date.getMonth() + 1}`;
+
+      const displayDate = periodType === 'week' ? `${dayName} (${formattedDate})` : formattedDate;
+
+      return {
+        date: displayDate,
+        value: formattedValue,
+        rawValue: value,
+        period: 'Предыдущий период',
+        dateKey,
+        sortDate: date.getTime(), // для сортировки
+      };
+    });
+
+    // Сортировка данных по дате для правильного отображения
+    currentFormattedData.sort((a, b) => a.sortDate - b.sortDate);
+    previousFormattedData.sort((a, b) => a.sortDate - b.sortDate);
+
+    // Вычисляем суммарные значения для обоих периодов
+    const currentTotal = Array.from(currentDailyMetrics.values()).reduce(
+      (sum, val) => sum + val,
+      0,
+    );
+    const previousTotal = Array.from(previousDailyMetrics.values()).reduce(
+      (sum, val) => sum + val,
+      0,
+    );
+
+    // Вычисляем процент изменения
+    const percentDiff =
+      previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+
+    // Определяем метку метрики для отображения
     let label = '';
     switch (metricType) {
       case 'views':
@@ -137,14 +258,21 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
         break;
     }
 
+    // Объединяем данные обоих периодов для графика
+    const allData = hasPreviousPeriodData
+      ? [...previousFormattedData, ...currentFormattedData]
+      : [...currentFormattedData];
+
     return {
       currentPeriodData: currentFormattedData,
-      previousPeriodData: prevFormattedData,
+      previousPeriodData: previousFormattedData,
       percentChange: percentDiff,
       metricLabel: label,
       metricSummary: currentTotal.toFixed(metricType === 'er' ? 2 : 0),
       previousMetricSummary: previousTotal.toFixed(metricType === 'er' ? 2 : 0),
-      comparisonData: [...prevFormattedData, ...currentFormattedData],
+      hasPreviousPeriodData,
+      comparisonData: allData,
+      debugInfo: debugLog,
     };
   }, [data, periodType, metricType, platform]);
 
@@ -163,7 +291,7 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
             geometry: 'column',
             isGroup: true,
             seriesField: 'period',
-            columnWidthRatio: 0.5,
+            columnWidthRatio: 0.6,
             columnStyle: {
               radius: [5, 5, 0, 0],
             },
@@ -194,12 +322,13 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
             geometry: 'line',
             seriesField: 'period',
             lineStyle: {
-              lineWidth: 3,
-              opacity: 1,
+              lineWidth: 2,
+              opacity: 0.8,
             },
+            smooth: true,
             point: {
               shape: 'circle',
-              size: 1,
+              size: 4,
             },
           },
         ],
@@ -207,8 +336,17 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
           position: 'top',
         },
         xAxis: {
+          type: 'cat',
           title: {
-            text: periodType === 'week' ? 'День' : 'Дата',
+            text: periodType === 'week' ? 'День недели' : 'Дата',
+          },
+          label: {
+            formatter: (text) => {
+              // Убедимся что все даты отображаются
+              return text;
+            },
+            autoRotate: true,
+            autoHide: false,
           },
         },
         yAxis: {
@@ -227,7 +365,6 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
             },
           },
         },
-
         tooltip: {
           shared: true,
           formatter: (datum) => {
@@ -335,17 +472,22 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
             value={previousMetricSummary}
             suffix={metricType === 'er' ? '%' : ''}
           />
+          {!hasPreviousPeriodData && (
+            <div style={{ fontSize: '12px', color: '#8c8c8c', marginTop: '8px' }}>
+              Нет данных за предыдущий период
+            </div>
+          )}
         </Col>
         <Col span={8} style={{ textAlign: 'center' }}>
           <Statistic
             title='Изменение'
-            value={percentChange.toFixed(1)}
+            value={hasPreviousPeriodData ? percentChange.toFixed(1) : '-'}
             precision={1}
             valueStyle={{
-              color: percentChange != 0 ? (percentChange > 0 ? '#3f8600' : '#cf1322') : '#ffc53d',
+              color: percentChange !== 0 ? (percentChange > 0 ? '#3f8600' : '#cf1322') : '#ffc53d',
             }}
             prefix={
-              percentChange != 0 ? (
+              hasPreviousPeriodData && percentChange !== 0 ? (
                 percentChange > 0 ? (
                   <ArrowUpOutlined />
                 ) : (
@@ -353,13 +495,15 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
                 )
               ) : null
             }
-            suffix='%'
+            suffix={hasPreviousPeriodData ? '%' : ''}
           />
-          <div style={{ fontSize: '12px', color: '#8c8c8c', marginTop: '8px' }}>
-            {percentChange >= 0
-              ? 'рост относительно предыдущего периода'
-              : 'падение относительно предыдущего периода'}
-          </div>
+          {hasPreviousPeriodData && (
+            <div style={{ fontSize: '12px', color: '#8c8c8c', marginTop: '8px' }}>
+              {percentChange >= 0
+                ? 'рост относительно предыдущего периода'
+                : 'падение относительно предыдущего периода'}
+            </div>
+          )}
         </Col>
         <Col span={8} style={{ textAlign: 'center' }}>
           <Statistic
@@ -373,9 +517,22 @@ const PeriodComparisonChart: React.FC<PeriodComparisonChartProps> = ({ data, loa
 
       <Divider style={{ margin: '12px 0 24px' }} />
 
-      <div style={{ height: '400px' }} ref={chartRef}></div>
+      {comparisonData.length > 0 ? (
+        <div style={{ height: '400px' }} ref={chartRef}></div>
+      ) : (
+        <Empty description='Нет данных для отображения' />
+      )}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ marginTop: '20px', fontSize: '12px', color: '#999', display: 'none' }}>
+          <details>
+            <summary>Отладочная информация</summary>
+            <pre>{debugInfo?.join('\n')}</pre>
+          </details>
+        </div>
+      )}
     </Card>
   );
 };
 
 export default PeriodComparisonChart;
+*/

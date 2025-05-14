@@ -50,6 +50,11 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
   }, [data]);
 
   const filteredData = useMemo(() => {
+    if (platform === 'telegram') {
+      return postsData.filter((post) => post.tg_views > 0);
+    } else if (platform === 'vk') {
+      return postsData.filter((post) => post.vk_views > 0);
+    }
     return postsData;
   }, [postsData, platform]);
 
