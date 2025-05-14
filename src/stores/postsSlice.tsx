@@ -20,7 +20,7 @@ const initialState: PostSliceState = {
   isOpened: {},
   selectedPostId: 0,
   scrollToPost: false,
-  postsScroll: 10000,
+  postsScroll: 0,
 };
 
 export const postsSlice = createSlice({

@@ -29,8 +29,6 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
   const isTicketPage = location.pathname === routes.ticket();
   const { collapsedComments, toggleCollapse } = useCollapsedComments();
 
-  const scroll = useAppSelector((state) => state.posts.postsScroll);
-
   const [postElements, setPostElements] = useState<{ id: number; element: any }[]>([]);
   const divRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +87,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
       .then((posts) => {
         if (posts.length > 0) dispatch(setComments(posts));
         if (posts.length == 0) {
+          setInitialLoad(false);
         } else {
           if (posts.length < frame_size * 3) {
             setHasMoreBottom(false);
@@ -143,11 +142,11 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
       setIsLoading(true);
       loadPost();
     }
-    setTimeout(() => {
-      loadFromData();
-    }, 10);
-    if (postElements.length == 0 && !isLoading) {
-      setInitialLoad(true);
+    if (!(comments.comments.length == 0 && postElements.length == 0))
+      setTimeout(() => {
+        loadFromData();
+      }, 10);
+    if (postElements.length == 0) {
       setHasMoreBottom(true);
       if (comments.comments.length != 0) setHasMoreTop(true);
     }
@@ -176,15 +175,18 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
         }
       });
       setPostElements(p);
-      setTimeout(() => setIsLoading(false), 100);
+      setIsLoading(false);
     } else {
       setPostElements([]);
-      setTimeout(() => setIsLoading(false), 100);
+      setIsLoading(false);
     }
   };
 
   React.useEffect(() => {
     if (divRef.current) {
+      if (initialLoad && postElements.length > 0) {
+        setInitialLoad(false);
+      }
       if (isLoadingBottom) {
         setIsLoadingBottom(false);
       }
@@ -275,6 +277,11 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
             {el.element}
           </div>
         ))}
+      {(isLoading || initialLoad) && (
+        <div className={styles.end} key={'sp_loading'}>
+          <Spin className={styles.spinner} />
+        </div>
+      )}
       {showBottom || isLoadingBottom ? (
         <div className={styles.end} key={'sp_bottom'}>
           {isLoadingBottom ? (
@@ -288,12 +295,8 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
       ) : (
         <div key={'sp_bottom'}></div>
       )}
-      {isLoading && (
-        <div className={styles.end} key={'sp_loading'}>
-          <Spin className={styles.spinner} />
-        </div>
-      )}
-      {!isLoading && comments.comments.length == 0 && (
+
+      {!isLoading && !initialLoad && comments.comments.length == 0 && (
         <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
       )}
     </div>

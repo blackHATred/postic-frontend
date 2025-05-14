@@ -38,7 +38,7 @@ const PostList: React.FC = () => {
 
   const [newData, setNewData] = useState<Post[]>([]);
 
-  const [initialLoad, setInitialLoad] = useState<boolean>(false);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   React.useEffect(() => {
     //NOTE: Первичная загрузка данных и перезагрузка при смене фильтра
@@ -51,11 +51,6 @@ const PostList: React.FC = () => {
       if (divRef.current) divRef.current.scrollTop = 0;
       loadPost();
     } else {
-      if (posts.length == 0) {
-        dispatch(setPostsScroll(0));
-        loadPost();
-      } else {
-      }
       setLast(activeFilter);
     }
   }, [activeFilter]);
@@ -63,8 +58,9 @@ const PostList: React.FC = () => {
   const loadPost = () => {
     loadPosts(true, frame_size * 3)
       .then((posts) => {
-        if (posts.length > 0) dispatch(setPosts(posts));
+        dispatch(setPosts(posts));
         if (posts.length == 0) {
+          setInitialLoad(false);
         } else {
           if (posts.length < frame_size * 3) {
             setHasMoreBottom(false);
@@ -79,18 +75,16 @@ const PostList: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (posts.length == 0) {
+    if (posts.length == 0 && isLoading) {
       setShowBottom(false);
-      setIsLoading(true);
       loadPost();
     }
     setTimeout(() => {
       loadFromData();
     }, 10);
     if (postElements.length == 0) {
-      setInitialLoad(true);
       setHasMoreBottom(true);
-      setHasMoreTop(true);
+      if (posts.length != 0) setHasMoreTop(true);
     }
   }, [posts]);
 
@@ -109,17 +103,17 @@ const PostList: React.FC = () => {
           });
         }
       });
+      setIsLoading(false);
       setPostElements(p);
-      setTimeout(() => setIsLoading(false), 100);
     } else {
+      setIsLoading(false);
       setPostElements([]);
-      setTimeout(() => setIsLoading(false), 100);
     }
   };
 
   React.useEffect(() => {
     if (divRef.current) {
-      if (initialLoad) {
+      if (initialLoad && postElements.length > 0) {
         divRef.current.scrollTop = scroll;
         setInitialLoad(false);
       }
@@ -221,6 +215,16 @@ const PostList: React.FC = () => {
 
   return (
     <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
+      {isLoadingTop && (
+        <div className={styles.end} key={'sp_loading'}>
+          <Spin className={styles.spinner} />
+        </div>
+      )}
+      {(isLoading || initialLoad) && (
+        <div className={styles.end} key={'sp_loading'}>
+          <Spin className={styles.spinner} />
+        </div>
+      )}
       {teamId != 0 &&
         postElements.length > 0 &&
         postElements.map((el) => (
@@ -241,12 +245,8 @@ const PostList: React.FC = () => {
       ) : (
         <div key={'sp_bottom'}></div>
       )}
-      {isLoading && (
-        <div className={styles.end} key={'sp_loading'}>
-          <Spin className={styles.spinner} />
-        </div>
-      )}
-      {!isLoading && posts.length == 0 && (
+
+      {!isLoading && !initialLoad && posts.length == 0 && (
         <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
       )}
     </div>
