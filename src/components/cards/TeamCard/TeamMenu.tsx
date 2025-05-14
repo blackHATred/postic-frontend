@@ -12,7 +12,6 @@ import ClickableButton from '../../ui/Button/Button';
 import styles from './styles.module.scss';
 import { PlatformsRequest } from '../../../models/Team/types';
 import { LiaTelegram, LiaVk } from 'react-icons/lia';
-// Переименован импорт для ясности
 
 const { Text } = Typography;
 
@@ -49,7 +48,6 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
       .filter((platform) => {
         if (!linkedPlatforms || !linkedPlatforms.platforms) return true;
 
-        // Проверяем, привязана ли платформа
         if (platform.key === 'telegram') {
           return linkedPlatforms.platforms.tg_channel_id === 0;
         } else if (platform.key === 'vk') {
@@ -96,7 +94,6 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
     onClick: handleMenuClick,
   };
 
-  // Вспомогательная функция для отображения иконок платформ
   const renderPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
@@ -109,55 +106,64 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
   };
 
   return (
-    <div className={styles['post-header']}>
-      <div className={styles['post-header-info']}>
-        <div className={styles['post-header-info-text']}>
-          <Text strong>Команда: </Text>
-          <Space>
-            {[
-              linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,
-              linkedPlatforms?.platforms?.vk_group_id ? renderPlatformIcon('vk') : null,
-            ].filter(Boolean)}
-          </Space>
-          <Text className={styles['teamName']} strong>
-            {teamName}
-          </Text>
-          <Text type='secondary'>(id:{teamID})</Text>
-        </div>
-        {isUserAdmin && (
-          <ClickableButton
-            type='text'
-            size='small'
-            icon={<EditOutlined />}
-            onButtonClick={onRename}
-          />
-        )}
-      </div>
-
-      <div className={styles['post-header-buttons']}>
-        <div className={styles['post-header-buttons-pair']}>
-          <ClickableButton
-            text='Покинуть команду'
-            type='primary'
-            color='danger'
-            variant='solid'
-            icon={<MinusOutlined />}
-            confirm
-            onButtonClick={onKick}
-          />
-          {isUserAdmin && (
-            <>
+    <div>
+      <div className={styles['post-header']}>
+        <div className={styles['post-header-first-row']}>
+          <div className={styles['post-header-left']}>
+            <Text strong>Команда: </Text>
+            <Text className={styles['teamName']} strong>
+              {' '}
+              {teamName}
+            </Text>
+            {isUserAdmin && (
               <ClickableButton
-                text='Добавить участника'
-                icon={<PlusOutlined />}
-                color='primary'
-                onButtonClick={onAddMember}
+                type='text'
+                size='small'
+                icon={<EditOutlined />}
+                onButtonClick={onRename}
               />
-              <Dropdown menu={menuProps} trigger={['hover']} placement='bottomRight'>
-                <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
-              </Dropdown>
-            </>
-          )}
+            )}
+          </div>
+
+          <div className={styles['post-header-right']}>
+            <Space className={styles['platform-icons']}>
+              {[
+                linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,
+                linkedPlatforms?.platforms?.vk_group_id ? renderPlatformIcon('vk') : null,
+              ].filter(Boolean)}
+            </Space>
+            <Text type='secondary' style={{ marginBottom: '5px' }}>
+              {' '}
+              (#{teamID})
+            </Text>
+          </div>
+        </div>
+
+        <div className={styles['post-header-second-row']}>
+          <div className={styles['post-header-buttons']}>
+            <ClickableButton
+              text='Покинуть команду'
+              type='primary'
+              color='danger'
+              variant='solid'
+              icon={<MinusOutlined />}
+              confirm
+              onButtonClick={onKick}
+            />
+            {isUserAdmin && (
+              <>
+                <ClickableButton
+                  text='Добавить участника'
+                  icon={<PlusOutlined />}
+                  color='primary'
+                  onButtonClick={onAddMember}
+                />
+                <Dropdown menu={menuProps} trigger={['hover']} placement='bottomRight'>
+                  <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
+                </Dropdown>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

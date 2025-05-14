@@ -12,9 +12,9 @@
 }
 .post-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 7px;
+  flex-direction: column;
+  padding: 10px;
 }
 
 .icon {
@@ -25,10 +25,39 @@
   padding: 0 !important;
 }
 
+.post-header-first-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.post-header-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.post-header-second-row {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.platform-icons {
+  margin-left: 8px;
+}
+
 .post-header-info {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   height: 100%;
 }
 
@@ -44,7 +73,7 @@
 .post-header-buttons {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: self-end;
 }
 
 .post-header-buttons-pair {
@@ -106,7 +135,7 @@
 }
 
 .customDivider {
-  margin: 10px 0;
+  margin: 5px 0;
 }
 
 .teamName {
