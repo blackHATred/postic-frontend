@@ -11,7 +11,7 @@ const PostsPage: React.FC = () => {
     }
   }, [globalActiveTeamId]);
 
-  return <PostList hasMore={true} />;
+  return <PostList />;
 };
 
 export default PostsPage;

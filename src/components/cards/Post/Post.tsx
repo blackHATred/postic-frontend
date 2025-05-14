@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -39,6 +39,10 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     return <LiaQuestionCircle className={styles.icon} />;
   };
   const [ellipsis, setEllipsis] = useState(true);
+
+  useEffect(() => {
+    console.log('reload');
+  });
 
   const dispatch = useAppDispatch();
   const refer = useRef<HTMLDivElement>(null);
@@ -89,7 +93,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               <Text type='secondary' className={styles['post-name']}></Text>
             ) : (
               <Text type='secondary' className={styles['post-time']}>
-                {dayjs(post.created_at).format('DD.MM.YYYY HH:mm')}
+                {dayjs(post.created_at).format('DD MMMM HH:mm')}
               </Text>
             )}
 
