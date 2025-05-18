@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
 import { MyTeams } from '../../../api/teamApi';
 import { setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
+import { validatePasswordSame } from '../../../utils/validation';
 
 const { Text } = Typography;
 
@@ -22,6 +23,12 @@ const UserRegisterDialog: React.FC = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
+
+      const err = validatePasswordSame(values.password1, values.password2);
+      if (err) {
+        notificationManager.createNotification('error', 'Ошибка пароля', err);
+        return;
+      }
 
       const userData: UserData = {
         username: values.username,
@@ -61,7 +68,7 @@ const UserRegisterDialog: React.FC = () => {
 
   return (
     <DialogBox
-      title='Регистрация пользователя'
+      title='Регистрация'
       bottomButtons={[
         {
           text: 'Зарегистрироваться',
@@ -74,14 +81,6 @@ const UserRegisterDialog: React.FC = () => {
       isOpen={isOpen}
     >
       <Form form={form} layout='vertical'>
-        <Form.Item
-          name='username'
-          label='Имя пользователя'
-          rules={[{ required: true, message: 'Введите имя пользователя' }]}
-        >
-          <Input placeholder='Имя пользователя' />
-        </Form.Item>
-
         <Form.Item
           name='email'
           label='Email'
@@ -99,6 +98,19 @@ const UserRegisterDialog: React.FC = () => {
           rules={[{ required: true, message: 'Введите пароль' }]}
         >
           <Input.Password placeholder='Пароль' />
+        </Form.Item>
+
+        <Form.Item
+          name='password2'
+          label='Повторите пароль'
+          rules={[
+            {
+              required: true,
+              message: 'Повторите пароль',
+            },
+          ]}
+        >
+          <Input.Password placeholder='Повторите пароль' />
         </Form.Item>
       </Form>
     </DialogBox>

@@ -331,15 +331,15 @@ export const RegisterWithUserData = async (userData: UserData): Promise<Register
   return response.data;
 };
 
-export const getKPI = async (teamId: number): Promise<{ kpi: UserAnalytics }> => {
-  const response = await axiosInstance.get<{ kpi: UserAnalytics }>(
-    `${config.api.baseURL}${routes.analytics()}/kpi`,
-    {
-      withCredentials: true,
-      params: {
-        team_id: teamId,
-      },
-    },
-  );
+export const getKPI = async (
+  req: GetStatsReq,
+): Promise<{ kpi?: UserAnalytics | UserAnalytics[]; users?: UserAnalytics[] }> => {
+  const response = await axiosInstance.get<{
+    kpi?: UserAnalytics | UserAnalytics[];
+    users?: UserAnalytics[];
+  }>(`${config.api.baseURL}${routes.analytics()}/kpi`, {
+    withCredentials: true,
+    params: req,
+  });
   return response.data;
 };

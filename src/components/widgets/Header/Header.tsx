@@ -48,11 +48,14 @@ const ButtonHeader: React.FC = () => {
             key: 'register',
             icon: <UserOutlined />,
           },
-          {
+          /*
+      {
             label: 'Регистрация1',
             key: 'register1',
             icon: <UserOutlined />,
           },
+      * */
+
           {
             label: 'Помощь',
             key: 'help',

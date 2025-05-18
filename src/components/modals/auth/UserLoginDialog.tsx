@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
 import { MyTeams } from '../../../api/teamApi';
 import { setLoginEmailDialog } from '../../../stores/basePageDialogsSlice';
-import { validatePasswordSame } from '../../../utils/validation';
 
 const { Text } = Typography;
 
@@ -19,16 +18,10 @@ const UserLoginDialog: React.FC = () => {
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.loginEmailDialog.isOpen);
 
-  const handleRegister = async () => {
+  const handleLogin = async () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
-
-      const err = validatePasswordSame(values.password1, values.password2);
-      if (err) {
-        notificationManager.createNotification('error', 'Ошибка пароля', err);
-        return;
-      }
 
       const userDataReq: UserData = {
         username: values.username,
@@ -38,13 +31,11 @@ const UserLoginDialog: React.FC = () => {
 
       dispatch(setLoginEmailDialog(false));
 
-      // Устанавливаем статус "loading"
       dispatch(setAuthorized('loading'));
 
       try {
         const loginResult = await Login(Number(userDataReq.username));
 
-        // Добавляем вызов Me() как в старом диалоге
         const userData = await Me();
 
         if (userData && userData.user_id) {
@@ -90,11 +81,11 @@ const UserLoginDialog: React.FC = () => {
   };
   return (
     <DialogBox
-      title='Регистрация пользователя'
+      title='Вход в аккаунт'
       bottomButtons={[
         {
-          text: 'Зарегистрироваться',
-          onButtonClick: handleRegister,
+          text: 'Войти',
+          onButtonClick: handleLogin,
         },
       ]}
       onCancelClick={() => {
@@ -128,18 +119,6 @@ const UserLoginDialog: React.FC = () => {
           rules={[{ required: true, message: 'Введите пароль' }]}
         >
           <Input.Password placeholder='Пароль' />
-        </Form.Item>
-        <Form.Item
-          name='password2'
-          label='Повторите пароль'
-          rules={[
-            {
-              required: true,
-              message: 'Повторите пароль',
-            },
-          ]}
-        >
-          <Input.Password placeholder='Повторите пароль' />
         </Form.Item>
       </Form>
     </DialogBox>

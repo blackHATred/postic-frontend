@@ -166,7 +166,7 @@ const TeamAddMemberDialog: React.FC = () => {
   };
 
   const getTitle = () => {
-    return currentStep === 1 ? 'Добавление участника: Шаг 1' : 'Добавление участника: Шаг 2';
+    return currentStep === 1 ? 'Шаг 1' : 'Шаг 2';
   };
 
   return (

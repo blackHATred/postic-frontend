@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.scss';
-import { mockUsersAnalytics, PostAnalytics, UserAnalytics } from '../../../models/Analytics/types';
+import { PostAnalytics, UserAnalytics } from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
 import TopEngagingPostsList from '../../ui/Charts/TopEngagingPostsList';
 import HeatmapChart from '../../ui/Charts/HeatmapChart';
 import CircularChart from '../../ui/Charts/CircularChart';
-import { getPosts, UpdateStats, GetStats } from '../../../api/api';
 import { transformStatsToAnalytics } from '../../../utils/transformData';
 import { useLocation, useNavigate } from 'react-router-dom';
 import KPIRadarChart from '../../ui/Charts/RadarChart';
 import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
 import { Empty } from 'antd';
 import PeriodComparisonChart1 from '../../ui/Charts/PeriodComparisonChart1';
+import { getPosts, GetStats, getKPI } from '../../../api/api';
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,14 +43,6 @@ const AnalyticsComponent: React.FC = () => {
         if (postsResponse.posts && postsResponse.posts.length > 0) {
           setHasPosts(true);
 
-          const postIds = postsResponse.posts.map((post) => post.id);
-          for (const postId of postIds) {
-            await UpdateStats({
-              team_id: selectedTeamId,
-              post_union_id: postId,
-            });
-          }
-
           const startDate = new Date();
           startDate.setMonth(startDate.getMonth() - 1);
 
@@ -74,28 +66,6 @@ const AnalyticsComponent: React.FC = () => {
     fetchAndUpdateData();
   }, [selectedTeamId, currentPath]);
 
-  // Перемещаем этот useEffect до условного возврата
-  useEffect(() => {
-    const fetchUsersData = async () => {
-      if (activeAnalytics !== 'kpi') {
-        return;
-      }
-
-      setUsersLoading(true);
-      try {
-        // Здесь был код загрузки данных
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        setUsersData(mockUsersAnalytics.users);
-      } catch (error) {
-        console.error('Ошибка при загрузке данных о пользователях:', error);
-      } finally {
-        setUsersLoading(false);
-      }
-    };
-
-    fetchUsersData();
-  }, [selectedTeamId, activeAnalytics]);
-
   // Теперь условный возврат после всех хуков
   if (!hasPosts) {
     return (
@@ -107,6 +77,48 @@ const AnalyticsComponent: React.FC = () => {
       </div>
     );
   }
+  useEffect(() => {
+    const fetchUsersData = async () => {
+      if (activeAnalytics !== 'kpi') {
+        return;
+      }
+
+      setUsersLoading(true);
+      try {
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+        const endDate = new Date();
+
+        const kpiResponse = await getKPI({
+          team_id: selectedTeamId,
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+        });
+
+        // Проверяем структуру ответа и обрабатываем оба возможных формата
+        if (kpiResponse.users && Array.isArray(kpiResponse.users)) {
+          // Если есть поле users с массивом - используем его
+          setUsersData(kpiResponse.users);
+        } else if (Array.isArray(kpiResponse.kpi)) {
+          // Если API возвращает массив в поле kpi
+          setUsersData(kpiResponse.kpi);
+        } else if (kpiResponse.kpi) {
+          // Если API возвращает одного пользователя в поле kpi
+          setUsersData([kpiResponse.kpi]);
+        } else {
+          console.warn('Неожиданный формат ответа KPI:', kpiResponse);
+          setUsersData([]);
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных KPI:', error);
+        setUsersData([]);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchUsersData();
+  }, [selectedTeamId, activeAnalytics]);
 
   return (
     <div className={styles.analyticsContainer}>
