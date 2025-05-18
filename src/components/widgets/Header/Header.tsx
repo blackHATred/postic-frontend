@@ -106,7 +106,7 @@ const ButtonHeader: React.FC = () => {
   const teamOptions = teams.map((team) => ({
     value: team.id.toString(),
     label: (
-      <span>
+      <span title={`${team.name} (id:${team.id})`}>
         {team.name} <Text type='secondary'>(id:{team.id})</Text>
       </span>
     ),
@@ -182,18 +182,18 @@ const ButtonHeader: React.FC = () => {
       });
   };
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: string | undefined) => {
+    if (!value) return; // Ранний выход, если значение undefined
+
     setSelectedTeam(value);
     const teamId = Number(value);
 
-    // команду в localStorage, а то пропадает при перезагрузке
     localStorage.setItem('selectedTeamId', value);
 
     dispatch(setGlobalActiveTeamId(teamId));
     dispatch(setComments([]));
     dispatch(setPosts([]));
 
-    // чтоб платформы обновились
     loadPlatformsForTeam(teamId);
   };
 
@@ -208,15 +208,23 @@ const ButtonHeader: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <TeamOutlined style={{ color: '#1890ff' }} />{' '}
                 <Select
-                  value={selectedTeam}
-                  defaultValue={teamOptions[0]?.value}
+                  labelInValue
+                  value={{
+                    value: selectedTeam,
+                    label: teams.find((t) => t.id.toString() === selectedTeam)?.name,
+                  }}
+                  defaultValue={{
+                    value: teamOptions[0]?.value,
+                    label: teams[0]?.name,
+                  }}
                   style={{
                     width: 150,
                     margin: 5,
                   }}
                   variant='borderless'
-                  onChange={handleChange}
+                  onChange={(option) => handleChange(option.value)}
                   options={teamOptions}
+                  showSearch={false}
                 />
               </div>
               <ClickableButton
