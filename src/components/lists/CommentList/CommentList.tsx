@@ -23,6 +23,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
   const dispatch = useAppDispatch();
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const comments = useAppSelector((state) => state.comments.comments);
+  //const comments = mockComments;
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const effectivePostId = postId != undefined ? postId : selectedPostId;
 
