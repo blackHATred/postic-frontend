@@ -62,12 +62,54 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
     onMessage: onNewComment,
   });
 
+  function flat(r: any, a: any) {
+    const b: any = {};
+    Object.keys(a).forEach(function (k) {
+      if (k !== 'children') {
+        b[k] = a[k];
+      }
+    });
+    r.push(b);
+    if (Array.isArray(a.children)) {
+      return a.children.reduce(flat, r);
+    }
+    return r;
+  }
+
+  function flat_id(r: any, a: any) {
+    r.push(a.id);
+    if (Array.isArray(a.children)) {
+      return a.children.reduce(flat_id, r);
+    }
+    return r;
+  }
+
   React.useEffect(() => {
     if (newComment) {
-      if (!hasMoreTop)
-        getComment(teamId, newComment.comment_id).then((data) => {
-          dispatch(addComment(data.comment));
-        });
+      if (newComment.type == 'new')
+        if (!hasMoreTop)
+          getComment(teamId, newComment.comment_id)
+            .then((data) => {
+              if (save_redux) dispatch(addComment(data.comment));
+              else if (setCommentsLocal) {
+                const el: any = [];
+
+                comments.reduce(flat, el);
+                if (data.comment.reply_to_comment_id) {
+                  if (
+                    el.filter((el: any) => el.id == data.comment.reply_to_comment_id).length > 0
+                  ) {
+                    el.push(data.comment);
+                  }
+                } else {
+                  el.push(data.comment);
+                }
+                setCommentsLocal(createCommentTree(el));
+              }
+            })
+            .catch(() => {
+              console.error('Ошибка при получении нового комментария');
+            });
     }
   }, [newComment]);
 
