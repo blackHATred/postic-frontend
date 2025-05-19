@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
-import { Form, Input, Typography } from 'antd';
+import { Form, Input } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import { RegisterWithUserData } from '../../../api/api'; // Новый метод API
 import { UserData } from '../../../models/User/types';
@@ -8,13 +8,12 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
 import { MyTeams } from '../../../api/teamApi';
 import { setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
-
-const { Text } = Typography;
+import { validatePasswordSame } from '../../../utils/validation';
 
 const UserRegisterDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.registerEmailDialog.isOpen);
 
@@ -22,6 +21,12 @@ const UserRegisterDialog: React.FC = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
+
+      const err = validatePasswordSame(values.password1, values.password2);
+      if (err) {
+        notificationManager.createNotification('error', 'Ошибка пароля', err);
+        return;
+      }
 
       const userData: UserData = {
         username: values.username,
@@ -61,7 +66,7 @@ const UserRegisterDialog: React.FC = () => {
 
   return (
     <DialogBox
-      title='Регистрация пользователя'
+      title='Регистрация'
       bottomButtons={[
         {
           text: 'Зарегистрироваться',
@@ -74,14 +79,6 @@ const UserRegisterDialog: React.FC = () => {
       isOpen={isOpen}
     >
       <Form form={form} layout='vertical'>
-        <Form.Item
-          name='username'
-          label='Имя пользователя'
-          rules={[{ required: true, message: 'Введите имя пользователя' }]}
-        >
-          <Input placeholder='Имя пользователя' />
-        </Form.Item>
-
         <Form.Item
           name='email'
           label='Email'
@@ -99,6 +96,19 @@ const UserRegisterDialog: React.FC = () => {
           rules={[{ required: true, message: 'Введите пароль' }]}
         >
           <Input.Password placeholder='Пароль' />
+        </Form.Item>
+
+        <Form.Item
+          name='password2'
+          label='Повторите пароль'
+          rules={[
+            {
+              required: true,
+              message: 'Повторите пароль',
+            },
+          ]}
+        >
+          <Input.Password placeholder='Повторите пароль' />
         </Form.Item>
       </Form>
     </DialogBox>

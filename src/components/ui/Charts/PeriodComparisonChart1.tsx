@@ -43,7 +43,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
 
   useEffect(() => {
     if (!loading && data.length > 0) {
-      // Вывод данных в консоль
       console.log(
         'Исходные данные для анализа:',
         data.map((item) => ({
@@ -52,40 +51,31 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
         })),
       );
 
-      // Определяем текущую дату
       const currentDate = new Date();
 
-      // Определяем границы текущего и предыдущего периодов
       let currentPeriodStart: Date, currentPeriodEnd: Date;
       let previousPeriodStart: Date, previousPeriodEnd: Date;
 
       if (periodType === 'week') {
-        // Получаем текущий день недели (0 - воскресенье, 1 - понедельник, ..., 6 - суббота)
         const dayOfWeek = currentDate.getDay();
-        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Преобразуем в 0 - понедельник, ..., 6 - воскресенье
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
-        // Конец текущей недели (воскресенье)
         currentPeriodEnd = new Date(currentDate);
         currentPeriodEnd.setDate(currentDate.getDate() + (7 - daysFromMonday - 1));
         currentPeriodEnd.setHours(23, 59, 59, 999);
 
-        // Начало текущей недели (понедельник)
         currentPeriodStart = new Date(currentPeriodEnd);
         currentPeriodStart.setDate(currentPeriodEnd.getDate() - 6);
         currentPeriodStart.setHours(0, 0, 0, 0);
 
-        // Конец предыдущей недели (воскресенье предыдущей недели)
         previousPeriodEnd = new Date(currentPeriodStart);
         previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1);
         previousPeriodEnd.setHours(23, 59, 59, 999);
 
-        // Начало предыдущей недели (понедельник предыдущей недели)
         previousPeriodStart = new Date(previousPeriodEnd);
         previousPeriodStart.setDate(previousPeriodEnd.getDate() - 6);
         previousPeriodStart.setHours(0, 0, 0, 0);
       } else {
-        // month
-        // Определяем первый день текущего месяца
         currentPeriodStart = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
@@ -96,7 +86,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
           0,
         );
 
-        // Определяем последний день текущего месяца
         currentPeriodEnd = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth() + 1,
@@ -107,7 +96,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
           999,
         );
 
-        // Определяем первый день предыдущего месяца
         previousPeriodStart = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth() - 1,
@@ -118,7 +106,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
           0,
         );
 
-        // Определяем последний день предыдущего месяца
         previousPeriodEnd = new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
@@ -142,7 +129,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
         previousPeriodEnd.toISOString(),
       );
 
-      // Фильтруем данные по периодам
       const currentPeriodData = data.filter((item) => {
         const itemDate = new Date(item.timestamp);
         return itemDate >= currentPeriodStart && itemDate <= currentPeriodEnd;
@@ -163,10 +149,8 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
         'записей',
       );
 
-      // Агрегируем данные по платформам и типам метрик
       const aggregatedData: PeriodData[] = [];
 
-      // Для Telegram
       const tgCurrentMetric = calculateMetricSum(currentPeriodData, 'tg', metricType);
       const tgPreviousMetric = calculateMetricSum(previousPeriodData, 'tg', metricType);
       const tgChange = tgCurrentMetric - tgPreviousMetric;
@@ -177,7 +161,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
             ? 0
             : (tgChange / tgPreviousMetric) * 100;
 
-      // Для VK
       const vkCurrentMetric = calculateMetricSum(currentPeriodData, 'vk', metricType);
       const vkPreviousMetric = calculateMetricSum(previousPeriodData, 'vk', metricType);
       const vkChange = vkCurrentMetric - vkPreviousMetric;
@@ -261,7 +244,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
   const renderChart = (data: PeriodData[]) => {
     if (!chartRef.current) return;
 
-    // Преобразуем данные для двойной оси
     const columnData = data
       .map((item) => ({
         platform: item.platform,
@@ -366,21 +348,18 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
     chartInstance.current = chart;
   };
 
-  // Функция для определения цвета в зависимости от изменения
   const getChangeColor = (change: number): string => {
     if (change > 0) return '#3f8600'; // зеленый для положительных изменений
     if (change < 0) return '#cf1322'; // красный для отрицательных изменений
     return '#faad14'; // желтый для нулевых изменений
   };
 
-  // Функция для выбора иконки в зависимости от изменения
   const getChangeIcon = (change: number) => {
     if (change > 0) return <ArrowUpOutlined />;
     if (change < 0) return <ArrowDownOutlined />;
     return <MinusOutlined />; // горизонтальная черта для нулевого изменения
   };
 
-  // Определение типа текста для изменения
   const getChangeTextType = (change: number): 'success' | 'danger' | 'warning' => {
     if (change > 0) return 'success';
     if (change < 0) return 'danger';

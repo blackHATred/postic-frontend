@@ -47,12 +47,12 @@ export interface PostReq {
 }
 
 export interface UserAnalytics {
-  id: number;
-  total_kpi: number;
-  likes: number;
+  user_id: number;
+  username: string;
+  kpi: number;
+  reactions: number;
   views: number;
   comments: number;
-  posts: number;
 }
 
 export interface GetUsersAnalyticsResponse {
@@ -62,92 +62,44 @@ export interface GetUsersAnalyticsResponse {
 export const mockUsersAnalytics: GetUsersAnalyticsResponse = {
   users: [
     {
-      id: 1,
-      total_kpi: 95,
-      likes: 10,
+      user_id: 1,
+      username: 'Ваня',
+      kpi: 95,
+      reactions: 10,
       views: 50,
       comments: 5,
-      posts: 7,
     },
     {
-      id: 2,
-      total_kpi: 78,
-      likes: 8,
+      user_id: 2,
+      username: 'Жожик',
+      kpi: 78,
+      reactions: 8,
       views: 35,
       comments: 12,
-      posts: 4,
     },
     {
-      id: 3,
-      total_kpi: 87,
-      likes: 15,
+      user_id: 3,
+      username: 'Постик',
+      kpi: 87,
+      reactions: 15,
       views: 120,
       comments: 8,
-      posts: 10,
     },
     {
-      id: 4,
-      total_kpi: 62,
-      likes: 5,
+      user_id: 4,
+      username: 'Иван иваныч',
+      kpi: 62,
+      reactions: 5,
       views: 25,
       comments: 3,
-      posts: 3,
     },
     {
-      id: 5,
-      total_kpi: 91,
-      likes: 25,
+      user_id: 5,
+      username: 'Админ',
+      kpi: 91,
+      reactions: 25,
       views: 150,
       comments: 20,
-      posts: 12,
-    },
-    {
-      id: 6,
-      total_kpi: 91,
-      likes: 25,
-      views: 150,
-      comments: 20,
-      posts: 12,
-    },
-    {
-      id: 7,
-      total_kpi: 91,
-      likes: 25,
-      views: 150,
-      comments: 20,
-      posts: 12,
-    },
-    {
-      id: 8,
-      total_kpi: 91,
-      likes: 25,
-      views: 150,
-      comments: 20,
-      posts: 12,
-    },
-    {
-      id: 9,
-      total_kpi: 91,
-      likes: 25,
-      views: 150,
-      comments: 20,
-      posts: 12,
-    },
-    {
-      id: 10,
-      total_kpi: 91,
-      likes: 25,
-      views: 150,
-      comments: 20,
-      posts: 12,
-    },
-    {
-      id: 11,
-      total_kpi: 91,
-      likes: 25,
-      views: 150,
-      comments: 20,
-      posts: 12,
     },
   ],
 };

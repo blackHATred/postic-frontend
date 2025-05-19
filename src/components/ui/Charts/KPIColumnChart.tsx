@@ -13,14 +13,13 @@ interface KPIRadarChartProps {
   height?: number;
 }
 
-type KPIMetric = 'likes' | 'views' | 'comments' | 'posts' | 'total_kpi';
+type KPIMetric = 'reactions' | 'views' | 'comments' | 'kpi';
 
 const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 400 }) => {
-  const [selectedMetric, setSelectedMetric] = useState<KPIMetric>('posts');
+  const [selectedMetric, setSelectedMetric] = useState<KPIMetric>('reactions');
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<any>(null);
 
-  // Вычисляем сумму и среднее значение выбранного параметра
   const totalValue = data.reduce((sum, user) => sum + user[selectedMetric], 0);
   const averageValue = data.length > 0 ? totalValue / data.length : 0;
 
@@ -96,15 +95,13 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
 
   const getMetricTitle = (metric: KPIMetric): string => {
     switch (metric) {
-      case 'likes':
+      case 'reactions':
         return 'Лайки';
       case 'views':
         return 'Просмотры';
       case 'comments':
         return 'Комментарии';
-      case 'posts':
-        return 'Посты';
-      case 'total_kpi':
+      case 'kpi':
         return 'KPI';
     }
   };
@@ -112,7 +109,7 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
   const processDataForColumnChart = (sourceData: UserAnalytics[], metric: KPIMetric) => {
     return sourceData
       .map((user) => ({
-        user: `Пользователь ${user.id}`,
+        user: `Пользователь ${user.user_id}`,
         value: user[metric],
       }))
       .sort((a, b) => b.value - a.value); // Сортировка по убыванию
@@ -151,11 +148,10 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
           onChange={setSelectedMetric}
           style={{ width: '180px' }}
           options={[
-            { value: 'total_kpi', label: 'KPI' },
-            { value: 'likes', label: 'Лайки' },
+            { value: 'kpi', label: 'KPI' },
+            { value: 'reactions', label: 'Лайки' },
             { value: 'views', label: 'Просмотры' },
             { value: 'comments', label: 'Комментарии' },
-            { value: 'posts', label: 'Посты' },
           ]}
         />
         <Space direction='vertical' align='end'>

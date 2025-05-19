@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -14,7 +14,6 @@ import { setTicketFilter, TicketFilter } from '../../../stores/commentSlice';
 const SideMenu: React.FC = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const navigate = useNavigate();
   const currentPath = location.pathname;
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);

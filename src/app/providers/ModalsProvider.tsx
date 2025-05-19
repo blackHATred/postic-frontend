@@ -13,6 +13,8 @@ import TeamRenameDialog from '../../components/modals/TeamDialog/TeamRenameDialo
 import AnswerDialog from '../../components/modals/AnswerDialog/AnswerDialog';
 import PlatformsDialog from '../../components/modals/PlatformsDialog/PlatformsDialog';
 import UserRegisterDialog from '../../components/modals/auth/UserRegisterDialog';
+import UserLoginDialog from '../../components/modals/auth/UserLoginDialog';
+import HelpDialog from '../../components/modals/HelpDialog/HelpDialog';
 
 interface ModalsProviderProps {
   children: ReactNode;
@@ -36,6 +38,8 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <AnswerDialog />
       <PlatformsDialog />
       <UserRegisterDialog />
+      <UserLoginDialog />
+      <HelpDialog />
     </>
   );
 };

@@ -19,7 +19,7 @@ const PlatformsDialog: React.FC = () => {
   const teamId = useAppSelector((state) => state.teams.selectedTeamId);
 
   // Отдельные состояния для разных полей
-  const [tgChannelId, setTgChannelId] = useState('');
+  const [, setTgChannelId] = useState('');
   const [vkGroupId, setVkGroupId] = useState('');
   const [vkAdminApiKey, setVkAdminApiKey] = useState('');
   const [vkGroupApiKey, setVkGroupApiKey] = useState('');

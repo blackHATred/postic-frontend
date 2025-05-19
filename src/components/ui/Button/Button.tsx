@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Popconfirm, Popover } from 'antd';
 import styles from './styles.module.scss';
+import { useAppSelector } from '../../../stores/hooks';
 
 export interface ClickableButtonProps {
   type?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
@@ -8,6 +9,7 @@ export interface ClickableButtonProps {
   icon?: React.ReactNode;
   variant?: 'dashed' | 'text' | 'link' | 'outlined' | 'solid' | 'filled';
   size?: 'large' | 'middle' | 'small';
+  shape?: 'circle' | 'round' | 'default';
   color?:
     | 'primary'
     | 'default'
@@ -31,6 +33,7 @@ export interface ClickableButtonProps {
   className?: string;
   disabled?: boolean;
   confirm?: boolean;
+  loading?: boolean;
 }
 
 const ClickableButton: React.FC<ClickableButtonProps> = ({
@@ -38,6 +41,7 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
   text,
   icon,
   color,
+  shape,
   variant,
   size,
   onButtonClick,
@@ -46,9 +50,15 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
   confirm = false,
   className,
   disabled,
+  loading = false,
 }) => {
   const [open, setOpen] = useState(false);
-  return withPopover ? (
+  const helpMode = useAppSelector((state) => state.settings.helpMode);
+
+  // Показывать подсказку только если она передана и включен режим подсказок
+  const shouldShowPopover = withPopover && popoverContent && helpMode;
+
+  return shouldShowPopover ? (
     <Popover
       placement='bottom'
       content={<div className={styles['popover-content']}>{popoverContent}</div>}
@@ -71,12 +81,14 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
         <Button
           type={type}
           icon={icon}
+          shape={shape}
           color={color}
           variant={variant}
           size={size}
           className={styles['blueButton'] + ' ' + className}
           disabled={disabled}
           onClick={confirm ? () => setOpen(!open) : onButtonClick}
+          loading={loading}
         >
           {text}
         </Button>
@@ -102,9 +114,11 @@ const ClickableButton: React.FC<ClickableButtonProps> = ({
         color={color}
         variant={variant}
         size={size}
+        shape={shape}
         className={styles['blueButton'] + ' ' + className}
         disabled={disabled}
         onClick={confirm ? () => setOpen(!open) : onButtonClick}
+        loading={loading}
       >
         {text}
       </Button>

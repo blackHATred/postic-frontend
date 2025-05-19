@@ -4,6 +4,7 @@ export interface RegisterResult {
 
 export interface MeInfo {
   user_id: string;
+  username?: string;
 }
 
 export interface UserData {

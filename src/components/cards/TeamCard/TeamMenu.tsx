@@ -115,55 +115,57 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
               {' '}
               {teamName}
             </Text>
-            {isUserAdmin && (
-              <ClickableButton
-                type='text'
-                size='small'
-                icon={<EditOutlined />}
-                onButtonClick={onRename}
-              />
-            )}
-          </div>
-
-          <div className={styles['post-header-right']}>
             <Space className={styles['platform-icons']}>
               {[
                 linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,
                 linkedPlatforms?.platforms?.vk_group_id ? renderPlatformIcon('vk') : null,
               ].filter(Boolean)}
             </Space>
-            <Text type='secondary' style={{ marginBottom: '5px' }}>
-              {' '}
-              (#{teamID})
-            </Text>
+          </div>
+
+          <div className={styles['post-header-right']}>
+            {isUserAdmin && (
+              <ClickableButton
+                type='text'
+                size='small'
+                icon={<EditOutlined />}
+                onButtonClick={onRename}
+                withPopover={true}
+                popoverContent='Переименовать команду'
+              />
+            )}
+            <div className={styles['post-header-buttons']}>
+              <ClickableButton
+                text='Покинуть команду'
+                type='primary'
+                color='danger'
+                variant='solid'
+                icon={<MinusOutlined />}
+                confirm
+                onButtonClick={onKick}
+              />
+              {isUserAdmin && (
+                <>
+                  <ClickableButton
+                    text='Добавить участника'
+                    icon={<PlusOutlined />}
+                    color='primary'
+                    onButtonClick={onAddMember}
+                  />
+                  <Dropdown menu={menuProps} trigger={['hover']} placement='bottomRight'>
+                    <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
+                  </Dropdown>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
         <div className={styles['post-header-second-row']}>
-          <div className={styles['post-header-buttons']}>
-            <ClickableButton
-              text='Покинуть команду'
-              type='primary'
-              color='danger'
-              variant='solid'
-              icon={<MinusOutlined />}
-              confirm
-              onButtonClick={onKick}
-            />
-            {isUserAdmin && (
-              <>
-                <ClickableButton
-                  text='Добавить участника'
-                  icon={<PlusOutlined />}
-                  color='primary'
-                  onButtonClick={onAddMember}
-                />
-                <Dropdown menu={menuProps} trigger={['hover']} placement='bottomRight'>
-                  <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
-                </Dropdown>
-              </>
-            )}
-          </div>
+          <Text type='secondary' style={{ marginBottom: '5px' }}>
+            {' '}
+            #{teamID}
+          </Text>
         </div>
       </div>
     </div>

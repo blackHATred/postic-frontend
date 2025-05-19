@@ -12,6 +12,7 @@ export interface DialogBoxProps {
   headerSubtext?: string;
   headerSubtextOnClick?: (...args: any) => void;
   isCenter?: boolean;
+  customStyles?: { [key: string]: string };
 }
 
 const { Text, Title } = Typography;
@@ -27,10 +28,9 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
     content: {
       padding: '14px',
     },
-
     footer: {
-      display: (props.isCenter && 'flex') || '',
-      justifyContent: (props.isCenter && 'center') || '',
+      display: props.isCenter ? 'flex' : '',
+      justifyContent: props.isCenter ? 'center' : '',
     },
   };
 

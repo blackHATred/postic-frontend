@@ -12,13 +12,11 @@ interface RadarChartProps {
 }
 
 const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 }) => {
-  // по умолчанию 0
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined);
 
-  // Добавляем эффект для установки пользователя с индексом 0 при изменении данных
   useEffect(() => {
     if (data.length > 0) {
-      setSelectedUserId(data[0].id);
+      setSelectedUserId(data[0].user_id);
     }
   }, [data]);
 
@@ -79,7 +77,7 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
   }, [data, loading, selectedUserId]);
 
   const processDataForRadarChart = (sourceData: UserAnalytics[], userId: number) => {
-    const selectedUser = sourceData.find((user) => user.id === userId);
+    const selectedUser = sourceData.find((user) => user.user_id === userId);
 
     if (!selectedUser) {
       return [];
@@ -87,34 +85,29 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
 
     // Нормализуем значения для радарного графика
     const maxValues = {
-      likes: Math.max(...sourceData.map((u) => u.likes), 1),
+      likes: Math.max(...sourceData.map((u) => u.reactions), 1),
       views: Math.max(...sourceData.map((u) => u.views), 1),
       comments: Math.max(...sourceData.map((u) => u.comments), 1),
-      posts: Math.max(...sourceData.map((u) => u.posts), 1),
     };
 
     return [
       {
         item: 'Лайки',
-        score: (selectedUser.likes / maxValues.likes) * 100,
-        user: `Пользователь ${selectedUser.id}`,
+        score: (selectedUser.reactions / maxValues.likes) * 100,
+        user: `${selectedUser.user_id}`,
       },
       {
         item: 'Просмотры',
         score: (selectedUser.views / maxValues.views) * 100,
-        user: `Пользователь ${selectedUser.id}`,
+        user: `${selectedUser.user_id}`,
       },
       {
         item: 'Комментарии',
         score: (selectedUser.comments / maxValues.comments) * 100,
-        user: `Пользователь ${selectedUser.id}`,
+        user: `${selectedUser.user_id}`,
       },
-      {
-        item: 'Посты',
-        score: (selectedUser.posts / maxValues.posts) * 100,
-        user: `Пользователь ${selectedUser.id}`,
-      },
-      { item: 'Общий KPI', score: selectedUser.total_kpi, user: `Пользователь ${selectedUser.id}` },
+
+      { item: 'Общий KPI', score: selectedUser.kpi, user: `${selectedUser.user_id}` },
     ];
   };
 
@@ -144,8 +137,8 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
           onChange={setSelectedUserId}
           style={{ width: '180px' }}
           options={data.map((user) => ({
-            value: user.id,
-            label: `Пользователь ${user.id}`,
+            value: user.user_id,
+            label: `Пользователь ${user.user_id}`,
           }))}
           placeholder='Выберите пользователя'
         />

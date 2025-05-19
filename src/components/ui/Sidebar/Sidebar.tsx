@@ -19,7 +19,6 @@ import { setComments } from '../../../stores/commentSlice';
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
-  const hasPosts = posts.length > 0;
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);

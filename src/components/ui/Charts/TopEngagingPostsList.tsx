@@ -51,9 +51,19 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
 
   const filteredData = useMemo(() => {
     if (platform === 'telegram') {
-      return postsData.filter((post) => post.tg_views > 0);
+      return postsData.filter(
+        (post) =>
+          (post.tg_views !== undefined && post.tg_views !== null) ||
+          post.tg_reactions > 0 ||
+          post.tg_comments > 0,
+      );
     } else if (platform === 'vk') {
-      return postsData.filter((post) => post.vk_views > 0);
+      return postsData.filter(
+        (post) =>
+          (post.vk_views !== undefined && post.vk_views !== null) ||
+          post.vk_reactions > 0 ||
+          post.vk_comments > 0,
+      );
     }
     return postsData;
   }, [postsData, platform]);
