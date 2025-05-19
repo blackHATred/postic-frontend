@@ -32,6 +32,12 @@ export interface sendPostResult {
   status: string;
 }
 
+export interface PostEditReq {
+  team_id: number;
+  post_union_id: number;
+  text: string;
+}
+
 export interface postStatusResults {
   status: {
     post_id: string;

@@ -12,6 +12,7 @@ import PlatformsDialog from '../../components/modals/PlatformsDialog/PlatformsDi
 import UserRegisterDialog from '../../components/modals/auth/UserRegisterDialog';
 import UserLoginDialog from '../../components/modals/auth/UserLoginDialog';
 import HelpDialog from '../../components/modals/HelpDialog/HelpDialog';
+import EditPostDialog from '../../components/modals/EditPostDialog/EditPostDialog';
 
 interface ModalsProviderProps {
   children: ReactNode;
@@ -34,6 +35,7 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <UserRegisterDialog />
       <UserLoginDialog />
       <HelpDialog />
+      <EditPostDialog />
     </>
   );
 };

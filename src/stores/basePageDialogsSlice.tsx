@@ -22,6 +22,11 @@ export interface basePageDialogsSliceState {
   registerEmailDialog: basicDialogState;
   loginEmailDialog: basicDialogState;
   helpDialog: basicDialogState;
+  editPostDialog: {
+    isOpen: boolean;
+    postId: number | null;
+    teamId: number | null;
+  };
 }
 
 const initialState: basePageDialogsSliceState = {
@@ -34,6 +39,11 @@ const initialState: basePageDialogsSliceState = {
   registerEmailDialog: { isOpen: false },
   loginEmailDialog: { isOpen: false },
   helpDialog: { isOpen: false },
+  editPostDialog: {
+    isOpen: false,
+    postId: null,
+    teamId: null,
+  },
 };
 
 export const basePageDialogsSlice = createSlice({
@@ -87,6 +97,14 @@ export const basePageDialogsSlice = createSlice({
     setHelpDialog: (state, action: PayloadAction<boolean>) => {
       state.helpDialog.isOpen = action.payload;
     },
+    setEditPostDialog: (
+      state,
+      action: PayloadAction<{ isOpen: boolean; postId: number | null; teamId: number | null }>,
+    ) => {
+      state.editPostDialog.isOpen = action.payload.isOpen;
+      state.editPostDialog.postId = action.payload.postId;
+      state.editPostDialog.teamId = action.payload.teamId;
+    },
   },
 });
 
@@ -104,6 +122,7 @@ export const {
   setRegisterEmailDialog,
   setLoginEmailDialog,
   setHelpDialog,
+  setEditPostDialog,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;
