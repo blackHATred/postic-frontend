@@ -7,6 +7,7 @@ import { Post } from '../../../models/Post/types';
 import { getPosts } from '../../../api/api';
 import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
+import PostCalendar from '../../ui/Calendar/PostCalendar';
 
 const frame_size = 10;
 const { Text } = Typography;
@@ -174,12 +175,18 @@ const PostList: React.FC = () => {
           ? dayjs(last_object.created_at).utc().format()
           : dayjs(last_object.created_at).add(1, 'second').utc().format()
         : dayjs().utc().format();
-      let result;
+      let result: { posts: Post[] } = { posts: [] };
+
       if (activeFilter === 'all') {
         result = await getPosts(teamId, limit, currentDate, undefined, before);
-      } else {
+      }
+      if (activeFilter === 'published' || activeFilter === 'scheduled') {
         result = await getPosts(teamId, limit, currentDate, activeFilter, before);
       }
+      if (activeFilter === 'calendar') {
+        result = await getPosts(teamId, limit, currentDate, 'scheduled', before);
+      }
+
       if (before == false) {
         return [...result.posts].reverse();
       }
@@ -220,36 +227,42 @@ const PostList: React.FC = () => {
   };
 
   return (
-    <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
-      {teamId != 0 &&
-        postElements.length > 0 &&
-        postElements.map((el) => (
-          <div key={el.id} style={{ display: isLoading ? 'none' : 'block' }}>
-            {el.element}
-          </div>
-        ))}
-      {showBottom || isLoadingBottom ? (
-        <div className={styles.end} key={'sp_bottom'}>
-          {isLoadingBottom ? (
-            <Spin className={styles.spinner} />
+    <>
+      {activeFilter === 'calendar' ? (
+        <PostCalendar posts={posts} />
+      ) : (
+        <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
+          {teamId != 0 &&
+            postElements.length > 0 &&
+            postElements.map((el) => (
+              <div key={el.id} style={{ display: isLoading ? 'none' : 'block' }}>
+                {el.element}
+              </div>
+            ))}
+          {showBottom || isLoadingBottom ? (
+            <div className={styles.end} key={'sp_bottom'}>
+              {isLoadingBottom ? (
+                <Spin className={styles.spinner} />
+              ) : (
+                <Divider variant='dashed' className={styles.end}>
+                  <Text color={'#bfbfbf'}>Конец</Text>
+                </Divider>
+              )}
+            </div>
           ) : (
-            <Divider variant='dashed' className={styles.end}>
-              <Text color={'#bfbfbf'}>Конец</Text>
-            </Divider>
+            <div key={'sp_bottom'}></div>
+          )}
+          {isLoading && (
+            <div className={styles.end} key={'sp_loading'}>
+              <Spin className={styles.spinner} />
+            </div>
+          )}
+          {!isLoading && posts.length == 0 && (
+            <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
           )}
         </div>
-      ) : (
-        <div key={'sp_bottom'}></div>
       )}
-      {isLoading && (
-        <div className={styles.end} key={'sp_loading'}>
-          <Spin className={styles.spinner} />
-        </div>
-      )}
-      {!isLoading && posts.length == 0 && (
-        <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
-      )}
-    </div>
+    </>
   );
 };
 export default PostList;
