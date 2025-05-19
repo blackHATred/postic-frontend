@@ -21,7 +21,6 @@ export interface teamSliceState {
   editMemberDialog: basicDialogState;
   createTeamDialog: basicDialogState;
   renameTeamDialog: basicDialogState;
-  secretTeamDialog: basicDialogState;
   authorize_status: 'not_authorized' | 'loading' | 'authorized';
   platformsDialog: basicDialogState;
   selectedPlatform: string;
@@ -38,7 +37,6 @@ const initialState: teamSliceState = {
   editMemberDialog: { isOpen: false },
   createTeamDialog: { isOpen: false },
   renameTeamDialog: { isOpen: false },
-  secretTeamDialog: { isOpen: false },
   authorize_status: 'loading',
   platformsDialog: { isOpen: false },
   selectedPlatform: '',
@@ -49,13 +47,6 @@ export const teamSlice = createSlice({
   name: 'teams',
   initialState,
   reducers: {
-    addTeam: (state, action: PayloadAction<Team>) => {
-      state.teams.push(action.payload);
-    },
-    addTeams: (state, action: PayloadAction<Team[]>) => {
-      state.teams = [...state.teams, ...action.payload];
-    },
-
     setTeams: (state, action: PayloadAction<Team[]>) => {
       state.teams = action.payload;
     },
@@ -84,9 +75,6 @@ export const teamSlice = createSlice({
     setGlobalActiveTeamId: (state, action: PayloadAction<number>) => {
       state.globalActiveTeamId = action.payload;
     },
-    setSecretTeamDialog: (state, action: PayloadAction<boolean>) => {
-      state.secretTeamDialog.isOpen = action.payload;
-    },
     setAuthorized: (state, action: PayloadAction<'not_authorized' | 'loading' | 'authorized'>) => {
       state.authorize_status = action.payload;
     },
@@ -103,8 +91,6 @@ export const teamSlice = createSlice({
 });
 
 export const {
-  addTeam,
-  addTeams,
   setTeams,
   setSelectedMemberId,
   setSelectedTeamId,
@@ -114,7 +100,6 @@ export const {
   setEditMemberDialog,
   setCreateTeamDialog,
   setRenameTeamDialog,
-  setSecretTeamDialog,
   setAuthorized,
   setPlatformsDialog,
   setSelectedPlatform,

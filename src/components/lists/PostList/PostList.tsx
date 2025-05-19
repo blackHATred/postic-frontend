@@ -31,19 +31,17 @@ const PostList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingBottom, setIsLoadingBottom] = useState(false);
   const [isLoadingTop, setIsLoadingTop] = useState(false);
-
-  const [atTop, setAtTop] = useState<boolean>(true);
   const [lastTop, setLastTop] = useState<number>(0);
 
   const [newData, setNewData] = useState<Post[]>([]);
 
-  const [doNowShow, setDoNowShow] = useState(false);
+  const [doNowShow, setDoNowShow] = useState(true);
 
   React.useEffect(() => {
     setHasMoreBottom(true);
-    setHasMoreTop(false);
     setShowBottom(false);
     if (posts.length == 0) {
+      setHasMoreTop(false);
       // NOTE: первичная загрузка
       setIsLoading(true);
       loadPost();
@@ -52,6 +50,7 @@ const PostList: React.FC = () => {
       setDoNowShow(true);
       setHasMoreTop(true);
     } else {
+      setHasMoreTop(false);
       //NOTE: смена страницы
       setDoNowShow(true);
       dispatch(setPostsScroll(0));
@@ -75,7 +74,6 @@ const PostList: React.FC = () => {
   };
 
   React.useEffect(() => {
-    console.log(posts);
     if (posts.length > 0) {
       if (postElements.length == 0) {
         // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED
@@ -84,7 +82,10 @@ const PostList: React.FC = () => {
           loadFromData();
         } else {
           //NOTE: Had data loaded
-          setTimeout(() => loadFromData(), 10);
+          setDoNowShow(false);
+          setTimeout(() => {
+            loadFromData();
+          }, 100);
         }
       } else {
         // NOTE: NEW DATA LOADED
@@ -116,12 +117,13 @@ const PostList: React.FC = () => {
       setPostElements(p);
     } else {
       setPostElements([]);
+      setDoNowShow(false);
     }
   };
 
   React.useEffect(() => {
-    setDoNowShow(false);
     if (divRef.current && postElements.length > 0) {
+      setDoNowShow(false);
       if (isLoading) {
         //NOTE: LOADING FIRST DATA OR ADDING NEW DATA
 
@@ -146,7 +148,6 @@ const PostList: React.FC = () => {
           }
         } else {
           //NOTE: ADDING FIRST DATA
-          console.log('first elemets');
           setIsLoading(false);
         }
         if (divRef.current.scrollHeight > divRef.current.clientHeight) {
@@ -154,6 +155,7 @@ const PostList: React.FC = () => {
         }
       } else {
         //NOTE: ALREADY EXISTING DATA LOADED
+        console.log(scroll);
         divRef.current.scrollTo(0, scroll);
       }
     }
@@ -220,7 +222,6 @@ const PostList: React.FC = () => {
     if (divRef.current) {
       dispatch(setPostsScroll(divRef.current.scrollTop));
       const max_scroll = divRef.current.scrollHeight - divRef.current.clientHeight;
-      setAtTop(divRef.current.scrollTop <= max_scroll * 0.1);
       if (
         divRef.current.scrollTop <= max_scroll * 0.1 &&
         hasMoreTop &&
@@ -232,7 +233,7 @@ const PostList: React.FC = () => {
         //NOTE: load more data bottom
         setIsLoading(true);
         setIsLoadingTop(true);
-        console.log('loading_new_top');
+        console.log('load_top');
         loadPosts(false, frame_size, posts[0]).then((data) => onNewTop(data));
       }
       if (
@@ -244,7 +245,6 @@ const PostList: React.FC = () => {
         posts.length > 0
       ) {
         //NOTE: load more data top
-        console.log('loading_new_bottom');
         setIsLoading(true);
         setIsLoadingBottom(true);
         loadPosts(true, frame_size, posts[posts.length - 1]).then((data) => onNewBottom(data));
@@ -254,17 +254,12 @@ const PostList: React.FC = () => {
 
   return (
     <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
-      {isLoadingTop ? (
+      {(isLoading || doNowShow || isLoadingTop) && !isLoadingBottom ? (
         <div className={styles.end} key={'sp_loading'}>
           <Spin className={styles.spinner} />
         </div>
       ) : (
         <div style={{ paddingTop: '20px' }}></div>
-      )}
-      {(isLoading || doNowShow) && !isLoadingTop && !isLoadingBottom && (
-        <div className={styles.end} key={'sp_loading'}>
-          <Spin className={styles.spinner} />
-        </div>
       )}
       {teamId != 0 &&
         postElements.length > 0 &&
@@ -287,7 +282,7 @@ const PostList: React.FC = () => {
         <div key={'sp_bottom'}></div>
       )}
 
-      {!isLoading && posts.length == 0 && (
+      {!isLoading && posts.length == 0 && !doNowShow && (
         <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
       )}
     </div>

@@ -8,7 +8,6 @@ import {
 } from '../models/Post/types';
 import {
   Comment,
-  Comments,
   CommentReply,
   DeleteComment,
   GetSummarizeMarkdownResponse,
@@ -215,7 +214,7 @@ export const getComments = async (
   marked_as_ticket?: boolean,
 ) => {
   try {
-    const response = await axiosInstance.get<Comments>(
+    const response = await axiosInstance.get<{ comments: Comment[] }>(
       `${config.api.baseURL}${routes.comments()}/last`,
       {
         withCredentials: true,

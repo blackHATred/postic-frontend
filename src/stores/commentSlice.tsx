@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Comment, Comments } from '../models/Comment/types';
+import { Comment } from '../models/Comment/types';
 import { RootState } from './store';
 import dayjs from 'dayjs';
 import {
@@ -37,14 +37,14 @@ interface basicDialogState {
 export type TicketFilter = '' | 'done' | 'not_done';
 
 export interface CommentSliceState {
-  comments: Comments;
+  comments: CommentWithChildren[];
   answerDialog: basicDialogState;
   selectedComment: Comment | null;
   ticketFilter: TicketFilter;
 }
 
 const initialState: CommentSliceState = {
-  comments: { comments: [], status: '' },
+  comments: [],
   answerDialog: { isOpen: false, files: [] },
   selectedComment: null,
   ticketFilter: 'not_done',
@@ -61,13 +61,13 @@ export const commentsSlice = createSlice({
       state.selectedComment = action.payload;
     },
     setComments: (state, action: PayloadAction<CommentWithChildren[]>) => {
-      state.comments.comments = action.payload ? action.payload : [];
+      state.comments = action.payload ? action.payload : [];
     },
 
     addComment: (state, action: PayloadAction<Comment>) => {
       const el: any = [];
 
-      state.comments.comments.reduce(flat, el);
+      state.comments.reduce(flat, el);
       if (action.payload.reply_to_comment_id) {
         if (el.filter((el: any) => el.id == action.payload.reply_to_comment_id).length > 0) {
           el.push(action.payload);
@@ -75,19 +75,19 @@ export const commentsSlice = createSlice({
       } else {
         el.push(action.payload);
       }
-      state.comments.comments = createCommentTree(el);
+      state.comments = createCommentTree(el);
     },
 
     removeComment: (state, action: PayloadAction<CommentWithChildren[]>) => {
       const el1: any = [];
 
-      state.comments.comments.reduce(flat, el1);
+      state.comments.reduce(flat, el1);
 
       const el2: any = [];
 
       action.payload.reduce(flat_id, el2);
 
-      state.comments.comments = createCommentTree(
+      state.comments = createCommentTree(
         el1.filter((el: any) => {
           return !el2.includes(el.id);
         }),
@@ -124,8 +124,8 @@ export const {
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;
 
 export const getLastDate = (state: RootState) => {
-  if (state.comments.comments.comments && state.comments.comments.comments.length > 0)
-    return state.comments.comments.comments[0].created_at;
+  if (state.comments.comments && state.comments.comments.length > 0)
+    return state.comments.comments[0].created_at;
   return dayjs().format();
 };
 

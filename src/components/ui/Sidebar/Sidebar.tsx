@@ -14,11 +14,9 @@ import { Switch, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { routes } from '../../../app/App.routes';
-import { setComments } from '../../../stores/commentSlice';
 
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
-  const posts = useAppSelector((state) => state.posts.posts);
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
@@ -31,8 +29,9 @@ const Sidebar: React.FC = () => {
       return user.user_id == selectedUser;
     })?.roles;
 
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
+
   const handleTabChange = (key: string, route: string) => {
-    dispatch(setComments([]));
     dispatch(setActiveTab(key));
     navigate(route);
   };

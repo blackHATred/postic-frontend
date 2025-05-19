@@ -64,7 +64,7 @@ const DialogBoxSummary: FC = () => {
 
   const onHeaderClick = async () => {
     dispatch(setSummaryDialog(false));
-    dispatch(setScrollToPost(true));
+    dispatch(setScrollToPost(selectedPostId));
   };
 
   return (

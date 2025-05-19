@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -14,11 +14,11 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
-import { setComments } from '../../../stores/commentSlice';
 import MediaRenderer from '../Comment/MediaRenderer';
 import { DeletePost } from '../../../api/api';
 import { PostReq } from '../../../models/Analytics/types';
 import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
+import { setComments } from '../../../stores/commentSlice';
 
 const { Text, Paragraph } = Typography;
 
@@ -40,10 +40,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     return <LiaQuestionCircle className={styles.icon} />;
   };
   const [ellipsis] = useState(true);
-
-  useEffect(() => {
-    console.log('reload');
-  });
 
   const dispatch = useAppDispatch();
   const refer = useRef<HTMLDivElement>(null);
@@ -73,7 +69,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
 
   const onCommentClick = () => {
     dispatch(setComments([]));
-    navigate(routes.post(post.id));
+    setTimeout(() => navigate(routes.post(post.id)), 100);
   };
 
   return (
@@ -115,9 +111,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                   icon={<CommentOutlined />}
                   withPopover={true}
                   popoverContent='Посмотреть комментарии к посту'
-                  onButtonClick={() => {
-                    onCommentClick();
-                  }}
+                  onButtonClick={onCommentClick}
                 />
               ) : (
                 <></>
