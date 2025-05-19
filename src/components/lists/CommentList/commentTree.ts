@@ -6,53 +6,61 @@ export interface CommentWithChildren extends Comment {
   realLevel?: number;
 }
 
-export const createCommentTree = (comments: Comment[]) => {
-  const map: Record<number, CommentWithChildren> = {};
+/**
+ * Создает дерево комментариев из плоского массива
+ * Оптимизированная версия с улучшенной производительностью
+ */
+export const createCommentTree = (comments: Comment[]): CommentWithChildren[] => {
+  // Используем Map вместо обычного объекта для более быстрого доступа
+  const commentMap = new Map<number, CommentWithChildren>();
   const roots: CommentWithChildren[] = [];
 
-  comments.forEach((comment) => {
-    map[comment.id] = { ...comment, children: [], realLevel: 0 };
-  });
+  // Первый проход: создаем объекты с children для каждого комментария
+  for (const comment of comments) {
+    commentMap.set(comment.id, { ...comment, children: [], realLevel: 0 });
+  }
 
-  const sortedComments = [...comments].sort((a, b) => {
-    const aIsRoot = !a.reply_to_comment_id || a.reply_to_comment_id === 0;
-    const bIsRoot = !b.reply_to_comment_id || b.reply_to_comment_id === 0;
+  // Второй проход: строим дерево
+  for (const comment of comments) {
+    const commentWithChildren = commentMap.get(comment.id)!;
 
-    if (aIsRoot && !bIsRoot) return -1;
-    if (!aIsRoot && bIsRoot) return 1;
-
-    return 0;
-  });
-
-  sortedComments.forEach((comment) => {
-    if (comment.reply_to_comment_id === 0 || comment.reply_to_comment_id === null) {
-      roots.push(map[comment.id]);
-    } else if (map[comment.reply_to_comment_id]) {
-      const parent = map[comment.reply_to_comment_id];
-      // вложенности ребенка - родитель + 1
-      map[comment.id].realLevel = (parent.realLevel || 0) + 1;
-      parent.children.push(map[comment.id]);
-    } else {
-      // если кто-то удалил родительский коммент или это просто что-то странное, пусть будет корневым
-      roots.push(map[comment.id]);
+    // Если это корневой комментарий (без родителя)
+    if (comment.reply_to_comment_id === null || comment.reply_to_comment_id === 0) {
+      roots.push(commentWithChildren);
     }
-  });
-  const sortNodeChildren = (node: CommentWithChildren) => {
+    // Если это дочерний комментарий и родитель существует
+    else if (commentMap.has(comment.reply_to_comment_id)) {
+      const parent = commentMap.get(comment.reply_to_comment_id)!;
+      // Вычисляем реальный уровень вложенности
+      commentWithChildren.realLevel = (parent.realLevel || 0) + 1;
+      parent.children.push(commentWithChildren);
+    }
+    // Если родитель не найден (удален или по какой-то причине отсутствует)
+    else {
+      roots.push(commentWithChildren);
+    }
+  }
+
+  // Сортируем комментарии по времени: новые в начале
+  const sortByTime = (a: CommentWithChildren, b: CommentWithChildren): number =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+
+  // Рекурсивно сортируем дочерние комментарии
+  const sortChildren = (node: CommentWithChildren): void => {
     if (node.children.length > 0) {
-      node.children.sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
-      node.children.forEach(sortNodeChildren);
+      node.children.sort(sortByTime);
+      node.children.forEach(sortChildren);
     }
   };
 
-  roots.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  roots.forEach(sortNodeChildren);
+  // Сортируем корневые комментарии и рекурсивно их потомков
+  roots.sort(sortByTime);
+  roots.forEach(sortChildren);
 
   return roots;
 };
 
-// сворачивание
+// Хук для управления состоянием сворачивания комментариев
 export const useCollapsedComments = () => {
   const [collapsedComments, setCollapsedComments] = useState<Record<number, boolean>>({});
 

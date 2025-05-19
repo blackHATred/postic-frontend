@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Empty } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setSelectedPostId } from '../../../stores/postsSlice';
-import CommentList from '../../lists/CommentList/CommentList';
+import CommentList from '../../lists/CommentList';
 import styles from './styles.module.scss';
 import PostDetailed from '../../cards/PostDetailed/PostDetailed';
 import { setComments } from '../../../stores/commentSlice';

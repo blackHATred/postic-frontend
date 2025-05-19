@@ -20,7 +20,7 @@ import { AxiosError, isAxiosError } from 'axios';
 import config from '../constants/appConfig';
 import { MeInfo, RegisterResult, UserData } from '../models/User/types';
 import { routes } from './routers/routes';
-
+import { createCommentTree } from '../components/lists/CommentList/commentTree';
 import axiosInstance from './axiosConfig';
 import {
   PostReq,
@@ -205,7 +205,7 @@ export const getComments = async (
   offset?: string,
   before = true,
   marked_as_ticket?: boolean,
-) => {
+): Promise<Comments> => {
   try {
     const response = await axiosInstance.get<Comments>(
       `${config.api.baseURL}${routes.comments()}/last`,
@@ -221,6 +221,23 @@ export const getComments = async (
         },
       },
     );
+
+    // Если API возвращает плоский список комментариев, преобразуем его в дерево
+    if (response.data.comments && Array.isArray(response.data.comments)) {
+      // Проверяем, имеют ли комментарии уже структуру дерева (наличие поля children)
+      const firstComment = response.data.comments[0];
+      const isAlreadyTree = firstComment && 'children' in firstComment;
+
+      if (!isAlreadyTree) {
+        // Преобразуем плоский список в древовидную структуру
+        const commentTree = createCommentTree(response.data.comments);
+        return {
+          ...response.data,
+          comments: commentTree,
+        };
+      }
+    }
+
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
