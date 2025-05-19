@@ -9,9 +9,11 @@ const router = createBrowserRouter([{ path: '*', element: <App /> }]);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-  <Provider store={store}>
-    <RouterProvider router={router} />
-  </Provider>,
+  <React.StrictMode>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  </React.StrictMode>,
 );
 
 /*
