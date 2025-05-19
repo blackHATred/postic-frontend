@@ -18,7 +18,6 @@ const DialogBoxSummary: FC = () => {
   const isOpen = useAppSelector((state) => state.basePageDialogs.summaryDialog.isOpen);
   const isLoading = useAppSelector((state) => state.basePageDialogs.summaryDialog.isLoading);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {

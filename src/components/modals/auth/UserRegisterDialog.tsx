@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
-import { Form, Input, Typography } from 'antd';
+import { Form, Input } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import { RegisterWithUserData } from '../../../api/api'; // Новый метод API
 import { UserData } from '../../../models/User/types';
@@ -10,12 +10,10 @@ import { MyTeams } from '../../../api/teamApi';
 import { setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import { validatePasswordSame } from '../../../utils/validation';
 
-const { Text } = Typography;
-
 const UserRegisterDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.registerEmailDialog.isOpen);
 

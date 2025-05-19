@@ -99,7 +99,6 @@ const CreatePostDialog: FC = () => {
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
   const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files);
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
   const [files, setFiles] = useState<{ id: string; files: any }[]>([]);
 
   const [platformError, setPlatformError] = useState<string | null>(null);
@@ -310,7 +309,7 @@ const CreatePostDialog: FC = () => {
             {linkedPlatforms.length > 0 ? (
               <>
                 <div className={styles['platforms-list-buttons']}>
-                  {selectedPlatforms.length > 1 && (
+                  {linkedPlatforms.length > 1 && (
                     <>
                       <Button
                         icon={<CheckOutlined />}
@@ -383,7 +382,7 @@ const CreatePostDialog: FC = () => {
                 icon={<EditOutlined />}
                 type='default'
                 size='small'
-                withPopover={help_mode}
+                withPopover={true}
                 popoverContent={
                   'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
                 }
@@ -393,7 +392,7 @@ const CreatePostDialog: FC = () => {
                 icon={<RobotOutlined />}
                 type='default'
                 size='small'
-                withPopover={help_mode}
+                withPopover={true}
                 popoverContent={'ИИ-генерация текста поста'}
                 disabled={true}
               />
@@ -401,7 +400,7 @@ const CreatePostDialog: FC = () => {
                 icon={<SmileOutlined />}
                 type='default'
                 size='small'
-                withPopover={help_mode}
+                withPopover={true}
                 onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 popoverContent={'Эмодзи'}
               />

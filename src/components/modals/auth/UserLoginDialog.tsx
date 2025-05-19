@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
-import { Form, Input, Typography } from 'antd';
+import { Form, Input } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import { Login, Me } from '../../../api/api'; // Новый метод API
 import { UserData } from '../../../models/User/types';
@@ -9,12 +9,10 @@ import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamS
 import { MyTeams } from '../../../api/teamApi';
 import { setLoginEmailDialog } from '../../../stores/basePageDialogsSlice';
 
-const { Text } = Typography;
-
 const UserLoginDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.loginEmailDialog.isOpen);
 
@@ -34,7 +32,7 @@ const UserLoginDialog: React.FC = () => {
       dispatch(setAuthorized('loading'));
 
       try {
-        const loginResult = await Login(Number(userDataReq.username));
+        await Login(Number(userDataReq.username));
 
         const userData = await Me();
 

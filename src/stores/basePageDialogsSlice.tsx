@@ -24,6 +24,7 @@ export interface basePageDialogsSliceState {
   activeTab: string;
   registerEmailDialog: basicDialogState;
   loginEmailDialog: basicDialogState;
+  helpDialog: basicDialogState;
 }
 
 const initialState: basePageDialogsSliceState = {
@@ -38,6 +39,7 @@ const initialState: basePageDialogsSliceState = {
   activeTab: '1',
   registerEmailDialog: { isOpen: false },
   loginEmailDialog: { isOpen: false },
+  helpDialog: { isOpen: false },
 };
 
 export const basePageDialogsSlice = createSlice({
@@ -100,6 +102,9 @@ export const basePageDialogsSlice = createSlice({
     setLoginEmailDialog: (state, action: PayloadAction<boolean>) => {
       state.loginEmailDialog.isOpen = action.payload;
     },
+    setHelpDialog: (state, action: PayloadAction<boolean>) => {
+      state.helpDialog.isOpen = action.payload;
+    },
   },
 });
 
@@ -119,6 +124,7 @@ export const {
   clearFiles,
   setRegisterEmailDialog,
   setLoginEmailDialog,
+  setHelpDialog,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;

@@ -8,7 +8,7 @@ import TopEngagingPostsList from '../../ui/Charts/TopEngagingPostsList';
 import HeatmapChart from '../../ui/Charts/HeatmapChart';
 import CircularChart from '../../ui/Charts/CircularChart';
 import { transformStatsToAnalytics } from '../../../utils/transformData';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import KPIRadarChart from '../../ui/Charts/RadarChart';
 import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
 import { Empty } from 'antd';
@@ -20,9 +20,7 @@ const AnalyticsComponent: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<PostAnalytics[]>([]);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const posts = useAppSelector((state) => state.posts.posts);
   const location = useLocation();
-  const navigate = useNavigate();
   const currentPath = location.pathname;
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
   const [usersData, setUsersData] = useState<UserAnalytics[]>([]);
@@ -95,15 +93,11 @@ const AnalyticsComponent: React.FC = () => {
           end: endDate.toISOString(),
         });
 
-        // Проверяем структуру ответа и обрабатываем оба возможных формата
         if (kpiResponse.users && Array.isArray(kpiResponse.users)) {
-          // Если есть поле users с массивом - используем его
           setUsersData(kpiResponse.users);
         } else if (Array.isArray(kpiResponse.kpi)) {
-          // Если API возвращает массив в поле kpi
           setUsersData(kpiResponse.kpi);
         } else if (kpiResponse.kpi) {
-          // Если API возвращает одного пользователя в поле kpi
           setUsersData([kpiResponse.kpi]);
         } else {
           console.warn('Неожиданный формат ответа KPI:', kpiResponse);

@@ -1,12 +1,15 @@
 import { Alert, Spin } from 'antd';
 import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../../../stores/hooks';
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import Sidebar from '../../ui/Sidebar/Sidebar';
 import SideMenu from '../../ui/SideMenu/SideMenu';
 import ButtonHeader from '../../widgets/Header/Header';
 import styles from './styles.module.scss';
 import { routes } from '../../../app/App.routes';
+import ClickableButton from '../../ui/Button/Button';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { setHelpDialog } from '../../../stores/basePageDialogsSlice';
 
 const PageLayout: React.FC = () => {
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
@@ -16,6 +19,7 @@ const PageLayout: React.FC = () => {
   const loc = useLocation().pathname;
   const navigate = useNavigate();
   const teams = useAppSelector((state) => state.teams.teams);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const roles = teams
@@ -37,6 +41,10 @@ const PageLayout: React.FC = () => {
       navigate(routes.teams());
     }
   }, [teams, loc, auth]);
+
+  const handleHelpButtonClick = () => {
+    dispatch(setHelpDialog(true));
+  };
 
   return (
     <div className={styles['main-page']}>
@@ -85,6 +93,19 @@ const PageLayout: React.FC = () => {
               </div>
             </>
           )}
+
+          <div className={styles['help-buttons']}>
+            <ClickableButton
+              icon={<QuestionCircleOutlined />}
+              shape='circle'
+              type='default'
+              size='large'
+              className={styles['help-button']}
+              onButtonClick={handleHelpButtonClick}
+              withPopover={true}
+              popoverContent='Открыть руководство пользователя'
+            />
+          </div>
         </div>
       </div>
     </div>

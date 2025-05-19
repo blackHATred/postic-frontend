@@ -34,9 +34,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const teams = useAppSelector((state) => state.teams.teams);
-  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
-  const [ellipsis, setEllipsis] = useState(true);
+  const [ellipsis] = useState(true);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -114,7 +112,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
 
   return (
     <div className={styles.comment}>
-      <div className={styles['comment-header']}>
+      <div className={isTicket ? styles['ticket-header'] : styles['comment-header']}>
         <Avatar
           src={
             comment.avatar_mediafile &&
@@ -196,15 +194,9 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           <ClickableButton
             type='default'
             variant='outlined'
-            withPopover={help_mode ? true : false}
-            popoverContent={
-              help_mode
-                ? activeTab === '4'
-                  ? 'Решить тикет'
-                  : 'Отправить в тикет-систему'
-                : undefined
-            }
-            color={'default'}
+            color={isTicket ? 'gold' : 'default'}
+            withPopover={true}
+            popoverContent={isTicket ? 'Решить тикет' : 'Отправить в тикет-систему'}
             icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
             onButtonClick={isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)}
           ></ClickableButton>

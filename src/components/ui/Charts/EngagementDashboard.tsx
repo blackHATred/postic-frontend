@@ -12,18 +12,10 @@ interface EngagementDashboardProps {
 
 type MetricType = 'reactions' | 'comments';
 
-// Определим интерфейс данных для графика
-interface ChartDataItem extends PostAnalytics {
-  date: string;
-  tg_er: number;
-  vk_er: number;
-}
-
 const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading }) => {
   const [metricType, setMetricType] = useState<MetricType>('reactions');
 
   const chartData = useMemo(() => {
-    // Группируем данные по дате
     const dateMap = new Map<
       string,
       {
@@ -40,12 +32,9 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
       }
     >();
 
-    // Обрабатываем все записи
     data.forEach((item) => {
-      // Получаем дату в формате YYYY-MM-DD
       const date = new Date(item.timestamp).toISOString().split('T')[0];
 
-      // Если даты еще нет, создаем запись
       if (!dateMap.has(date)) {
         dateMap.set(date, {
           date,
@@ -56,12 +45,11 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
           vk_reactions: 0,
           vk_comments: 0,
           timestamp: item.timestamp,
-          post_union_id: 0, // не используем в группировке
-          user_id: 0, // не используем в группировке
+          post_union_id: 0,
+          user_id: 0,
         });
       }
 
-      // Добавляем данные к этой дате
       const dateData = dateMap.get(date)!;
       dateData.tg_views += item.tg_views;
       dateData.tg_reactions += item.tg_reactions;
@@ -71,9 +59,7 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
       dateData.vk_comments += item.vk_comments;
     });
 
-    // Преобразуем Map в массив и рассчитываем ER
     const result = Array.from(dateMap.values()).map((item) => {
-      // Рассчитываем ER для TG
       const tg_er =
         item.tg_views > 0
           ? metricType === 'reactions'
@@ -81,7 +67,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
             : (item.tg_comments / item.tg_views) * 100
           : 0;
 
-      // Рассчитываем ER для VK
       const vk_er =
         item.vk_views > 0
           ? metricType === 'reactions'
@@ -96,7 +81,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
       };
     });
 
-    // Сортируем по дате (от ранних к поздним)
     return result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [data, metricType]);
 

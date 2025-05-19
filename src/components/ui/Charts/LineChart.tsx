@@ -196,7 +196,7 @@ const LineChart: React.FC<LineChartProps> = ({
     <Card
       title={
         <Space>
-          Топ вовлекающих постов
+          <span>Динамика активности</span>
           <Tooltip title='График показывает общую динамику активности по всем соцсетям'>
             <InfoCircleOutlined />
           </Tooltip>

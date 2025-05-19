@@ -43,6 +43,15 @@
   padding: 7px;
 }
 
+.ticket-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 7px;
+  background-color: #fffbe6;
+  border-radius: $border-radius;
+}
+
 .comment-header-text {
   margin-left: 12px;
   display: flex;

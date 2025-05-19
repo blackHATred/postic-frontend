@@ -15,7 +15,7 @@ const TeamList: React.FC<TeamListProps> = ({ isLoading }) => {
   const teams = useAppSelector(getTeamsFromStore);
 
   return (
-    <div className={styles.teamList} title='Команды'>
+    <div className={styles.teamList}>
       {isLoading && (
         <div className={styles.spinnerContainer}>
           <Spin />

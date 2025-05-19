@@ -6,16 +6,15 @@ import { Post } from '../../../models/Post/types';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import ClickableButton from '../../ui/Button/Button';
-import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+import { useAppDispatch } from '../../../stores/hooks';
 import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 import { getUploadUrl } from '../../../api/api';
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 const PostDetailed: React.FC<Post> = (props: Post) => {
   const navigate = useNavigate();
-  const help_mode = useAppSelector((state) => state.settings.helpMode);
   const dispatch = useAppDispatch();
 
   const attach_files = props.attachments
@@ -66,23 +65,14 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
         )}
       </div>
       <div className={styles['button-right']}>
-        {help_mode ? (
-          <ClickableButton
-            text='Анализ комментариев'
-            variant='dashed'
-            color='primary'
-            onButtonClick={onSummaryClick}
-            withPopover={true}
-            popoverContent={'Получить краткий анализ комментариев'}
-          />
-        ) : (
-          <ClickableButton
-            text='Анализ комментариев'
-            variant='dashed'
-            color='primary'
-            onButtonClick={onSummaryClick}
-          />
-        )}
+        <ClickableButton
+          text='Анализ комментариев'
+          variant='dashed'
+          color='primary'
+          onButtonClick={onSummaryClick}
+          withPopover={true}
+          popoverContent={'Получить краткий анализ комментариев'}
+        />
       </div>
     </div>
   );

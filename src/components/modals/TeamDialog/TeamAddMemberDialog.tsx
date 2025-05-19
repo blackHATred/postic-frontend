@@ -1,18 +1,12 @@
 import { useState } from 'react';
-import { Typography, Input, Divider, Form } from 'antd';
-import DialogBox, { DialogBoxProps } from '../dialogBox/DialogBox';
+import { Input, Divider, Form } from 'antd';
+import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setAddMemberDialog, setTeams } from '../../../stores/teamSlice';
 import { Invite, MyTeams } from '../../../api/teamApi';
 import { Team } from '../../../models/Team/types';
 import PermissionCheckboxes from '../../dummy/PermissionCheckboxes';
-
-const { Text } = Typography;
-
-export interface TeamAddMemberDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
-  setOpen: (value: boolean) => void;
-}
 
 const TeamAddMemberDialog: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);

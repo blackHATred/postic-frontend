@@ -130,6 +130,8 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
                 size='small'
                 icon={<EditOutlined />}
                 onButtonClick={onRename}
+                withPopover={true}
+                popoverContent='Переименовать команду'
               />
             )}
             <div className={styles['post-header-buttons']}>

@@ -59,18 +59,15 @@ const TeamTable: React.FC<TeamTableProps> = ({
       dataIndex: 'access',
       render: (roles: string[], row: DataType) =>
         isUserAdmin ? (
-          <button
-            onClick={() => onEditMember(row.id)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#1890ff',
-              cursor: 'pointer',
-              padding: 0,
-            }}
-          >
-            {formatRoles(roles)}
-          </button>
+          <ClickableButton
+            text={formatRoles(roles)}
+            type='link'
+            color='primary'
+            variant='text'
+            onButtonClick={() => onEditMember(row.id)}
+            withPopover={true}
+            popoverContent='Редактировать права участника'
+          />
         ) : (
           <span>{formatRoles(roles)}</span>
         ),
@@ -87,6 +84,8 @@ const TeamTable: React.FC<TeamTableProps> = ({
             variant='filled'
             icon={<MinusOutlined />}
             onButtonClick={() => onKickMember(row.id)}
+            withPopover={true}
+            popoverContent='Удалить участника из команды'
           />
         ) : null,
     },

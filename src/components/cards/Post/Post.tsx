@@ -38,7 +38,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
     }
     return <LiaQuestionCircle className={styles.icon} />;
   };
-  const [ellipsis, setEllipsis] = useState(true);
+  const [ellipsis] = useState(true);
 
   useEffect(() => {
     console.log('reload');
@@ -112,6 +112,8 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                   text='Комментарии'
                   type='link'
                   icon={<CommentOutlined />}
+                  withPopover={true}
+                  popoverContent='Посмотреть комментарии к посту'
                   onButtonClick={() => {
                     onCommentClick();
                   }}
@@ -160,7 +162,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
             variant='outlined'
             color='primary'
             icon={<EditOutlined />}
-            disabled={true}
           />
           <ClickableButton
             text='Удалить'
