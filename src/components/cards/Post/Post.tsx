@@ -18,6 +18,7 @@ import { setComments } from '../../../stores/commentSlice';
 import MediaRenderer from '../Comment/MediaRenderer';
 import { DeletePost } from '../../../api/api';
 import { PostReq } from '../../../models/Analytics/types';
+import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
 
 const { Text, Paragraph } = Typography;
 
@@ -162,6 +163,9 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
             variant='outlined'
             color='primary'
             icon={<EditOutlined />}
+            onButtonClick={() => {
+              dispatch(setEditPostDialog({ isOpen: true, postId: post.id, teamId: post.team_id }));
+            }}
           />
           <ClickableButton
             text='Удалить'

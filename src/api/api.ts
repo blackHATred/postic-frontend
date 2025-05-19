@@ -1,5 +1,6 @@
 import {
   Post,
+  PostEditReq,
   postStatusResults,
   sendPost,
   sendPostResult,
@@ -73,6 +74,17 @@ export const getPosts = async (
         before: before,
         filter: filter,
       },
+    },
+  );
+  return response.data;
+};
+
+export const postEdit = async (post: PostEditReq): Promise<{ message: string }> => {
+  const response = await axiosInstance.post<{ message: string }>(
+    `${config.api.baseURL}${routes.posts()}/edit`,
+    post,
+    {
+      withCredentials: true,
     },
   );
   return response.data;
