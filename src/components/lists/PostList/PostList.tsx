@@ -8,7 +8,7 @@ import { getPosts } from '../../../api/api';
 import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
 
-const frame_size = 10;
+const frame_size = 3;
 const { Text } = Typography;
 
 const PostList: React.FC = () => {
@@ -17,7 +17,6 @@ const PostList: React.FC = () => {
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
-  const [lastActive, setLast] = useState('');
 
   const scroll = useAppSelector((state) => state.posts.postsScroll);
 
@@ -26,10 +25,10 @@ const PostList: React.FC = () => {
 
   const [showBottom, setShowBottom] = useState(false);
 
-  const [hasMoreTop, setHasMoreTop] = useState(false);
-  const [hasMoreBottom, setHasMoreBottom] = useState(false);
+  const [hasMoreTop, setHasMoreTop] = useState(true);
+  const [hasMoreBottom, setHasMoreBottom] = useState(true);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingBottom, setIsLoadingBottom] = useState(false);
   const [isLoadingTop, setIsLoadingTop] = useState(false);
 
@@ -38,20 +37,27 @@ const PostList: React.FC = () => {
 
   const [newData, setNewData] = useState<Post[]>([]);
 
-  const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  const [doNowShow, setDoNowShow] = useState(false);
 
   React.useEffect(() => {
-    //NOTE: Первичная загрузка данных и перезагрузка при смене фильтра
+    setHasMoreBottom(true);
     setHasMoreTop(false);
     setShowBottom(false);
-    setIsLoading(true);
-    if (activeFilter && lastActive) {
-      //dispatch(setSelectedPostId(0));
+    if (posts.length == 0) {
+      // NOTE: первичная загрузка
+      setIsLoading(true);
+      loadPost();
+    } else if (postElements.length == 0) {
+      //NOTE: открытие элемента с уже существующим списком постов
+      setDoNowShow(true);
+      setHasMoreTop(true);
+    } else {
+      //NOTE: смена страницы
+      setDoNowShow(true);
       dispatch(setPostsScroll(0));
+      setIsLoading(true);
       if (divRef.current) divRef.current.scrollTop = 0;
       loadPost();
-    } else {
-      setLast(activeFilter);
     }
   }, [activeFilter]);
 
@@ -59,14 +65,8 @@ const PostList: React.FC = () => {
     loadPosts(true, frame_size * 3)
       .then((posts) => {
         dispatch(setPosts(posts));
-        if (posts.length == 0) {
-          setInitialLoad(false);
-        } else {
-          if (posts.length < frame_size * 3) {
-            setHasMoreBottom(false);
-          } else {
-            setHasMoreBottom(true);
-          }
+        if (posts.length < frame_size * 3) {
+          setHasMoreBottom(false);
         }
       })
       .catch(() => {
@@ -75,16 +75,26 @@ const PostList: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (posts.length == 0 && isLoading) {
-      setShowBottom(false);
-      loadPost();
-    }
-    setTimeout(() => {
-      loadFromData();
-    }, 10);
-    if (postElements.length == 0) {
-      setHasMoreBottom(true);
-      if (posts.length != 0) setHasMoreTop(true);
+    console.log(posts);
+    if (posts.length > 0) {
+      if (postElements.length == 0) {
+        // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED
+        if (isLoading) {
+          //NOTE: Loaded first data
+          loadFromData();
+        } else {
+          //NOTE: Had data loaded
+          setTimeout(() => loadFromData(), 10);
+        }
+      } else {
+        // NOTE: NEW DATA LOADED
+        loadFromData();
+      }
+    } else {
+      if (isLoading) {
+        loadFromData();
+        setIsLoading(false);
+      }
     }
   }, [posts]);
 
@@ -103,38 +113,54 @@ const PostList: React.FC = () => {
           });
         }
       });
-      setIsLoading(false);
       setPostElements(p);
     } else {
-      setIsLoading(false);
       setPostElements([]);
     }
   };
 
   React.useEffect(() => {
-    if (divRef.current) {
-      if (initialLoad && postElements.length > 0) {
-        divRef.current.scrollTop = scroll;
-        setInitialLoad(false);
-      }
-      if (isLoadingBottom) {
-        setIsLoadingBottom(false);
-      }
-      if (isLoadingTop) {
-        if (divRef.current.scrollTop == 0) {
-          divRef.current.scrollTo(0, lastTop + divRef.current.scrollHeight);
+    setDoNowShow(false);
+    if (divRef.current && postElements.length > 0) {
+      if (isLoading) {
+        //NOTE: LOADING FIRST DATA OR ADDING NEW DATA
+
+        if (isLoadingBottom) {
+          //NOTE: ADDED DATA TO BOTTOM
+          setIsLoadingBottom(false);
+          setIsLoading(false);
+        } else if (isLoadingTop) {
+          //NOTE: ADDED DATA TO TOP
+          if (newData.length != 0) {
+            if (divRef.current.scrollTop == 0) {
+              //NOTE: PREVENT SCROLL JUMPING WHEN AT THE VERY TOP (OVERFLOW-ANCHOR:AUTO)
+              divRef.current.scrollTo(0, lastTop + divRef.current.scrollHeight);
+            }
+            // NOTE: REMOVE ELEMENTS AT END
+            dispatch(setPosts(posts.slice(0, posts.length - newData.length)));
+            setNewData([]);
+          } else {
+            //NOTE: REMOVED FROM BOTTOM AFTER ADDING TOP
+            setIsLoadingTop(false);
+            setIsLoading(false);
+          }
+        } else {
+          //NOTE: ADDING FIRST DATA
+          console.log('first elemets');
+          setIsLoading(false);
         }
-        dispatch(setPosts(posts.slice(0, posts.length - newData.length)));
-        setIsLoadingTop(false);
-      }
-      if (divRef.current.scrollHeight > divRef.current.clientHeight) {
-        setShowBottom(true);
+        if (divRef.current.scrollHeight > divRef.current.clientHeight) {
+          setShowBottom(true);
+        }
+      } else {
+        //NOTE: ALREADY EXISTING DATA LOADED
+        divRef.current.scrollTo(0, scroll);
       }
     }
   }, [postElements]);
 
   const onNewTop = (data: Post[]) => {
-    if (data) {
+    if (data.length > 0) {
       if (data.length != frame_size) {
         setHasMoreTop(false);
       }
@@ -146,11 +172,13 @@ const PostList: React.FC = () => {
       setNewData(data);
     } else {
       setHasMoreTop(false);
+      setIsLoading(false);
+      setIsLoadingTop(false);
     }
   };
 
   const onNewBottom = (data: Post[]) => {
-    if (data) {
+    if (data.length > 0) {
       if (data.length != frame_size) {
         setHasMoreBottom(false);
       }
@@ -158,6 +186,11 @@ const PostList: React.FC = () => {
       dispatch(setPosts([...posts.slice(data.length), ...data]));
     } else {
       setHasMoreBottom(false);
+      setIsLoading(false);
+      setIsLoadingBottom(false);
+      if (divRef.current && divRef.current.scrollHeight > divRef.current.clientHeight) {
+        setShowBottom(true);
+      }
     }
   };
 
@@ -193,10 +226,13 @@ const PostList: React.FC = () => {
         hasMoreTop &&
         !isLoadingTop &&
         !isLoading &&
+        !isLoadingBottom &&
         posts.length > 0
       ) {
         //NOTE: load more data bottom
+        setIsLoading(true);
         setIsLoadingTop(true);
+        console.log('loading_new_top');
         loadPosts(false, frame_size, posts[0]).then((data) => onNewTop(data));
       }
       if (
@@ -204,9 +240,12 @@ const PostList: React.FC = () => {
         hasMoreBottom &&
         !isLoadingBottom &&
         !isLoading &&
+        !isLoadingTop &&
         posts.length > 0
       ) {
         //NOTE: load more data top
+        console.log('loading_new_bottom');
+        setIsLoading(true);
         setIsLoadingBottom(true);
         loadPosts(true, frame_size, posts[posts.length - 1]).then((data) => onNewBottom(data));
       }
@@ -215,12 +254,14 @@ const PostList: React.FC = () => {
 
   return (
     <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
-      {isLoadingTop && (
+      {isLoadingTop ? (
         <div className={styles.end} key={'sp_loading'}>
           <Spin className={styles.spinner} />
         </div>
+      ) : (
+        <div style={{ paddingTop: '20px' }}></div>
       )}
-      {(isLoading || initialLoad) && (
+      {(isLoading || doNowShow) && !isLoadingTop && !isLoadingBottom && (
         <div className={styles.end} key={'sp_loading'}>
           <Spin className={styles.spinner} />
         </div>
@@ -228,7 +269,7 @@ const PostList: React.FC = () => {
       {teamId != 0 &&
         postElements.length > 0 &&
         postElements.map((el) => (
-          <div key={el.id} style={{ display: isLoading ? 'none' : 'block' }}>
+          <div key={el.id} style={{ display: doNowShow ? 'none' : 'block' }}>
             {el.element}
           </div>
         ))}
@@ -246,7 +287,7 @@ const PostList: React.FC = () => {
         <div key={'sp_bottom'}></div>
       )}
 
-      {!isLoading && !initialLoad && posts.length == 0 && (
+      {!isLoading && posts.length == 0 && (
         <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
       )}
     </div>

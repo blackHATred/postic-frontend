@@ -15,9 +15,6 @@ interface createPostDialogState extends basicDialogState {
 export interface basePageDialogsSliceState {
   apiBoxDialog: basicDialogState;
   summaryDialog: summaryDialogState;
-  welcomeDialog: basicDialogState;
-  loginDialog: basicDialogState;
-  registerDialog: basicDialogState;
   createPostDialog: createPostDialogState;
   postStatusDialog: basicDialogState;
   personalInfoDialog: basicDialogState;
@@ -30,9 +27,6 @@ export interface basePageDialogsSliceState {
 const initialState: basePageDialogsSliceState = {
   apiBoxDialog: { isOpen: false },
   summaryDialog: { isOpen: false, isLoading: false },
-  welcomeDialog: { isOpen: false },
-  loginDialog: { isOpen: false },
-  registerDialog: { isOpen: false },
   createPostDialog: { isOpen: false, files: [] },
   postStatusDialog: { isOpen: false },
   personalInfoDialog: { isOpen: false },
@@ -55,18 +49,6 @@ export const basePageDialogsSlice = createSlice({
     },
     setSummaryLoading: (state, action: PayloadAction<boolean>) => {
       state.summaryDialog.isLoading = action.payload;
-    },
-
-    setWelcomeDialog: (state, action: PayloadAction<boolean>) => {
-      state.welcomeDialog.isOpen = action.payload;
-    },
-
-    setLoginDialog: (state, action: PayloadAction<boolean>) => {
-      state.loginDialog.isOpen = action.payload;
-    },
-
-    setRegiserDialog: (state, action: PayloadAction<boolean>) => {
-      state.registerDialog.isOpen = action.payload;
     },
 
     setCreatePostDialog: (state, action: PayloadAction<boolean>) => {
@@ -110,12 +92,9 @@ export const basePageDialogsSlice = createSlice({
 
 export const {
   setCreatePostDialog,
-  setLoginDialog,
   setPersonalInfoDialog,
   setPostStatusDialog,
-  setRegiserDialog,
   setSummaryDialog,
-  setWelcomeDialog,
   setApiBoxDialog,
   setSummaryLoading,
   setActiveTab,

@@ -21,7 +21,6 @@ const UserRegisterDialog: React.FC = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
-
       const err = validatePasswordSame(values.password1, values.password2);
       if (err) {
         notificationManager.createNotification('error', 'Ошибка пароля', err);
@@ -31,9 +30,8 @@ const UserRegisterDialog: React.FC = () => {
       const userData: UserData = {
         username: values.username,
         email: values.email,
-        password: values.password,
+        password: values.password1,
       };
-      console.log(userData);
 
       const result = await RegisterWithUserData(userData);
 
@@ -91,7 +89,7 @@ const UserRegisterDialog: React.FC = () => {
         </Form.Item>
 
         <Form.Item
-          name='password'
+          name='password1'
           label='Пароль'
           rules={[{ required: true, message: 'Введите пароль' }]}
         >

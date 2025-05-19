@@ -148,6 +148,14 @@ export const Login = async (id: number): Promise<RegisterResult> => {
   return response.data;
 };
 
+export const Logout = async (): Promise<null> => {
+  const response = await axiosInstance.post<null>(`${config.api.baseURL}/user/logout`, {
+    withCredentials: true,
+  });
+
+  return response.data;
+};
+
 export const getSummarize = async (teamId: number, postId: number): Promise<GetSummarizeResult> => {
   const response = await axiosInstance.get<GetSummarizeResult>(
     `${config.api.baseURL}${routes.comments()}/summarize`,

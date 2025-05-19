@@ -34,7 +34,7 @@
 .right-sidebar,
 .left-sidebar {
   position: sticky;
-  top: calc($header-height + 20px);
+  padding-top: 20px;
   height: fit-content;
   width: auto;
 }

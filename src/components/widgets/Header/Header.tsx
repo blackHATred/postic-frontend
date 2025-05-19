@@ -11,21 +11,21 @@ import {
 import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import {
-  setLoginEmailDialog,
-  setRegiserDialog,
-  setRegisterEmailDialog,
-} from '../../../stores/basePageDialogsSlice';
+import { setLoginEmailDialog, setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import {
   ActivePlatform,
   getTeamsFromStore,
+  setAuthorized,
+  setCurrentUserId,
   setGlobalActivePlatforms,
   setGlobalActiveTeamId,
+  setTeams,
 } from '../../../stores/teamSlice';
 import { setComments } from '../../../stores/commentSlice';
 import { Typography } from 'antd';
 import { Platforms } from '../../../api/teamApi';
 import { setPosts } from '../../../stores/postsSlice';
+import { Logout } from '../../../api/api';
 
 const { Text } = Typography;
 
@@ -48,13 +48,6 @@ const ButtonHeader: React.FC = () => {
             key: 'register',
             icon: <UserOutlined />,
           },
-          /*
-      {
-            label: 'Регистрация1',
-            key: 'register1',
-            icon: <UserOutlined />,
-          },
-      * */
 
           {
             label: 'Помощь',
@@ -88,14 +81,23 @@ const ButtonHeader: React.FC = () => {
         dispatch(setRegisterEmailDialog(true));
         return;
       }
-      case 'register1': {
-        dispatch(setRegiserDialog(true));
-        return;
-      }
       case 'logout': {
+        logout();
         return;
       }
     }
+  };
+
+  const logout = () => {
+    Logout()
+      .then(() => {
+        dispatch(setCurrentUserId(0));
+        dispatch(setAuthorized('not_authorized'));
+        dispatch(setTeams([]));
+        dispatch(setPosts([]));
+        dispatch(setComments([]));
+      })
+      .catch(() => {});
   };
 
   const menuProps = {
