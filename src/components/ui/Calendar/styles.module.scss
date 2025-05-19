@@ -1,0 +1,159 @@
+.calendarWrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 80px); /* Оставляем место для хедера */
+}
+
+.calendarTitle {
+  margin-bottom: 20px;
+  color: #1677ff;
+  padding-top: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.calendarContainer {
+  width: 100%;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+
+:global(.ant-picker-calendar .ant-picker-content th),
+:global(.ant-picker-calendar .ant-picker-content td) {
+  padding: 2px 0;
+  height: auto;
+}
+
+:global(.ant-picker-calendar-date-content) {
+  overflow-y: auto;
+}
+
+.events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.events li {
+  margin-bottom: 6px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  position: relative; /* Важно для абсолютного позиционирования подсказки */
+}
+
+/* Стили для времени поста в ячейке */
+.eventTime {
+  display: inline-block;
+  background-color: #f0f5ff;
+  color: #1677ff;
+  padding: 1px 4px;
+  border-radius: 2px;
+  margin-right: 4px;
+  font-size: 11px;
+  cursor: pointer; /* Показываем, что элемент интерактивный */
+}
+
+/* Стили для всплываю��ей подсказки */
+.tooltip {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: 250px;
+  min-width: 150px;
+  left: 0;
+  top: 20px; /* Показываем под элементом */
+}
+
+.tooltipItem {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.tooltipItem:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.tooltipTime {
+  font-weight: bold;
+  color: #1677ff;
+}
+
+.tooltipPlatforms {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.tooltipText {
+  font-size: 12px;
+  margin-top: 2px;
+  color: #333;
+}
+
+/* Показываем подсказку при наведении */
+.events li:hover .tooltip {
+  display: block;
+}
+
+.notesMonth {
+  text-align: center;
+}
+
+.notesMonth section {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.notesMonth span {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.selectedDatePosts {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.selectedDateTitle {
+  margin-bottom: 16px;
+}
+
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.postsList > div {
+  width: 100%;
+}
+
+.noPostsMessage {
+  background: #f5f5f5;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  color: #8c8c8c;
+}
+
