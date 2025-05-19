@@ -3,3 +3,8 @@
   transition: height 0.35s ease;
   overflow-y: clip;
 }
+
+.red {
+  border-color: red;
+  border-width: 1px;
+}

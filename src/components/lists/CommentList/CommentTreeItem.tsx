@@ -14,9 +14,14 @@ interface CommentItemProps {
   isLastInChain?: boolean;
   onDelete?: any;
 }
-const Comm = memo(CommentComponent, (c_1, c_2) => c_1.comment.id == c_2.comment.id);
+const Comm = memo(
+  CommentComponent,
+  (c_1, c_2) =>
+    c_1.comment.id == c_2.comment.id && c_1.comment.attachments == c_2.comment.attachments,
+);
 
 const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete }) => {
+  const [comm, setComm] = useState(comment);
   // Local state for immediate collapse toggle
   const [collapsedLocal, setCollapsedLocal] = useState(false);
   const hasChildren = comment.children && comment.children.length > 0;
@@ -30,8 +35,12 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
   const [deletedCount, setDeletedCount] = useState(0);
 
   const deleteElement = () => {
-    if (refer.current) refer.current.className += ' animation';
-    onDelete(comment);
+    setComm({
+      ...comment,
+      attachments: [],
+      text: 'КОММЕНТАРИЙ БЫЛ УДАЛЕН',
+    });
+    //onDelete(comment);
   };
 
   // Мемоизированный обработчик для предотвращения лишних перерисовок
@@ -50,7 +59,7 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
     }
 
     setCollapsedLocal((prev) => !prev);
-  }, [comment.id, collapsedLocal, hasChildren]);
+  }, [comm.id, collapsedLocal, hasChildren]);
 
   return (
     <div className={styles.commentTreeItem} ref={refer}>
@@ -63,10 +72,10 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
         )}
 
         {/* Используем мемоизированные компоненты, чтобы избежать ненужных перерисовок */}
-        <Comm comment={comment} onDelete={deleteElement} />
+        <Comm comment={comm} onDelete={deleteElement} />
 
         {/* Кнопка разворачивания/сворачивания появляется только если есть дочерние комментарии */}
-        {hasChildren && comment.children.length - deletedCount > 0 && (
+        {hasChildren && comm.children.length - deletedCount > 0 && (
           <Button
             type='text'
             icon={collapsedLocal ? <CaretRightOutlined /> : <CaretDownOutlined />}
@@ -74,7 +83,7 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
             className={styles.collapseButton}
           >
             {collapsedLocal ? 'Показать ответы' : 'Скрыть ответы'} (
-            {comment.children.length - deletedCount})
+            {comm.children.length - deletedCount})
           </Button>
         )}
       </div>
@@ -89,12 +98,12 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
             paddingLeft: isResetLevel ? '15px' : '10px',
           }}
         >
-          {comment.children.map((child, idx) => (
+          {comm.children.map((child, idx) => (
             <CommentTreeItem
               key={child.id}
               comment={child}
               level={level + 1}
-              isLastInChain={idx === comment.children.length - 1}
+              isLastInChain={idx === comm.children.length - 1}
               onDelete={onDelete}
             />
           ))}
