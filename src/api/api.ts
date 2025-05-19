@@ -240,7 +240,7 @@ export const getComments = async (
 };
 
 export const Reply = async (request: CommentReply) => {
-  const response = await axiosInstance.post<string>(
+  const response = await axiosInstance.post<{ comment_id: number; status: string }>(
     `${config.api.baseURL}${routes.comments()}/reply`,
     request,
     {

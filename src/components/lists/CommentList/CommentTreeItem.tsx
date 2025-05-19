@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState, useEffect, useCallback } from 'react';
+import React, { memo, useRef, useState, useCallback } from 'react';
 import { Button } from 'antd';
 import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
 import CommentComponent from '../../cards/Comment/Comment';
@@ -11,21 +11,14 @@ const MAX_NESTING_LEVEL = 4;
 interface CommentItemProps {
   comment: CommentWithChildren;
   level: number;
-  isCollapsed: boolean;
-  onToggleCollapse: (commentId: number) => void;
-  collapsedComments: Record<number, boolean>;
   isLastInChain?: boolean;
+  onDelete?: any;
 }
+const Comm = memo(CommentComponent, (c_1, c_2) => c_1.comment.id == c_2.comment.id);
 
-const CommentTreeItem: React.FC<CommentItemProps> = ({
-  comment,
-  level,
-  isCollapsed,
-  onToggleCollapse,
-  collapsedComments,
-}) => {
+const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete }) => {
   // Local state for immediate collapse toggle
-  const [collapsedLocal, setCollapsedLocal] = useState(isCollapsed);
+  const [collapsedLocal, setCollapsedLocal] = useState(false);
   const hasChildren = comment.children && comment.children.length > 0;
   const visibleLevel = level % MAX_NESTING_LEVEL;
   const isResetLevel = level > 0 && visibleLevel === 0;
@@ -34,17 +27,11 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
   const levelColors = ['#ddeffd', '#BAE0FF', '#91CAFF', '#69B1FF'];
   const lineColor = levelColors[visibleLevel % levelColors.length];
   const refer = useRef<HTMLDivElement>(null);
-
-  // Используем useEffect с задержкой для более эффективного обновления
-  useEffect(() => {
-    // Не обновляем состояние, если дочерних комментариев нет
-    if (!hasChildren) return;
-
-    setCollapsedLocal(isCollapsed);
-  }, [isCollapsed, hasChildren]);
+  const [deletedCount, setDeletedCount] = useState(0);
 
   const deleteElement = () => {
     if (refer.current) refer.current.className += ' animation';
+    onDelete(comment);
   };
 
   // Мемоизированный обработчик для предотвращения лишних перерисовок
@@ -63,8 +50,7 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
     }
 
     setCollapsedLocal((prev) => !prev);
-    onToggleCollapse(comment.id);
-  }, [comment.id, collapsedLocal, hasChildren, onToggleCollapse]);
+  }, [comment.id, collapsedLocal, hasChildren]);
 
   return (
     <div className={styles.commentTreeItem} ref={refer}>
@@ -77,17 +63,18 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
         )}
 
         {/* Используем мемоизированные компоненты, чтобы избежать ненужных перерисовок */}
-        <CommentComponent comment={comment} onDelete={deleteElement} />
+        <Comm comment={comment} onDelete={deleteElement} />
 
         {/* Кнопка разворачивания/сворачивания появляется только если есть дочерние комментарии */}
-        {hasChildren && (
+        {hasChildren && comment.children.length - deletedCount > 0 && (
           <Button
             type='text'
             icon={collapsedLocal ? <CaretRightOutlined /> : <CaretDownOutlined />}
             onClick={handleToggleCollapse}
             className={styles.collapseButton}
           >
-            {collapsedLocal ? 'Показать ответы' : 'Скрыть ответы'} ({comment.children.length})
+            {collapsedLocal ? 'Показать ответы' : 'Скрыть ответы'} (
+            {comment.children.length - deletedCount})
           </Button>
         )}
       </div>
@@ -107,10 +94,8 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
               key={child.id}
               comment={child}
               level={level + 1}
-              isCollapsed={!!collapsedComments[child.id]}
-              onToggleCollapse={onToggleCollapse}
-              collapsedComments={collapsedComments}
               isLastInChain={idx === comment.children.length - 1}
+              onDelete={onDelete}
             />
           ))}
         </div>
@@ -119,13 +104,25 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
   );
 };
 
+const equal_children = (c_1: CommentWithChildren, c_2: CommentWithChildren) => {
+  if (c_1.children.length == c_2.children.length) {
+    if (c_1.children.length == 0) return true;
+    for (let i = 0; i < c_1.children.length; i++) {
+      if (!equal_children(c_1.children[i], c_2.children[i])) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
+};
 // Улучшенный вариант memo для предотвращения ненужных ререндеров
 export default memo(CommentTreeItem, (prevProps, nextProps) => {
   // Сравниваем только то, что может измениться и влияет на рендеринг
   return (
-    prevProps.isCollapsed === nextProps.isCollapsed &&
     prevProps.level === nextProps.level &&
     prevProps.comment.id === nextProps.comment.id &&
-    prevProps.comment.children?.length === nextProps.comment.children?.length
+    equal_children(prevProps.comment, nextProps.comment)
   );
 });

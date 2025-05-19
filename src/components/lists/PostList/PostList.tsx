@@ -155,7 +155,6 @@ const PostList: React.FC = () => {
         }
       } else {
         //NOTE: ALREADY EXISTING DATA LOADED
-        console.log(scroll);
         divRef.current.scrollTo(0, scroll);
       }
     }
@@ -184,8 +183,7 @@ const PostList: React.FC = () => {
       if (data.length != frame_size) {
         setHasMoreBottom(false);
       }
-      setHasMoreTop(true);
-      dispatch(setPosts([...posts.slice(data.length), ...data]));
+      dispatch(setPosts([...posts, ...data]));
     } else {
       setHasMoreBottom(false);
       setIsLoading(false);
@@ -233,7 +231,6 @@ const PostList: React.FC = () => {
         //NOTE: load more data bottom
         setIsLoading(true);
         setIsLoadingTop(true);
-        console.log('load_top');
         loadPosts(false, frame_size, posts[0]).then((data) => onNewTop(data));
       }
       if (

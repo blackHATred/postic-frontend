@@ -6,7 +6,7 @@ import { getComment, getComments } from '../../../api/api';
 import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
 import CommentTreeItem from './CommentTreeItem';
-import { addComment, setComments } from '../../../stores/commentSlice';
+import { addComment, removeComment, setComments } from '../../../stores/commentSlice';
 import { CommentWithChildren, createCommentTree, useCollapsedComments } from './commentTree';
 import { routes } from '../../../app/App.routes';
 import { getSseUrl } from '../../../constants/appConfig';
@@ -47,7 +47,6 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const isTicketPage = location.pathname === routes.ticket();
   const { collapsedComments, toggleCollapse } = useCollapsedComments();
-  const [collapsedComment, setCollapsedComment] = useState<number>();
 
   const url = getSseUrl(teamId, selectedPostId || 0);
 
@@ -62,6 +61,8 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
     onMessage: onNewComment,
   });
 
+  const [toDelete, setToDelete] = useState<any>();
+
   function flat(r: any, a: any) {
     const b: any = {};
     Object.keys(a).forEach(function (k) {
@@ -72,14 +73,6 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
     r.push(b);
     if (Array.isArray(a.children)) {
       return a.children.reduce(flat, r);
-    }
-    return r;
-  }
-
-  function flat_id(r: any, a: any) {
-    r.push(a.id);
-    if (Array.isArray(a.children)) {
-      return a.children.reduce(flat_id, r);
     }
     return r;
   }
@@ -112,6 +105,24 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
             });
     }
   }, [newComment]);
+
+  React.useEffect(() => {
+    if (toDelete) {
+      if (save_redux) dispatch(removeComment([toDelete]));
+      else if (setCommentsLocal) {
+        const el1: any = [];
+
+        comments.reduce(flat, el1);
+        setCommentsLocal(
+          createCommentTree(
+            el1.filter((el: any) => {
+              return !(toDelete.id == el.id);
+            }),
+          ),
+        );
+      }
+    }
+  }, [toDelete]);
 
   React.useEffect(() => {
     setHasMoreBottom(true);
@@ -174,30 +185,22 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
 
   const loadFromData = async (id?: number) => {
     if (comments.length > 0) {
-      const p: { id: number; element: any }[] = [];
-      comments.forEach((comment) => {
-        const el = commentElements.find((el) => comment.id == el.id);
-        if (el && el.id != id) {
-          p.push(el);
-        } else {
-          p.push({
+      setCommentElements(
+        comments.map((comment) => {
+          return {
             id: comment.id,
             element: (
               <CommentTreeItem
                 comment={comment}
                 level={0}
-                isCollapsed={!!collapsedComments[comment.id]}
-                onToggleCollapse={(commentId) => {
-                  toggleCollapse(commentId);
-                  setCollapsedComment(commentId == collapsedComment ? -commentId : commentId);
+                onDelete={(comm: CommentWithChildren) => {
+                  setTimeout(() => setToDelete(comm), 400);
                 }}
-                collapsedComments={collapsedComments}
               />
             ),
-          });
-        }
-      });
-      setCommentElements(p);
+          };
+        }),
+      );
     } else {
       setCommentElements([]);
       setDoNowShow(false);
@@ -270,10 +273,8 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
       if (data.length != frame_size) {
         setHasMoreBottom(false);
       }
-      setHasMoreTop(true);
-      if (save_redux) dispatch(setComments([...comments.slice(data.length), ...data]));
-      else if (setCommentsLocal != null)
-        setCommentsLocal([...comments.slice(data.length), ...data]);
+      if (save_redux) dispatch(setComments([...comments, ...data]));
+      else if (setCommentsLocal != null) setCommentsLocal([...comments, ...data]);
     } else {
       setHasMoreBottom(false);
       setIsLoading(false);
@@ -318,10 +319,6 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
     );
     return res && res.comments && res.comments.length > 0 ? createCommentTree(res.comments) : [];
   };
-
-  React.useEffect(() => {
-    if (collapsedComment) loadFromData(Math.abs(collapsedComment));
-  }, [collapsedComment]);
 
   const handleScroll = () => {
     if (divRef.current) {

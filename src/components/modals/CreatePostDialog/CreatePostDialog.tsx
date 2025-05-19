@@ -209,7 +209,6 @@ const CreatePostDialog: FC = () => {
       team_id: team_id,
       pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined,
     };
-    console.log(postPayload);
 
     sendPostRequest(postPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {

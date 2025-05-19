@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 
 import FileUploader from '../CreatePostDialog/FileUploader';
 import {
+  addComment,
   addFileComm,
   clearFilesComm,
   removeFileComm,
@@ -17,7 +18,7 @@ import {
 import { RightOutlined } from '@ant-design/icons';
 import { SendOutlined } from '@ant-design/icons/lib/icons';
 import { Answ, CommentReply } from '../../../models/Comment/types';
-import { Reply, ReplyIdeas } from '../../../api/api';
+import { getComment, Reply, ReplyIdeas } from '../../../api/api';
 
 const { Text } = Typography;
 
@@ -112,7 +113,10 @@ const AnswerDialog: FC = () => {
       text: replyText,
       attachments: fileIds,
     };
-    Reply(req).then(() => clearFields());
+    Reply(req).then((id) => {
+      clearFields();
+      getComment(team_id, id.comment_id).then((c) => dispatch(addComment(c.comment)));
+    });
     dispatch(setAnswerDialog(false));
   };
 

@@ -47,10 +47,6 @@ const PostDetailsPage: React.FC = () => {
     };
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log(post);
-  }, [post]);
-
   return p ? (
     <div className={styles.detailsContainer}>
       <div className={styles.postSection}>
