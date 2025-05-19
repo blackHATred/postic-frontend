@@ -49,6 +49,13 @@ export const postsSlice = createSlice({
       }
       state.posts = [action.payload, ...state.posts];
     },
+
+    removePost: (state, action: PayloadAction<Post>) => {
+      if (!Array.isArray(state.posts)) {
+        state.posts = [];
+      }
+      state.posts = state.posts.filter((p) => p.id != action.payload.id);
+    },
     addPosts: (state, action: PayloadAction<Post[]>) => {
       if (!Array.isArray(state.posts)) {
         state.posts = [];
@@ -71,6 +78,7 @@ export const {
   setSelectedPostId,
   setScrollToPost,
   addPost,
+  removePost,
   addPosts,
   setPosts,
   setPostsScroll,

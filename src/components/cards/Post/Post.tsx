@@ -19,6 +19,8 @@ import { DeletePost } from '../../../api/api';
 import { PostReq } from '../../../models/Analytics/types';
 import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
 import { setComments } from '../../../stores/commentSlice';
+import './selected_style.css';
+import { removePost } from '../../../stores/postsSlice';
 
 const { Text, Paragraph } = Typography;
 
@@ -173,6 +175,8 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 post_union_id: post.id,
               };
               DeletePost(info).then((data: any) => {
+                if (refer.current) refer.current.className += ' ' + 'animation';
+                setTimeout(() => dispatch(removePost(post)), 350);
                 if (data.status == 'ok') {
                   console.info('COMMENT DELETED, REMOVE VISUALLY');
                 }

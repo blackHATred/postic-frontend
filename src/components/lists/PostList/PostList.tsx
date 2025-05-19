@@ -107,10 +107,9 @@ const PostList: React.FC = () => {
         if (el) {
           p.push(el);
         } else {
-          const CompMemo = React.memo(PostComponent);
           p.push({
             id: post.id,
-            element: <CompMemo post={post} />,
+            element: <PostComponent post={post} />,
           });
         }
       });
