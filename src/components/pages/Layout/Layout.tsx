@@ -8,7 +8,7 @@ import ButtonHeader from '../../widgets/Header/Header';
 import styles from './styles.module.scss';
 import { routes } from '../../../app/App.routes';
 import ClickableButton from '../../ui/Button/Button';
-import { QuestionCircleOutlined } from '@ant-design/icons';
+import { DoubleLeftOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { setHelpDialog } from '../../../stores/basePageDialogsSlice';
 
 const PageLayout: React.FC = () => {
@@ -95,6 +95,16 @@ const PageLayout: React.FC = () => {
           )}
 
           <div className={styles['help-buttons']}>
+            <ClickableButton
+              icon={<DoubleLeftOutlined rotate={90} />}
+              shape='circle'
+              type='default'
+              size='large'
+              className={styles['help-button']}
+              withPopover={true}
+              popoverContent='Вернуться к началу страницы'
+            />
+
             <ClickableButton
               icon={<QuestionCircleOutlined />}
               shape='circle'
