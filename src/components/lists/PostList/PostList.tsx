@@ -101,19 +101,14 @@ const PostList: React.FC = () => {
 
   const loadFromData = async () => {
     if (posts.length > 0) {
-      const p: { id: number; element: any }[] = [];
-      posts.forEach((post) => {
-        const el = postElements.find((el) => post.id == el.id);
-        if (el) {
-          p.push(el);
-        } else {
-          p.push({
+      setPostElements(
+        posts.map((post) => {
+          return {
             id: post.id,
             element: <PostComponent post={post} />,
-          });
-        }
-      });
-      setPostElements(p);
+          };
+        }),
+      );
     } else {
       setPostElements([]);
       setDoNowShow(false);

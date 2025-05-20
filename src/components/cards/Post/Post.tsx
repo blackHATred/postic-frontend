@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -21,6 +21,7 @@ import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
 import { setComments } from '../../../stores/commentSlice';
 import './selected_style.css';
 import { removePost } from '../../../stores/postsSlice';
+import { NotificationContext } from '../../../api/notification';
 
 const { Text, Paragraph } = Typography;
 
@@ -61,6 +62,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const selectedUser = useAppSelector((state) => state.teams.currentUserId);
   const teams = useAppSelector((state) => state.teams.teams);
+  const notificationManager = useContext(NotificationContext);
 
   const userRoles =
     teams
@@ -175,10 +177,10 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 post_union_id: post.id,
               };
               DeletePost(info).then((data: any) => {
-                if (refer.current) refer.current.className += ' ' + 'animation';
-                setTimeout(() => dispatch(removePost(post)), 350);
                 if (data.status == 'ok') {
-                  console.info('COMMENT DELETED, REMOVE VISUALLY');
+                  if (refer.current) refer.current.className += ' ' + 'animation';
+                  setTimeout(() => dispatch(removePost(post)), 350);
+                  notificationManager.createNotification('success', 'Пост успешно изменен', '');
                 }
               });
             }}
@@ -189,4 +191,10 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   );
 };
 
-export default PostComponent;
+export default React.memo(
+  PostComponent,
+  (p_1, p_2) =>
+    p_1.post.id == p_2.post.id &&
+    p_1.post.attachments == p_2.post.attachments &&
+    p_1.post.text == p_2.post.text,
+);

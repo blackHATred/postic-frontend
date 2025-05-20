@@ -78,8 +78,10 @@ export const getPosts = async (
   return response.data;
 };
 
-export const postEdit = async (post: PostEditReq): Promise<{ message: string }> => {
-  const response = await axiosInstance.post<{ message: string }>(
+export const postEdit = async (
+  post: PostEditReq,
+): Promise<{ actionIds: number[]; status: string }> => {
+  const response = await axiosInstance.post<{ actionIds: number[]; status: string }>(
     `${config.api.baseURL}${routes.posts()}/edit`,
     post,
     {

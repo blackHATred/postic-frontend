@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { Input, Form } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
@@ -6,6 +6,8 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
 import { getPost, postEdit } from '../../../api/api';
 import { Typography } from 'antd';
+import { setPosts } from '../../../stores/postsSlice';
+import { NotificationContext } from '../../../api/notification';
 
 const { Text } = Typography;
 
@@ -18,6 +20,9 @@ const EditPostDialog: FC = () => {
   const isOpen = useAppSelector((state) => state.basePageDialogs.editPostDialog.isOpen);
   const postId = useAppSelector((state) => state.basePageDialogs.editPostDialog.postId);
   const teamId = useAppSelector((state) => state.basePageDialogs.editPostDialog.teamId);
+  const notificationManager = useContext(NotificationContext);
+
+  const posts = useAppSelector((state) => state.posts.posts);
 
   useEffect(() => {
     if (isOpen && postId && teamId) {
@@ -57,8 +62,12 @@ const EditPostDialog: FC = () => {
         post_union_id: postId,
         text: postText,
       })
-        .then(() => {
-          dispatch(setEditPostDialog({ isOpen: false, postId: null, teamId: null }));
+        .then((resp) => {
+          if (resp.status == 'ok') {
+            dispatch(setEditPostDialog({ isOpen: false, postId: null, teamId: null }));
+            dispatch(setPosts(posts.map((p) => (p.id == postId ? { ...p, text: postText } : p))));
+            notificationManager.createNotification('success', 'Пост успешно изменен', '');
+          }
         })
         .catch((err) => {
           console.error('Ошибка при редактировании поста:', err);
