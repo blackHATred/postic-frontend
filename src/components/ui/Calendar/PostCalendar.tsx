@@ -11,6 +11,7 @@ import styles from './styles.module.scss';
 import PostComponent from '../../cards/Post/Post';
 import utc from 'dayjs/plugin/utc';
 import locale from 'antd/locale/ru_RU'; // Импортируем русскую локаль для antd
+import { setPosts } from '../../../stores/postsSlice';
 
 // Устанавливаем русскую локаль по умолчанию для dayjs
 dayjs.locale('ru');
@@ -18,12 +19,7 @@ dayjs.extend(utc);
 
 const { Title } = Typography;
 
-interface PostCalendarProps {
-  posts: Post[];
-}
-
-const PostCalendar: React.FC<PostCalendarProps> = ({ posts: initialPosts }) => {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+const PostCalendar: React.FC = () => {
   const [groupedPosts, setGroupedPosts] = useState<Record<string, Post[]>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedPosts, setSelectedPosts] = useState<Post[]>([]);
@@ -32,6 +28,7 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts: initialPosts }) => {
   const [calendarMode, setCalendarMode] = useState<'month' | 'year'>('month');
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const dispatch = useAppDispatch();
+  const posts = useAppSelector((state) => state.posts.posts);
 
   useEffect(() => {
     if (teamId === 0) return;
@@ -41,21 +38,25 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts: initialPosts }) => {
       const startOfMonth = currentMonth.startOf('month').utc().format();
 
       try {
-        const result = await getPosts(teamId, 100, startOfMonth, 'scheduled', true);
-        const filteredPosts = result.posts.filter((post) => {
-          if (!post.pub_datetime) return false;
+        const result = await getPosts(teamId, 100, startOfMonth, 'scheduled', false);
+        if (result.posts) {
+          const filteredPosts = result.posts.filter((post) => {
+            if (!post.pub_datetime) return false;
 
-          const postDate = dayjs(post.pub_datetime);
-          const now = dayjs();
+            const postDate = dayjs(post.pub_datetime);
+            const now = dayjs();
 
-          return (
-            postDate.month() === currentMonth.month() &&
-            postDate.year() === currentMonth.year() &&
-            postDate.isAfter(now)
-          );
-        });
+            return (
+              postDate.month() === currentMonth.month() &&
+              postDate.year() === currentMonth.year() &&
+              postDate.isAfter(now)
+            );
+          });
 
-        setPosts(filteredPosts);
+          dispatch(setPosts(filteredPosts));
+        } else {
+          dispatch(setPosts([]));
+        }
       } catch (error) {
         console.error('Ошибка при загрузке постов для календаря:', error);
       } finally {

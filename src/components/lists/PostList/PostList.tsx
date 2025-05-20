@@ -57,7 +57,9 @@ const PostList: React.FC = () => {
       dispatch(setPostsScroll(0));
       setIsLoading(true);
       if (divRef.current) divRef.current.scrollTop = 0;
-      loadPost();
+      if (activeFilter != 'calendar') {
+        loadPost();
+      }
     }
   }, [activeFilter]);
 
@@ -253,7 +255,7 @@ const PostList: React.FC = () => {
   return (
     <>
       {activeFilter === 'calendar' ? (
-        <PostCalendar posts={posts} />
+        <PostCalendar />
       ) : (
         <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
           {(isLoading || doNowShow || isLoadingTop) && !isLoadingBottom ? (
