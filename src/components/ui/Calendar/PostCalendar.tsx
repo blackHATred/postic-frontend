@@ -11,7 +11,11 @@ import styles from './styles.module.scss';
 import PostComponent from '../../cards/Post/Post';
 import utc from 'dayjs/plugin/utc';
 import locale from 'antd/locale/ru_RU';
-import { setPosts } from '../../../stores/postsSlice';
+import {
+  setPosts,
+  setCalendarSelectedDate,
+  setCalendarSelectedPosts,
+} from '../../../stores/postsSlice';
 import { Max_POSTS } from '../../../constants/appConfig';
 
 dayjs.locale('ru');
@@ -26,10 +30,23 @@ const PostCalendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(dayjs());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [calendarMode, setCalendarMode] = useState<'month' | 'year'>('month');
+
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
+
+  // Получаем сохраненную дату и посты из Redux
+  const savedSelectedDate = useAppSelector((state) => state.posts.calendarSelectedDate);
+  const savedSelectedPosts = useAppSelector((state) => state.posts.calendarSelectedPosts);
+
+  // Инициализация состояния из Redux при монтировании компонента
+  useEffect(() => {
+    if (savedSelectedDate) {
+      setSelectedDate(savedSelectedDate);
+      setSelectedPosts(savedSelectedPosts);
+    }
+  }, []);
 
   useEffect(() => {
     if (teamId === 0) return;
@@ -87,7 +104,12 @@ const PostCalendar: React.FC = () => {
     setGroupedPosts(grouped);
 
     if (selectedDate) {
-      setSelectedPosts(grouped[selectedDate] || []);
+      const postsForSelectedDate = grouped[selectedDate] || [];
+      setSelectedPosts(postsForSelectedDate);
+
+      // Сохраняем выбранную дату и посты в Redux
+      dispatch(setCalendarSelectedDate(selectedDate));
+      dispatch(setCalendarSelectedPosts(postsForSelectedDate));
     }
   }, [posts, selectedDate]);
 
@@ -96,13 +118,18 @@ const PostCalendar: React.FC = () => {
 
     const dateKey = date.format('YYYY-MM-DD');
     setSelectedDate(dateKey);
-    setSelectedPosts(groupedPosts[dateKey] || []);
+    const postsForDate = groupedPosts[dateKey] || [];
+    setSelectedPosts(postsForDate);
+
+    // Сохраняем выбранную дату и посты в Redux
+    dispatch(setCalendarSelectedDate(dateKey));
+    dispatch(setCalendarSelectedPosts(postsForDate));
   };
 
   const onPanelChange = (date: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
     setCurrentMonth(date);
     setCalendarMode(mode as 'month' | 'year');
-    setSelectedDate(null);
+    // Не сбрасываем выбранную дату при смене месяца
   };
 
   const getPostsForDate = (value: Dayjs) => {
@@ -197,6 +224,8 @@ const PostCalendar: React.FC = () => {
               value={currentMonth}
               mode={calendarMode}
               className={calendarMode === 'year' ? styles.yearViewCalendar : ''}
+              fullscreen={true}
+              validRange={[dayjs('2000-01-01'), dayjs('2100-12-31')]}
             />
           </ConfigProvider>
         )}

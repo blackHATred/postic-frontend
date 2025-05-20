@@ -13,6 +13,8 @@ export interface PostSliceState {
   postsScroll: number;
   activePostFilter: PostFilter;
   viewMode: ViewMode;
+  calendarSelectedDate: string | null;
+  calendarSelectedPosts: Post[];
 }
 
 // Define the initial state using that type
@@ -24,6 +26,8 @@ const initialState: PostSliceState = {
   scrollToPost: null,
   postsScroll: 0,
   viewMode: 'list',
+  calendarSelectedDate: null,
+  calendarSelectedPosts: [],
 };
 
 export const postsSlice = createSlice({
@@ -76,6 +80,19 @@ export const postsSlice = createSlice({
 
     setViewMode: (state, action: PayloadAction<ViewMode>) => {
       state.viewMode = action.payload;
+      // сбрасываем выбранную дату при выходе из режима календаря
+      if (action.payload !== 'calendar') {
+        state.calendarSelectedDate = null;
+        state.calendarSelectedPosts = [];
+      }
+    },
+
+    setCalendarSelectedDate: (state, action: PayloadAction<string | null>) => {
+      state.calendarSelectedDate = action.payload;
+    },
+
+    setCalendarSelectedPosts: (state, action: PayloadAction<Post[]>) => {
+      state.calendarSelectedPosts = action.payload;
     },
   },
 });
@@ -92,6 +109,8 @@ export const {
   setIsOpened,
   setActivePostFilter,
   setViewMode,
+  setCalendarSelectedDate,
+  setCalendarSelectedPosts,
 } = postsSlice.actions;
 
 export const getPostsStore = (state: RootState) => state.posts.posts;
