@@ -58,6 +58,13 @@ const SideMenu: React.FC = () => {
             >
               Отложенные посты
             </Menu.Item>
+            <Menu.Item
+              key='calendar'
+              className={`${styles['sidebar-options']} ${activeFilter === 'calendar' ? styles['active'] : ''}`}
+              onClick={() => handleFilterChange('calendar')}
+            >
+              Календарь
+            </Menu.Item>
             <Divider className={styles['custom-divider']} />
             <Menu.Item
               key='add-post'

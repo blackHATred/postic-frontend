@@ -9,7 +9,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import styles from './styles.module.scss';
-import { Select, Dropdown, MenuProps, Button } from 'antd';
+import { Select, Dropdown, MenuProps, Button, Image } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setLoginEmailDialog, setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import {
@@ -202,7 +202,13 @@ const ButtonHeader: React.FC = () => {
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
-        <img src={'logo.png'} alt='logo' className={styles.logo} />
+        <Image
+          src={`${process.env.PUBLIC_URL}/logo.png`}
+          alt={'Postic'}
+          width={40}
+          height={40}
+          preview={false}
+        />
 
         <div className={styles.headerIcons}>
           {isAuthorized == 'authorized' && (

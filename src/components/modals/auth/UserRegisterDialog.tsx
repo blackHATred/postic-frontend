@@ -2,13 +2,14 @@ import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
 import { Form, Input } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
-import { RegisterWithUserData } from '../../../api/api'; // Новый метод API
+import { RegisterWithUserData } from '../../../api/api';
 import { UserData } from '../../../models/User/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
 import { MyTeams } from '../../../api/teamApi';
 import { setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import { validatePasswordSame } from '../../../utils/validation';
+import styles from './styles.module.scss';
 
 const UserRegisterDialog: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -75,8 +76,16 @@ const UserRegisterDialog: React.FC = () => {
         dispatch(setRegisterEmailDialog(false));
       }}
       isOpen={isOpen}
+      isCenter={true}
     >
-      <Form form={form} layout='vertical'>
+      <Form form={form} layout='vertical' className={styles.form}>
+        <Form.Item
+          name='username'
+          label='Имя пользователя'
+          rules={[{ required: true, message: 'Введите имя пользователя' }]}
+        >
+          <Input placeholder='Имя пользователя' />
+        </Form.Item>
         <Form.Item
           name='email'
           label='Email'

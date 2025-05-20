@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { Post } from '../models/Post/types';
 
-export type PostFilter = 'all' | 'published' | 'scheduled';
+export type PostFilter = 'all' | 'published' | 'scheduled' | 'calendar';
 
 export interface PostSliceState {
   posts: Post[];
