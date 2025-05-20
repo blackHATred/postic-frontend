@@ -229,7 +229,7 @@ const PostList: React.FC = () => {
   return (
     <>
       {activeFilter === 'calendar' ? (
-        <PostCalendar posts={posts} />
+        <PostCalendar posts_props={posts} />
       ) : (
         <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
           {teamId != 0 &&
