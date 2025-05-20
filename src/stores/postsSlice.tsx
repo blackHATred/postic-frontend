@@ -3,6 +3,7 @@ import { RootState } from './store';
 import { Post } from '../models/Post/types';
 
 export type PostFilter = 'all' | 'published' | 'scheduled' | 'calendar';
+export type ViewMode = 'list' | 'calendar';
 
 export interface PostSliceState {
   posts: Post[];
@@ -11,6 +12,7 @@ export interface PostSliceState {
   scrollToPost: number | null;
   postsScroll: number;
   activePostFilter: PostFilter;
+  viewMode: ViewMode;
 }
 
 // Define the initial state using that type
@@ -21,6 +23,7 @@ const initialState: PostSliceState = {
   selectedPostId: 0,
   scrollToPost: null,
   postsScroll: 0,
+  viewMode: 'list',
 };
 
 export const postsSlice = createSlice({
@@ -70,6 +73,10 @@ export const postsSlice = createSlice({
     setActivePostFilter: (state, action: PayloadAction<PostFilter>) => {
       state.activePostFilter = action.payload;
     },
+
+    setViewMode: (state, action: PayloadAction<ViewMode>) => {
+      state.viewMode = action.payload;
+    },
   },
 });
 
@@ -84,6 +91,7 @@ export const {
   setPostsScroll,
   setIsOpened,
   setActivePostFilter,
+  setViewMode,
 } = postsSlice.actions;
 
 export const getPostsStore = (state: RootState) => state.posts.posts;

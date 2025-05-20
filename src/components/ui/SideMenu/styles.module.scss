@@ -63,3 +63,19 @@
 .icon-primary {
   color: $primary-color;
 }
+
+.view-mode-selector {
+  padding: 0 16px;
+  display: flex;
+  justify-content: center;
+
+  :global(.ant-segmented) {
+    width: 100%;
+
+    :global(.ant-segmented-item) {
+      flex: 1;
+      text-align: center;
+    }
+  }
+}
+

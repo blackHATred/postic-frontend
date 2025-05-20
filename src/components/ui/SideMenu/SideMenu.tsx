@@ -1,13 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
-import { Divider, Menu } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Divider, Menu, Segmented } from 'antd';
+import { PlusOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { routes } from '../../../app/App.routes';
 import { setCreatePostDialog } from '../../../stores/basePageDialogsSlice';
-import { PostFilter, setActivePostFilter } from '../../../stores/postsSlice';
+import { PostFilter, setActivePostFilter, setViewMode, ViewMode } from '../../../stores/postsSlice';
 import { AnalyticsFilter, setActiveAnalyticsFilter } from '../../../stores/analyticsSlice';
 import { setTicketFilter, TicketFilter } from '../../../stores/commentSlice';
 
@@ -16,12 +16,17 @@ const SideMenu: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
+  const viewMode = useAppSelector((state) => state.posts.viewMode);
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const activeAnalyticsFilter = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const ticketFilter = useAppSelector((state) => state.comments.ticketFilter);
 
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
+  };
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    dispatch(setViewMode(mode));
   };
 
   const handleFilterAnalyticsChange = (filter: AnalyticsFilter) => {
@@ -58,13 +63,19 @@ const SideMenu: React.FC = () => {
             >
               Отложенные посты
             </Menu.Item>
-            <Menu.Item
-              key='calendar'
-              className={`${styles['sidebar-options']} ${activeFilter === 'calendar' ? styles['active'] : ''}`}
-              onClick={() => handleFilterChange('calendar')}
-            >
-              Календарь
-            </Menu.Item>
+            <Divider className={styles['custom-divider']} />
+
+            <div className={styles['view-mode-selector']}>
+              <Segmented
+                options={[
+                  { value: 'list', icon: <BarsOutlined /> },
+                  { value: 'calendar', icon: <AppstoreOutlined /> },
+                ]}
+                value={viewMode}
+                onChange={(value) => handleViewModeChange(value as ViewMode)}
+              />
+            </div>
+
             <Divider className={styles['custom-divider']} />
             <Menu.Item
               key='add-post'

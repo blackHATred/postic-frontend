@@ -4,16 +4,16 @@ import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { Post } from '../../../models/Post/types';
 import dayjs from 'dayjs';
-import 'dayjs/locale/ru'; // Импортируем русскую локаль для dayjs
+import 'dayjs/locale/ru';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { getPosts } from '../../../api/api';
 import styles from './styles.module.scss';
 import PostComponent from '../../cards/Post/Post';
 import utc from 'dayjs/plugin/utc';
-import locale from 'antd/locale/ru_RU'; // Импортируем русскую локаль для antd
+import locale from 'antd/locale/ru_RU';
 import { setPosts } from '../../../stores/postsSlice';
+import { Max_POSTS } from '../../../constants/appConfig';
 
-// Устанавливаем русскую локаль по умолчанию для dayjs
 dayjs.locale('ru');
 dayjs.extend(utc);
 
@@ -29,6 +29,7 @@ const PostCalendar: React.FC = () => {
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
+  const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
 
   useEffect(() => {
     if (teamId === 0) return;
@@ -38,18 +39,20 @@ const PostCalendar: React.FC = () => {
       const startOfMonth = currentMonth.startOf('month').utc().format();
 
       try {
-        const result = await getPosts(teamId, 100, startOfMonth, 'scheduled', false);
+        let filter = undefined;
+        if (activeFilter === 'published' || activeFilter === 'scheduled') {
+          filter = activeFilter;
+        }
+
+        const result = await getPosts(teamId, Max_POSTS, startOfMonth, filter, false);
         if (result.posts) {
           const filteredPosts = result.posts.filter((post) => {
-            if (!post.pub_datetime) return false;
+            const dateToUse = post.pub_datetime || post.created_at;
+            if (!dateToUse) return false;
 
-            const postDate = dayjs(post.pub_datetime);
-            const now = dayjs();
-
+            const postDate = dayjs(dateToUse);
             return (
-              postDate.month() === currentMonth.month() &&
-              postDate.year() === currentMonth.year() &&
-              postDate.isAfter(now)
+              postDate.month() === currentMonth.month() && postDate.year() === currentMonth.year()
             );
           });
 
@@ -65,14 +68,15 @@ const PostCalendar: React.FC = () => {
     };
 
     loadMonthPosts();
-  }, [teamId, currentMonth]);
+  }, [teamId, currentMonth, activeFilter]);
 
   useEffect(() => {
     const grouped: Record<string, Post[]> = {};
 
     posts.forEach((post) => {
-      if (post.pub_datetime) {
-        const dateKey = dayjs(post.pub_datetime).format('YYYY-MM-DD');
+      const dateToUse = post.pub_datetime || post.created_at;
+      if (dateToUse) {
+        const dateKey = dayjs(dateToUse).format('YYYY-MM-DD');
         if (!grouped[dateKey]) {
           grouped[dateKey] = [];
         }
@@ -88,7 +92,6 @@ const PostCalendar: React.FC = () => {
   }, [posts, selectedDate]);
 
   const handleSelect = (date: Dayjs) => {
-    // Игнорируем клики в режиме просмотра по годам
     if (calendarMode === 'year') return;
 
     const dateKey = date.format('YYYY-MM-DD');
@@ -99,8 +102,6 @@ const PostCalendar: React.FC = () => {
   const onPanelChange = (date: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
     setCurrentMonth(date);
     setCalendarMode(mode as 'month' | 'year');
-
-    // Сбрасываем выбранную дату при переключении режима просмотра
     setSelectedDate(null);
   };
 
@@ -111,8 +112,12 @@ const PostCalendar: React.FC = () => {
 
   const sortedPostsByTime = (posts: Post[]): Post[] => {
     return [...posts].sort((a, b) => {
-      const timeA = a.pub_datetime ? dayjs(a.pub_datetime).valueOf() : 0;
-      const timeB = b.pub_datetime ? dayjs(b.pub_datetime).valueOf() : 0;
+      const timeA = a.pub_datetime
+        ? dayjs(a.pub_datetime).valueOf()
+        : dayjs(a.created_at).valueOf();
+      const timeB = b.pub_datetime
+        ? dayjs(b.pub_datetime).valueOf()
+        : dayjs(b.created_at).valueOf();
       return timeA - timeB;
     });
   };
@@ -124,7 +129,8 @@ const PostCalendar: React.FC = () => {
     return (
       <ul className={styles.events}>
         {sortedPosts.map((post) => {
-          const timeStr = dayjs(post.pub_datetime).format('HH:mm');
+          const dateToUse = post.pub_datetime || post.created_at;
+          const timeStr = dayjs(dateToUse).format('HH:mm');
           const platforms = post.platforms?.join(', ') || '';
 
           return (
@@ -165,10 +171,17 @@ const PostCalendar: React.FC = () => {
     return info.originNode;
   };
 
+  const getCalendarTitle = () => {
+    if (activeFilter === 'all') return 'Календарь всех постов';
+    if (activeFilter === 'published') return 'Календарь опубликованных постов';
+    if (activeFilter === 'scheduled') return 'Календарь отложенных постов';
+    return 'Календарь постов';
+  };
+
   return teamId !== 0 ? (
     <div className={styles.calendarWrapper}>
       <Title level={3} className={styles.calendarTitle}>
-        Календарь отложенных постов
+        {getCalendarTitle()}
       </Title>
       <div className={styles.calendarContainer}>
         {isLoading ? (

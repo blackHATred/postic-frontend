@@ -9,3 +9,5 @@ export const getSseUrl = (teamId: number, postId = 0): string => {
   return `${config.api.baseURL}/comment/subscribe?team_id=${teamId}&post_union_id=${postId}`;
 };
 export default config;
+
+export const Max_POSTS = 100;
