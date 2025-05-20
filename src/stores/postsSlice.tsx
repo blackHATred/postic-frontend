@@ -8,7 +8,7 @@ export interface PostSliceState {
   posts: Post[];
   isOpened: { [key: number]: boolean };
   selectedPostId: number;
-  scrollToPost: boolean;
+  scrollToPost: number | null;
   postsScroll: number;
   activePostFilter: PostFilter;
 }
@@ -19,8 +19,8 @@ const initialState: PostSliceState = {
   activePostFilter: 'all',
   isOpened: {},
   selectedPostId: 0,
-  scrollToPost: false,
-  postsScroll: 10000,
+  scrollToPost: null,
+  postsScroll: 0,
 };
 
 export const postsSlice = createSlice({
@@ -31,7 +31,7 @@ export const postsSlice = createSlice({
       state.selectedPostId = action.payload;
     },
 
-    setScrollToPost: (state, action: PayloadAction<boolean>) => {
+    setScrollToPost: (state, action: PayloadAction<number | null>) => {
       state.scrollToPost = action.payload;
     },
 
@@ -48,6 +48,13 @@ export const postsSlice = createSlice({
         state.posts = [];
       }
       state.posts = [action.payload, ...state.posts];
+    },
+
+    removePost: (state, action: PayloadAction<Post>) => {
+      if (!Array.isArray(state.posts)) {
+        state.posts = [];
+      }
+      state.posts = state.posts.filter((p) => p.id != action.payload.id);
     },
     addPosts: (state, action: PayloadAction<Post[]>) => {
       if (!Array.isArray(state.posts)) {
@@ -71,6 +78,7 @@ export const {
   setSelectedPostId,
   setScrollToPost,
   addPost,
+  removePost,
   addPosts,
   setPosts,
   setPostsScroll,

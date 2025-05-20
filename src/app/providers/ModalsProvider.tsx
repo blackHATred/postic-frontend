@@ -2,10 +2,7 @@ import React, { ReactNode } from 'react';
 import DialogBoxSummary from '../../components/modals/SummaryDialog/SummaryDialog';
 import PostStatusDialog from '../../components/modals/PostStatusDialog/PostStatusDialog';
 import CreatePostDialog from '../../components/modals/CreatePostDialog/CreatePostDialog';
-import LoginDialog from '../../components/modals/auth/LoginDialog';
-import RegisterDialog from '../../components/modals/auth/RegisterDialog';
 import MeDialog from '../../components/modals/auth/keyDialog';
-import WelcomeDialog from '../../components/modals/auth/WelcomeDialog';
 import TeamAddMemberDialog from '../../components/modals/TeamDialog/TeamAddMemberDialog';
 import TeamCreateDialog from '../../components/modals/TeamDialog/TeamCreateDialog';
 import TeamEditMemberDialog from '../../components/modals/TeamDialog/TeamEditMemberDialog';
@@ -28,10 +25,7 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <DialogBoxSummary />
       <PostStatusDialog />
       <CreatePostDialog />
-      <LoginDialog />
-      <RegisterDialog />
       <MeDialog />
-      <WelcomeDialog />
       <TeamAddMemberDialog />
       <TeamCreateDialog />
       <TeamEditMemberDialog />

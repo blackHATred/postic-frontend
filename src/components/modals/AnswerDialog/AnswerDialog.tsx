@@ -9,7 +9,10 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 
 import FileUploader from '../CreatePostDialog/FileUploader';
 import {
+  addComment,
   addFileComm,
+  addPostComment,
+  addTicket,
   clearFilesComm,
   removeFileComm,
   setAnswerDialog,
@@ -17,7 +20,7 @@ import {
 import { RightOutlined } from '@ant-design/icons';
 import { SendOutlined } from '@ant-design/icons/lib/icons';
 import { Answ, CommentReply } from '../../../models/Comment/types';
-import { Reply, ReplyIdeas } from '../../../api/api';
+import { getComment, Reply, ReplyIdeas } from '../../../api/api';
 
 const { Text } = Typography;
 
@@ -35,6 +38,7 @@ const AnswerDialog: FC = () => {
   const [answers, setAnswers] = useState<{ ideas: string[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
 
   useEffect(() => {
     if (isOpen && selectedComment) {
@@ -112,7 +116,14 @@ const AnswerDialog: FC = () => {
       text: replyText,
       attachments: fileIds,
     };
-    Reply(req).then(() => clearFields());
+    Reply(req).then((id) => {
+      clearFields();
+      if (activeTab == '2')
+        getComment(team_id, id.comment_id).then((c) => dispatch(addComment(c.comment)));
+      else if (activeTab == '4')
+        getComment(team_id, id.comment_id).then((c) => dispatch(addTicket(c.comment)));
+      else getComment(team_id, id.comment_id).then((c) => dispatch(addPostComment(c.comment)));
+    });
     dispatch(setAnswerDialog(false));
   };
 

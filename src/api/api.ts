@@ -8,7 +8,6 @@ import {
 } from '../models/Post/types';
 import {
   Comment,
-  Comments,
   CommentReply,
   DeleteComment,
   GetSummarizeMarkdownResponse,
@@ -79,8 +78,10 @@ export const getPosts = async (
   return response.data;
 };
 
-export const postEdit = async (post: PostEditReq): Promise<{ message: string }> => {
-  const response = await axiosInstance.post<{ message: string }>(
+export const postEdit = async (
+  post: PostEditReq,
+): Promise<{ actionIds: number[]; status: string }> => {
+  const response = await axiosInstance.post<{ actionIds: number[]; status: string }>(
     `${config.api.baseURL}${routes.posts()}/edit`,
     post,
     {
@@ -160,6 +161,14 @@ export const Login = async (id: number): Promise<RegisterResult> => {
   return response.data;
 };
 
+export const Logout = async (): Promise<null> => {
+  const response = await axiosInstance.post<null>(`${config.api.baseURL}/user/logout`, {
+    withCredentials: true,
+  });
+
+  return response.data;
+};
+
 export const getSummarize = async (teamId: number, postId: number): Promise<GetSummarizeResult> => {
   const response = await axiosInstance.get<GetSummarizeResult>(
     `${config.api.baseURL}${routes.comments()}/summarize`,
@@ -207,7 +216,7 @@ export const getComments = async (
   marked_as_ticket?: boolean,
 ) => {
   try {
-    const response = await axiosInstance.get<Comments>(
+    const response = await axiosInstance.get<{ comments: Comment[] }>(
       `${config.api.baseURL}${routes.comments()}/last`,
       {
         withCredentials: true,
@@ -233,7 +242,7 @@ export const getComments = async (
 };
 
 export const Reply = async (request: CommentReply) => {
-  const response = await axiosInstance.post<string>(
+  const response = await axiosInstance.post<{ comment_id: number; status: string }>(
     `${config.api.baseURL}${routes.comments()}/reply`,
     request,
     {

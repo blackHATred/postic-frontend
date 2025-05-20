@@ -40,7 +40,6 @@
   }
 }
 
-
 .post-time {
   display: flex;
   flex-direction: row;
@@ -118,7 +117,8 @@
 }
 
 .platforms-list-buttons {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 10px;
 }

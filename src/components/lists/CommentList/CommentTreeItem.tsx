@@ -1,43 +1,56 @@
-import React, { useRef } from 'react';
+import React, { memo, useRef, useState, useCallback } from 'react';
 import { Button } from 'antd';
 import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
 import CommentComponent from '../../cards/Comment/Comment';
 import styles from './styles.module.scss';
 import { CommentWithChildren } from './commentTree';
 import './selected_style.css';
-import { useAppDispatch } from '../../../stores/hooks';
 
 const MAX_NESTING_LEVEL = 4;
 
 interface CommentItemProps {
   comment: CommentWithChildren;
   level: number;
-  isCollapsed: boolean;
-  onToggleCollapse: (commentId: number) => void;
-  collapsedComments: Record<number, boolean>;
   isLastInChain?: boolean;
+  onDelete?: any;
 }
+const Comm = memo(CommentComponent, (c_1, c_2) => c_1.comment.id == c_2.comment.id);
 
-const CommentTreeItem: React.FC<CommentItemProps> = ({
-  comment,
-  level,
-  isCollapsed,
-  onToggleCollapse,
-  collapsedComments,
-  isLastInChain = false,
-}) => {
-  const dispatch = useAppDispatch();
+const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete }) => {
+  // Local state for immediate collapse toggle
+  const [collapsedLocal, setCollapsedLocal] = useState(false);
   const hasChildren = comment.children && comment.children.length > 0;
   const visibleLevel = level % MAX_NESTING_LEVEL;
   const isResetLevel = level > 0 && visibleLevel === 0;
+  const repliesRef = useRef<HTMLDivElement>(null);
 
   const levelColors = ['#ddeffd', '#BAE0FF', '#91CAFF', '#69B1FF'];
   const lineColor = levelColors[visibleLevel % levelColors.length];
   const refer = useRef<HTMLDivElement>(null);
+  const [deletedCount, setDeletedCount] = useState(0);
 
   const deleteElement = () => {
     if (refer.current) refer.current.className += ' animation';
+    onDelete(comment);
   };
+
+  // Мемоизированный обработчик для предотвращения лишних перерисовок
+  const handleToggleCollapse = useCallback(() => {
+    if (!hasChildren) return;
+
+    // Более эффективная анимация с использованием CSS-классов
+    if (repliesRef.current) {
+      if (!collapsedLocal) {
+        // Скрываем комментарии
+        repliesRef.current.classList.add(styles.collapsed);
+      } else {
+        // Показываем комментарии
+        repliesRef.current.classList.remove(styles.collapsed);
+      }
+    }
+
+    setCollapsedLocal((prev) => !prev);
+  }, [comment.id, collapsedLocal, hasChildren]);
 
   return (
     <div className={styles.commentTreeItem} ref={refer}>
@@ -48,36 +61,41 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
             <span className={styles.levelInfo}>Продолжение ветки (уровень {level})</span>
           </div>
         )}
-        <CommentComponent comment={comment} onDelete={deleteElement} />
-        {hasChildren && (
+
+        {/* Используем мемоизированные компоненты, чтобы избежать ненужных перерисовок */}
+        <Comm comment={comment} onDelete={deleteElement} />
+
+        {/* Кнопка разворачивания/сворачивания появляется только если есть дочерние комментарии */}
+        {hasChildren && comment.children.length - deletedCount > 0 && (
           <Button
             type='text'
-            icon={isCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}
-            onClick={() => onToggleCollapse(comment.id)}
+            icon={collapsedLocal ? <CaretRightOutlined /> : <CaretDownOutlined />}
+            onClick={handleToggleCollapse}
             className={styles.collapseButton}
           >
-            {isCollapsed ? 'Показать ответы' : 'Скрыть ответы'} ({comment.children.length})
+            {collapsedLocal ? 'Показать ответы' : 'Скрыть ответы'} (
+            {comment.children.length - deletedCount})
           </Button>
         )}
       </div>
 
-      {!isCollapsed && hasChildren && (
+      {/* Рендерим дочерние комментарии всегда и используем CSS-классы для анимации */}
+      {hasChildren && (
         <div
-          className={styles.commentReplies}
+          ref={repliesRef}
+          className={`${styles.commentReplies} ${collapsedLocal ? styles.collapsed : ''}`}
           style={{
             borderLeft: `2px solid ${lineColor}`,
             paddingLeft: isResetLevel ? '15px' : '10px',
           }}
         >
-          {comment.children.map((child, index) => (
+          {comment.children.map((child, idx) => (
             <CommentTreeItem
               key={child.id}
               comment={child}
               level={level + 1}
-              isCollapsed={!!collapsedComments[child.id]}
-              onToggleCollapse={onToggleCollapse}
-              collapsedComments={collapsedComments}
-              isLastInChain={index === comment.children.length - 1}
+              isLastInChain={idx === comment.children.length - 1}
+              onDelete={onDelete}
             />
           ))}
         </div>
@@ -86,4 +104,25 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({
   );
 };
 
-export default React.memo(CommentTreeItem);
+const equal_children = (c_1: CommentWithChildren, c_2: CommentWithChildren) => {
+  if (c_1.children.length == c_2.children.length) {
+    if (c_1.children.length == 0) return true;
+    for (let i = 0; i < c_1.children.length; i++) {
+      if (!equal_children(c_1.children[i], c_2.children[i])) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
+};
+// Улучшенный вариант memo для предотвращения ненужных ререндеров
+export default memo(CommentTreeItem, (prevProps, nextProps) => {
+  // Сравниваем только то, что может измениться и влияет на рендеринг
+  return (
+    prevProps.level === nextProps.level &&
+    prevProps.comment.id === nextProps.comment.id &&
+    equal_children(prevProps.comment, nextProps.comment)
+  );
+});

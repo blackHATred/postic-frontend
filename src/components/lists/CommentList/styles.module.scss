@@ -1,12 +1,27 @@
+@import '../../../styles/variables';
 .postListContainer {
   height: 100%;
   width: 100%;
   overflow-y: scroll;
   overflow-anchor: auto;
-  scrollbar-width: none;
+
   overflow-wrap: normal;
   float: left;
   interpolate-size: allow-keywords;
+  padding-right: 10px;
+
+  &::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c9c9c9;
+    border-radius: 3px;
+  }
 }
 
 .filterContainer {
@@ -23,9 +38,36 @@
   padding-right: auto;
 }
 
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+}
+
+.loadingMore {
+  padding: 20px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.endDivider {
+  margin: 16px 0;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  width: 100%;
+}
+
 .end {
   height: 50px;
-  margin: 0px !important;
+  margin: 0 !important;
   width: 100%;
   border-color: rgb(140, 140, 140);
 }
@@ -34,16 +76,29 @@
   width: 100%;
 }
 
+.commentTreeItem {
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
 .commentReplies {
   padding-left: 20px;
   border-left: 2px solid #e8e8e8;
   margin-top: 8px;
+  overflow: hidden;
+  max-height: 5000px; /* Большое значение для обеспечения видимости всех вложенных комментариев */
+  opacity: 1;
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.2s ease-in-out;
+  will-change: max-height, opacity;
 }
 
 .collapseButton {
   margin: 8px 0;
   display: flex;
   align-items: center;
+  transition: all 0.2s ease;
 }
 
 .deepNested {
@@ -73,34 +128,36 @@
 .resetLevel {
   position: relative;
   margin-top: 12px;
+  margin-left: -10px;
+  padding-left: 10px;
 }
 
 .continuationIndicator {
   display: flex;
   align-items: center;
-  margin: -8px 0 8px 0;
-  position: relative;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #999;
 }
 
 .continuationLine {
+  width: 20px;
   height: 2px;
-  flex-grow: 1;
-  margin-right: 10px;
-  max-width: 30px;
+  margin-right: 8px;
 }
 
 .levelInfo {
-  font-size: 12px;
-  color: #888;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background-color: #f5f5f5;
+  font-style: italic;
+  font-size: 11px;
 }
 
-.commentReplies {
-  margin-top: 8px;
-  padding-left: 20px;
-  border-left: 2px solid #e8e8e8;
+.collapsed {
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.25s ease-out,
+    opacity 0.1s ease-out;
+  overflow: hidden;
 }
 
 .breadcrumb {

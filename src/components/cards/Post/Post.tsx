@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -14,11 +14,14 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
-import { setComments } from '../../../stores/commentSlice';
 import MediaRenderer from '../Comment/MediaRenderer';
 import { DeletePost } from '../../../api/api';
 import { PostReq } from '../../../models/Analytics/types';
 import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
+import { setComments } from '../../../stores/commentSlice';
+import './selected_style.css';
+import { removePost } from '../../../stores/postsSlice';
+import { NotificationContext } from '../../../api/notification';
 
 const { Text, Paragraph } = Typography;
 
@@ -41,10 +44,6 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   };
   const [ellipsis] = useState(true);
 
-  useEffect(() => {
-    console.log('reload');
-  });
-
   const dispatch = useAppDispatch();
   const refer = useRef<HTMLDivElement>(null);
   const attach_files = post.attachments
@@ -63,6 +62,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const selectedUser = useAppSelector((state) => state.teams.currentUserId);
   const teams = useAppSelector((state) => state.teams.teams);
+  const notificationManager = useContext(NotificationContext);
 
   const userRoles =
     teams
@@ -73,7 +73,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
 
   const onCommentClick = () => {
     dispatch(setComments([]));
-    navigate(routes.post(post.id));
+    setTimeout(() => navigate(routes.post(post.id)), 100);
   };
 
   return (
@@ -115,9 +115,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                   icon={<CommentOutlined />}
                   withPopover={true}
                   popoverContent='Посмотреть комментарии к посту'
-                  onButtonClick={() => {
-                    onCommentClick();
-                  }}
+                  onButtonClick={onCommentClick}
                 />
               ) : (
                 <></>
@@ -180,7 +178,9 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
               };
               DeletePost(info).then((data: any) => {
                 if (data.status == 'ok') {
-                  console.info('COMMENT DELETED, REMOVE VISUALLY');
+                  if (refer.current) refer.current.className += ' ' + 'animation';
+                  setTimeout(() => dispatch(removePost(post)), 350);
+                  notificationManager.createNotification('success', 'Пост успешно изменен', '');
                 }
               });
             }}
@@ -191,4 +191,10 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   );
 };
 
-export default PostComponent;
+export default React.memo(
+  PostComponent,
+  (p_1, p_2) =>
+    p_1.post.id == p_2.post.id &&
+    p_1.post.attachments == p_2.post.attachments &&
+    p_1.post.text == p_2.post.text,
+);

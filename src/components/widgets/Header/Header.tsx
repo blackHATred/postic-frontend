@@ -11,21 +11,21 @@ import {
 import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button, Image } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import {
-  setLoginEmailDialog,
-  setRegiserDialog,
-  setRegisterEmailDialog,
-} from '../../../stores/basePageDialogsSlice';
+import { setLoginEmailDialog, setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import {
   ActivePlatform,
   getTeamsFromStore,
+  setAuthorized,
+  setCurrentUserId,
   setGlobalActivePlatforms,
   setGlobalActiveTeamId,
+  setTeams,
 } from '../../../stores/teamSlice';
-import { setComments } from '../../../stores/commentSlice';
+import { clearAllComms } from '../../../stores/commentSlice';
 import { Typography } from 'antd';
 import { Platforms } from '../../../api/teamApi';
 import { setPosts } from '../../../stores/postsSlice';
+import { Logout } from '../../../api/api';
 
 const { Text } = Typography;
 
@@ -48,13 +48,6 @@ const ButtonHeader: React.FC = () => {
             key: 'register',
             icon: <UserOutlined />,
           },
-          /*
-      {
-            label: 'Регистрация1',
-            key: 'register1',
-            icon: <UserOutlined />,
-          },
-      * */
 
           {
             label: 'Помощь',
@@ -88,14 +81,23 @@ const ButtonHeader: React.FC = () => {
         dispatch(setRegisterEmailDialog(true));
         return;
       }
-      case 'register1': {
-        dispatch(setRegiserDialog(true));
-        return;
-      }
       case 'logout': {
+        logout();
         return;
       }
     }
+  };
+
+  const logout = () => {
+    Logout()
+      .then(() => {
+        dispatch(setCurrentUserId(0));
+        dispatch(setAuthorized('not_authorized'));
+        dispatch(setTeams([]));
+        dispatch(setPosts([]));
+        dispatch(clearAllComms());
+      })
+      .catch(() => {});
   };
 
   const menuProps = {
@@ -115,7 +117,7 @@ const ButtonHeader: React.FC = () => {
   useEffect(() => {
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
   }, [teams, selectedTeam]);
@@ -125,7 +127,7 @@ const ButtonHeader: React.FC = () => {
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
       dispatch(setGlobalActiveTeamId(teams[0].id));
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
     //  у пользователя нет команд, сбрасываем выбранную команду
@@ -133,7 +135,7 @@ const ButtonHeader: React.FC = () => {
     else if (teams.length === 0) {
       setSelectedTeam(undefined);
       dispatch(setGlobalActiveTeamId(0));
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
   }, [teams, selectedTeam, dispatch]);
@@ -156,7 +158,7 @@ const ButtonHeader: React.FC = () => {
     } else {
       setSelectedTeam(undefined);
       dispatch(setGlobalActiveTeamId(0));
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
     }
   }, [teams, dispatch]);
 
@@ -191,7 +193,7 @@ const ButtonHeader: React.FC = () => {
     localStorage.setItem('selectedTeamId', value);
 
     dispatch(setGlobalActiveTeamId(teamId));
-    dispatch(setComments([]));
+    dispatch(clearAllComms());
     dispatch(setPosts([]));
 
     loadPlatformsForTeam(teamId);

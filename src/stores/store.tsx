@@ -15,12 +15,6 @@ export const store = configureStore({
     settings: settingsReducer,
     analytics: analyticsReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: ['basePageDialogs/addFile', 'basePageDialogs/removeFile'],
-      },
-    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

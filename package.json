@@ -11,6 +11,7 @@
     "@types/react-dom": "^19.0.4",
     "antd": "^5.24.3",
     "axios": "^1.8.4",
+    "deep-equal": "^2.2.3",
     "emoji-picker-react": "^4.12.2",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
@@ -48,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "@types/deep-equal": "^1.0.4",
     "@types/lodash": "^4.17.16",
     "@types/react-loadable": "^5.5.11",
     "@typescript-eslint/eslint-plugin": "^5.62.0",

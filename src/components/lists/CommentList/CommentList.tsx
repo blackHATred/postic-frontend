@@ -1,57 +1,54 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
+//import { setPostsScroll } from '../../../stores/postsSlice';
+import { getComment, getComments } from '../../../api/api';
 import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
-import { CommentWithChildren, createCommentTree, useCollapsedComments } from './commentTree';
-import { getComment, getComments } from '../../../api/api';
 import CommentTreeItem from './CommentTreeItem';
+import { CommentWithChildren, createCommentTree, useCollapsedComments } from './commentTree';
 import { routes } from '../../../app/App.routes';
-import { addComment, setComments } from '../../../stores/commentSlice';
 import { getSseUrl } from '../../../constants/appConfig';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
 
-const frame_size = 10;
+const frame_size = 3;
 const { Text } = Typography;
 
-interface CommentListProps {
-  postId?: number;
-  isDetailed?: boolean;
-}
-
-const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
+const CommentList: React.FC<{
+  get_func: (state: any) => any;
+  set_func: any;
+  add_func: any;
+  remove_func: any;
+}> = ({ get_func, set_func, remove_func, add_func }) => {
   const dispatch = useAppDispatch();
+  const comments = useAppSelector(get_func);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const comments = useAppSelector((state) => state.comments.comments);
-  //const comments = mockComments;
-  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
-  const effectivePostId = postId != undefined ? postId : selectedPostId;
 
-  const isTicketPage = location.pathname === routes.ticket();
-  const { collapsedComments, toggleCollapse } = useCollapsedComments();
+  const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
 
-  const scroll = useAppSelector((state) => state.posts.postsScroll);
+  //const scroll = useAppSelector((state) => state.posts.postsScroll);
 
-  const [postElements, setPostElements] = useState<{ id: number; element: any }[]>([]);
+  const [commentElements, setCommentElements] = useState<{ id: number; element: any }[]>([]);
   const divRef = useRef<HTMLDivElement>(null);
 
   const [showBottom, setShowBottom] = useState(false);
 
-  const [hasMoreTop, setHasMoreTop] = useState(false);
-  const [hasMoreBottom, setHasMoreBottom] = useState(false);
+  const [hasMoreTop, setHasMoreTop] = useState(true);
+  const [hasMoreBottom, setHasMoreBottom] = useState(true);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingBottom, setIsLoadingBottom] = useState(false);
   const [isLoadingTop, setIsLoadingTop] = useState(false);
 
-  const [atTop, setAtTop] = useState<boolean>(true);
   const [lastTop, setLastTop] = useState<number>(0);
 
   const [newData, setNewData] = useState<CommentWithChildren[]>([]);
 
-  const [initialLoad, setInitialLoad] = useState<boolean>(false);
+  const [doNowShow, setDoNowShow] = useState(true);
 
-  const [last_collapse, setLastCollapsed] = useState<Record<number, boolean>>({});
+  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
+  const isTicketPage = location.pathname === routes.ticket();
+  const { collapsedComments, toggleCollapse } = useCollapsedComments();
 
   const url = getSseUrl(teamId, selectedPostId || 0);
 
@@ -66,41 +63,194 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
     onMessage: onNewComment,
   });
 
-  useEffect(() => {
+  const [toDelete, setToDelete] = useState<any>();
+
+  function flat(r: any, a: any) {
+    const b: any = {};
+    Object.keys(a).forEach(function (k) {
+      if (k !== 'children') {
+        b[k] = a[k];
+      }
+    });
+    r.push(b);
+    if (Array.isArray(a.children)) {
+      return a.children.reduce(flat, r);
+    }
+    return r;
+  }
+
+  React.useEffect(() => {
     if (newComment) {
-      if (!hasMoreTop)
-        getComment(teamId, newComment.comment_id).then((data) => {
-          dispatch(addComment(data.comment));
-        });
+      if (newComment.type == 'new')
+        if (!hasMoreTop)
+          getComment(teamId, newComment.comment_id)
+            .then((data) => {
+              dispatch(add_func(data.comment));
+            })
+            .catch(() => {
+              console.error('Ошибка при получении нового комментария');
+            });
     }
   }, [newComment]);
 
   React.useEffect(() => {
-    let id: number | undefined = undefined;
-    postElements.forEach((element) => {
-      if (last_collapse[element.id] != collapsedComments[element.id]) {
-        id = element.id;
-      }
-    });
-    loadFromData(id);
-  }, [collapsedComments]);
+    if (toDelete) {
+      dispatch(remove_func([toDelete]));
+    }
+  }, [toDelete]);
 
-  const loadPost = () => {
+  React.useEffect(() => {
+    setHasMoreBottom(true);
+    setHasMoreTop(false);
+    setShowBottom(false);
+    if (comments.length == 0) {
+      // NOTE: первичная загрузка
+      setIsLoading(true);
+      loadComment();
+    } else if (commentElements.length == 0) {
+      //NOTE: открытие элемента с уже существующим списком постов
+      setDoNowShow(true);
+      setHasMoreTop(true);
+    } else {
+      //NOTE: смена страницы
+      setDoNowShow(true);
+      setIsLoading(true);
+      if (divRef.current) divRef.current.scrollTop = 0;
+      loadComment();
+    }
+  }, [activeFilter]);
+
+  const loadComment = () => {
     loadComments(true, frame_size * 3)
-      .then((posts) => {
-        if (posts.length > 0) dispatch(setComments(posts));
-        if (posts.length == 0) {
-        } else {
-          if (posts.length < frame_size * 3) {
-            setHasMoreBottom(false);
-          } else {
-            setHasMoreBottom(true);
-          }
+      .then((comments) => {
+        dispatch(set_func(comments));
+        if (comments.length < frame_size * 3) {
+          setHasMoreBottom(false);
         }
       })
       .catch(() => {
         setIsLoading(false);
       });
+  };
+
+  React.useEffect(() => {
+    if (comments.length > 0) {
+      if (commentElements.length == 0) {
+        // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED
+        if (isLoading) {
+          //NOTE: Loaded first data
+          loadFromData();
+        } else {
+          //NOTE: Had data loaded
+          setTimeout(() => loadFromData(), 10);
+        }
+      } else {
+        // NOTE: NEW DATA LOADED
+        loadFromData();
+      }
+    } else {
+      if (isLoading) {
+        loadFromData();
+        setIsLoading(false);
+      }
+    }
+  }, [comments]);
+
+  const loadFromData = async (id?: number) => {
+    if (comments.length > 0) {
+      setCommentElements(
+        comments.map((comment: any) => {
+          return {
+            id: comment.id,
+            element: (
+              <CommentTreeItem
+                comment={comment}
+                level={0}
+                onDelete={(comm: CommentWithChildren) => {
+                  setTimeout(() => setToDelete(comm), 400);
+                }}
+              />
+            ),
+          };
+        }),
+      );
+    } else {
+      setCommentElements([]);
+      setDoNowShow(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (divRef.current && commentElements.length > 0) {
+      setDoNowShow(false);
+      if (isLoading) {
+        //NOTE: LOADING FIRST DATA OR ADDING NEW DATA
+
+        if (isLoadingBottom) {
+          //NOTE: ADDED DATA TO BOTTOM
+          setIsLoadingBottom(false);
+          setIsLoading(false);
+        } else if (isLoadingTop) {
+          //NOTE: ADDED DATA TO TOP
+          if (newData.length != 0) {
+            if (divRef.current.scrollTop == 0) {
+              //NOTE: PREVENT SCROLL JUMPING WHEN AT THE VERY TOP (OVERFLOW-ANCHOR:AUTO)
+              divRef.current.scrollTo(0, lastTop + divRef.current.scrollHeight);
+            }
+            // NOTE: REMOVE ELEMENTS AT END
+            dispatch(set_func(comments.slice(0, comments.length - newData.length)));
+            setNewData([]);
+          } else {
+            //NOTE: REMOVED FROM BOTTOM AFTER ADDING TOP
+            setIsLoadingTop(false);
+            setIsLoading(false);
+          }
+        } else {
+          //NOTE: ADDING FIRST DATA
+          setIsLoading(false);
+        }
+        if (divRef.current.scrollHeight > divRef.current.clientHeight) {
+          setShowBottom(true);
+        }
+      } else {
+        //NOTE: ALREADY EXISTING DATA LOADED
+        //divRef.current.scrollTo(0, scroll);
+      }
+    }
+  }, [commentElements]);
+
+  const onNewTop = (data: CommentWithChildren[]) => {
+    if (data.length > 0) {
+      if (data.length != frame_size) {
+        setHasMoreTop(false);
+      }
+      setHasMoreBottom(true);
+      if (divRef.current) {
+        setLastTop(divRef.current.scrollTop - divRef.current.scrollHeight);
+      }
+      dispatch(set_func([...data, ...comments]));
+      setNewData(data);
+    } else {
+      setHasMoreTop(false);
+      setIsLoading(false);
+      setIsLoadingTop(false);
+    }
+  };
+
+  const onNewBottom = (data: CommentWithChildren[]) => {
+    if (data.length > 0) {
+      if (data.length != frame_size) {
+        setHasMoreBottom(false);
+      }
+      dispatch(set_func([...comments, ...data]));
+    } else {
+      setHasMoreBottom(false);
+      setIsLoading(false);
+      setIsLoadingBottom(false);
+      if (divRef.current && divRef.current.scrollHeight > divRef.current.clientHeight) {
+        setShowBottom(true);
+      }
+    }
   };
 
   const loadComments = async (
@@ -109,7 +259,7 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
     last_object?: CommentWithChildren,
     top?: boolean,
   ) => {
-    const union_id = effectivePostId ? effectivePostId : 0;
+    const union_id = selectedPostId;
 
     let marked_as_ticket: boolean | undefined;
 
@@ -138,125 +288,35 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
     return res && res.comments && res.comments.length > 0 ? createCommentTree(res.comments) : [];
   };
 
-  React.useEffect(() => {
-    if (comments.comments.length == 0) {
-      setShowBottom(false);
-      setIsLoading(true);
-      loadPost();
-    }
-    setTimeout(() => {
-      loadFromData();
-    }, 10);
-    if (postElements.length == 0 && !isLoading) {
-      setInitialLoad(true);
-      setHasMoreBottom(true);
-      if (comments.comments.length != 0) setHasMoreTop(true);
-    }
-  }, [comments]);
-
-  const loadFromData = async (id?: number) => {
-    if (comments.comments.length > 0) {
-      const p: { id: number; element: any }[] = [];
-      comments.comments.forEach((post) => {
-        const el = postElements.find((el) => post.id == el.id);
-        if (el && !(id && id == post.id)) {
-          p.push(el);
-        } else {
-          p.push({
-            id: post.id,
-            element: (
-              <CommentTreeItem
-                comment={post}
-                level={0}
-                isCollapsed={!!collapsedComments[post.id]}
-                onToggleCollapse={toggleCollapse}
-                collapsedComments={collapsedComments}
-              />
-            ),
-          });
-        }
-      });
-      setPostElements(p);
-      setTimeout(() => setIsLoading(false), 100);
-    } else {
-      setPostElements([]);
-      setTimeout(() => setIsLoading(false), 100);
-    }
-  };
-
-  React.useEffect(() => {
-    if (divRef.current) {
-      if (isLoadingBottom) {
-        setIsLoadingBottom(false);
-      }
-      if (isLoadingTop) {
-        if (divRef.current.scrollTop == 0) {
-          divRef.current.scrollTo(0, lastTop + divRef.current.scrollHeight);
-        }
-        dispatch(
-          setComments(comments.comments.slice(0, comments.comments.length - newData.length)),
-        );
-        setIsLoadingTop(false);
-      }
-      if (divRef.current.scrollHeight > divRef.current.clientHeight) {
-        setShowBottom(true);
-      }
-    }
-  }, [postElements]);
-
-  const onNewTop = (data: CommentWithChildren[]) => {
-    if (data) {
-      if (data.length != frame_size) {
-        setHasMoreTop(false);
-      }
-      if (data.length > 0) setHasMoreBottom(true);
-      if (divRef.current) {
-        setLastTop(divRef.current.scrollTop - divRef.current.scrollHeight);
-      }
-      dispatch(setComments([...data, ...comments.comments]));
-      setNewData(data);
-    } else {
-      setHasMoreTop(false);
-    }
-  };
-
-  const onNewBottom = (data: CommentWithChildren[]) => {
-    if (data) {
-      if (data.length != frame_size) {
-        setHasMoreBottom(false);
-      }
-      if (data.length > 0) setHasMoreTop(true);
-      dispatch(setComments([...comments.comments.slice(data.length), ...data]));
-    } else {
-      setHasMoreBottom(false);
-    }
-  };
   const handleScroll = () => {
     if (divRef.current) {
       const max_scroll = divRef.current.scrollHeight - divRef.current.clientHeight;
-      setAtTop(divRef.current.scrollTop <= max_scroll * 0.1);
       if (
         divRef.current.scrollTop <= max_scroll * 0.1 &&
         hasMoreTop &&
         !isLoadingTop &&
         !isLoading &&
-        comments.comments.length > 0
+        !isLoadingBottom &&
+        comments.length > 0
       ) {
         //NOTE: load more data bottom
+        setIsLoading(true);
         setIsLoadingTop(true);
-        loadComments(false, frame_size, comments.comments[0]).then((data) => onNewTop(data));
+        loadComments(false, frame_size, comments[0]).then((data) => onNewTop(data));
       }
       if (
         divRef.current.scrollTop >= max_scroll * 0.9 &&
         hasMoreBottom &&
         !isLoadingBottom &&
         !isLoading &&
-        comments.comments.length > 0
+        !isLoadingTop &&
+        comments.length > 0
       ) {
         //NOTE: load more data top
+        setIsLoading(true);
         setIsLoadingBottom(true);
-        loadComments(true, frame_size, comments.comments[comments.comments.length - 1]).then(
-          (data) => onNewBottom(data),
+        loadComments(true, frame_size, comments[comments.length - 1]).then((data) =>
+          onNewBottom(data),
         );
       }
     }
@@ -264,15 +324,17 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
 
   return (
     <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
-      {isLoadingTop && (
+      {(isLoading || doNowShow || isLoadingTop) && !isLoadingBottom ? (
         <div className={styles.end} key={'sp_loading'}>
           <Spin className={styles.spinner} />
         </div>
+      ) : (
+        <div style={{ paddingTop: '20px' }}></div>
       )}
       {teamId != 0 &&
-        postElements.length > 0 &&
-        postElements.map((el) => (
-          <div key={el.id} style={{ display: isLoading ? 'none' : 'block' }}>
+        commentElements.length > 0 &&
+        commentElements.map((el) => (
+          <div key={el.id} style={{ display: doNowShow ? 'none' : 'block' }}>
             {el.element}
           </div>
         ))}
@@ -289,13 +351,9 @@ const CommentList: React.FC<CommentListProps> = ({ postId, isDetailed }) => {
       ) : (
         <div key={'sp_bottom'}></div>
       )}
-      {isLoading && (
-        <div className={styles.end} key={'sp_loading'}>
-          <Spin className={styles.spinner} />
-        </div>
-      )}
-      {!isLoading && comments.comments.length == 0 && (
-        <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
+
+      {!isLoading && comments.length == 0 && !doNowShow && (
+        <Empty key={'empty'} className={styles.empty} description={<span>Нет Комментариев</span>} />
       )}
     </div>
   );

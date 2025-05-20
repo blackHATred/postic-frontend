@@ -16,7 +16,7 @@ import {
 } from '../../../stores/teamSlice';
 import { Kick, MyTeams, Platforms } from '../../../api/teamApi';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
-import { setComments } from '../../../stores/commentSlice';
+import { clearAllComms } from '../../../stores/commentSlice';
 import TeamMenu from './TeamMenu';
 import TeamTable, { DataType } from './TeamTable';
 import { PlatformsRequest } from '../../../models/Team/types';
@@ -67,7 +67,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
         if (response) {
           if (refer.current) refer.current.className += ' animation';
           setTimeout(() => updateTeamList(), 350);
-          dispatch(setComments([]));
+          dispatch(clearAllComms());
         }
       } catch (error) {
         console.error('Ошибка при выходе из команды:', error);

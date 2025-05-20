@@ -17,7 +17,6 @@ import { routes } from '../../../app/App.routes';
 
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
-  const posts = useAppSelector((state) => state.posts.posts);
   const navigate = useNavigate();
   const location = useLocation();
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);

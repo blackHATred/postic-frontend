@@ -1,9 +1,5 @@
 import { CommentWithChildren } from '../../components/lists/CommentList/commentTree';
 
-export interface Comments {
-  comments: CommentWithChildren[];
-  status: string;
-}
 export interface Comment {
   id: number;
   team_id: number;
@@ -80,7 +76,7 @@ export const mockAnswers: QuickAnswer[] = [
   },
 ];
 
-export const mockComment: CommentWithChildren[] = [
+export const mockComments: CommentWithChildren[] = [
   {
     id: 1,
     team_id: 1,
@@ -120,8 +116,3 @@ export const mockComment: CommentWithChildren[] = [
     children: [],
   },
 ];
-
-export const mockComments: Comments = {
-  comments: mockComment,
-  status: 'success',
-};

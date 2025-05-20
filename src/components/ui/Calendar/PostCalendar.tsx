@@ -4,25 +4,22 @@ import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { Post } from '../../../models/Post/types';
 import dayjs from 'dayjs';
-import 'dayjs/locale/ru';
-import { useAppSelector } from '../../../stores/hooks';
+import 'dayjs/locale/ru'; // Импортируем русскую локаль для dayjs
+import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { getPosts } from '../../../api/api';
 import styles from './styles.module.scss';
 import PostComponent from '../../cards/Post/Post';
 import utc from 'dayjs/plugin/utc';
-import locale from 'antd/locale/ru_RU';
+import locale from 'antd/locale/ru_RU'; // Импортируем русскую локаль для antd
+import { setPosts } from '../../../stores/postsSlice';
 
+// Устанавливаем русскую локаль по умолчанию для dayjs
 dayjs.locale('ru');
 dayjs.extend(utc);
 
 const { Title } = Typography;
 
-interface PostCalendarProps {
-  posts_props: Post[];
-}
-
-const PostCalendar: React.FC<PostCalendarProps> = ({ posts_props }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+const PostCalendar: React.FC = () => {
   const [groupedPosts, setGroupedPosts] = useState<Record<string, Post[]>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedPosts, setSelectedPosts] = useState<Post[]>([]);
@@ -30,67 +27,46 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts_props }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [calendarMode, setCalendarMode] = useState<'month' | 'year'>('month');
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const dispatch = useAppDispatch();
+  const posts = useAppSelector((state) => state.posts.posts);
 
-  // Обрабатываем изначальные посты из props
   useEffect(() => {
-    if (posts_props && posts_props.length > 0) {
-      // Отфильтруем только отложенные посты с датой публикации в будущем
-      const scheduledPosts = posts_props.filter((post) => {
-        if (!post.pub_datetime) return false;
-
-        const postDate = dayjs(post.pub_datetime);
-        const now = dayjs();
-
-        // Проверяем, что пост запланирован на будущее
-        return postDate.isAfter(now);
-      });
-
-      setPosts(scheduledPosts);
-    } else {
-      // Если посты не переданы, загрузим их сами
-      loadMonthPosts();
-    }
-  }, [posts_props]);
-
-  // Загружаем посты для выбранного месяца при его изменении
-  useEffect(() => {
-    if (posts_props.length === 0) {
-      loadMonthPosts();
-    }
-  }, [currentMonth, teamId]);
-
-  // Функция загрузки постов для выбранного месяца
-  const loadMonthPosts = async () => {
     if (teamId === 0) return;
 
-    setIsLoading(true);
-
-    try {
+    const loadMonthPosts = async () => {
+      setIsLoading(true);
       const startOfMonth = currentMonth.startOf('month').utc().format();
-      const result = await getPosts(teamId, 100, startOfMonth, 'scheduled', true);
 
-      const filteredPosts = result.posts.filter((post) => {
-        if (!post.pub_datetime) return false;
+      try {
+        const result = await getPosts(teamId, 100, startOfMonth, 'scheduled', false);
+        if (result.posts) {
+          const filteredPosts = result.posts.filter((post) => {
+            if (!post.pub_datetime) return false;
 
-        const postDate = dayjs(post.pub_datetime);
-        const now = dayjs();
+            const postDate = dayjs(post.pub_datetime);
+            const now = dayjs();
 
-        return (
-          postDate.month() === currentMonth.month() &&
-          postDate.year() === currentMonth.year() &&
-          postDate.isAfter(now)
-        );
-      });
+            return (
+              postDate.month() === currentMonth.month() &&
+              postDate.year() === currentMonth.year() &&
+              postDate.isAfter(now)
+            );
+          });
 
-      setPosts(filteredPosts);
-    } catch (error) {
-      console.error('Ошибка при загрузке постов для календаря:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+          dispatch(setPosts(filteredPosts));
+        } else {
+          dispatch(setPosts([]));
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке постов для календаря:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Группируем посты по датам
+    loadMonthPosts();
+  }, [teamId, currentMonth]);
+
   useEffect(() => {
     const grouped: Record<string, Post[]> = {};
 
@@ -105,27 +81,26 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts_props }) => {
     });
 
     setGroupedPosts(grouped);
-  }, [posts]);
 
-  // Обновляем выбранные посты при изменении даты или группировки
-  useEffect(() => {
     if (selectedDate) {
-      setSelectedPosts(groupedPosts[selectedDate] || []);
+      setSelectedPosts(grouped[selectedDate] || []);
     }
-  }, [selectedDate, groupedPosts]);
+  }, [posts, selectedDate]);
 
-  // Обработчик выбора даты
   const handleSelect = (date: Dayjs) => {
+    // Игнорируем клики в режиме просмотра по годам
     if (calendarMode === 'year') return;
 
     const dateKey = date.format('YYYY-MM-DD');
     setSelectedDate(dateKey);
+    setSelectedPosts(groupedPosts[dateKey] || []);
   };
 
-  // Обработчик изменения месяца/года
   const onPanelChange = (date: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
     setCurrentMonth(date);
     setCalendarMode(mode as 'month' | 'year');
+
+    // Сбрасываем выбранную дату при переключении режима просмотра
     setSelectedDate(null);
   };
 
@@ -134,7 +109,6 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts_props }) => {
     return groupedPosts[dateKey] || [];
   };
 
-  // Сортируем посты по времени
   const sortedPostsByTime = (posts: Post[]): Post[] => {
     return [...posts].sort((a, b) => {
       const timeA = a.pub_datetime ? dayjs(a.pub_datetime).valueOf() : 0;
@@ -143,7 +117,6 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts_props }) => {
     });
   };
 
-  // Рендер ячейки дня
   const dateCellRender = (value: Dayjs) => {
     const postsForDate = getPostsForDate(value);
     const sortedPosts = sortedPostsByTime(postsForDate);
@@ -165,7 +138,6 @@ const PostCalendar: React.FC<PostCalendarProps> = ({ posts_props }) => {
     );
   };
 
-  // Рендер ячейки месяца
   const monthCellRender = (value: Dayjs) => {
     const month = value.month();
     const year = value.year();

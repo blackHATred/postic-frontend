@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Avatar, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
-import { Comment, DeleteComment, Ticket } from '../../../models/Comment/types';
+import { Comment, CommentAttachments, DeleteComment, Ticket } from '../../../models/Comment/types';
 import dayjs from 'dayjs';
 import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 import ClickableButton from '../../ui/Button/Button';
@@ -16,11 +16,12 @@ import Icon, {
 import { message } from 'antd';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Delete, MarkAsTicket } from '../../../api/api';
+import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
 import MediaRenderer from './MediaRenderer';
+import { Team } from '../../../models/Team/types';
 
 const { Paragraph, Text } = Typography;
 
@@ -56,7 +57,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
 
   const teamName = React.useMemo(() => {
     if (comment.is_team_reply && comment.team_id) {
-      const team = teams.find((t: any) => t.id === comment.team_id);
+      const team = teams.find((t: Team) => t.id === comment.team_id);
       return team?.name || 'Команда';
     }
     return comment.full_name;
@@ -64,12 +65,22 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
 
   const attach_files = comment.attachments
     ? comment.attachments.filter(
-        (el) => el.file_type != 'photo' && el.file_type != 'video' && el.file_type != 'sticker',
+        (el) =>
+          el.file_type != 'photo' &&
+          el.file_type != 'video' &&
+          el.file_type != 'sticker' &&
+          !el.file_path.endsWith('.gif') &&
+          !el.file_path.endsWith('.mp4'),
       )
     : [];
   const attach_images = comment.attachments
     ? comment.attachments.filter(
-        (el) => el.file_type === 'photo' || el.file_type === 'video' || el.file_type === 'sticker',
+        (el) =>
+          el.file_type === 'photo' ||
+          el.file_type === 'video' ||
+          el.file_type === 'sticker' ||
+          el.file_path.endsWith('.gif') ||
+          el.file_path.endsWith('.mp4'),
       )
     : [];
 
@@ -84,7 +95,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   };
   const handlePostClick = () => {
     dispatch(setActiveTab('1'));
-    dispatch(setScrollToPost(true));
+    dispatch(setScrollToPost(comment.post_union_id));
     dispatch(setSelectedPostId(comment.post_union_id));
   };
 
@@ -95,7 +106,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       marked_as_ticket: isTicket,
     };
     MarkAsTicket(ticketData)
-      .then((r) => {
+      .then(() => {
         message.success({
           content: !isTicket ? 'Тикет создан' : 'Тикет удален',
           key: 'ticketOperation',
@@ -108,6 +119,19 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
           key: 'ticketOperation',
         });
       });
+  };
+
+  const clickedFile = (attach: CommentAttachments) => {
+    getUpload(attach.id).then((data) => {
+      const file = new Blob([data], { type: 'application/octet-stream' });
+      const a = document.createElement('a');
+      a.href = window.URL.createObjectURL(file);
+      a.download = attach.file_path; // Set to whatever file name you want
+      // Now just click the link you created
+      // Note that you may have to append the a element to the body somewhere
+      // for this to work in Firefox
+      a.click();
+    });
   };
 
   return (
@@ -128,7 +152,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
         <div className={styles['comment-header-text']}>
           <div className={styles['comment-author']}>
             <div>
-              <Text strong>{comment.is_team_reply ? teamName : comment.username}</Text>
+              <Text strong>{comment.is_team_reply ? teamName : comment.full_name}</Text>
               <Text type='secondary' className={styles['comment-time']}>
                 {dayjs.utc(created_at).format('D MMMM YYYY [в] HH:mm')}
               </Text>
@@ -141,7 +165,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
               </Space>
             </div>
             <div>
-              <Text className={styles['comment-full-name']}>{comment.full_name}</Text>
+              <Text className={styles['comment-full-name']}>{comment.username}</Text>
             </div>
           </div>
         </div>
@@ -156,8 +180,12 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       </div>
       {attach_files.length > 0 &&
         attach_files?.map((attachment, index) => (
-          <div className={styles['post-content-attachment']} key={index}>
-            <Icon component={PaperClipOutlined} />
+          <div
+            className={styles['post-content-attachment']}
+            key={index}
+            onClick={() => clickedFile(attachment)}
+          >
+            <Icon component={PaperClipOutlined} className={styles['clip']} />
             <Text className={styles.primaryText}>{attachment.file_path}</Text>
           </div>
         ))}
