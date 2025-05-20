@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu, Segmented } from 'antd';
-import { PlusOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
+import { PlusOutlined, BarsOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { routes } from '../../../app/App.routes';
@@ -69,7 +69,7 @@ const SideMenu: React.FC = () => {
               <Segmented
                 options={[
                   { value: 'list', icon: <BarsOutlined /> },
-                  { value: 'calendar', icon: <AppstoreOutlined /> },
+                  { value: 'calendar', icon: <CalendarOutlined /> },
                 ]}
                 value={viewMode}
                 onChange={(value) => handleViewModeChange(value as ViewMode)}

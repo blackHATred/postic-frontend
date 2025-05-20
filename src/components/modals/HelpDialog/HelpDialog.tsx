@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import DialogBox from '../dialogBox/DialogBox';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Menu } from 'antd';
@@ -27,9 +27,21 @@ const HelpDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.helpDialog.isOpen);
   const [currentSection, setCurrentSection] = useState<string>('general');
+  const contentContainerRef = useRef<HTMLDivElement>(null);
 
   const handleCloseDialog = () => {
     dispatch(setHelpDialog(false));
+  };
+
+  // Сброс позиции скролла при переключении вкладок
+  useEffect(() => {
+    if (contentContainerRef.current) {
+      contentContainerRef.current.scrollTop = 0;
+    }
+  }, [currentSection]);
+
+  const handleSectionChange = (e: any) => {
+    setCurrentSection(e.key);
   };
 
   const renderContent = () => {
@@ -52,13 +64,18 @@ const HelpDialog: React.FC = () => {
   };
 
   return (
-    <DialogBox isOpen={isOpen} onCancelClick={handleCloseDialog} title='Руководство пользователя'>
+    <DialogBox
+      isOpen={isOpen}
+      onCancelClick={handleCloseDialog}
+      title='Руководство пользователя'
+      width='50%'
+    >
       <div className={styles.dialogBox}>
         <Menu
           selectedKeys={[currentSection]}
           mode='inline'
           style={{ width: 70, borderRight: '1px solid #f0f0f0' }}
-          onClick={(e) => setCurrentSection(e.key)}
+          onClick={handleSectionChange}
         >
           <Menu.Item icon={<InfoCircleOutlined />} key='general' />
           <Menu.Item icon={<MessageOutlined />} key='posts' />
@@ -68,7 +85,9 @@ const HelpDialog: React.FC = () => {
           <Menu.Item icon={<TeamOutlined />} key='teams' />
           <Menu.Item icon={<SettingOutlined />} key='settings' />
         </Menu>
-        <div className={styles.contentContainer}>{renderContent()}</div>
+        <div ref={contentContainerRef} className={styles.contentContainer}>
+          {renderContent()}
+        </div>
       </div>
     </DialogBox>
   );
