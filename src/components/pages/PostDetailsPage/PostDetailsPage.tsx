@@ -8,6 +8,7 @@ import PostDetailed from '../../cards/PostDetailed/PostDetailed';
 import CommentList from '../../lists/CommentList/CommentList';
 import { Post } from '../../../models/Post/types';
 import { getPost } from '../../../api/api';
+import { addPostComment, removePostComment, setPostComments } from '../../../stores/commentSlice';
 
 const PostDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +54,13 @@ const PostDetailsPage: React.FC = () => {
         <PostDetailed {...post} />
       </div>
       <div className={styles.commentsSection}>
-        <CommentList key={'post_list'} save_redux={false} />
+        <CommentList
+          key={'post_list'}
+          get_func={(state) => state.comments.post_comments}
+          set_func={setPostComments}
+          add_func={addPostComment}
+          remove_func={removePostComment}
+        />
       </div>
     </div>
   ) : isLoading ? (

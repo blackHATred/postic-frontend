@@ -29,8 +29,6 @@ const Sidebar: React.FC = () => {
       return user.user_id == selectedUser;
     })?.roles;
 
-  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
-
   const handleTabChange = (key: string, route: string) => {
     dispatch(setActiveTab(key));
     navigate(route);

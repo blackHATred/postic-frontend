@@ -10,7 +10,6 @@ import { useAppDispatch } from '../../../stores/hooks';
 import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 import { getUploadUrl } from '../../../api/api';
-import { setComments } from '../../../stores/commentSlice';
 
 const { Text } = Typography;
 
@@ -40,7 +39,6 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
         className={styles['button-left']}
         icon={<LeftOutlined />}
         onClick={() => {
-          dispatch(setComments([]));
           navigate(routes.posts());
         }}
       />

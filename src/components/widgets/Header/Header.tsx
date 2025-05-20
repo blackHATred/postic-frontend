@@ -21,7 +21,7 @@ import {
   setGlobalActiveTeamId,
   setTeams,
 } from '../../../stores/teamSlice';
-import { setComments } from '../../../stores/commentSlice';
+import { clearAllComms } from '../../../stores/commentSlice';
 import { Typography } from 'antd';
 import { Platforms } from '../../../api/teamApi';
 import { setPosts } from '../../../stores/postsSlice';
@@ -95,7 +95,7 @@ const ButtonHeader: React.FC = () => {
         dispatch(setAuthorized('not_authorized'));
         dispatch(setTeams([]));
         dispatch(setPosts([]));
-        dispatch(setComments([]));
+        dispatch(clearAllComms());
       })
       .catch(() => {});
   };
@@ -117,7 +117,7 @@ const ButtonHeader: React.FC = () => {
   useEffect(() => {
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
   }, [teams, selectedTeam]);
@@ -127,7 +127,7 @@ const ButtonHeader: React.FC = () => {
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
       dispatch(setGlobalActiveTeamId(teams[0].id));
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
     //  у пользователя нет команд, сбрасываем выбранную команду
@@ -135,7 +135,7 @@ const ButtonHeader: React.FC = () => {
     else if (teams.length === 0) {
       setSelectedTeam(undefined);
       dispatch(setGlobalActiveTeamId(0));
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
   }, [teams, selectedTeam, dispatch]);
@@ -158,7 +158,7 @@ const ButtonHeader: React.FC = () => {
     } else {
       setSelectedTeam(undefined);
       dispatch(setGlobalActiveTeamId(0));
-      dispatch(setComments([]));
+      dispatch(clearAllComms());
     }
   }, [teams, dispatch]);
 
@@ -193,7 +193,7 @@ const ButtonHeader: React.FC = () => {
     localStorage.setItem('selectedTeamId', value);
 
     dispatch(setGlobalActiveTeamId(teamId));
-    dispatch(setComments([]));
+    dispatch(clearAllComms());
     dispatch(setPosts([]));
 
     loadPlatformsForTeam(teamId);

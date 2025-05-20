@@ -6,7 +6,6 @@ import { getComment, getComments } from '../../../api/api';
 import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
 import CommentTreeItem from './CommentTreeItem';
-import { addComment, removeComment, setComments } from '../../../stores/commentSlice';
 import { CommentWithChildren, createCommentTree, useCollapsedComments } from './commentTree';
 import { routes } from '../../../app/App.routes';
 import { getSseUrl } from '../../../constants/appConfig';
@@ -15,11 +14,14 @@ import { useAuthenticatedSSE } from '../../../api/newSSE';
 const frame_size = 3;
 const { Text } = Typography;
 
-const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) => {
+const CommentList: React.FC<{
+  get_func: (state: any) => any;
+  set_func: any;
+  add_func: any;
+  remove_func: any;
+}> = ({ get_func, set_func, remove_func, add_func }) => {
   const dispatch = useAppDispatch();
-  const [comments, setCommentsLocal] = save_redux
-    ? [useAppSelector((state) => state.comments.comments), null]
-    : useState<CommentWithChildren[]>([]);
+  const comments = useAppSelector(get_func);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
@@ -83,22 +85,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
         if (!hasMoreTop)
           getComment(teamId, newComment.comment_id)
             .then((data) => {
-              if (save_redux) dispatch(addComment(data.comment));
-              else if (setCommentsLocal) {
-                const el: any = [];
-
-                comments.reduce(flat, el);
-                if (data.comment.reply_to_comment_id) {
-                  if (
-                    el.filter((el: any) => el.id == data.comment.reply_to_comment_id).length > 0
-                  ) {
-                    el.push(data.comment);
-                  }
-                } else {
-                  el.push(data.comment);
-                }
-                setCommentsLocal(createCommentTree(el));
-              }
+              dispatch(add_func(data.comment));
             })
             .catch(() => {
               console.error('Ошибка при получении нового комментария');
@@ -108,19 +95,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
 
   React.useEffect(() => {
     if (toDelete) {
-      if (save_redux) dispatch(removeComment([toDelete]));
-      else if (setCommentsLocal) {
-        const el1: any = [];
-
-        comments.reduce(flat, el1);
-        setCommentsLocal(
-          createCommentTree(
-            el1.filter((el: any) => {
-              return !(toDelete.id == el.id);
-            }),
-          ),
-        );
-      }
+      dispatch(remove_func([toDelete]));
     }
   }, [toDelete]);
 
@@ -139,7 +114,6 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
     } else {
       //NOTE: смена страницы
       setDoNowShow(true);
-      //dispatch(setPostsScroll(0));
       setIsLoading(true);
       if (divRef.current) divRef.current.scrollTop = 0;
       loadComment();
@@ -149,8 +123,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
   const loadComment = () => {
     loadComments(true, frame_size * 3)
       .then((comments) => {
-        if (save_redux) dispatch(setComments(comments));
-        else if (setCommentsLocal != null) setCommentsLocal(comments);
+        dispatch(set_func(comments));
         if (comments.length < frame_size * 3) {
           setHasMoreBottom(false);
         }
@@ -186,7 +159,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
   const loadFromData = async (id?: number) => {
     if (comments.length > 0) {
       setCommentElements(
-        comments.map((comment) => {
+        comments.map((comment: any) => {
           return {
             id: comment.id,
             element: (
@@ -225,10 +198,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
               divRef.current.scrollTo(0, lastTop + divRef.current.scrollHeight);
             }
             // NOTE: REMOVE ELEMENTS AT END
-            if (save_redux)
-              dispatch(setComments(comments.slice(0, comments.length - newData.length)));
-            else if (setCommentsLocal != null)
-              setCommentsLocal(comments.slice(0, comments.length - newData.length));
+            dispatch(set_func(comments.slice(0, comments.length - newData.length)));
             setNewData([]);
           } else {
             //NOTE: REMOVED FROM BOTTOM AFTER ADDING TOP
@@ -258,8 +228,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
       if (divRef.current) {
         setLastTop(divRef.current.scrollTop - divRef.current.scrollHeight);
       }
-      if (save_redux) dispatch(setComments([...data, ...comments]));
-      else if (setCommentsLocal != null) setCommentsLocal([...data, ...comments]);
+      dispatch(set_func([...data, ...comments]));
       setNewData(data);
     } else {
       setHasMoreTop(false);
@@ -273,8 +242,7 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
       if (data.length != frame_size) {
         setHasMoreBottom(false);
       }
-      if (save_redux) dispatch(setComments([...comments, ...data]));
-      else if (setCommentsLocal != null) setCommentsLocal([...comments, ...data]);
+      dispatch(set_func([...comments, ...data]));
     } else {
       setHasMoreBottom(false);
       setIsLoading(false);
@@ -322,7 +290,6 @@ const CommentList: React.FC<{ save_redux?: boolean }> = ({ save_redux = true }) 
 
   const handleScroll = () => {
     if (divRef.current) {
-      //dispatch(setPostsScroll(divRef.current.scrollTop));
       const max_scroll = divRef.current.scrollHeight - divRef.current.clientHeight;
       if (
         divRef.current.scrollTop <= max_scroll * 0.1 &&

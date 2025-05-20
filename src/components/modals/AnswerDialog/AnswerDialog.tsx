@@ -11,6 +11,8 @@ import FileUploader from '../CreatePostDialog/FileUploader';
 import {
   addComment,
   addFileComm,
+  addPostComment,
+  addTicket,
   clearFilesComm,
   removeFileComm,
   setAnswerDialog,
@@ -36,6 +38,7 @@ const AnswerDialog: FC = () => {
   const [answers, setAnswers] = useState<{ ideas: string[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const activeTab = useAppSelector((state) => state.basePageDialogs.activeTab);
 
   useEffect(() => {
     if (isOpen && selectedComment) {
@@ -115,7 +118,11 @@ const AnswerDialog: FC = () => {
     };
     Reply(req).then((id) => {
       clearFields();
-      getComment(team_id, id.comment_id).then((c) => dispatch(addComment(c.comment)));
+      if (activeTab == '2')
+        getComment(team_id, id.comment_id).then((c) => dispatch(addComment(c.comment)));
+      else if (activeTab == '4')
+        getComment(team_id, id.comment_id).then((c) => dispatch(addTicket(c.comment)));
+      else getComment(team_id, id.comment_id).then((c) => dispatch(addPostComment(c.comment)));
     });
     dispatch(setAnswerDialog(false));
   };
