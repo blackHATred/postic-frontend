@@ -1,7 +1,7 @@
 const config = {
   api: {
-    baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:80/api',
-    socketUrl: process.env.REACT_APP_SOCKET_URL || 'http://localhost:80/api/comment/ws',
+    baseURL: process.env.REACT_APP_API_BASE_URL || 'https://localhost:80/api',
+    socketUrl: process.env.REACT_APP_SOCKET_URL || 'https://localhost:80/api/comment/ws',
   },
 };
 
