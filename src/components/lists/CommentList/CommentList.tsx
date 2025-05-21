@@ -11,7 +11,6 @@ import { routes } from '../../../app/App.routes';
 import { getSseUrl } from '../../../constants/appConfig';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
 import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
-import { addComment, removeComment } from '../../../stores/commentSlice';
 
 const frame_size = 3;
 const { Text } = Typography;
@@ -21,7 +20,8 @@ const CommentList: React.FC<{
   set_func: any;
   add_func: any;
   remove_func: any;
-}> = ({ get_func, set_func, remove_func, add_func }) => {
+  replace_func: any;
+}> = ({ get_func, set_func, remove_func, add_func, replace_func }) => {
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
@@ -111,18 +111,12 @@ const CommentList: React.FC<{
             });
       } else if (newComment.type == 'deleted') {
         getComment(teamId, newComment.comment_id).then((data) => {
-          dispatch(removeComment([{ ...data.comment, children: [] }]));
-          dispatch(addComment(data.comment));
+          console.log(data);
+          dispatch(replace_func({ id: newComment.comment_id, ch: data.comment }));
         });
       }
     }
   }, [newComment]);
-
-  React.useEffect(() => {
-    if (toDelete) {
-      dispatch(remove_func([toDelete]));
-    }
-  }, [toDelete]);
 
   React.useEffect(() => {
     setHasMoreBottom(true);
@@ -159,7 +153,6 @@ const CommentList: React.FC<{
   };
 
   React.useEffect(() => {
-    console.log(comments);
     if (comments.length > 0) {
       if (commentElements.length == 0) {
         // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED

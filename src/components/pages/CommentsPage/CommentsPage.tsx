@@ -1,6 +1,11 @@
 import React from 'react';
 import CommentList from '../../lists/CommentList/CommentList';
-import { addComment, removeComment, setComments } from '../../../stores/commentSlice';
+import {
+  addComment,
+  removeComment,
+  replaceComment,
+  setComments,
+} from '../../../stores/commentSlice';
 
 const CommentsPage: React.FC = () => {
   return (
@@ -9,6 +14,7 @@ const CommentsPage: React.FC = () => {
       set_func={setComments}
       add_func={addComment}
       remove_func={removeComment}
+      replace_func={replaceComment}
     />
   );
 };

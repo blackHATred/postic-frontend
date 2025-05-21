@@ -82,18 +82,24 @@ export const commentsSlice = createSlice({
       state.comments = createCommentTree(el);
     },
 
-    removeComment: (state, action: PayloadAction<CommentWithChildren[]>) => {
+    removeComment: (state, action: PayloadAction<CommentWithChildren>) => {
       const el1: any = [];
 
       state.comments.reduce(flat, el1);
 
-      const el2: any = [];
-
-      action.payload.reduce(flat_id, el2);
-
       state.comments = createCommentTree(
         el1.filter((el: any) => {
-          return !(el2.id == el.id);
+          return !(action.payload.id == el.id);
+        }),
+      );
+    },
+
+    replaceComment: (state, action: PayloadAction<{ id: number; ch: CommentWithChildren }>) => {
+      const el1: any = [];
+      state.comments.reduce(flat, el1);
+      state.comments = createCommentTree(
+        el1.map((el: any) => {
+          return !(action.payload.id == el.id) ? el : action.payload.ch;
         }),
       );
     },
@@ -116,18 +122,26 @@ export const commentsSlice = createSlice({
       state.tickets = createCommentTree(el);
     },
 
-    removeTicket: (state, action: PayloadAction<CommentWithChildren[]>) => {
+    removeTicket: (state, action: PayloadAction<CommentWithChildren>) => {
       const el1: any = [];
 
       state.tickets.reduce(flat, el1);
 
-      const el2: any = [];
-
-      action.payload.reduce(flat_id, el2);
-
       state.tickets = createCommentTree(
         el1.filter((el: any) => {
-          return !el2.includes(el.id);
+          return !(action.payload.id == el.id);
+        }),
+      );
+    },
+
+    replaceTicket: (state, action: PayloadAction<{ id: number; ch: CommentWithChildren }>) => {
+      const el1: any = [];
+
+      state.tickets.reduce(flat, el1);
+
+      state.tickets = createCommentTree(
+        el1.map((el: any) => {
+          return !(action.payload.id == el.id) ? el : action.payload.ch;
         }),
       );
     },
@@ -150,18 +164,25 @@ export const commentsSlice = createSlice({
       state.post_comments = createCommentTree(el);
     },
 
-    removePostComment: (state, action: PayloadAction<CommentWithChildren[]>) => {
+    removePostComment: (state, action: PayloadAction<CommentWithChildren>) => {
       const el1: any = [];
 
       state.post_comments.reduce(flat, el1);
 
-      const el2: any = [];
-
-      action.payload.reduce(flat_id, el2);
-
       state.post_comments = createCommentTree(
         el1.filter((el: any) => {
-          return !el2.includes(el.id);
+          return !(action.payload.id == el.id);
+        }),
+      );
+    },
+    replacePostComment: (state, action: PayloadAction<{ id: number; ch: CommentWithChildren }>) => {
+      const el1: any = [];
+
+      state.post_comments.reduce(flat, el1);
+
+      state.post_comments = createCommentTree(
+        el1.map((el: any) => {
+          return !(action.payload.id == el.id) ? el : action.payload.ch;
         }),
       );
     },
@@ -205,6 +226,9 @@ export const {
   setPostComments,
   addPostComment,
   removePostComment,
+  replaceComment,
+  replacePostComment,
+  replaceTicket,
 } = commentsSlice.actions;
 
 export const getCommentsFromStore = (state: RootState) => state.comments.comments;

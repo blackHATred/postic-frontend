@@ -1,6 +1,6 @@
 import React from 'react';
 import CommentList from '../../lists/CommentList/CommentList';
-import { addTicket, removeTicket, setTickets } from '../../../stores/commentSlice';
+import { addTicket, removeTicket, replaceTicket, setTickets } from '../../../stores/commentSlice';
 
 const TicketPage: React.FC = () => {
   return (
@@ -9,6 +9,7 @@ const TicketPage: React.FC = () => {
       set_func={setTickets}
       add_func={addTicket}
       remove_func={removeTicket}
+      replace_func={replaceTicket}
     />
   );
 };

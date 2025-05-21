@@ -8,7 +8,12 @@ import PostDetailed from '../../cards/PostDetailed/PostDetailed';
 import CommentList from '../../lists/CommentList/CommentList';
 import { Post } from '../../../models/Post/types';
 import { getPost } from '../../../api/api';
-import { addPostComment, removePostComment, setPostComments } from '../../../stores/commentSlice';
+import {
+  addPostComment,
+  removePostComment,
+  replacePostComment,
+  setPostComments,
+} from '../../../stores/commentSlice';
 
 const PostDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -66,6 +71,7 @@ const PostDetailsPage: React.FC = () => {
           set_func={setPostComments}
           add_func={addPostComment}
           remove_func={removePostComment}
+          replace_func={replacePostComment}
         />
       </div>
     </div>

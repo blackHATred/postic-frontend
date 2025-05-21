@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Avatar, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, CommentAttachments, DeleteComment, Ticket } from '../../../models/Comment/types';
@@ -22,6 +22,7 @@ import { setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
 import MediaRenderer from './MediaRenderer';
 import { Team } from '../../../models/Team/types';
+import { NotificationContext } from '../../../api/notification';
 
 const { Paragraph, Text } = Typography;
 
@@ -35,6 +36,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const teams = useAppSelector((state) => state.teams.teams);
   const [ellipsis] = useState(true);
+  const notificationManager = useContext(NotificationContext);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -89,7 +91,17 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
       post_comment_id: Number(comment.id),
       ban_user: false,
     };
-    Delete(res);
+    document.body.style.cursor = 'wait';
+
+    Delete(res)
+      .then(() => {
+        document.body.style.cursor = 'default';
+        notificationManager.createNotification('success', `Комментарий успещно удален`, '');
+      })
+      .catch(() => {
+        document.body.style.cursor = 'default';
+        notificationManager.createNotification('error', `Ошибка удаления коментария`, '');
+      });
   };
   const handlePostClick = () => {
     dispatch(setActiveTab('1'));
@@ -134,7 +146,11 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
 
   return (
     <div className={!comment.is_deleted ? styles.comment : styles['deleted']}>
-      <div className={isTicket ? styles['ticket-header'] : styles['comment-header']}>
+      <div
+        className={
+          isTicket && !comment.is_deleted ? styles['ticket-header'] : styles['comment-header']
+        }
+      >
         <Avatar
           src={
             comment.avatar_mediafile &&
@@ -222,7 +238,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
             <ClickableButton
               type='default'
               variant='outlined'
-              color={isTicket ? 'gold' : 'default'}
+              color={isTicket && !comment.is_deleted ? 'gold' : 'default'}
               withPopover={true}
               popoverContent={isTicket ? 'Решить тикет' : 'Отправить в тикет-систему'}
               icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}

@@ -18,7 +18,8 @@ const Comm = memo(
   (c_1, c_2) =>
     c_1.comment.id == c_2.comment.id &&
     c_1.comment.attachments == c_2.comment.attachments &&
-    c_1.comment.text == c_2.comment.text,
+    c_1.comment.text == c_2.comment.text &&
+    c_1.comment.is_deleted == c_2.comment.is_deleted,
 );
 
 const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level }) => {
@@ -109,7 +110,7 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level }) => {
 };
 
 const equal_children = (c_1: CommentWithChildren, c_2: CommentWithChildren) => {
-  if (c_1.children.length == c_2.children.length) {
+  if (c_1.children === c_2.children) {
     if (c_1.children.length == 0) return true;
     for (let i = 0; i < c_1.children.length; i++) {
       if (!equal_children(c_1.children[i], c_2.children[i])) {
@@ -122,11 +123,4 @@ const equal_children = (c_1: CommentWithChildren, c_2: CommentWithChildren) => {
   }
 };
 // Улучшенный вариант memo для предотвращения ненужных ререндеров
-export default memo(CommentTreeItem, (prevProps, nextProps) => {
-  // Сравниваем только то, что может измениться и влияет на рендеринг
-  return (
-    prevProps.level === nextProps.level &&
-    prevProps.comment.id === nextProps.comment.id &&
-    equal_children(prevProps.comment, nextProps.comment)
-  );
-});
+export default CommentTreeItem;
