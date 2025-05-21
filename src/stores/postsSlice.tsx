@@ -80,7 +80,6 @@ export const postsSlice = createSlice({
 
     setViewMode: (state, action: PayloadAction<ViewMode>) => {
       state.viewMode = action.payload;
-      // сбрасываем выбранную дату при выходе из режима календаря
       if (action.payload !== 'calendar') {
         state.calendarSelectedDate = null;
         state.calendarSelectedPosts = [];

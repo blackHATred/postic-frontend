@@ -1,11 +1,13 @@
-// src/components/ui/Charts/TopEngagingPostsList.tsx
-import React, { useState, useMemo } from 'react';
-import { Card, Table, Select, Space, Tooltip, ConfigProvider } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import { PostAnalytics } from '../../../models/Analytics/types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Card, Table, Select, Space, Tooltip, ConfigProvider, Button } from 'antd';
+import { InfoCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { PostAnalytics, PostReq } from '../../../models/Analytics/types';
 import styles from './styles.module.scss';
 import { SortOrder } from 'antd/es/table/interface';
 import ruRU from 'antd/locale/ru_RU';
+import { GetPostStats } from '../../../api/api';
+import { transformPostStatsToAnalytics } from '../../../utils/transformData';
+import { useAppSelector } from '../../../stores/hooks';
 
 interface TopEngagingPostsListProps {
   data: PostAnalytics[];
@@ -16,38 +18,57 @@ type Platform = 'all' | 'telegram' | 'vk';
 
 const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loading }) => {
   const [platform, setPlatform] = useState<Platform>('all');
+  const [postsData, setPostsData] = useState<PostAnalytics[]>([]);
+  const [localLoading, setLocalLoading] = useState<boolean>(false);
+  const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
-  const postsData = useMemo(() => {
-    const postsMap = new Map();
-
-    data.forEach((item) => {
-      if (
-        !postsMap.has(item.post_union_id) ||
-        new Date(postsMap.get(item.post_union_id).timestamp) < new Date(item.timestamp)
-      ) {
-        postsMap.set(item.post_union_id, { ...item });
-      }
-    });
-
-    return Array.from(postsMap.values()).map((post) => {
-      const tgER = post.tg_views > 0 ? (post.tg_reactions / post.tg_views) * 100 : 0;
-      const vkER = post.vk_views > 0 ? (post.vk_reactions / post.vk_views) * 100 : 0;
-      const totalViews = post.tg_views + post.vk_views;
-      const totalER =
-        totalViews > 0 ? ((post.tg_reactions + post.vk_reactions) / totalViews) * 100 : 0;
-
-      return {
-        ...post,
-        tgER,
-        vkER,
-        totalER,
-        totalReactions: post.tg_reactions + post.vk_reactions,
-        totalComments: post.tg_comments + post.vk_comments,
-        totalViews,
-        key: post.post_union_id,
-      };
-    });
+  // Получаем уникальные ID постов из данных
+  const postIds = useMemo(() => {
+    const ids = new Set<number>();
+    data.forEach((item) => ids.add(item.post_union_id));
+    return Array.from(ids);
   }, [data]);
+
+  // Загружаем детализированную статистику для топ-постов
+  const loadPostsData = async () => {
+    if (postIds.length === 0) return;
+
+    setLocalLoading(true);
+    try {
+      // Собираем все статистические данные для постов
+      const postsStats = [];
+
+      // Делаем запросы для каждого поста (можно оптимизировать, создав групповой запрос на бэкенде)
+      for (const postId of postIds) {
+        const postStatsRequest: PostReq = {
+          team_id: selectedTeamId,
+          post_union_id: postId,
+        };
+
+        try {
+          const response = await GetPostStats(postStatsRequest);
+          if (response.resp) {
+            postsStats.push(...response.resp);
+          }
+        } catch (err) {
+          console.error(`Ошибка при загрузке статистики для поста ID ${postId}:`, err);
+        }
+      }
+
+      // Преобразуем данные для отображения
+      const transformedData = transformPostStatsToAnalytics(postsStats);
+      setPostsData(transformedData);
+    } catch (error) {
+      console.error('Ошибка при загрузке статистики постов:', error);
+    } finally {
+      setLocalLoading(false);
+    }
+  };
+
+  // Загружаем данные при первом рендере или изменении списка ID постов
+  useEffect(() => {
+    loadPostsData();
+  }, [data, selectedTeamId]);
 
   const filteredData = useMemo(() => {
     if (platform === 'telegram') {
@@ -81,24 +102,17 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
       key: 'post_union_id',
     },
     {
-      title: 'Дата',
-      dataIndex: 'timestamp',
-      key: 'timestamp',
-      render: (text: string) => new Date(text).toLocaleDateString(),
-      sorter: (a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    },
-    {
       title: 'Просмотры',
       key: 'views',
       render: (record: any) => {
         if (platform === 'telegram') return record.tg_views;
         if (platform === 'vk') return record.vk_views;
-        return record.totalViews;
+        return record.tg_views + record.vk_views;
       },
       sorter: (a: any, b: any) => {
         if (platform === 'telegram') return a.tg_views - b.tg_views;
         if (platform === 'vk') return a.vk_views - b.vk_views;
-        return a.totalViews - b.totalViews;
+        return a.tg_views + a.vk_views - (b.tg_views + b.vk_views);
       },
       defaultSortOrder: 'descend' as SortOrder,
     },
@@ -108,12 +122,12 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
       render: (record: any) => {
         if (platform === 'telegram') return record.tg_reactions;
         if (platform === 'vk') return record.vk_reactions;
-        return record.totalReactions;
+        return record.tg_reactions + record.vk_reactions;
       },
       sorter: (a: any, b: any) => {
         if (platform === 'telegram') return a.tg_reactions - b.tg_reactions;
         if (platform === 'vk') return a.vk_reactions - b.vk_reactions;
-        return a.totalReactions - b.totalReactions;
+        return a.tg_reactions + a.vk_reactions - (b.tg_reactions + b.vk_reactions);
       },
     },
     {
@@ -122,26 +136,51 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
       render: (record: any) => {
         if (platform === 'telegram') return record.tg_comments;
         if (platform === 'vk') return record.vk_comments;
-        return record.totalComments;
+        return record.tg_comments + record.vk_comments;
       },
       sorter: (a: any, b: any) => {
         if (platform === 'telegram') return a.tg_comments - b.tg_comments;
         if (platform === 'vk') return a.vk_comments - b.vk_comments;
-        return a.totalComments - b.totalComments;
+        return a.tg_comments + a.vk_comments - (b.tg_comments + b.vk_comments);
       },
     },
     {
       title: 'ER (%)',
       key: 'er',
       render: (record: any) => {
-        if (platform === 'telegram') return record.tgER.toFixed(2);
-        if (platform === 'vk') return record.vkER.toFixed(2);
-        return record.totalER.toFixed(2);
+        let er = 0;
+        if (platform === 'telegram') {
+          er = record.tg_views > 0 ? (record.tg_reactions / record.tg_views) * 100 : 0;
+        } else if (platform === 'vk') {
+          er = record.vk_views > 0 ? (record.vk_reactions / record.vk_views) * 100 : 0;
+        } else {
+          const totalViews = record.tg_views + record.vk_views;
+          const totalReactions = record.tg_reactions + record.vk_reactions;
+          er = totalViews > 0 ? (totalReactions / totalViews) * 100 : 0;
+        }
+        return er.toFixed(2);
       },
       sorter: (a: any, b: any) => {
-        if (platform === 'telegram') return a.tgER - b.tgER;
-        if (platform === 'vk') return a.vkER - b.vkER;
-        return a.totalER - b.totalER;
+        let erA = 0,
+          erB = 0;
+
+        if (platform === 'telegram') {
+          erA = a.tg_views > 0 ? (a.tg_reactions / a.tg_views) * 100 : 0;
+          erB = b.tg_views > 0 ? (b.tg_reactions / b.tg_views) * 100 : 0;
+        } else if (platform === 'vk') {
+          erA = a.vk_views > 0 ? (a.vk_reactions / a.vk_views) * 100 : 0;
+          erB = b.vk_views > 0 ? (b.vk_reactions / b.vk_views) * 100 : 0;
+        } else {
+          const totalViewsA = a.tg_views + a.vk_views;
+          const totalReactionsA = a.tg_reactions + a.vk_reactions;
+          erA = totalViewsA > 0 ? (totalReactionsA / totalViewsA) * 100 : 0;
+
+          const totalViewsB = b.tg_views + b.vk_views;
+          const totalReactionsB = b.tg_reactions + b.vk_reactions;
+          erB = totalViewsB > 0 ? (totalReactionsB / totalViewsB) * 100 : 0;
+        }
+
+        return erA - erB;
       },
     },
   ];
@@ -156,6 +195,11 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
             <InfoCircleOutlined />
           </Tooltip>
         </Space>
+      }
+      extra={
+        <Button icon={<ReloadOutlined />} onClick={loadPostsData} loading={localLoading}>
+          Обновить
+        </Button>
       }
     >
       <div style={{ marginBottom: '20px' }}>
@@ -176,7 +220,7 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loadi
         <Table
           dataSource={filteredData}
           columns={columns}
-          loading={loading}
+          loading={loading || localLoading}
           pagination={{ pageSize: 10 }}
           rowKey='post_union_id'
         />

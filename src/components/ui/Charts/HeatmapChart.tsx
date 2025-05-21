@@ -124,6 +124,7 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
       'Суббота',
     ];
 
+    // Инициализируем ячейки для всех дней недели и часов
     for (let day = 0; day < 7; day++) {
       for (let hour = 0; hour < 24; hour++) {
         const key = `${weekdays[day]}-${hour}`;
@@ -136,6 +137,7 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
       }
     }
 
+    // Группируем данные по дням недели и часам
     sourceData.forEach((item) => {
       const date = new Date(item.timestamp);
       const hour = date.getHours().toString();
@@ -172,6 +174,7 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
       aggregatedData[key].count += 1;
     });
 
+    // Вычисляем среднее значение для каждой ячейки
     return Object.values(aggregatedData).map((item) => ({
       weekday: item.weekday,
       hour: item.hour,
@@ -220,7 +223,7 @@ const HeatmapChart: React.FC<HeatmapChartProps> = ({ data, loading }) => {
       title={
         <Space>
           {`Тепловая карта ${metricTitle} для ${platformTitle}`}
-          <Tooltip title='Показывает наилучшее время для публикаций с высокой вовлеченностью'>
+          <Tooltip title='Показывает наилучшее время для публикаций с высокой вовлеченностью за выбранный период'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>

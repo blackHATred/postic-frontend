@@ -36,11 +36,9 @@ const PostCalendar: React.FC = () => {
   const posts = useAppSelector((state) => state.posts.posts);
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
 
-  // Получаем сохраненную дату и посты из Redux
   const savedSelectedDate = useAppSelector((state) => state.posts.calendarSelectedDate);
   const savedSelectedPosts = useAppSelector((state) => state.posts.calendarSelectedPosts);
 
-  // Инициализация состояния из Redux при монтировании компонента
   useEffect(() => {
     if (savedSelectedDate) {
       setSelectedDate(savedSelectedDate);
@@ -107,7 +105,6 @@ const PostCalendar: React.FC = () => {
       const postsForSelectedDate = grouped[selectedDate] || [];
       setSelectedPosts(postsForSelectedDate);
 
-      // Сохраняем выбранную дату и посты в Redux
       dispatch(setCalendarSelectedDate(selectedDate));
       dispatch(setCalendarSelectedPosts(postsForSelectedDate));
     }
@@ -121,7 +118,6 @@ const PostCalendar: React.FC = () => {
     const postsForDate = groupedPosts[dateKey] || [];
     setSelectedPosts(postsForDate);
 
-    // Сохраняем выбранную дату и посты в Redux
     dispatch(setCalendarSelectedDate(dateKey));
     dispatch(setCalendarSelectedPosts(postsForDate));
   };
@@ -129,7 +125,6 @@ const PostCalendar: React.FC = () => {
   const onPanelChange = (date: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
     setCurrentMonth(date);
     setCalendarMode(mode as 'month' | 'year');
-    // Не сбрасываем выбранную дату при смене месяца
   };
 
   const getPostsForDate = (value: Dayjs) => {

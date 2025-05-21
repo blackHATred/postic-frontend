@@ -27,8 +27,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
         vk_reactions: number;
         vk_comments: number;
         timestamp: string;
-        post_union_id: number;
-        user_id: number;
       }
     >();
 
@@ -45,8 +43,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
           vk_reactions: 0,
           vk_comments: 0,
           timestamp: item.timestamp,
-          post_union_id: 0,
-          user_id: 0,
         });
       }
 
@@ -87,11 +83,11 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
   const metricInfo = {
     reactions: {
       title: 'Engagement Rate (отношение реакций к просмотрам)',
-      description: 'Показывает процент пользователей, которые оставили реакции',
+      description: 'Показывает процент пользователей, которые оставили реакции за выбранный период',
     },
     comments: {
       title: 'Discussion Rate (отношение комментариев к просмотрам)',
-      description: 'Показывает уровень обсуждения контента пользователями',
+      description: 'Показывает уровень обсуждения контента пользователями за выбранный период',
     },
   };
 

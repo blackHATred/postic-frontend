@@ -72,25 +72,17 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
 
     let tgTotal = 0;
     let vkTotal = 0;
-    const uniquePosts = new Map<number, PostAnalytics>();
 
     sourceData.forEach((item) => {
-      const existingPost = uniquePosts.get(item.post_union_id);
-      if (!existingPost || new Date(item.timestamp) > new Date(existingPost.timestamp)) {
-        uniquePosts.set(item.post_union_id, item);
-      }
-    });
-
-    uniquePosts.forEach((post) => {
       if (metric === 'views') {
-        tgTotal += post.tg_views;
-        vkTotal += post.vk_views;
+        tgTotal += item.tg_views;
+        vkTotal += item.vk_views;
       } else if (metric === 'reactions') {
-        tgTotal += post.tg_reactions;
-        vkTotal += post.vk_reactions;
+        tgTotal += item.tg_reactions;
+        vkTotal += item.vk_reactions;
       } else if (metric === 'comments') {
-        tgTotal += post.tg_comments;
-        vkTotal += post.vk_comments;
+        tgTotal += item.tg_comments;
+        vkTotal += item.vk_comments;
       }
     });
 
@@ -123,8 +115,8 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
       className={styles.analyticsCard}
       title={
         <Space>
-          Распределение метрик по платформам
-          <Tooltip title='Показывает соотношение метрик между Telegram и ВКонтакте'>
+          Распределение метрик по платформам за выбранный период
+          <Tooltip title='Показывает соотношение метрик между Telegram и ВКонтакте за выбранный период'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>

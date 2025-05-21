@@ -5,7 +5,6 @@ import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
 import TopEngagingPostsList from '../../ui/Charts/TopEngagingPostsList';
-import HeatmapChart from '../../ui/Charts/HeatmapChart';
 import CircularChart from '../../ui/Charts/CircularChart';
 import { transformStatsToAnalytics } from '../../../utils/transformData';
 import { useLocation } from 'react-router-dom';
@@ -13,7 +12,7 @@ import KPIRadarChart from '../../ui/Charts/RadarChart';
 import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
 import { Empty } from 'antd';
 import PeriodComparisonChart1 from '../../ui/Charts/PeriodComparisonChart1';
-import { getPosts, GetStats, getKPI } from '../../../api/api';
+import { GetStats, getKPI } from '../../../api/api';
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -25,31 +24,24 @@ const AnalyticsComponent: React.FC = () => {
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
   const [usersData, setUsersData] = useState<UserAnalytics[]>([]);
   const [hasPosts, setHasPosts] = useState<boolean>(true);
+  const dateRange = useAppSelector((state) => state.analytics.period);
 
   useEffect(() => {
-    const fetchAndUpdateData = async () => {
+    const fetchAnalyticsData = async () => {
       setLoading(true);
       try {
-        const postsResponse = await getPosts(
-          selectedTeamId,
-          50,
-          '2024-04-23T12:38:41Z',
-          'published',
-          false,
-        );
+        const startDate = dateRange[0].toISOString();
+        const endDate = dateRange[1].toISOString();
 
-        if (postsResponse.posts && postsResponse.posts.length > 0) {
+        const statsResponse = await GetStats({
+          team_id: selectedTeamId,
+          start: startDate,
+          end: endDate,
+        });
+
+        if (statsResponse.posts && statsResponse.posts.length > 0) {
           setHasPosts(true);
-
-          const startDate = new Date();
-          startDate.setMonth(startDate.getMonth() - 1);
-
-          const statsResponse = await GetStats({
-            team_id: selectedTeamId,
-            start: startDate.toISOString(),
-            end: new Date().toISOString(),
-          });
-          const transformedData = await transformStatsToAnalytics(statsResponse, selectedTeamId);
+          const transformedData = transformStatsToAnalytics(statsResponse);
           setAnalyticsData(transformedData);
         } else {
           setHasPosts(false);
@@ -61,36 +53,27 @@ const AnalyticsComponent: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchAndUpdateData();
-  }, [selectedTeamId, currentPath]);
 
-  // Теперь условный возврат после всех хуков
-  if (!hasPosts) {
-    return (
-      <div className={styles.analyticsContainer}>
-        <Empty
-          description='Для отображения аналитики необходимо создать хотя бы один пост'
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      </div>
-    );
-  }
+    if (selectedTeamId !== 0) {
+      fetchAnalyticsData();
+    }
+  }, [selectedTeamId, currentPath, dateRange]);
+
   useEffect(() => {
     const fetchUsersData = async () => {
-      if (activeAnalytics !== 'kpi') {
+      if (activeAnalytics !== 'kpi' || selectedTeamId === 0) {
         return;
       }
 
       setUsersLoading(true);
       try {
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 1);
-        const endDate = new Date();
+        const startDate = dateRange[0].toISOString();
+        const endDate = dateRange[1].toISOString();
 
         const kpiResponse = await getKPI({
           team_id: selectedTeamId,
-          start: startDate.toISOString(),
-          end: endDate.toISOString(),
+          start: startDate,
+          end: endDate,
         });
 
         if (kpiResponse.users && Array.isArray(kpiResponse.users)) {
@@ -112,7 +95,29 @@ const AnalyticsComponent: React.FC = () => {
     };
 
     fetchUsersData();
-  }, [selectedTeamId, activeAnalytics]);
+  }, [selectedTeamId, activeAnalytics, dateRange]);
+
+  if (selectedTeamId === 0) {
+    return (
+      <div className={styles.analyticsContainer}>
+        <Empty
+          description='Выберите команду для просмотра аналитики'
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+      </div>
+    );
+  }
+
+  if (!hasPosts) {
+    return (
+      <div className={styles.analyticsContainer}>
+        <Empty
+          description='Для отображения аналитики необходимо создать хотя бы один пост'
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.analyticsContainer}>
@@ -126,7 +131,6 @@ const AnalyticsComponent: React.FC = () => {
         <div className={styles['spacer']}>
           <EngagementDashboard data={analyticsData} loading={loading} />
           <TopEngagingPostsList data={analyticsData} loading={loading} />
-          <HeatmapChart data={analyticsData} loading={loading} />
         </div>
       )}
       {activeAnalytics === 'growth' && (

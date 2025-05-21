@@ -33,14 +33,24 @@ const LineChart: React.FC<LineChartProps> = ({
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
       );
 
-      const aggregatedData = new Map();
+      const aggregatedByDay = new Map<
+        string,
+        {
+          tg_views: number;
+          tg_reactions: number;
+          tg_comments: number;
+          vk_views: number;
+          vk_reactions: number;
+          vk_comments: number;
+        }
+      >();
 
       sortedData.forEach((item) => {
         const dateObj = new Date(item.timestamp);
-        const dateStr = dateObj.toISOString().split('T')[0]; // Формат YYYY-MM-DD
+        const dateStr = dateObj.toISOString().split('T')[0];
 
-        if (!aggregatedData.has(dateStr)) {
-          aggregatedData.set(dateStr, {
+        if (!aggregatedByDay.has(dateStr)) {
+          aggregatedByDay.set(dateStr, {
             tg_views: 0,
             tg_reactions: 0,
             tg_comments: 0,
@@ -50,7 +60,7 @@ const LineChart: React.FC<LineChartProps> = ({
           });
         }
 
-        const current = aggregatedData.get(dateStr);
+        const current = aggregatedByDay.get(dateStr)!;
         current.tg_views += item.tg_views;
         current.tg_reactions += item.tg_reactions;
         current.tg_comments += item.tg_comments;
@@ -61,7 +71,7 @@ const LineChart: React.FC<LineChartProps> = ({
 
       const transformedData: any[] = [];
 
-      Array.from(aggregatedData.entries())
+      Array.from(aggregatedByDay.entries())
         .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
         .forEach(([dateStr, metrics]) => {
           const formattedDate = new Date(dateStr).toLocaleDateString();
@@ -197,7 +207,7 @@ const LineChart: React.FC<LineChartProps> = ({
       title={
         <Space>
           <span>Динамика активности</span>
-          <Tooltip title='График показывает общую динамику активности по всем соцсетям'>
+          <Tooltip title='График показывает динамику метрик за выбранный период'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>
