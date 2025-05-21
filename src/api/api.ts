@@ -7,6 +7,8 @@ import {
   UploadResult,
   GenerateTextResult,
   mockGenerateTextResult,
+  GeneratePostResult,
+  mockGeneratePostResult,
 } from '../models/Post/types';
 import {
   Comment,
@@ -23,6 +25,7 @@ import { MeInfo, RegisterResult, RegisterRequest } from '../models/User/types';
 import { routes } from './routers/routes';
 
 import axiosInstance from './axiosConfig';
+import axios from 'axios';
 import {
   PostReq,
   GetPostStatsResponse,
@@ -388,9 +391,31 @@ export const generateAiText = async (prompt: string): Promise<GenerateTextResult
     if (isAxiosError(error)) {
       console.error('Ошибка генерации текста:', (error as AxiosError).status);
     } else {
-      console.error('Неизвестная оши��ка генерации текста:', error);
+      console.error('Неизвестная ошибка генерации текста:', error);
     }
     // В случае ошибки возвращаем мок-данные для тестирования
     return mockGenerateTextResult;
+  }
+};
+
+export const generatePublication = async (query: string): Promise<GeneratePostResult> => {
+  try {
+    const response = await axios.post<GeneratePostResult>(
+      'http://leave-doing.gl.at.ply.gg:31585/publication',
+      { query },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.error('Ошибка генерации публикации:', error.response?.status, error.message);
+    } else {
+      console.error('Неизвестная ошибка генерации публикации:', error);
+    }
+    return mockGeneratePostResult;
   }
 };

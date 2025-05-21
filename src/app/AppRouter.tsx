@@ -10,6 +10,7 @@ import TicketPage from '../components/pages/TicketPage/TicketPage';
 import AnalyticsPage from '../components/pages/AnalyticstPage/AnalyticsPage';
 import LoginPage from '../components/pages/LoginPage/LoginPage';
 import RegisterPage from '../components/pages/RegisterPage/RegisterPage';
+import VkAuthCallback from '../components/pages/VkAuthCallback/VkAuthCallback';
 
 export const AppRouter = () => {
   return (
@@ -17,8 +18,9 @@ export const AppRouter = () => {
       {/* Страницы авторизации */}
       <Route path={routes.login()} element={<LoginPage />} />
       <Route path={routes.register()} element={<RegisterPage />} />
+      <Route path={routes.vkCallback()} element={<VkAuthCallback />} />
 
-      {/* Защищенные маршруты с Layout */}
+      {/* Защищенные маршруты Layout */}
       <Route path={routes.root()} element={<PageLayout />}>
         <Route index element={<Navigate to={routes.register()} replace />} />
         <Route path={routes.posts()} element={<PostsPage />} />

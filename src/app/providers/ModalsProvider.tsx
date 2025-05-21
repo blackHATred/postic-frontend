@@ -14,6 +14,7 @@ import UserLoginDialog from '../../components/modals/auth/UserLoginDialog';
 import HelpDialog from '../../components/modals/HelpDialog/HelpDialog';
 import EditPostDialog from '../../components/modals/EditPostDialog/EditPostDialog';
 import AIGenerateTextDialog from '../../components/modals/AIGenerateTextDialog/AIGenerateTextDialog';
+import AIGeneratePostDialog from '../../components/modals/AIGeneratePostDialog/AIGeneratePostDialog';
 
 interface ModalsProviderProps {
   children: ReactNode;
@@ -38,6 +39,7 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <HelpDialog />
       <EditPostDialog />
       <AIGenerateTextDialog />
+      <AIGeneratePostDialog />
     </>
   );
 };

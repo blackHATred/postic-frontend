@@ -3,7 +3,7 @@ import { Input, Divider, DatePicker, Form } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
-import { EditOutlined, RobotOutlined, SmileOutlined } from '@ant-design/icons';
+import { EditOutlined, RobotOutlined, SmileOutlined, BookOutlined } from '@ant-design/icons';
 import PlatformSettings from './PlatformSettings';
 import FileUploader from './FileUploader';
 import { Dayjs } from 'dayjs';
@@ -16,6 +16,7 @@ import {
   removeFile,
   setCreatePostDialog,
   setGeneratedTextDialog,
+  setGeneratePostDialog,
   setPostStatusDialog,
 } from '../../../stores/basePageDialogsSlice';
 import ru from 'antd/es/date-picker/locale/ru_RU';
@@ -163,7 +164,7 @@ const CreatePostDialog: FC = () => {
 
   const validateTextLength = (): string | null => {
     if (!postText.trim() && files.length === 0) {
-      return 'Добавьте текст или прикрепите файл';
+      return 'Добавьте текст или прикрепите фа��л';
     }
 
     const hasFiles = files.length > 0;
@@ -411,6 +412,16 @@ const CreatePostDialog: FC = () => {
                 popoverContent={'ИИ-генерация текста поста'}
                 onButtonClick={() => {
                   dispatch(setGeneratedTextDialog({ isOpen: true, generatedText: '' }));
+                }}
+              />
+              <ClickableButton
+                icon={<BookOutlined />}
+                type='default'
+                size='small'
+                withPopover={true}
+                popoverContent={'ИИ-генерация полной публикации с изображениями'}
+                onButtonClick={() => {
+                  dispatch(setGeneratePostDialog(true));
                 }}
               />
               <ClickableButton

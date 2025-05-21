@@ -31,6 +31,7 @@ export interface basePageDialogsSliceState {
     isOpen: boolean;
     generatedText: string;
   };
+  generatePostDialog: basicDialogState;
   scrollToTop: boolean;
 }
 
@@ -53,6 +54,7 @@ const initialState: basePageDialogsSliceState = {
     isOpen: false,
     generatedText: '',
   },
+  generatePostDialog: { isOpen: false },
   scrollToTop: false,
 };
 
@@ -129,6 +131,9 @@ export const basePageDialogsSlice = createSlice({
       state.generatedTextDialog.isOpen = action.payload.isOpen;
       state.generatedTextDialog.generatedText = action.payload.generatedText;
     },
+    setGeneratePostDialog: (state, action: PayloadAction<boolean>) => {
+      state.generatePostDialog.isOpen = action.payload;
+    },
     setScrollToTop: (state, action: PayloadAction<boolean>) => {
       state.scrollToTop = action.payload;
     },
@@ -152,6 +157,7 @@ export const {
   setEditPostDialog,
   setScrollToTop,
   setGeneratedTextDialog,
+  setGeneratePostDialog,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;
