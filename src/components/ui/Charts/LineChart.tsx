@@ -3,12 +3,15 @@ import { Card, Space, Spin, Tooltip } from 'antd';
 import { Area } from '@antv/g2plot';
 import { PostAnalytics } from '../../../models/Analytics/types';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import { useAppSelector } from '../../../stores/hooks';
 
 interface LineChartProps {
   data: PostAnalytics[];
   loading?: boolean;
   height?: number;
   colors?: string[];
+  hasTelegram?: boolean;
+  hasVk?: boolean;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -23,9 +26,22 @@ const LineChart: React.FC<LineChartProps> = ({
     '#b37feb', // Реакции VK
     '#ffadd2', // Комментарии VK
   ],
+  hasTelegram,
+  hasVk,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<Area | null>(null);
+
+  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+
+  // Используем переданные пропсы или получаем значения из Redux
+  const isTelegramAvailable =
+    hasTelegram !== undefined
+      ? hasTelegram
+      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const isVkAvailable =
+    hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
@@ -61,12 +77,16 @@ const LineChart: React.FC<LineChartProps> = ({
         }
 
         const current = aggregatedByDay.get(dateStr)!;
-        current.tg_views += item.tg_views;
-        current.tg_reactions += item.tg_reactions;
-        current.tg_comments += item.tg_comments;
-        current.vk_views += item.vk_views;
-        current.vk_reactions += item.vk_reactions;
-        current.vk_comments += item.vk_comments;
+        if (isTelegramAvailable) {
+          current.tg_views += item.tg_views;
+          current.tg_reactions += item.tg_reactions;
+          current.tg_comments += item.tg_comments;
+        }
+        if (isVkAvailable) {
+          current.vk_views += item.vk_views;
+          current.vk_reactions += item.vk_reactions;
+          current.vk_comments += item.vk_comments;
+        }
       });
 
       const transformedData: any[] = [];
@@ -76,53 +96,58 @@ const LineChart: React.FC<LineChartProps> = ({
         .forEach(([dateStr, metrics]) => {
           const formattedDate = new Date(dateStr).toLocaleDateString();
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.tg_views,
-            category: 'Просмотры TG',
-            platform: 'Telegram',
-          });
+          // Добавляем метрики только для подключенных платформ
+          if (isTelegramAvailable) {
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.tg_views,
+              category: 'Просмотры TG',
+              platform: 'Telegram',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.tg_reactions,
-            category: 'Реакции TG',
-            platform: 'Telegram',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.tg_reactions,
+              category: 'Реакции TG',
+              platform: 'Telegram',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.tg_comments,
-            category: 'Комментарии TG',
-            platform: 'Telegram',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.tg_comments,
+              category: 'Комментарии TG',
+              platform: 'Telegram',
+            });
+          }
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.vk_views,
-            category: 'Просмотры VK',
-            platform: 'ВКонтакте',
-          });
+          if (isVkAvailable) {
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.vk_views,
+              category: 'Просмотры VK',
+              platform: 'ВКонтакте',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.vk_reactions,
-            category: 'Реакции VK',
-            platform: 'ВКонтакте',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.vk_reactions,
+              category: 'Реакции VK',
+              platform: 'ВКонтакте',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.vk_comments,
-            category: 'Комментарии VK',
-            platform: 'ВКонтакте',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.vk_comments,
+              category: 'Комментарии VK',
+              platform: 'ВКонтакте',
+            });
+          }
         });
 
       if (chartInstance.current) {
@@ -192,13 +217,24 @@ const LineChart: React.FC<LineChartProps> = ({
         chartInstance.current = null;
       }
     };
-  }, [loading, data, colors]);
+  }, [loading, data, colors, isTelegramAvailable, isVkAvailable]);
 
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height }}>
         <Spin size='large' />
       </div>
+    );
+  }
+
+  // Если нет подключенных платформ, показываем уведомление
+  if (!isTelegramAvailable && !isVkAvailable) {
+    return (
+      <Card title='Динамика активности'>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          Нет подключенных платформ для отображения метрик
+        </div>
+      </Card>
     );
   }
 

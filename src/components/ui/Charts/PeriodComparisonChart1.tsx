@@ -9,6 +9,7 @@ import {
 import { DualAxes } from '@antv/g2plot';
 import { PostAnalytics } from '../../../models/Analytics/types';
 import styles from './styles.module.scss';
+import { useAppSelector } from '../../../stores/hooks';
 
 const { Text } = Typography;
 
@@ -16,6 +17,8 @@ interface PeriodComparisonChartProps {
   data: PostAnalytics[];
   loading: boolean;
   height?: number;
+  hasTelegram?: boolean;
+  hasVk?: boolean;
 }
 
 type PeriodType = 'week' | 'month';
@@ -34,12 +37,25 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
   data,
   loading,
   height = 400,
+  hasTelegram,
+  hasVk,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<any>(null);
   const [periodType, setPeriodType] = useState<PeriodType>('week');
   const [metricType, setMetricType] = useState<MetricType>('reactions');
   const [comparisonData, setComparisonData] = useState<PeriodData[]>([]);
+
+  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+
+  // Используем переданные пропсы или получаем значения из Redux
+  const isTelegramAvailable =
+    hasTelegram !== undefined
+      ? hasTelegram
+      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const isVkAvailable =
+    hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   useEffect(() => {
     if (!loading && data.length > 0) {

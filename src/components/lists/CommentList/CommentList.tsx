@@ -81,7 +81,7 @@ const CommentList: React.FC<{
 
   React.useEffect(() => {
     if (newComment) {
-      if (newComment.type == 'new')
+      if (newComment.type == 'created')
         if (!hasMoreTop)
           getComment(teamId, newComment.comment_id)
             .then((data) => {

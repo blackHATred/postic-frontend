@@ -19,12 +19,23 @@ const AnalyticsComponent: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<PostAnalytics[]>([]);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
   const location = useLocation();
   const currentPath = location.pathname;
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
   const [usersData, setUsersData] = useState<UserAnalytics[]>([]);
   const [hasPosts, setHasPosts] = useState<boolean>(true);
   const dateRange = useAppSelector((state) => state.analytics.period);
+
+  // Определяем, какие платформы доступны
+  const hasTelegram = activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const hasVk = activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
+
+  // Готовим конфигурацию доступных платформ для передачи в компоненты
+  const availablePlatforms = {
+    hasTelegram,
+    hasVk,
+  };
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -123,19 +134,46 @@ const AnalyticsComponent: React.FC = () => {
     <div className={styles.analyticsContainer}>
       {activeAnalytics === '' && (
         <div className={styles['spacer']}>
-          <LineChart data={analyticsData} loading={loading} height={400} />
-          <CircularChart data={analyticsData} loading={loading} />
+          <LineChart
+            data={analyticsData}
+            loading={loading}
+            height={400}
+            hasTelegram={hasTelegram}
+            hasVk={hasVk}
+          />
+          <CircularChart
+            data={analyticsData}
+            loading={loading}
+            hasTelegram={hasTelegram}
+            hasVk={hasVk}
+          />
         </div>
       )}
       {activeAnalytics === 'audience' && (
         <div className={styles['spacer']}>
-          <EngagementDashboard data={analyticsData} loading={loading} />
-          <TopEngagingPostsList data={analyticsData} loading={loading} />
+          <EngagementDashboard
+            data={analyticsData}
+            loading={loading}
+            hasTelegram={hasTelegram}
+            hasVk={hasVk}
+          />
+          <TopEngagingPostsList
+            data={analyticsData}
+            loading={loading}
+            hasTelegram={hasTelegram}
+            hasVk={hasVk}
+          />
         </div>
       )}
       {activeAnalytics === 'growth' && (
         <div className={styles['spacer']}>
-          <PeriodComparisonChart1 data={analyticsData} loading={loading} height={400} />
+          <PeriodComparisonChart1
+            data={analyticsData}
+            loading={loading}
+            height={400}
+            hasTelegram={hasTelegram}
+            hasVk={hasVk}
+          />
         </div>
       )}
       {activeAnalytics === 'kpi' && (

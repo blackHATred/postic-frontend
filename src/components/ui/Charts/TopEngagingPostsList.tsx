@@ -12,15 +12,33 @@ import { useAppSelector } from '../../../stores/hooks';
 interface TopEngagingPostsListProps {
   data: PostAnalytics[];
   loading: boolean;
+  hasTelegram?: boolean;
+  hasVk?: boolean;
 }
 
 type Platform = 'all' | 'telegram' | 'vk';
 
-const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({ data, loading }) => {
+const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
+  data,
+  loading,
+  hasTelegram,
+  hasVk,
+}) => {
   const [platform, setPlatform] = useState<Platform>('all');
   const [postsData, setPostsData] = useState<PostAnalytics[]>([]);
   const [localLoading, setLocalLoading] = useState<boolean>(false);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
+
+  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+
+  // Используем переданные пропсы или получаем значения из Redux
+  const isTelegramAvailable =
+    hasTelegram !== undefined
+      ? hasTelegram
+      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const isVkAvailable =
+    hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   // Получаем уникальные ID постов из данных
   const postIds = useMemo(() => {
