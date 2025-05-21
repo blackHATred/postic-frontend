@@ -10,6 +10,7 @@ import { CommentWithChildren, createCommentTree, useCollapsedComments } from './
 import { routes } from '../../../app/App.routes';
 import { getSseUrl } from '../../../constants/appConfig';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
+import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
 
 const frame_size = 3;
 const { Text } = Typography;
@@ -21,6 +22,13 @@ const CommentList: React.FC<{
   remove_func: any;
 }> = ({ get_func, set_func, remove_func, add_func }) => {
   const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(set_func([]));
+    };
+  }, [dispatch]);
+
   const comments = useAppSelector(get_func);
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
@@ -64,6 +72,16 @@ const CommentList: React.FC<{
   });
 
   const [toDelete, setToDelete] = useState<any>();
+
+  const scrollToTop = useAppSelector((state) => state.basePageDialogs.scrollToTop);
+
+  React.useEffect(() => {
+    if (scrollToTop && divRef.current) {
+      console.log(scrollToTop);
+      divRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      dispatch(setScrollToTop(false));
+    }
+  }, [scrollToTop]);
 
   function flat(r: any, a: any) {
     const b: any = {};
@@ -142,7 +160,12 @@ const CommentList: React.FC<{
           loadFromData();
         } else {
           //NOTE: Had data loaded
-          setTimeout(() => loadFromData(), 10);
+          setTimeout(() => {
+            loadFromData();
+            setIsLoading(true);
+            setIsLoadingTop(true);
+            loadComments(false, frame_size, comments[0]).then((data) => onNewTop(data));
+          }, 10);
         }
       } else {
         // NOTE: NEW DATA LOADED

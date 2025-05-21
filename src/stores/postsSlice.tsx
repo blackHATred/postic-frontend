@@ -8,7 +8,6 @@ export interface PostSliceState {
   posts: Post[];
   isOpened: { [key: number]: boolean };
   selectedPostId: number;
-  scrollToPost: number | null;
   postsScroll: number;
   activePostFilter: PostFilter;
 }
@@ -19,7 +18,6 @@ const initialState: PostSliceState = {
   activePostFilter: 'all',
   isOpened: {},
   selectedPostId: 0,
-  scrollToPost: null,
   postsScroll: 0,
 };
 
@@ -29,10 +27,6 @@ export const postsSlice = createSlice({
   reducers: {
     setSelectedPostId: (state, action: PayloadAction<number>) => {
       state.selectedPostId = action.payload;
-    },
-
-    setScrollToPost: (state, action: PayloadAction<number | null>) => {
-      state.scrollToPost = action.payload;
     },
 
     setPosts: (state, action: PayloadAction<Post[]>) => {
@@ -76,7 +70,6 @@ export const postsSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   setSelectedPostId,
-  setScrollToPost,
   addPost,
   removePost,
   addPosts,

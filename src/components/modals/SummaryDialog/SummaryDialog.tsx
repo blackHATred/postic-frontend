@@ -7,7 +7,7 @@ import { GetSummarizeResult } from '../../../models/Comment/types';
 import BlueDashedTextBox from '../../ui/BlueDashedTextBox/BlueDashedTextBox';
 import { setSummaryDialog, setSummaryLoading } from '../../../stores/basePageDialogsSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
+import { setSelectedPostId } from '../../../stores/postsSlice';
 import './styles.scss';
 import ReactMarkdown from 'react-markdown';
 
@@ -64,7 +64,6 @@ const DialogBoxSummary: FC = () => {
 
   const onHeaderClick = async () => {
     dispatch(setSummaryDialog(false));
-    dispatch(setScrollToPost(selectedPostId));
   };
 
   return (
@@ -84,7 +83,7 @@ const DialogBoxSummary: FC = () => {
       onCancelClick={onCancel}
       title={'Суммаризация'}
       headerSubtext={'Пост #' + selectedPostId}
-      headerSubtextOnClick={onHeaderClick}
+      //headerSubtextOnClick={onHeaderClick}
       isCenter={true}
     >
       <BlueDashedTextBox isLoading={isLoading}>

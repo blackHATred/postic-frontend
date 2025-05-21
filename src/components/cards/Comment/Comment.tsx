@@ -18,7 +18,7 @@ import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlic
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
-import { setScrollToPost, setSelectedPostId } from '../../../stores/postsSlice';
+import { setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
 import MediaRenderer from './MediaRenderer';
 import { Team } from '../../../models/Team/types';
@@ -95,7 +95,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   };
   const handlePostClick = () => {
     dispatch(setActiveTab('1'));
-    dispatch(setScrollToPost(comment.post_union_id));
+    //dispatch(setScrollToPost(comment.post_union_id));
     dispatch(setSelectedPostId(comment.post_union_id));
   };
 

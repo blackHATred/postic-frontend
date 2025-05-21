@@ -14,6 +14,7 @@ import { Switch, Typography } from 'antd';
 import { setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { routes } from '../../../app/App.routes';
+import { setSelectedPostId } from '../../../stores/postsSlice';
 
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -30,6 +31,7 @@ const Sidebar: React.FC = () => {
     })?.roles;
 
   const handleTabChange = (key: string, route: string) => {
+    dispatch(setSelectedPostId(0));
     dispatch(setActiveTab(key));
     navigate(route);
   };

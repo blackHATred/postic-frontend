@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 import { routes } from '../../../app/App.routes';
 import ClickableButton from '../../ui/Button/Button';
 import { DoubleLeftOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { setHelpDialog } from '../../../stores/basePageDialogsSlice';
+import { setHelpDialog, setScrollToTop } from '../../../stores/basePageDialogsSlice';
 
 const PageLayout: React.FC = () => {
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
@@ -103,6 +103,7 @@ const PageLayout: React.FC = () => {
               className={styles['help-button']}
               withPopover={true}
               popoverContent='Вернуться к началу страницы'
+              onButtonClick={() => dispatch(setScrollToTop(true))}
             />
 
             <ClickableButton

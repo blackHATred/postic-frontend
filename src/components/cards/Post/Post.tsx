@@ -18,9 +18,8 @@ import MediaRenderer from '../Comment/MediaRenderer';
 import { DeletePost } from '../../../api/api';
 import { PostReq } from '../../../models/Analytics/types';
 import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
-import { setComments } from '../../../stores/commentSlice';
 import './selected_style.css';
-import { removePost } from '../../../stores/postsSlice';
+import { removePost, setSelectedPostId } from '../../../stores/postsSlice';
 import { NotificationContext } from '../../../api/notification';
 
 const { Text, Paragraph } = Typography;
@@ -72,7 +71,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const hasCommentsAccess = userRoles.some((role) => role === 'comments' || role === 'admin');
 
   const onCommentClick = () => {
-    dispatch(setComments([]));
+    dispatch(setSelectedPostId(post.id));
     setTimeout(() => navigate(routes.post(post.id)), 100);
   };
 

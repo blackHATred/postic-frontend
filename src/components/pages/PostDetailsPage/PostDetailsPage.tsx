@@ -29,8 +29,14 @@ const PostDetailsPage: React.FC = () => {
         team_id: 0,
       };
   const [isLoading, setIsLoading] = useState(false);
+  const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
 
   useEffect(() => {
+    if (id) {
+      if (selectedPostId != +id) {
+        dispatch(setSelectedPostId(+id));
+      }
+    }
     if (!p && id) {
       setIsLoading(true);
       getPost(team_id, +id)

@@ -27,6 +27,7 @@ export interface basePageDialogsSliceState {
     postId: number | null;
     teamId: number | null;
   };
+  scrollToTop: boolean;
 }
 
 const initialState: basePageDialogsSliceState = {
@@ -44,6 +45,7 @@ const initialState: basePageDialogsSliceState = {
     postId: null,
     teamId: null,
   },
+  scrollToTop: false,
 };
 
 export const basePageDialogsSlice = createSlice({
@@ -105,6 +107,10 @@ export const basePageDialogsSlice = createSlice({
       state.editPostDialog.postId = action.payload.postId;
       state.editPostDialog.teamId = action.payload.teamId;
     },
+
+    setScrollToTop: (state, action: PayloadAction<boolean>) => {
+      state.scrollToTop = action.payload;
+    },
   },
 });
 
@@ -123,6 +129,7 @@ export const {
   setLoginEmailDialog,
   setHelpDialog,
   setEditPostDialog,
+  setScrollToTop,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;

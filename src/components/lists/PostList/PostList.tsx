@@ -88,6 +88,9 @@ const PostList: React.FC = () => {
           setDoNowShow(false);
           setTimeout(() => {
             loadFromData();
+            setIsLoading(true);
+            setIsLoadingTop(true);
+            loadPosts(false, frame_size, posts[0]).then((data) => onNewTop(data));
           }, 100);
         }
       } else {
