@@ -93,7 +93,7 @@ export const commentsSlice = createSlice({
 
       state.comments = createCommentTree(
         el1.filter((el: any) => {
-          return !el2.includes(el.id);
+          return !(el2.id == el.id);
         }),
       );
     },

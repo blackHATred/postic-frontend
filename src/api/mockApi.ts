@@ -285,6 +285,7 @@ export const getMockComments = async (
       created_at: commentDate,
       attachments: getRandomAttachments(id),
       marked_as_ticket: marked_as_ticket ? Math.random() > 0.7 : false,
+      is_deleted: false,
     });
   }
 
@@ -357,6 +358,7 @@ export const getMockComments = async (
         created_at: commentDate,
         attachments: getRandomAttachments(id),
         marked_as_ticket: false, // дочерние комментарии не маркируются как тикеты
+        is_deleted: false,
       });
     }
   });

@@ -12,15 +12,16 @@ interface CommentItemProps {
   comment: CommentWithChildren;
   level: number;
   isLastInChain?: boolean;
-  onDelete?: any;
 }
 const Comm = memo(
   CommentComponent,
   (c_1, c_2) =>
-    c_1.comment.id == c_2.comment.id && c_1.comment.attachments == c_2.comment.attachments,
+    c_1.comment.id == c_2.comment.id &&
+    c_1.comment.attachments == c_2.comment.attachments &&
+    c_1.comment.text == c_2.comment.text,
 );
 
-const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete }) => {
+const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level }) => {
   const [comm, setComm] = useState(comment);
   // Local state for immediate collapse toggle
   const [collapsedLocal, setCollapsedLocal] = useState(false);
@@ -34,14 +35,9 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
   const refer = useRef<HTMLDivElement>(null);
   const [deletedCount, setDeletedCount] = useState(0);
 
-  const deleteElement = () => {
-    setComm({
-      ...comment,
-      attachments: [],
-      text: 'КОММЕНТАРИЙ БЫЛ УДАЛЕН',
-    });
-    //onDelete(comment);
-  };
+  React.useEffect(() => {
+    setComm(comment);
+  }, [comment.children]);
 
   // Мемоизированный обработчик для предотвращения лишних перерисовок
   const handleToggleCollapse = useCallback(() => {
@@ -72,7 +68,7 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
         )}
 
         {/* Используем мемоизированные компоненты, чтобы избежать ненужных перерисовок */}
-        <Comm comment={comm} onDelete={deleteElement} />
+        <Comm comment={comm} />
 
         {/* Кнопка разворачивания/сворачивания появляется только если есть дочерние комментарии */}
         {hasChildren && comm.children.length - deletedCount > 0 && (
@@ -104,7 +100,6 @@ const CommentTreeItem: React.FC<CommentItemProps> = ({ comment, level, onDelete 
               comment={child}
               level={level + 1}
               isLastInChain={idx === comm.children.length - 1}
-              onDelete={onDelete}
             />
           ))}
         </div>

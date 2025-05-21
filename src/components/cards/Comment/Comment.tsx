@@ -16,7 +16,7 @@ import Icon, {
 import { message } from 'antd';
 import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { getUpload, MarkAsTicket } from '../../../api/api';
+import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
@@ -27,16 +27,14 @@ const { Paragraph, Text } = Typography;
 
 interface CommentProps {
   comment: Comment;
-  onDelete: () => void;
 }
 
-const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
+const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const { created_at = dayjs('0000-00-00 00:00:00') } = comment;
   const dispatch = useAppDispatch();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const teams = useAppSelector((state) => state.teams.teams);
   const [ellipsis] = useState(true);
-  const [isDeleted, setIsDeleted] = useState(false);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -91,9 +89,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
       post_comment_id: Number(comment.id),
       ban_user: false,
     };
-    //Delete(res);
-    setIsDeleted(true);
-    onDelete();
+    Delete(res);
   };
   const handlePostClick = () => {
     dispatch(setActiveTab('1'));
@@ -137,7 +133,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
   };
 
   return (
-    <div className={!isDeleted ? styles.comment : styles['deleted']}>
+    <div className={!comment.is_deleted ? styles.comment : styles['deleted']}>
       <div className={isTicket ? styles['ticket-header'] : styles['comment-header']}>
         <Avatar
           src={
@@ -175,7 +171,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
 
       <div className={styles['comment-content']}>
         <Paragraph
-          italic={isDeleted}
+          italic={comment.is_deleted}
           ellipsis={ellipsis ? { rows: 4, expandable: true, symbol: 'Читать далее' } : false}
         >
           {comment.text}
@@ -200,39 +196,45 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, onDelete }) => {
         </div>
       )}
 
-      <div className={styles['comment-buttons']}>
-        <div className={styles['comment-buttons-left']}>
-          <ClickableButton
-            type='default'
-            variant='outlined'
-            color='blue'
-            text='Ответить'
-            icon={<DoubleRightOutlined />}
-            onButtonClick={openAnswerDialog}
-          />
+      {!comment.is_deleted ? (
+        <div className={styles['comment-buttons']}>
+          <div className={styles['comment-buttons-left']}>
+            <ClickableButton
+              type='default'
+              variant='outlined'
+              color='blue'
+              text='Ответить'
+              icon={<DoubleRightOutlined />}
+              onButtonClick={openAnswerDialog}
+            />
 
-          <ClickableButton
-            type='default'
-            variant='outlined'
-            color='danger'
-            text='Удалить'
-            icon={<DeleteOutlined />}
-            confirm
-            onButtonClick={deleteComment}
-          />
+            <ClickableButton
+              type='default'
+              variant='outlined'
+              color='danger'
+              text='Удалить'
+              icon={<DeleteOutlined />}
+              confirm
+              onButtonClick={deleteComment}
+            />
+          </div>
+          <div className={styles['comment-buttons-right']}>
+            <ClickableButton
+              type='default'
+              variant='outlined'
+              color={isTicket ? 'gold' : 'default'}
+              withPopover={true}
+              popoverContent={isTicket ? 'Решить тикет' : 'Отправить в тикет-систему'}
+              icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
+              onButtonClick={
+                isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
+              }
+            ></ClickableButton>
+          </div>
         </div>
-        <div className={styles['comment-buttons-right']}>
-          <ClickableButton
-            type='default'
-            variant='outlined'
-            color={isTicket ? 'gold' : 'default'}
-            withPopover={true}
-            popoverContent={isTicket ? 'Решить тикет' : 'Отправить в тикет-систему'}
-            icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
-            onButtonClick={isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)}
-          ></ClickableButton>
-        </div>
-      </div>
+      ) : (
+        <Text type='warning'>Комментарий был удален</Text>
+      )}
     </div>
   );
 };

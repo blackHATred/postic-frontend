@@ -11,6 +11,7 @@ import { routes } from '../../../app/App.routes';
 import { getSseUrl } from '../../../constants/appConfig';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
 import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
+import { addComment, removeComment } from '../../../stores/commentSlice';
 
 const frame_size = 3;
 const { Text } = Typography;
@@ -99,7 +100,7 @@ const CommentList: React.FC<{
 
   React.useEffect(() => {
     if (newComment) {
-      if (newComment.type == 'created')
+      if (newComment.type == 'created') {
         if (!hasMoreTop)
           getComment(teamId, newComment.comment_id)
             .then((data) => {
@@ -108,6 +109,12 @@ const CommentList: React.FC<{
             .catch(() => {
               console.error('Ошибка при получении нового комментария');
             });
+      } else if (newComment.type == 'deleted') {
+        getComment(teamId, newComment.comment_id).then((data) => {
+          dispatch(removeComment([{ ...data.comment, children: [] }]));
+          dispatch(addComment(data.comment));
+        });
+      }
     }
   }, [newComment]);
 
@@ -152,6 +159,7 @@ const CommentList: React.FC<{
   };
 
   React.useEffect(() => {
+    console.log(comments);
     if (comments.length > 0) {
       if (commentElements.length == 0) {
         // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED
@@ -185,15 +193,7 @@ const CommentList: React.FC<{
         comments.map((comment: any) => {
           return {
             id: comment.id,
-            element: (
-              <CommentTreeItem
-                comment={comment}
-                level={0}
-                onDelete={(comm: CommentWithChildren) => {
-                  //setTimeout(() => setToDelete(comm), 400);
-                }}
-              />
-            ),
+            element: <CommentTreeItem comment={comment} level={0} />,
           };
         }),
       );

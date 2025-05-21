@@ -22,6 +22,7 @@ export interface Comment {
   created_at: string;
   attachments: CommentAttachments[];
   marked_as_ticket: boolean;
+  is_deleted: boolean;
 }
 
 export interface CommentAttachments {
@@ -95,6 +96,7 @@ export const mockComments: CommentWithChildren[] = [
     attachments: [],
     marked_as_ticket: false,
     children: [],
+    is_deleted: false,
   },
   {
     id: 2,
@@ -114,5 +116,6 @@ export const mockComments: CommentWithChildren[] = [
     attachments: [],
     marked_as_ticket: false,
     children: [],
+    is_deleted: true,
   },
 ];
