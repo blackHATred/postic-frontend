@@ -56,6 +56,14 @@ export interface UploadResult {
   // url: string;
 }
 
+export interface GenerateTextResult {
+  text: string;
+}
+
+export const mockGenerateTextResult = {
+  text: 'Привет всем! Я хочу похвастаться моим милым котиком! Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',
+};
+
 export const mockPosts: Post[] = [
   {
     id: 11,

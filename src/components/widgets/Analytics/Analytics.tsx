@@ -28,7 +28,7 @@ const AnalyticsComponent: React.FC = () => {
   const dateRange = useAppSelector((state) => state.analytics.period);
 
   // Определяем, какие платформы доступны
-  const hasTelegram = activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const hasTelegram = activePlatforms.some((p) => p.platform === 'tg' && p.isLinked);
   const hasVk = activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   // Готовим конфигурацию доступных платформ для передачи в компоненты
@@ -122,10 +122,20 @@ const AnalyticsComponent: React.FC = () => {
   if (!hasPosts) {
     return (
       <div className={styles.analyticsContainer}>
-        <Empty
-          description='Для отображения аналитики необходимо создать хотя бы один пост'
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
+        {activeAnalytics === 'kpi' && (
+          <div className={styles['spacer']}>
+            <KPIRadarChart data={usersData} loading={usersLoading} height={400} />
+            <KPIColumnChart data={usersData} loading={usersLoading} height={400} />
+          </div>
+        )}
+        {activeAnalytics !== 'kpi' && (
+          <div className={styles['spacer']}>
+            <Empty
+              description='Аналитика не собрала достаточно данных для отображения'
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
+          </div>
+        )}
       </div>
     );
   }

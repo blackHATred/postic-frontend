@@ -5,6 +5,8 @@ import {
   sendPost,
   sendPostResult,
   UploadResult,
+  GenerateTextResult,
+  mockGenerateTextResult,
 } from '../models/Post/types';
 import {
   Comment,
@@ -130,7 +132,6 @@ export const sendPostRequest = async (post: sendPost): Promise<sendPostResult> =
       withCredentials: true,
     },
   );
-  console.log('post', post);
   return response.data;
 };
 
@@ -363,4 +364,22 @@ export const getKPI = async (
     params: req,
   });
   return response.data;
+};
+
+export const generateAiText = async (prompt: string): Promise<GenerateTextResult> => {
+  try {
+    const response = await axiosInstance.post<GenerateTextResult>(
+      `${config.api.baseURL}/generate-text/`,
+      { prompt },
+    );
+    return response.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.error('Ошибка генерации текста:', (error as AxiosError).status);
+    } else {
+      console.error('Неизвестная ошибка генерации текста:', error);
+    }
+    // В случае ошибки возвращаем мок-данные для тестирования
+    return mockGenerateTextResult;
+  }
 };

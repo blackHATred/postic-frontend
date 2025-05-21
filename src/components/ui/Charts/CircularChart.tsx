@@ -34,7 +34,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
   const isTelegramAvailable =
     hasTelegram !== undefined
       ? hasTelegram
-      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+      : activePlatforms.some((p) => p.platform === 'tg' && p.isLinked);
   const isVkAvailable =
     hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
