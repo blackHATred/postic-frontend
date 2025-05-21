@@ -4,16 +4,35 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
 import { PostAnalytics } from '../../../models/Analytics/types';
 import BarChart from '../../ui/Charts/BarChart';
+import { useAppSelector } from '../../../stores/hooks';
+
+type MetricType = 'reactions' | 'comments';
 
 interface EngagementDashboardProps {
   data: PostAnalytics[];
   loading: boolean;
+  hasTelegram?: boolean;
+  hasVk?: boolean;
 }
 
-type MetricType = 'reactions' | 'comments';
-
-const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading }) => {
+const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
+  data,
+  loading,
+  hasTelegram,
+  hasVk,
+}) => {
   const [metricType, setMetricType] = useState<MetricType>('reactions');
+
+  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+
+  // Используем переданные пропсы или получаем значения из Redux
+  const isTelegramAvailable =
+    hasTelegram !== undefined
+      ? hasTelegram
+      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const isVkAvailable =
+    hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   const chartData = useMemo(() => {
     const dateMap = new Map<
@@ -27,8 +46,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
         vk_reactions: number;
         vk_comments: number;
         timestamp: string;
-        post_union_id: number;
-        user_id: number;
       }
     >();
 
@@ -45,8 +62,6 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
           vk_reactions: 0,
           vk_comments: 0,
           timestamp: item.timestamp,
-          post_union_id: 0,
-          user_id: 0,
         });
       }
 
@@ -87,11 +102,11 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ data, loading
   const metricInfo = {
     reactions: {
       title: 'Engagement Rate (отношение реакций к просмотрам)',
-      description: 'Показывает процент пользователей, которые оставили реакции',
+      description: 'Показывает процент пользователей, которые оставили реакции за выбранный период',
     },
     comments: {
       title: 'Discussion Rate (отношение комментариев к просмотрам)',
-      description: 'Показывает уровень обсуждения контента пользователями',
+      description: 'Показывает уровень обсуждения контента пользователями за выбранный период',
     },
   };
 

@@ -3,12 +3,15 @@ import { Card, Space, Spin, Tooltip } from 'antd';
 import { Area } from '@antv/g2plot';
 import { PostAnalytics } from '../../../models/Analytics/types';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import { useAppSelector } from '../../../stores/hooks';
 
 interface LineChartProps {
   data: PostAnalytics[];
   loading?: boolean;
   height?: number;
   colors?: string[];
+  hasTelegram?: boolean;
+  hasVk?: boolean;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -23,9 +26,22 @@ const LineChart: React.FC<LineChartProps> = ({
     '#b37feb', // Реакции VK
     '#ffadd2', // Комментарии VK
   ],
+  hasTelegram,
+  hasVk,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<Area | null>(null);
+
+  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+
+  // Используем переданные пропсы или получаем значения из Redux
+  const isTelegramAvailable =
+    hasTelegram !== undefined
+      ? hasTelegram
+      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const isVkAvailable =
+    hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
@@ -33,14 +49,24 @@ const LineChart: React.FC<LineChartProps> = ({
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
       );
 
-      const aggregatedData = new Map();
+      const aggregatedByDay = new Map<
+        string,
+        {
+          tg_views: number;
+          tg_reactions: number;
+          tg_comments: number;
+          vk_views: number;
+          vk_reactions: number;
+          vk_comments: number;
+        }
+      >();
 
       sortedData.forEach((item) => {
         const dateObj = new Date(item.timestamp);
-        const dateStr = dateObj.toISOString().split('T')[0]; // Формат YYYY-MM-DD
+        const dateStr = dateObj.toISOString().split('T')[0];
 
-        if (!aggregatedData.has(dateStr)) {
-          aggregatedData.set(dateStr, {
+        if (!aggregatedByDay.has(dateStr)) {
+          aggregatedByDay.set(dateStr, {
             tg_views: 0,
             tg_reactions: 0,
             tg_comments: 0,
@@ -50,69 +76,78 @@ const LineChart: React.FC<LineChartProps> = ({
           });
         }
 
-        const current = aggregatedData.get(dateStr);
-        current.tg_views += item.tg_views;
-        current.tg_reactions += item.tg_reactions;
-        current.tg_comments += item.tg_comments;
-        current.vk_views += item.vk_views;
-        current.vk_reactions += item.vk_reactions;
-        current.vk_comments += item.vk_comments;
+        const current = aggregatedByDay.get(dateStr)!;
+        if (isTelegramAvailable) {
+          current.tg_views += item.tg_views;
+          current.tg_reactions += item.tg_reactions;
+          current.tg_comments += item.tg_comments;
+        }
+        if (isVkAvailable) {
+          current.vk_views += item.vk_views;
+          current.vk_reactions += item.vk_reactions;
+          current.vk_comments += item.vk_comments;
+        }
       });
 
       const transformedData: any[] = [];
 
-      Array.from(aggregatedData.entries())
+      Array.from(aggregatedByDay.entries())
         .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
         .forEach(([dateStr, metrics]) => {
           const formattedDate = new Date(dateStr).toLocaleDateString();
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.tg_views,
-            category: 'Просмотры TG',
-            platform: 'Telegram',
-          });
+          // Добавляем метрики только для подключенных платформ
+          if (isTelegramAvailable) {
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.tg_views,
+              category: 'Просмотры TG',
+              platform: 'Telegram',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.tg_reactions,
-            category: 'Реакции TG',
-            platform: 'Telegram',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.tg_reactions,
+              category: 'Реакции TG',
+              platform: 'Telegram',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.tg_comments,
-            category: 'Комментарии TG',
-            platform: 'Telegram',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.tg_comments,
+              category: 'Комментарии TG',
+              platform: 'Telegram',
+            });
+          }
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.vk_views,
-            category: 'Просмотры VK',
-            platform: 'ВКонтакте',
-          });
+          if (isVkAvailable) {
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.vk_views,
+              category: 'Просмотры VK',
+              platform: 'ВКонтакте',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.vk_reactions,
-            category: 'Реакции VK',
-            platform: 'ВКонтакте',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.vk_reactions,
+              category: 'Реакции VK',
+              platform: 'ВКонтакте',
+            });
 
-          transformedData.push({
-            date: dateStr,
-            formattedDate,
-            value: metrics.vk_comments,
-            category: 'Комментарии VK',
-            platform: 'ВКонтакте',
-          });
+            transformedData.push({
+              date: dateStr,
+              formattedDate,
+              value: metrics.vk_comments,
+              category: 'Комментарии VK',
+              platform: 'ВКонтакте',
+            });
+          }
         });
 
       if (chartInstance.current) {
@@ -182,7 +217,7 @@ const LineChart: React.FC<LineChartProps> = ({
         chartInstance.current = null;
       }
     };
-  }, [loading, data, colors]);
+  }, [loading, data, colors, isTelegramAvailable, isVkAvailable]);
 
   if (loading) {
     return (
@@ -192,12 +227,23 @@ const LineChart: React.FC<LineChartProps> = ({
     );
   }
 
+  // Если нет подключенных платформ, показываем уведомление
+  if (!isTelegramAvailable && !isVkAvailable) {
+    return (
+      <Card title='Динамика активности'>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          Нет подключенных платформ для отображения метрик
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card
       title={
         <Space>
           <span>Динамика активности</span>
-          <Tooltip title='График показывает общую динамику активности по всем соцсетям'>
+          <Tooltip title='График показывает динамику метрик за выбранный период'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>

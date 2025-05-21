@@ -12,7 +12,7 @@ export interface DialogBoxProps {
   headerSubtext?: string;
   headerSubtextOnClick?: (...args: any) => void;
   isCenter?: boolean;
-  customStyles?: { [key: string]: string };
+  width?: string | number;
 }
 
 const { Text, Title } = Typography;
@@ -38,6 +38,7 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
     <Modal
       open={props.isOpen}
       onCancel={props.onCancelClick}
+      width={props.width}
       title={
         <div
           style={{

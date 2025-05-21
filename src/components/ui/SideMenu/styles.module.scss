@@ -79,3 +79,44 @@
   }
 }
 
+.date-picker-container {
+  padding: 4px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-picker-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+  margin-bottom: 4px;
+}
+
+.date-range-picker {
+  width: 100%;
+
+  :global(.ant-picker) {
+    width: 100%;
+    padding: 2px 4px;
+
+    :global(.ant-picker-input) {
+      input {
+        font-size: 11px;
+      }
+
+      :global(.ant-picker-suffix) {
+        margin: 0;
+        padding: 0;
+
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+      }
+    }
+
+    :global(.ant-picker-range-separator) {
+      padding: 0 2px;
+    }
+  }
+}

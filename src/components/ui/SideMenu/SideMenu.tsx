@@ -1,15 +1,22 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
-import { Divider, Menu, Segmented } from 'antd';
-import { PlusOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
+import { Divider, Menu, Segmented, DatePicker } from 'antd';
+import { PlusOutlined, BarsOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
 import { routes } from '../../../app/App.routes';
 import { setCreatePostDialog } from '../../../stores/basePageDialogsSlice';
 import { PostFilter, setActivePostFilter, setViewMode, ViewMode } from '../../../stores/postsSlice';
-import { AnalyticsFilter, setActiveAnalyticsFilter } from '../../../stores/analyticsSlice';
+import {
+  AnalyticsFilter,
+  setActiveAnalyticsFilter,
+  setAnalyticsPeriod,
+} from '../../../stores/analyticsSlice';
 import { setTicketFilter, TicketFilter } from '../../../stores/commentSlice';
+import dayjs from 'dayjs';
+
+const { RangePicker } = DatePicker;
 
 const SideMenu: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -20,6 +27,7 @@ const SideMenu: React.FC = () => {
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const activeAnalyticsFilter = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const ticketFilter = useAppSelector((state) => state.comments.ticketFilter);
+  const analyticsPeriod = useAppSelector((state) => state.analytics.period);
 
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
@@ -35,6 +43,35 @@ const SideMenu: React.FC = () => {
 
   const handleFilterTicketChange = (filter: TicketFilter) => {
     dispatch(setTicketFilter(filter));
+  };
+
+  const handleAnalyticsPeriodChange = (dates: any) => {
+    if (dates && dates.length === 2) {
+      const [startDate, endDate] = dates;
+      const diffDays = endDate.diff(startDate, 'day');
+
+      if (diffDays > 30) {
+        const newEndDate = startDate.clone().add(30, 'day');
+        dispatch(setAnalyticsPeriod([startDate, newEndDate]));
+      } else {
+        dispatch(setAnalyticsPeriod([startDate, endDate]));
+      }
+    }
+  };
+
+  const disabledDate = (current: dayjs.Dayjs) => {
+    if (!analyticsPeriod) {
+      return false;
+    }
+
+    if (analyticsPeriod[0] && !analyticsPeriod[1]) {
+      if (current.isBefore(analyticsPeriod[0], 'day')) {
+        return true;
+      }
+      return current.diff(analyticsPeriod[0], 'day') > 30;
+    }
+
+    return false;
   };
 
   return (
@@ -69,7 +106,7 @@ const SideMenu: React.FC = () => {
               <Segmented
                 options={[
                   { value: 'list', icon: <BarsOutlined /> },
-                  { value: 'calendar', icon: <AppstoreOutlined /> },
+                  { value: 'calendar', icon: <CalendarOutlined /> },
                 ]}
                 value={viewMode}
                 onChange={(value) => handleViewModeChange(value as ViewMode)}
@@ -136,6 +173,16 @@ const SideMenu: React.FC = () => {
             >
               Рост и динамика
             </Menu.Item>
+            <div className={styles['date-picker-container']}>
+              <RangePicker
+                value={analyticsPeriod}
+                onChange={handleAnalyticsPeriodChange}
+                format='DD.MM.YYYY'
+                allowClear={false}
+                disabledDate={disabledDate}
+                className={styles['date-range-picker']}
+              />
+            </div>
             <Divider className={styles['custom-divider']} />
             <Menu.Item
               key='scheduled-posts'

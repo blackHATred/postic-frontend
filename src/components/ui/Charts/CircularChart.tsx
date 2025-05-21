@@ -4,20 +4,39 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { Pie } from '@antv/g2plot';
 import { PostAnalytics } from '../../../models/Analytics/types';
 import styles from './styles.module.scss';
+import { useAppSelector } from '../../../stores/hooks';
 
 interface CircularChartProps {
   data: PostAnalytics[];
   loading: boolean;
   height?: number;
+  hasTelegram?: boolean;
+  hasVk?: boolean;
 }
 
 type MetricType = 'views' | 'reactions' | 'comments';
 
-const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 400 }) => {
+const CircularChart: React.FC<CircularChartProps> = ({
+  data,
+  loading,
+  height = 400,
+  hasTelegram,
+  hasVk,
+}) => {
   const [metricType, setMetricType] = useState<MetricType>('views');
-
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<any>(null);
+
+  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
+
+  // Используем переданные пропсы или получаем значения из Redux
+  const isTelegramAvailable =
+    hasTelegram !== undefined
+      ? hasTelegram
+      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+  const isVkAvailable =
+    hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
@@ -65,49 +84,48 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
         chartInstance.current = null;
       }
     };
-  }, [data, loading, metricType]);
+  }, [data, loading, metricType, isTelegramAvailable, isVkAvailable]);
 
   const processDataForCircularChart = (sourceData: PostAnalytics[], metric: MetricType) => {
     if (!sourceData.length) return [];
 
     let tgTotal = 0;
     let vkTotal = 0;
-    const uniquePosts = new Map<number, PostAnalytics>();
 
     sourceData.forEach((item) => {
-      const existingPost = uniquePosts.get(item.post_union_id);
-      if (!existingPost || new Date(item.timestamp) > new Date(existingPost.timestamp)) {
-        uniquePosts.set(item.post_union_id, item);
-      }
-    });
-
-    uniquePosts.forEach((post) => {
       if (metric === 'views') {
-        tgTotal += post.tg_views;
-        vkTotal += post.vk_views;
+        tgTotal += item.tg_views;
+        vkTotal += item.vk_views;
       } else if (metric === 'reactions') {
-        tgTotal += post.tg_reactions;
-        vkTotal += post.vk_reactions;
+        tgTotal += item.tg_reactions;
+        vkTotal += item.vk_reactions;
       } else if (metric === 'comments') {
-        tgTotal += post.tg_comments;
-        vkTotal += post.vk_comments;
+        tgTotal += item.tg_comments;
+        vkTotal += item.vk_comments;
       }
     });
 
     const total = tgTotal + vkTotal;
+    const result = [];
 
-    return [
-      {
+    // Добавляем только те платформы, которые подключены
+    if (isTelegramAvailable) {
+      result.push({
         platform: 'Telegram',
         value: tgTotal,
         percentage: total > 0 ? ((tgTotal / total) * 100).toFixed(1) : '0',
-      },
-      {
+      });
+    }
+
+    if (isVkAvailable) {
+      result.push({
         platform: 'ВКонтакте',
         value: vkTotal,
         percentage: total > 0 ? ((vkTotal / total) * 100).toFixed(1) : '0',
-      },
-    ];
+      });
+    }
+
+    return result;
   };
 
   if (loading) {
@@ -118,13 +136,37 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, loading, height = 4
     );
   }
 
+  // Если нет подключенных платформ или только одна, не показываем график
+  if (!isTelegramAvailable && !isVkAvailable) {
+    return (
+      <Card className={styles.analyticsCard} title='Распределение метрик по платформам'>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          Нет подключенных платформ для отображения метрик
+        </div>
+      </Card>
+    );
+  }
+
+  if ((isTelegramAvailable && !isVkAvailable) || (!isTelegramAvailable && isVkAvailable)) {
+    return (
+      <Card
+        className={styles.analyticsCard}
+        title={`Метрики ${isTelegramAvailable ? 'Telegram' : 'ВКонтакте'}`}
+      >
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          Подключена только одна платформа. Графики сравнения недоступны.
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card
       className={styles.analyticsCard}
       title={
         <Space>
-          Распределение метрик по платформам
-          <Tooltip title='Показывает соотношение метрик между Telegram и ВКонтакте'>
+          Распределение метрик по платформам за выбранный период
+          <Tooltip title='Показывает соотношение метрик между платформами за выбранный период'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>
