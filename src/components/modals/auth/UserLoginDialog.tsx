@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
-import { Form, Input } from 'antd';
+import { Form, Input, Divider } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import { Login, Me } from '../../../api/api';
 import { UserData } from '../../../models/User/types';
@@ -9,11 +9,12 @@ import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamS
 import { MyTeams } from '../../../api/teamApi';
 import { setLoginEmailDialog } from '../../../stores/basePageDialogsSlice';
 import styles from './styles.module.scss';
+import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 
 const UserLoginDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.loginEmailDialog.isOpen);
 
@@ -85,6 +86,7 @@ const UserLoginDialog: React.FC = () => {
         {
           text: 'Войти',
           onButtonClick: handleLogin,
+          loading: loading,
         },
       ]}
       onCancelClick={() => {
@@ -120,6 +122,10 @@ const UserLoginDialog: React.FC = () => {
         >
           <Input.Password placeholder='Пароль' />
         </Form.Item>
+
+        <Divider>или</Divider>
+
+        <VkAuthButton text='Войти через ВКонтакте' disabled={loading} />
       </Form>
     </DialogBox>
   );

@@ -31,6 +31,29 @@ import {
   UserAnalytics,
 } from '../models/Analytics/types';
 
+export const VKauth = async (code: string): Promise<{ message: string }> => {
+  const response = await axiosInstance.get<{ message: string }>(
+    `${config.api.baseURL}/user/auth/vk`,
+    {
+      withCredentials: true,
+      params: {
+        code: code,
+      },
+    },
+  );
+  return response.data;
+};
+
+export const getVkAuthUrl = async (): Promise<{ auth_url: string }> => {
+  const response = await axiosInstance.get<{ auth_url: string }>(
+    `${config.api.baseURL}/user/auth/vk`,
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
+
 export const uploadFile = async (file: File, type: string): Promise<UploadResult> => {
   try {
     const formData = new FormData();
