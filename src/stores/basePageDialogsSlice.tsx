@@ -27,6 +27,10 @@ export interface basePageDialogsSliceState {
     postId: number | null;
     teamId: number | null;
   };
+  generatedTextDialog: {
+    isOpen: boolean;
+    generatedText: string;
+  };
   scrollToTop: boolean;
 }
 
@@ -44,6 +48,10 @@ const initialState: basePageDialogsSliceState = {
     isOpen: false,
     postId: null,
     teamId: null,
+  },
+  generatedTextDialog: {
+    isOpen: false,
+    generatedText: '',
   },
   scrollToTop: false,
 };
@@ -101,13 +109,26 @@ export const basePageDialogsSlice = createSlice({
     },
     setEditPostDialog: (
       state,
-      action: PayloadAction<{ isOpen: boolean; postId: number | null; teamId: number | null }>,
+      action: PayloadAction<{
+        isOpen: boolean;
+        postId: number | null;
+        teamId: number | null;
+      }>,
     ) => {
       state.editPostDialog.isOpen = action.payload.isOpen;
       state.editPostDialog.postId = action.payload.postId;
       state.editPostDialog.teamId = action.payload.teamId;
     },
-
+    setGeneratedTextDialog: (
+      state,
+      action: PayloadAction<{
+        isOpen: boolean;
+        generatedText: string;
+      }>,
+    ) => {
+      state.generatedTextDialog.isOpen = action.payload.isOpen;
+      state.generatedTextDialog.generatedText = action.payload.generatedText;
+    },
     setScrollToTop: (state, action: PayloadAction<boolean>) => {
       state.scrollToTop = action.payload;
     },
@@ -130,6 +151,7 @@ export const {
   setHelpDialog,
   setEditPostDialog,
   setScrollToTop,
+  setGeneratedTextDialog,
 } = basePageDialogsSlice.actions;
 
 export default basePageDialogsSlice.reducer;

@@ -11,6 +11,7 @@
     "@types/react-dom": "^19.0.4",
     "antd": "^5.24.3",
     "axios": "^1.8.4",
+    "dayjs": "^1.11.13",
     "deep-equal": "^2.2.3",
     "emoji-picker-react": "^4.12.2",
     "lodash": "^4.17.21",
@@ -49,9 +50,7 @@
     ]
   },
   "devDependencies": {
-    "@types/deep-equal": "^1.0.4",
     "@types/lodash": "^4.17.16",
-    "@types/react-loadable": "^5.5.11",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.29.0",
@@ -59,8 +58,7 @@
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-unused-imports": "^4.1.4",
     "sass": "^1.85.1",
-    "sass-resources-loader": "^2.2.5",
-    "uglify-js": "^3.19.3"
+    "sass-resources-loader": "^2.2.5"
   },
   "resolutions": {
     "react": "^19.0.0",

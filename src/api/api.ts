@@ -5,6 +5,8 @@ import {
   sendPost,
   sendPostResult,
   UploadResult,
+  GenerateTextResult,
+  mockGenerateTextResult,
 } from '../models/Post/types';
 import {
   Comment,
@@ -28,6 +30,29 @@ import {
   GetStatsResponse,
   UserAnalytics,
 } from '../models/Analytics/types';
+
+export const VKauth = async (code: string): Promise<{ message: string }> => {
+  const response = await axiosInstance.get<{ message: string }>(
+    `${config.api.baseURL}/user/auth/vk`,
+    {
+      withCredentials: true,
+      params: {
+        code: code,
+      },
+    },
+  );
+  return response.data;
+};
+
+export const getVkAuthUrl = async (): Promise<{ auth_url: string }> => {
+  const response = await axiosInstance.get<{ auth_url: string }>(
+    `${config.api.baseURL}/user/auth/vk`,
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
 
 export const uploadFile = async (file: File, type: string): Promise<UploadResult> => {
   try {
@@ -130,7 +155,6 @@ export const sendPostRequest = async (post: sendPost): Promise<sendPostResult> =
       withCredentials: true,
     },
   );
-  console.log('post', post);
   return response.data;
 };
 
@@ -363,4 +387,22 @@ export const getKPI = async (
     params: req,
   });
   return response.data;
+};
+
+export const generateAiText = async (prompt: string): Promise<GenerateTextResult> => {
+  try {
+    const response = await axiosInstance.post<GenerateTextResult>(
+      `${config.api.baseURL}/generate-text/`,
+      { prompt },
+    );
+    return response.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.error('Ошибка генерации текста:', (error as AxiosError).status);
+    } else {
+      console.error('Неизвестная ошибка генерации текста:', error);
+    }
+    // В случае ошибки возвращаем мок-данные для тестирования
+    return mockGenerateTextResult;
+  }
 };

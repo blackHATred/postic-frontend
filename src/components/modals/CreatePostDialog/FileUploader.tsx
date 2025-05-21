@@ -134,7 +134,6 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
             'Ошибка обработки файла',
           );
         }
-        console.log(error.code);
         return 'Ошибка загрузки ресурса';
       }
     } else {

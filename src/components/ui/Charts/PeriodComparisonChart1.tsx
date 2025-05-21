@@ -46,10 +46,8 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
   const [metricType, setMetricType] = useState<MetricType>('reactions');
   const [comparisonData, setComparisonData] = useState<PeriodData[]>([]);
 
-  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
   const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
 
-  // Используем переданные пропсы или получаем значения из Redux
   const isTelegramAvailable =
     hasTelegram !== undefined
       ? hasTelegram
@@ -59,14 +57,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
 
   useEffect(() => {
     if (!loading && data.length > 0) {
-      console.log(
-        'Исходные данные для анализа:',
-        data.map((item) => ({
-          timestamp: item.timestamp,
-          post_id: item.post_union_id,
-        })),
-      );
-
       const currentDate = new Date();
 
       let currentPeriodStart: Date, currentPeriodEnd: Date;
@@ -133,18 +123,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
         );
       }
 
-      console.log(
-        'Границы периодов:',
-        '\nТекущий период:',
-        currentPeriodStart.toISOString(),
-        'до',
-        currentPeriodEnd.toISOString(),
-        '\nПредыдущий период:',
-        previousPeriodStart.toISOString(),
-        'до',
-        previousPeriodEnd.toISOString(),
-      );
-
       const currentPeriodData = data.filter((item) => {
         const itemDate = new Date(item.timestamp);
         return itemDate >= currentPeriodStart && itemDate <= currentPeriodEnd;
@@ -154,16 +132,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
         const itemDate = new Date(item.timestamp);
         return itemDate >= previousPeriodStart && itemDate <= previousPeriodEnd;
       });
-
-      console.log(
-        'Отфильтрованные данные:',
-        '\nТекущий период:',
-        currentPeriodData.length,
-        'записей',
-        '\nПредыдущий период:',
-        previousPeriodData.length,
-        'записей',
-      );
 
       const aggregatedData: PeriodData[] = [];
 
@@ -186,20 +154,6 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
           : vkPreviousMetric === 0
             ? 0
             : (vkChange / vkPreviousMetric) * 100;
-
-      console.log('TG метрики:', {
-        текущее: tgCurrentMetric,
-        предыдущее: tgPreviousMetric,
-        изменение: tgChange,
-        процентИзменения: tgChangePercent,
-      });
-
-      console.log('VK метрики:', {
-        текущее: vkCurrentMetric,
-        предыдущее: vkPreviousMetric,
-        изменение: vkChange,
-        процентИзменения: vkChangePercent,
-      });
 
       aggregatedData.push({
         platform: 'Telegram',

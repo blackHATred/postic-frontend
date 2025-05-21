@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
-import { Form, Input } from 'antd';
+import { Form, Input, Divider } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import { RegisterWithUserData } from '../../../api/api';
 import { UserData } from '../../../models/User/types';
@@ -10,11 +10,12 @@ import { MyTeams } from '../../../api/teamApi';
 import { setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import { validatePasswordSame } from '../../../utils/validation';
 import styles from './styles.module.scss';
+import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 
 const UserRegisterDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
-  const [, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const notificationManager = useContext(NotificationContext);
   const isOpen = useAppSelector((state) => state.basePageDialogs.registerEmailDialog.isOpen);
 
@@ -70,6 +71,7 @@ const UserRegisterDialog: React.FC = () => {
         {
           text: 'Зарегистрироваться',
           onButtonClick: handleRegister,
+          loading: loading,
         },
       ]}
       onCancelClick={() => {
@@ -117,6 +119,10 @@ const UserRegisterDialog: React.FC = () => {
         >
           <Input.Password placeholder='Повторите пароль' />
         </Form.Item>
+
+        <Divider>или</Divider>
+
+        <VkAuthButton text='Зарегистрироваться через ВКонтакте' disabled={loading} />
       </Form>
     </DialogBox>
   );

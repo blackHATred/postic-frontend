@@ -15,6 +15,7 @@ import {
   clearFiles,
   removeFile,
   setCreatePostDialog,
+  setGeneratedTextDialog,
   setPostStatusDialog,
 } from '../../../stores/basePageDialogsSlice';
 import ru from 'antd/es/date-picker/locale/ru_RU';
@@ -141,6 +142,24 @@ const CreatePostDialog: FC = () => {
   useEffect(() => {
     return () => validateTextWithDebounce.current.cancel();
   }, []);
+
+  // Эффект для обработки сгенерированного текста
+  const generatedText = useAppSelector(
+    (state) => state.basePageDialogs.generatedTextDialog.generatedText,
+  );
+  const prevGeneratedTextRef = React.useRef('');
+
+  useEffect(() => {
+    // Проверяем, что генерированный текст не пуст и отличается от предыдущего
+    if (generatedText && generatedText !== prevGeneratedTextRef.current) {
+      setPostText((prevText) => {
+        const newText = prevText ? `${prevText}\n${generatedText}` : generatedText;
+        validateTextWithDebounce.current(newText, files.length, selectedPlatforms);
+        return newText;
+      });
+      prevGeneratedTextRef.current = generatedText;
+    }
+  }, [generatedText, files.length, selectedPlatforms]);
 
   const validateTextLength = (): string | null => {
     if (!postText.trim() && files.length === 0) {
@@ -383,7 +402,6 @@ const CreatePostDialog: FC = () => {
                 popoverContent={
                   'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
                 }
-                disabled={true}
               />
               <ClickableButton
                 icon={<RobotOutlined />}
@@ -391,7 +409,9 @@ const CreatePostDialog: FC = () => {
                 size='small'
                 withPopover={true}
                 popoverContent={'ИИ-генерация текста поста'}
-                disabled={true}
+                onButtonClick={() => {
+                  dispatch(setGeneratedTextDialog({ isOpen: true, generatedText: '' }));
+                }}
               />
               <ClickableButton
                 icon={<SmileOutlined />}
