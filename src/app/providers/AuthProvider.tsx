@@ -15,8 +15,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     dispatch(setAuthorized('loading'));
     Me()
       .then((userData) => {
-        if (userData && userData.user_id) {
-          const userId = Number(userData.user_id);
+        if (userData && userData.id) {
+          const userId = Number(userData.id);
           dispatch(setCurrentUserId(userId));
 
           MyTeams()

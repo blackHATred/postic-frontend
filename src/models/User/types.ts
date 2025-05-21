@@ -1,9 +1,10 @@
 export interface RegisterResult {
   user_id: number;
+  token: string;
 }
 
 export interface MeInfo {
-  user_id: string;
+  id: string;
   nickname?: string;
   email?: string;
 }
@@ -18,4 +19,10 @@ export interface UserProfile {
   id: number;
   nickname: string;
   email: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  nickname: string;
 }

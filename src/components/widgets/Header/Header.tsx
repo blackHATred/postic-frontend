@@ -11,7 +11,6 @@ import {
 import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button, Image } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setLoginEmailDialog, setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
 import {
   ActivePlatform,
   getTeamsFromStore,
@@ -26,11 +25,14 @@ import { Typography } from 'antd';
 import { Platforms } from '../../../api/teamApi';
 import { setPosts } from '../../../stores/postsSlice';
 import { Logout } from '../../../api/api';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '../../../app/App.routes';
 
 const { Text } = Typography;
 
 const ButtonHeader: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const teams = useAppSelector(getTeamsFromStore);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(undefined);
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
@@ -74,11 +76,11 @@ const ButtonHeader: React.FC = () => {
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     switch (e.key) {
       case 'login': {
-        dispatch(setLoginEmailDialog(true));
+        navigate(routes.login());
         return;
       }
       case 'register': {
-        dispatch(setRegisterEmailDialog(true));
+        navigate(routes.register());
         return;
       }
       case 'logout': {
@@ -130,7 +132,7 @@ const ButtonHeader: React.FC = () => {
       dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
-    //  у пользователя нет команд, сбрасываем выбранную команду
+    //  у ��ользователя нет команд, сбрасываем выбранную команду
     // TODO: проверить удаление всех команд
     else if (teams.length === 0) {
       setSelectedTeam(undefined);

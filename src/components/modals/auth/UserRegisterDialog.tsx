@@ -2,13 +2,8 @@ import React, { useContext, useState } from 'react';
 import { NotificationContext } from '../../../api/notification';
 import { Form, Input, Divider } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
-import { RegisterWithUserData } from '../../../api/api';
-import { UserData } from '../../../models/User/types';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
-import { MyTeams } from '../../../api/teamApi';
 import { setRegisterEmailDialog } from '../../../stores/basePageDialogsSlice';
-import { validatePasswordSame } from '../../../utils/validation';
 import styles from './styles.module.scss';
 import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 
@@ -20,48 +15,7 @@ const UserRegisterDialog: React.FC = () => {
   const isOpen = useAppSelector((state) => state.basePageDialogs.registerEmailDialog.isOpen);
 
   const handleRegister = async () => {
-    try {
-      setLoading(true);
-      const values = await form.validateFields();
-      const err = validatePasswordSame(values.password1, values.password2);
-      if (err) {
-        notificationManager.createNotification('error', 'Ошибка пароля', err);
-        return;
-      }
-
-      const userData: UserData = {
-        username: values.username,
-        email: values.email,
-        password: values.password1,
-      };
-
-      const result = await RegisterWithUserData(userData);
-
-      if (result && result.user_id) {
-        dispatch(setCurrentUserId(result.user_id));
-
-        const teamsResult = await MyTeams();
-        if (teamsResult.teams) {
-          dispatch(setTeams(teamsResult.teams));
-        }
-
-        dispatch(setAuthorized('authorized'));
-        dispatch(setRegisterEmailDialog(false));
-        notificationManager.createNotification(
-          'success',
-          'Регистрация успешна',
-          'Ваш аккаунт создан',
-        );
-      }
-    } catch (error) {
-      notificationManager.createNotification(
-        'error',
-        'Ошибка регистрации',
-        (error as Error).message || '',
-      );
-    } finally {
-      setLoading(false);
-    }
+    //
   };
 
   return (

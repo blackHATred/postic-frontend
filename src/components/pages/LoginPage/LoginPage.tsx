@@ -1,46 +1,43 @@
 import React, { useContext, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { Form, Input } from 'antd';
+import { useAppDispatch } from '../../../stores/hooks';
+import { Form, Input, Divider, Typography } from 'antd';
 import { NotificationContext } from '../../../api/notification';
-import { setLoginEmailDialog } from '../../../stores/basePageDialogsSlice';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../../stores/teamSlice';
-import { Login, Me } from '../../../api/api';
+import { Login } from '../../../api/api';
 import { MyTeams } from '../../../api/teamApi';
-import { UserData } from '../../../models/User/types';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
-import { useNavigate } from 'react-router-dom';
-import { routes } from '../../../api/routers/routes';
+import { useNavigate, Link } from 'react-router-dom';
+import { routes } from '../../../app/App.routes';
+import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
+import { saveAuthToken } from '../../../utils/tokenStorage';
 
-const loginPage: React.FC = () => {
+const { Text } = Typography;
+
+const LoginPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const notificationManager = useContext(NotificationContext);
-  const isOpen = useAppSelector((state) => state.basePageDialogs.loginEmailDialog.isOpen);
   const navigate = useNavigate();
+
   const handleLogin = async () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
 
-      const userDataReq: UserData = {
-        username: values.username,
-        email: values.email,
-        password: values.password1,
-      };
-
-      dispatch(setLoginEmailDialog(false));
-
       dispatch(setAuthorized('loading'));
 
       try {
-        await Login(Number(userDataReq.username));
+        const response = await Login(values.email, values.password);
 
-        const userData = await Me();
+        // Сохраняем токен авторизации
+        if (response && response.token) {
+          saveAuthToken(response.token);
+        }
 
-        if (userData && userData.user_id) {
-          const userId = Number(userData.user_id);
+        if (response && response.user_id) {
+          const userId = Number(response.user_id);
           dispatch(setCurrentUserId(userId));
 
           try {
@@ -50,7 +47,6 @@ const loginPage: React.FC = () => {
             }
             dispatch(setAuthorized('authorized'));
           } catch {
-            // Если не удалось загрузить команды, всё равно авторизуем пользователя
             dispatch(setAuthorized('authorized'));
           }
 
@@ -81,37 +77,43 @@ const loginPage: React.FC = () => {
       setLoading(false);
     }
   };
+
   return (
-    <Form form={form} layout='vertical' className={styles.form}>
-      <Form.Item
-        name='username'
-        label='Имя пользователя'
-        rules={[{ required: true, message: 'Введите имя пользователя' }]}
-      >
-        <Input placeholder='Имя пользователя' />
-      </Form.Item>
+    <div className={styles.loginContainer}>
+      <h1 className={styles.title}>Вход в аккаунт</h1>
+      <Form form={form} layout='vertical' className={styles.form}>
+        <Form.Item
+          name='email'
+          label='Email'
+          rules={[
+            { required: true, message: 'Введите email' },
+            { type: 'email', message: 'Некорректный формат email' },
+          ]}
+        >
+          <Input placeholder='Email' />
+        </Form.Item>
 
-      <Form.Item
-        name='email'
-        label='Email'
-        rules={[
-          { required: true, message: 'Введите email' },
-          { type: 'email', message: 'Некорректный формат email' },
-        ]}
-      >
-        <Input placeholder='Email' />
-      </Form.Item>
+        <Form.Item
+          name='password'
+          label='Пароль'
+          rules={[{ required: true, message: 'Введите пароль' }]}
+        >
+          <Input.Password placeholder='Пароль' />
+        </Form.Item>
 
-      <Form.Item
-        name='password1'
-        label='Пароль'
-        rules={[{ required: true, message: 'Введите пароль' }]}
-      >
-        <Input.Password placeholder='Пароль' />
-      </Form.Item>
-      <ClickableButton text='Войти' disabled={loading} onButtonClick={handleLogin} />
-    </Form>
+        <ClickableButton text='Войти' disabled={loading} onButtonClick={handleLogin} />
+
+        <div className={styles.linkContainer}>
+          <Text>Нет аккаунта?</Text>
+          <Link to={routes.register()}>Зарегистрироваться</Link>
+        </div>
+
+        <Divider>или</Divider>
+
+        <VkAuthButton text='Войти через ВКонтакте' disabled={loading} />
+      </Form>
+    </div>
   );
 };
 
-export default loginPage;
+export default LoginPage;

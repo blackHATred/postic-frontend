@@ -19,7 +19,7 @@ import {
 } from '../models/Comment/types';
 import { AxiosError, isAxiosError } from 'axios';
 import config from '../constants/appConfig';
-import { MeInfo, RegisterResult, UserData } from '../models/User/types';
+import { MeInfo, RegisterResult, RegisterRequest } from '../models/User/types';
 import { routes } from './routers/routes';
 
 import axiosInstance from './axiosConfig';
@@ -31,22 +31,9 @@ import {
   UserAnalytics,
 } from '../models/Analytics/types';
 
-export const VKauth = async (code: string): Promise<{ message: string }> => {
-  const response = await axiosInstance.get<{ message: string }>(
-    `${config.api.baseURL}/user/auth/vk`,
-    {
-      withCredentials: true,
-      params: {
-        code: code,
-      },
-    },
-  );
-  return response.data;
-};
-
 export const getVkAuthUrl = async (): Promise<{ auth_url: string }> => {
   const response = await axiosInstance.get<{ auth_url: string }>(
-    `${config.api.baseURL}/user/auth/vk`,
+    `${config.api.baseURL}/user/vk/auth`,
     {
       withCredentials: true,
     },
@@ -173,11 +160,12 @@ export const Me = async (): Promise<MeInfo> => {
   return response.data;
 };
 
-export const Login = async (id: number): Promise<RegisterResult> => {
+export const Login = async (email: string, password: string): Promise<RegisterResult> => {
   const response = await axiosInstance.post<RegisterResult>(
     `${config.api.baseURL}/user/login`,
     {
-      user_id: id,
+      email,
+      password,
     },
     { withCredentials: true },
   );
@@ -365,7 +353,7 @@ export const DeletePost = async (req: PostReq): Promise<{ message: string }> => 
   return response.data;
 };
 
-export const RegisterWithUserData = async (userData: UserData): Promise<RegisterResult> => {
+export const RegisterWithUserData = async (userData: RegisterRequest): Promise<RegisterResult> => {
   const response = await axiosInstance.post<RegisterResult>(
     `${config.api.baseURL}/user/register`,
     userData,
@@ -400,7 +388,7 @@ export const generateAiText = async (prompt: string): Promise<GenerateTextResult
     if (isAxiosError(error)) {
       console.error('Ошибка генерации текста:', (error as AxiosError).status);
     } else {
-      console.error('Неизвестная ошибка генерации текста:', error);
+      console.error('Неизвестная оши��ка генерации текста:', error);
     }
     // В случае ошибки возвращаем мок-данные для тестирования
     return mockGenerateTextResult;

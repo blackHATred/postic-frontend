@@ -17,7 +17,9 @@ const VkAuthButton: React.FC<VkAuthButtonProps> = ({ text, disabled = false }) =
     try {
       setLoading(true);
       const response = await getVkAuthUrl();
+
       if (response && response.auth_url) {
+        // Перенаправляем пользователя на страницу авторизации ВКонтакте
         window.location.href = response.auth_url;
       } else {
         throw new Error('Не удалось получить URL для авторизации');
@@ -26,7 +28,7 @@ const VkAuthButton: React.FC<VkAuthButtonProps> = ({ text, disabled = false }) =
       notificationManager.createNotification(
         'error',
         'Ошибка авторизации через ВКонтакте',
-        'Попробуйте позже',
+        (error as Error).message || 'Попробуйте позже',
       );
       setLoading(false);
     }
