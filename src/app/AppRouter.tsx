@@ -8,6 +8,8 @@ import PageLayout from '../components/pages/Layout/Layout';
 import PostDetailsPage from '../components/pages/PostDetailsPage/PostDetailsPage';
 import TicketPage from '../components/pages/TicketPage/TicketPage';
 import AnalyticsPage from '../components/pages/AnalyticstPage/AnalyticsPage';
+import LoginPage from '../components/pages/LoginPage/LoginPage';
+import RegisterPage from '../components/pages/RegisterPage/RegisterPage';
 
 export const AppRouter = () => {
   return (
@@ -21,6 +23,8 @@ export const AppRouter = () => {
         <Route path={routes.ticket()} element={<TicketPage />} />
         <Route path={routes.analytics()} element={<AnalyticsPage />} />
         <Route path={routes.teams()} element={<TeamsPage />} />
+        <Route path={routes.login()} element={<LoginPage />} />
+        <Route path={routes.register()} element={<RegisterPage />} />
       </Route>
     </Routes>
   );

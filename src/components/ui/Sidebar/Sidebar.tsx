@@ -125,23 +125,13 @@ const Sidebar: React.FC = () => {
       <div
         className={`${styles['sidebar-options']} ${location.pathname === routes.teams() ? styles['active'] : ''}`}
       >
-        {selectedTeam === 0 ? (
-          <ClickableButton
-            className={styles['button']}
-            type='text'
-            text={'Команды'}
-            icon={<TeamOutlined className={styles['icon-primary']} />}
-            onButtonClick={() => handleTabChange('3', routes.teams())}
-          />
-        ) : (
-          <ClickableButton
-            className={styles['button']}
-            type='text'
-            text={'Команды'}
-            icon={<TeamOutlined className={styles['icon-primary']} />}
-            onButtonClick={() => handleTabChange('3', routes.teams())}
-          />
-        )}
+        <ClickableButton
+          className={styles['button']}
+          type='text'
+          text={'Команды'}
+          icon={<TeamOutlined className={styles['icon-primary']} />}
+          onButtonClick={() => handleTabChange('3', routes.teams())}
+        />
       </div>
 
       <div className={styles['sidebar-divider']}></div>

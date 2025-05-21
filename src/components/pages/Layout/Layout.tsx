@@ -38,7 +38,8 @@ const PageLayout: React.FC = () => {
           return '/' + el == loc || el == 'admin';
         }) == undefined)
     ) {
-      navigate(routes.teams());
+      if (location.pathname !== routes.login() && location.pathname !== routes.register())
+        navigate(routes.teams());
     }
   }, [teams, loc, auth]);
 
@@ -55,36 +56,45 @@ const PageLayout: React.FC = () => {
 
           {isAuthorized === 'loading' && <Spin className={styles.spin} />}
 
-          {isAuthorized === 'not_authorized' && (
-            <Alert
-              className={styles['loginDiv']}
-              message='Пожалуйста зарегистрируйтесь или войдите в аккаунт'
-              type='info'
-            />
-          )}
-
-          {isAuthorized === 'authorized' && selectedTeam === 0 && (
-            <>
-              <div className={styles['left-sidebar']}>
-                <Sidebar />
-              </div>
+          {isAuthorized === 'not_authorized' &&
+            location.pathname !== routes.login() &&
+            location.pathname !== routes.register() && (
               <Alert
                 className={styles['loginDiv']}
-                message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
+                message='Пожалуйста зарегистрируйтесь или войдите в аккаунт'
                 type='info'
               />
-              <div className={styles['right-sidebar']}>
-                <SideMenu />
-              </div>
-            </>
-          )}
+            )}
+
+          {isAuthorized === 'authorized' &&
+            selectedTeam === 0 &&
+            location.pathname !== routes.login() &&
+            location.pathname !== routes.register() && (
+              <>
+                <div className={styles['left-sidebar']}>
+                  <Sidebar />
+                </div>
+                <Alert
+                  className={styles['loginDiv']}
+                  message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
+                  type='info'
+                />
+                <div className={styles['right-sidebar']}>
+                  <SideMenu />
+                </div>
+              </>
+            )}
 
           {/* Основной контент */}
-          {isAuthorized === 'authorized' && selectedTeam !== 0 && (
+          {((isAuthorized === 'authorized' && selectedTeam !== 0) ||
+            location.pathname == routes.login() ||
+            location.pathname == routes.register()) && (
             <>
-              <div className={styles['left-sidebar']}>
-                <Sidebar />
-              </div>
+              {location.pathname !== routes.login() && location.pathname !== routes.register() && (
+                <div className={styles['left-sidebar']}>
+                  <Sidebar />
+                </div>
+              )}
               <div className={styles['content']}>
                 <Outlet />
               </div>
