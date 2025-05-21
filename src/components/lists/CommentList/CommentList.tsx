@@ -190,7 +190,7 @@ const CommentList: React.FC<{
                 comment={comment}
                 level={0}
                 onDelete={(comm: CommentWithChildren) => {
-                  setTimeout(() => setToDelete(comm), 400);
+                  //setTimeout(() => setToDelete(comm), 400);
                 }}
               />
             ),
