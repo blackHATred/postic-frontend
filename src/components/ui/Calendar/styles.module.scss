@@ -5,7 +5,7 @@
   padding-right: 10px;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 80px); /* Оставляем место для хедера */
+  max-height: calc(100vh - 80px);
 }
 
 .calendarTitle {
@@ -48,10 +48,9 @@
   overflow: hidden;
   white-space: nowrap;
   font-size: 12px;
-  position: relative; /* Важно для абсолютного позиционирования подсказки */
+  position: relative;
 }
 
-/* Стили для времени поста в ячейке */
 .eventTime {
   display: inline-block;
   background-color: #f0f5ff;
@@ -60,10 +59,9 @@
   border-radius: 2px;
   margin-right: 4px;
   font-size: 11px;
-  cursor: pointer; /* Показываем, что элемент интерактивный */
+  cursor: pointer;
 }
 
-/* Стили для всплываю��ей подсказки */
 .tooltip {
   display: none;
   position: absolute;
@@ -76,7 +74,7 @@
   max-width: 250px;
   min-width: 150px;
   left: 0;
-  top: 20px; /* Показываем под элементом */
+  top: 20px;
 }
 
 .tooltipItem {
@@ -108,7 +106,6 @@
   color: #333;
 }
 
-/* Показываем подсказку при наведении */
 .events li:hover .tooltip {
   display: block;
 }

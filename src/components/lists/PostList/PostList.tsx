@@ -8,6 +8,7 @@ import { getPosts } from '../../../api/api';
 import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
 import PostCalendar from '../../ui/Calendar/PostCalendar';
+import { Max_POSTS } from '../../../constants/appConfig';
 
 const frame_size = 3;
 const { Text } = Typography;
@@ -18,6 +19,7 @@ const PostList: React.FC = () => {
   const teamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
+  const viewMode = useAppSelector((state) => state.posts.viewMode);
 
   const scroll = useAppSelector((state) => state.posts.postsScroll);
 
@@ -38,32 +40,90 @@ const PostList: React.FC = () => {
 
   const [doNowShow, setDoNowShow] = useState(true);
 
+  const loadMonthPosts = async () => {
+    if (viewMode !== 'calendar' || teamId === 0) return;
+
+    setIsLoading(true);
+    const currentMonth = dayjs();
+    const startOfMonth = currentMonth.startOf('month').utc().format();
+
+    try {
+      let filter = undefined;
+      if (activeFilter === 'published' || activeFilter === 'scheduled') {
+        filter = activeFilter;
+      }
+
+      const result = await getPosts(teamId, Max_POSTS, startOfMonth, filter, false);
+      if (result.posts) {
+        const filteredPosts = result.posts.filter((post) => {
+          if (activeFilter === 'published') {
+            if (post.pub_datetime) {
+              const postDate = dayjs(post.pub_datetime);
+              return (
+                postDate.month() === currentMonth.month() && postDate.year() === currentMonth.year()
+              );
+            } else {
+              const postDate = dayjs(post.created_at);
+              return (
+                postDate.month() === currentMonth.month() && postDate.year() === currentMonth.year()
+              );
+            }
+          } else if (activeFilter === 'scheduled') {
+            if (!post.pub_datetime) return false;
+            const postDate = dayjs(post.pub_datetime);
+            return (
+              postDate.month() === currentMonth.month() && postDate.year() === currentMonth.year()
+            );
+          } else {
+            const dateToUse = post.pub_datetime || post.created_at;
+            if (!dateToUse) return false;
+            const postDate = dayjs(dateToUse);
+            return (
+              postDate.month() === currentMonth.month() && postDate.year() === currentMonth.year()
+            );
+          }
+        });
+
+        dispatch(setPosts(filteredPosts));
+      } else {
+        dispatch(setPosts([]));
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке постов для календаря:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   React.useEffect(() => {
     setHasMoreBottom(true);
     setShowBottom(false);
+
+    if (viewMode === 'calendar') {
+      loadMonthPosts();
+      return;
+    }
+
     if (posts.length == 0) {
       setHasMoreTop(false);
-      // NOTE: первичная загрузка
       setIsLoading(true);
       loadPost();
     } else if (postElements.length == 0) {
-      //NOTE: открытие элемента с уже существующим списком постов
       setDoNowShow(true);
       setHasMoreTop(true);
     } else {
       setHasMoreTop(false);
-      //NOTE: смена страницы
       setDoNowShow(true);
       dispatch(setPostsScroll(0));
       setIsLoading(true);
       if (divRef.current) divRef.current.scrollTop = 0;
-      if (activeFilter != 'calendar') {
-        loadPost();
-      }
+      loadPost();
     }
-  }, [activeFilter]);
+  }, [activeFilter, viewMode, teamId]);
 
   const loadPost = () => {
+    if (viewMode === 'calendar') return;
+
     loadPosts(true, frame_size * 3)
       .then((posts) => {
         dispatch(setPosts(posts));
@@ -79,12 +139,9 @@ const PostList: React.FC = () => {
   React.useEffect(() => {
     if (posts.length > 0) {
       if (postElements.length == 0) {
-        // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED
         if (isLoading) {
-          //NOTE: Loaded first data
           loadFromData();
         } else {
-          //NOTE: Had data loaded
           setDoNowShow(false);
           setTimeout(() => {
             loadFromData();
@@ -94,7 +151,6 @@ const PostList: React.FC = () => {
           }, 100);
         }
       } else {
-        // NOTE: NEW DATA LOADED
         loadFromData();
       }
     } else {
@@ -125,36 +181,28 @@ const PostList: React.FC = () => {
     if (divRef.current && postElements.length > 0) {
       setDoNowShow(false);
       if (isLoading) {
-        //NOTE: LOADING FIRST DATA OR ADDING NEW DATA
-
         if (isLoadingBottom) {
-          //NOTE: ADDED DATA TO BOTTOM
           setIsLoadingBottom(false);
           setIsLoading(false);
         } else if (isLoadingTop) {
-          //NOTE: ADDED DATA TO TOP
           if (newData.length != 0) {
             if (divRef.current.scrollTop == 0) {
-              //NOTE: PREVENT SCROLL JUMPING WHEN AT THE VERY TOP (OVERFLOW-ANCHOR:AUTO)
+              // предотвращаем прыжки скролла при добавлении новых элементов сверху
               divRef.current.scrollTo(0, lastTop + divRef.current.scrollHeight);
             }
-            // NOTE: REMOVE ELEMENTS AT END
             dispatch(setPosts(posts.slice(0, posts.length - newData.length)));
             setNewData([]);
           } else {
-            //NOTE: REMOVED FROM BOTTOM AFTER ADDING TOP
             setIsLoadingTop(false);
             setIsLoading(false);
           }
         } else {
-          //NOTE: ADDING FIRST DATA
           setIsLoading(false);
         }
         if (divRef.current.scrollHeight > divRef.current.clientHeight) {
           setShowBottom(true);
         }
       } else {
-        //NOTE: ALREADY EXISTING DATA LOADED
         divRef.current.scrollTo(0, scroll);
       }
     }
@@ -209,9 +257,6 @@ const PostList: React.FC = () => {
       if (activeFilter === 'published' || activeFilter === 'scheduled') {
         result = await getPosts(teamId, limit, currentDate, activeFilter, before);
       }
-      if (activeFilter === 'calendar') {
-        result = await getPosts(teamId, limit, currentDate, 'scheduled', before);
-      }
 
       if (before == false) {
         return [...result.posts].reverse();
@@ -234,7 +279,6 @@ const PostList: React.FC = () => {
         !isLoadingBottom &&
         posts.length > 0
       ) {
-        //NOTE: load more data bottom
         setIsLoading(true);
         setIsLoadingTop(true);
         loadPosts(false, frame_size, posts[0]).then((data) => onNewTop(data));
@@ -247,7 +291,6 @@ const PostList: React.FC = () => {
         !isLoadingTop &&
         posts.length > 0
       ) {
-        //NOTE: load more data top
         setIsLoading(true);
         setIsLoadingBottom(true);
         loadPosts(true, frame_size, posts[posts.length - 1]).then((data) => onNewBottom(data));
@@ -255,46 +298,48 @@ const PostList: React.FC = () => {
     }
   };
 
-  return (
-    <>
-      {activeFilter === 'calendar' ? (
-        <PostCalendar />
-      ) : (
-        <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
-          {(isLoading || doNowShow || isLoadingTop) && !isLoadingBottom ? (
-            <div className={styles.end} key={'sp_loading'}>
-              <Spin className={styles.spinner} />
-            </div>
-          ) : (
-            <div style={{ paddingTop: '20px' }}></div>
-          )}
-          {teamId != 0 &&
-            postElements.length > 0 &&
-            postElements.map((el) => (
-              <div key={el.id} style={{ display: doNowShow ? 'none' : 'block' }}>
-                {el.element}
-              </div>
-            ))}
-          {showBottom || isLoadingBottom ? (
-            <div className={styles.end} key={'sp_bottom'}>
-              {isLoadingBottom ? (
-                <Spin className={styles.spinner} />
-              ) : (
-                <Divider variant='dashed' className={styles.end}>
-                  <Text color={'#bfbfbf'}>Конец</Text>
-                </Divider>
-              )}
-            </div>
-          ) : (
-            <div key={'sp_bottom'}></div>
-          )}
+  const renderContent = () => {
+    if (viewMode === 'calendar') {
+      return <PostCalendar />;
+    }
 
-          {!isLoading && posts.length == 0 && !doNowShow && (
-            <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
-          )}
-        </div>
-      )}
-    </>
-  );
+    return (
+      <div className={styles.postListContainer} ref={divRef} onScroll={handleScroll}>
+        {(isLoading || doNowShow || isLoadingTop) && !isLoadingBottom ? (
+          <div className={styles.end} key={'sp_loading'}>
+            <Spin className={styles.spinner} />
+          </div>
+        ) : (
+          <div style={{ paddingTop: '20px' }}></div>
+        )}
+        {teamId != 0 &&
+          postElements.length > 0 &&
+          postElements.map((el) => (
+            <div key={el.id} style={{ display: doNowShow ? 'none' : 'block' }}>
+              {el.element}
+            </div>
+          ))}
+        {showBottom || isLoadingBottom ? (
+          <div className={styles.end} key={'sp_bottom'}>
+            {isLoadingBottom ? (
+              <Spin className={styles.spinner} />
+            ) : (
+              <Divider variant='dashed' className={styles.end}>
+                <Text color={'#bfbfbf'}>Конец</Text>
+              </Divider>
+            )}
+          </div>
+        ) : (
+          <div key={'sp_bottom'}></div>
+        )}
+
+        {!isLoading && posts.length == 0 && !doNowShow && (
+          <Empty key={'empty'} className={styles.empty} description={<span>Нет постов</span>} />
+        )}
+      </div>
+    );
+  };
+
+  return <>{teamId !== 0 ? renderContent() : null}</>;
 };
 export default PostList;
