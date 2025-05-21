@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { Divider, Empty, Spin, Typography } from 'antd';
 import PostCalendar from '../../ui/Calendar/PostCalendar';
 import { Max_POSTS } from '../../../constants/appConfig';
+import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
 
 const frame_size = 3;
 const { Text } = Typography;
@@ -39,6 +40,16 @@ const PostList: React.FC = () => {
   const [newData, setNewData] = useState<Post[]>([]);
 
   const [doNowShow, setDoNowShow] = useState(true);
+
+  const scrollToTop = useAppSelector((state) => state.basePageDialogs.scrollToTop);
+
+  React.useEffect(() => {
+    if (scrollToTop && divRef.current) {
+      console.log(scrollToTop);
+      divRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      dispatch(setScrollToTop(false));
+    }
+  }, [scrollToTop]);
 
   const loadMonthPosts = async () => {
     if (viewMode !== 'calendar' || teamId === 0) return;

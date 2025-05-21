@@ -85,13 +85,13 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
   const handleFileUpload = async (file: File) => {
     if (!isFileAlreadyAdded(props.files, file)) {
       const sizeMb = file.size / 1024 / 1024;
-      if (sizeMb > 100) {
+      if (sizeMb > 20) {
         NotificationManager.createNotification(
           'error',
           `Файл ${file.name} не загружен.`,
-          'Размер файла превышает 100мб.',
+          'Размер файла превышает 20мб.',
         );
-        return 'Размер файла превышает 100мб';
+        return 'Размер файла превышает 20мб';
       }
 
       try {

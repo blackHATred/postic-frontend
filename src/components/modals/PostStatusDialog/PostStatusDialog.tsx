@@ -56,7 +56,7 @@ const PostStatusDialog: FC = () => {
       setSocialStatuses(statuses);
 
       if (isOpen && postId) {
-        getStatus();
+        setTimeout(() => getStatus(), 100);
       }
     }
   }, [isOpen, postId, selectedPlatforms]);
@@ -66,77 +66,40 @@ const PostStatusDialog: FC = () => {
   };
 
   const getStatus = async () => {
+    const stat: SocialStatus[] = [];
     if (postId)
       getPostStatus(postId, teamId).then((res: postStatusResults) => {
         res.status.forEach((status) => {
           if (status.operation == 'publish')
             switch (status.status) {
               case 'success': {
-                const statusSuccess = socialStatuses.find(
-                  (element: SocialStatus) => element.platform == status.platform,
-                );
-                if (statusSuccess) {
-                  const index = socialStatuses.indexOf(statusSuccess);
-                  statusSuccess.status = 'finish';
-                  socialStatuses[index] = statusSuccess;
-                  setSocialStatuses(socialStatuses);
-                } else {
-                  setSocialStatuses([
-                    ...socialStatuses,
-                    {
-                      platform: status.platform,
-                      icon: getIcon(status.platform),
-                      status: 'finish',
-                    },
-                  ]);
-                }
+                stat.push({
+                  platform: status.platform,
+                  icon: getIcon(status.platform),
+                  status: 'finish',
+                });
                 return;
               }
               case 'error': {
-                const statE = socialStatuses.find(
-                  (element: SocialStatus) => element.platform == status.platform,
-                );
-                if (statE) {
-                  const index = socialStatuses.indexOf(statE);
-                  statE.status = 'error';
-                  socialStatuses[index] = statE;
-                  setSocialStatuses(socialStatuses);
-                } else {
-                  setSocialStatuses([
-                    ...socialStatuses,
-                    {
-                      platform: status.platform,
-                      icon: getIcon(status.platform),
-                      status: 'error',
-                    },
-                  ]);
-                }
+                stat.push({
+                  platform: status.platform,
+                  icon: getIcon(status.platform),
+                  status: 'error',
+                });
                 return;
               }
               case 'pending': {
-                const statP = socialStatuses.find(
-                  (element: SocialStatus) => element.platform == status.platform,
-                );
-                if (statP) {
-                  const index = socialStatuses.indexOf(statP);
-                  statP.status = 'wait';
-                  socialStatuses[index] = statP;
-                } else {
-                  setSocialStatuses([
-                    ...socialStatuses,
-                    {
-                      platform: status.platform,
-                      icon: getIcon(status.platform),
-                      status: 'wait',
-                    },
-                  ]);
-                }
-                setTimeout(() => getStatus(), 2000);
+                stat.push({
+                  platform: status.platform,
+                  icon: getIcon(status.platform),
+                  status: 'wait',
+                });
+                setTimeout(() => getStatus(), 200);
                 return;
               }
             }
         });
-        //Получили статус
+        setSocialStatuses(stat);
       });
   };
 
