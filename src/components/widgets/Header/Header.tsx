@@ -125,14 +125,12 @@ const ButtonHeader: React.FC = () => {
   }, [teams, selectedTeam]);
 
   useEffect(() => {
-    //  у пользователя есть команды, но не выбрана конкретная команда
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
       dispatch(setGlobalActiveTeamId(teams[0].id));
       dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
-    //  у ��ользователя нет команд, сбрасываем выбранную команду
     // TODO: проверить удаление всех команд
     else if (teams.length === 0) {
       setSelectedTeam(undefined);
