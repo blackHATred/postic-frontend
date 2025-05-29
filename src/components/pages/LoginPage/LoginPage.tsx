@@ -11,6 +11,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 import { saveAuthToken } from '../../../utils/tokenStorage';
+import { HomeOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -80,6 +81,15 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className={styles.loginContainer}>
+      <div className={styles.headerActions}>
+        <ClickableButton
+          className={styles.homeButton}
+          icon={<HomeOutlined />}
+          text='На главную'
+          type='link'
+          onButtonClick={() => navigate(routes.home())}
+        />
+      </div>
       <h1 className={styles.title}>Вход в аккаунт</h1>
       <Form form={form} layout='vertical' className={styles.form}>
         <Form.Item

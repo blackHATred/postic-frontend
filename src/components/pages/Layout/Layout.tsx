@@ -30,18 +30,25 @@ const PageLayout: React.FC = () => {
         return user.user_id == selectedUser;
       })?.roles;
     if (
-      auth == 'not_authorized' ||
-      (selectedUser != 0 &&
-        selectedTeam &&
-        teams &&
-        roles?.find((el) => {
-          return '/' + el == loc || el == 'admin';
-        }) == undefined)
+      auth == 'not_authorized' &&
+      loc !== routes.login() &&
+      loc !== routes.register() &&
+      loc !== routes.home()
     ) {
-      if (location.pathname !== routes.login() && location.pathname !== routes.register())
-        navigate(routes.teams());
+      navigate(routes.home());
+    } else if (
+      selectedUser != 0 &&
+      selectedTeam &&
+      teams &&
+      roles?.find((el) => {
+        return '/' + el == loc || el == 'admin';
+      }) == undefined &&
+      loc !== routes.teams() &&
+      loc !== routes.home()
+    ) {
+      navigate(routes.teams());
     }
-  }, [teams, loc, auth]);
+  }, [teams, loc, auth, selectedUser, selectedTeam, navigate]);
 
   const handleHelpButtonClick = () => {
     dispatch(setHelpDialog(true));
@@ -105,16 +112,18 @@ const PageLayout: React.FC = () => {
           )}
 
           <div className={styles['help-buttons']}>
-            <ClickableButton
-              icon={<DoubleLeftOutlined rotate={90} />}
-              shape='circle'
-              type='default'
-              size='large'
-              className={styles['help-button']}
-              withPopover={true}
-              popoverContent='Вернуться к началу страницы'
-              onButtonClick={() => dispatch(setScrollToTop(true))}
-            />
+            {isAuthorized === 'authorized' && (
+              <ClickableButton
+                icon={<DoubleLeftOutlined rotate={90} />}
+                shape='circle'
+                type='default'
+                size='large'
+                className={styles['help-button']}
+                withPopover={true}
+                popoverContent='Вернуться к началу страницы'
+                onButtonClick={() => dispatch(setScrollToTop(true))}
+              />
+            )}
 
             <ClickableButton
               icon={<QuestionCircleOutlined />}
