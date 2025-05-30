@@ -2,29 +2,28 @@
 .postListContainer {
   height: 100%;
   width: 100%;
-  overflow-y: scroll;
   overflow-anchor: auto;
-
+overflow-y: scroll;
+overflow-x: hidden;
   overflow-wrap: normal;
   float: left;
   interpolate-size: allow-keywords;
   padding-right: 10px;
-  padding-bottom: 0px !important;
 
   &::-webkit-scrollbar {
     width: 7px;
-    margin-top: 20px;
+    padding-top: 20px;
   }
 
   &::-webkit-scrollbar-track {
     background: #f1f1f1;
-    margin-top: 20px;
+    padding-top: 20px;
   }
 
   &::-webkit-scrollbar-thumb {
     background: #c9c9c9;
     border-radius: 3px;
-    margin-top: 20px;
+    padding-top: 20px;
   }
 }
 
