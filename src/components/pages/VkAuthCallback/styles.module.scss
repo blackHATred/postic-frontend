@@ -1,0 +1,25 @@
+.vkButton {
+  background-color: #4a76a8 !important;
+  border-color: #4a76a8 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover, &:focus {
+    background-color: #3d6898 !important;
+    border-color: #3d6898 !important;
+  }
+}
+
+.vkIcon {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  height: 20px;
+
+  svg {
+    vertical-align: middle;
+    width: 10px;
+    height: 10px;
+  }
+}

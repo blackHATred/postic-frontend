@@ -164,7 +164,7 @@ const CreatePostDialog: FC = () => {
 
   const validateTextLength = (): string | null => {
     if (!postText.trim() && files.length === 0) {
-      return 'Добавьте текст или прикрепите фа��л';
+      return 'Добавьте текст или прикрепите файл';
     }
 
     const hasFiles = files.length > 0;

@@ -4,7 +4,6 @@ import {
   BellOutlined,
   LoginOutlined,
   LogoutOutlined,
-  QuestionCircleOutlined,
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -50,13 +49,6 @@ const ButtonHeader: React.FC = () => {
             key: 'register',
             icon: <UserOutlined />,
           },
-
-          {
-            label: 'Помощь',
-            key: 'help',
-            icon: <QuestionCircleOutlined />,
-            disabled: true,
-          },
         ]
       : [
           {
@@ -64,12 +56,6 @@ const ButtonHeader: React.FC = () => {
             key: 'logout',
             icon: <LogoutOutlined />,
             danger: true,
-          },
-          {
-            label: 'Помощь',
-            key: 'help',
-            icon: <QuestionCircleOutlined />,
-            disabled: true,
           },
         ];
 
@@ -125,14 +111,12 @@ const ButtonHeader: React.FC = () => {
   }, [teams, selectedTeam]);
 
   useEffect(() => {
-    //  у пользователя есть команды, но не выбрана конкретная команда
     if (teams.length > 0 && !selectedTeam) {
       setSelectedTeam(teams[0].id.toString());
       dispatch(setGlobalActiveTeamId(teams[0].id));
       dispatch(clearAllComms());
       dispatch(setPosts([]));
     }
-    //  у ��ользователя нет команд, сбрасываем выбранную команду
     // TODO: проверить удаление всех команд
     else if (teams.length === 0) {
       setSelectedTeam(undefined);
@@ -204,13 +188,15 @@ const ButtonHeader: React.FC = () => {
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
-        <Image
-          src={`${process.env.PUBLIC_URL}/logo.png`}
-          alt={'Postic'}
-          width={40}
-          height={40}
-          preview={false}
-        />
+        <div className={styles.logo} onClick={() => navigate(routes.home())}>
+          <Image
+            src={`${process.env.PUBLIC_URL}/logo.png`}
+            alt={'Postic'}
+            width={40}
+            height={40}
+            preview={false}
+          />
+        </div>
 
         <div className={styles.headerIcons}>
           {isAuthorized == 'authorized' && (

@@ -1,5 +1,6 @@
 class Routes {
   root = () => '/' as const;
+  home = () => '/home' as const;
   posts = () => '/posts' as const;
   comments = () => '/comments' as const;
   teams = () => '/teams' as const;

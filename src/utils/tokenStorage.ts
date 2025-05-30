@@ -1,25 +1,30 @@
 // Константа для имени токена в localStorage
-const AUTH_TOKEN_KEY = 'postic_auth_token';
 
 /**
  * Сохраняет токен авторизации в localStorage
  */
 export const saveAuthToken = (token: string): void => {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  localStorage.setItem(process.env.AUTH_TOKEN, token);
 };
 
 /**
  * Получает токен авторизации из localStorage
  */
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return localStorage.getItem(process.env.AUTH_TOKEN);
 };
 
 /**
  * Удаляет токен авторизации из localStorage
  */
 export const removeAuthToken = (): void => {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  localStorage.removeItem(process.env.AUTH_TOKEN);
 };
 
 /**

@@ -3,15 +3,19 @@
   background-color: $background-color;
   height: 100vh;
   width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-container {
   background-color: $background-color;
   height: calc(100% - $header-height);
-
   width: 100%;
   display: flex;
   justify-content: center;
+  flex: 1;
+  overflow: hidden;
 }
 
 .alert-content {
@@ -29,6 +33,9 @@
   max-width: 1200px;
   position: relative;
   z-index: 0;
+  display: flex;
+  width: 100%;
+  position: relative;
 }
 
 .right-sidebar,
@@ -47,6 +54,10 @@
   flex: 1;
   min-width: 0;
   height: 100%;
+  flex: 1;
+  padding: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .loginDiv {
@@ -80,3 +91,11 @@
 .tour-button {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
+.content-full {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+}
+

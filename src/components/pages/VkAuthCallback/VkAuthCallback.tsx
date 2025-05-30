@@ -18,7 +18,6 @@ const VkAuthCallback: React.FC = () => {
       try {
         dispatch(setAuthorized('loading'));
 
-        // Принудительно запрашиваем данные о пользователе после авторизации через ВК
         const userData = await Me();
 
         if (userData && userData.id) {
@@ -38,7 +37,6 @@ const VkAuthCallback: React.FC = () => {
             );
             navigate(routes.teams());
           } catch (error) {
-            // Даже если команды не загрузились, всё равно считаем пользователя авторизованным
             dispatch(setAuthorized('authorized'));
             navigate(routes.teams());
           }

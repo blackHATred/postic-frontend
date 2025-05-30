@@ -3,6 +3,8 @@ import { useAppDispatch } from '../../stores/hooks';
 import { Me } from '../../api/api';
 import { MyTeams } from '../../api/teamApi';
 import { setAuthorized, setCurrentUserId, setTeams } from '../../stores/teamSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { routes } from '../App.routes';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -10,6 +12,8 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     dispatch(setAuthorized('loading'));
@@ -33,14 +37,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           dispatch(setTeams([]));
           dispatch(setCurrentUserId(0));
           dispatch(setAuthorized('not_authorized'));
+
+          if (location.pathname === '/' || location.pathname === routes.root()) {
+            navigate(routes.home());
+          }
         }
       })
       .catch(() => {
         dispatch(setTeams([]));
         dispatch(setCurrentUserId(0));
         dispatch(setAuthorized('not_authorized'));
+
+        if (location.pathname === '/' || location.pathname === routes.root()) {
+          navigate(routes.home());
+        }
       });
-  }, [dispatch]);
+  }, [dispatch, navigate, location.pathname]);
 
   return <>{children}</>;
 };

@@ -16,9 +16,6 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Run obfuscation after build
-RUN npm run obfuscate
-
 # Expose port 3000 for the application
 EXPOSE 3000
 

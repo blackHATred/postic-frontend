@@ -11,8 +11,13 @@ import AnalyticsPage from '../components/pages/AnalyticstPage/AnalyticsPage';
 import LoginPage from '../components/pages/LoginPage/LoginPage';
 import RegisterPage from '../components/pages/RegisterPage/RegisterPage';
 import VkAuthCallback from '../components/pages/VkAuthCallback/VkAuthCallback';
+import HomePage from '../components/pages/HomePage/HomePage';
+import HomePageLayout from '../components/pages/Layout/HomePageLayout';
+import { useAppSelector } from '../stores/hooks';
 
 export const AppRouter = () => {
+  const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
+
   return (
     <Routes>
       {/* Страницы авторизации */}
@@ -20,9 +25,16 @@ export const AppRouter = () => {
       <Route path={routes.register()} element={<RegisterPage />} />
       <Route path={routes.vkCallback()} element={<VkAuthCallback />} />
 
+      {isAuthorized !== 'authorized' ? (
+        <Route path={routes.home()} element={<HomePageLayout />}>
+          <Route index element={<HomePage />} />
+        </Route>
+      ) : null}
+
       {/* Защищенные маршруты Layout */}
       <Route path={routes.root()} element={<PageLayout />}>
-        <Route index element={<Navigate to={routes.register()} replace />} />
+        <Route index element={<Navigate to={routes.home()} replace />} />
+        {isAuthorized === 'authorized' && <Route path={routes.home()} element={<HomePage />} />}
         <Route path={routes.posts()} element={<PostsPage />} />
         <Route path={routes.post(':id')} element={<PostDetailsPage />} />
         <Route path={routes.comments()} element={<CommentsPage />} />
