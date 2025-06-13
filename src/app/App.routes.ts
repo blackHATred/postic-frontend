@@ -6,6 +6,7 @@ class Routes {
   teams = () => '/teams' as const;
   ticket = () => '/ticket' as const;
   analytics = () => '/analytics' as const;
+  profile = () => '/profile' as const;
 
   post = (id: string | number) => `/posts/${id}` as const;
   login = () => '/login' as const;

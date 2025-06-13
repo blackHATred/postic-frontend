@@ -10,7 +10,12 @@ import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
 import { useNavigate, Link } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
-import { validatePasswordSame } from '../../../utils/validation';
+import {
+  EMAIL_REGEX,
+  MIN_PASSWORD_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  validatePasswordSame,
+} from '../../../utils/validation';
 import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 import { saveAuthToken } from '../../../utils/tokenStorage';
 import { HomeOutlined } from '@ant-design/icons';
@@ -43,7 +48,6 @@ const RegisterPage: React.FC = () => {
       const result = await RegisterWithUserData(userData);
 
       if (result && result.user_id) {
-        // Сохраняем токен авторизации
         if (result.token) {
           saveAuthToken(result.token);
         }
@@ -100,7 +104,7 @@ const RegisterPage: React.FC = () => {
           label='Email'
           rules={[
             { required: true, message: 'Введите email' },
-            { type: 'email', message: 'Некорректный формат email' },
+            { pattern: EMAIL_REGEX, message: 'Пожалуйста, введите корректный email' },
           ]}
         >
           <Input placeholder='Email' />
@@ -109,7 +113,17 @@ const RegisterPage: React.FC = () => {
         <Form.Item
           name='password'
           label='Пароль'
-          rules={[{ required: true, message: 'Введите пароль' }]}
+          rules={[
+            { required: true, message: 'Введите пароль' },
+            {
+              min: MIN_PASSWORD_LENGTH,
+              message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`,
+            },
+            {
+              max: MAX_PASSWORD_LENGTH,
+              message: `Пароль не должен превышать ${MAX_PASSWORD_LENGTH} символов`,
+            },
+          ]}
         >
           <Input.Password placeholder='Пароль' />
         </Form.Item>
@@ -117,7 +131,18 @@ const RegisterPage: React.FC = () => {
         <Form.Item
           name='password2'
           label='Повторите пароль'
-          rules={[{ required: true, message: 'Повторите пароль' }]}
+          dependencies={['password']}
+          rules={[
+            { required: true, message: 'Повторите пароль' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Пароли не совпадают'));
+              },
+            }),
+          ]}
         >
           <Input.Password placeholder='Повторите пароль' />
         </Form.Item>

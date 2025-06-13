@@ -52,6 +52,11 @@ const ButtonHeader: React.FC = () => {
         ]
       : [
           {
+            label: 'Профиль',
+            key: 'profile',
+            icon: <UserOutlined />,
+          },
+          {
             label: 'Выход',
             key: 'logout',
             icon: <LogoutOutlined />,
@@ -67,6 +72,10 @@ const ButtonHeader: React.FC = () => {
       }
       case 'register': {
         navigate(routes.register());
+        return;
+      }
+      case 'profile': {
+        navigate(routes.profile());
         return;
       }
       case 'logout': {

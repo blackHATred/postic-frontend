@@ -73,41 +73,35 @@ const PageLayout: React.FC = () => {
               />
             )}
 
-          {isAuthorized === 'authorized' &&
-            selectedTeam === 0 &&
-            location.pathname !== routes.login() &&
-            location.pathname !== routes.register() && (
-              <>
-                <div className={styles['left-sidebar']}>
-                  <Sidebar />
-                </div>
-                <Alert
-                  className={styles['loginDiv']}
-                  message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
-                  type='info'
-                />
-                <div className={styles['right-sidebar']}>
-                  <SideMenu />
-                </div>
-              </>
-            )}
-
-          {/* Основной контент */}
-          {((isAuthorized === 'authorized' && selectedTeam !== 0) ||
-            location.pathname == routes.login() ||
-            location.pathname == routes.register()) && (
+          {(isAuthorized === 'authorized' ||
+            location.pathname === routes.login() ||
+            location.pathname === routes.register()) && (
             <>
               {location.pathname !== routes.login() && location.pathname !== routes.register() && (
                 <div className={styles['left-sidebar']}>
                   <Sidebar />
                 </div>
               )}
+
               <div className={styles['content']}>
-                <Outlet />
+                {isAuthorized === 'authorized' &&
+                selectedTeam === 0 &&
+                location.pathname === routes.teams() ? (
+                  <Alert
+                    className={styles['loginDiv']}
+                    message='Вы не состоите ни в какой команде. Создайте свою или попросите администратора, чтобы он пригласил вас'
+                    type='info'
+                  />
+                ) : (
+                  <Outlet />
+                )}
               </div>
-              <div className={styles['right-sidebar']}>
-                <SideMenu />
-              </div>
+
+              {location.pathname !== routes.login() && location.pathname !== routes.register() && (
+                <div className={styles['right-sidebar']}>
+                  <SideMenu />
+                </div>
+              )}
             </>
           )}
 

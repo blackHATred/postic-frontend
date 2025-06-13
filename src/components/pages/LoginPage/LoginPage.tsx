@@ -12,6 +12,7 @@ import { routes } from '../../../app/App.routes';
 import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 import { saveAuthToken } from '../../../utils/tokenStorage';
 import { HomeOutlined } from '@ant-design/icons';
+import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../../../utils/validation';
 
 const { Text } = Typography;
 
@@ -32,7 +33,6 @@ const LoginPage: React.FC = () => {
       try {
         const response = await Login(values.email, values.password);
 
-        // Сохраняем токен авторизации
         if (response && response.token) {
           saveAuthToken(response.token);
         }
@@ -97,7 +97,7 @@ const LoginPage: React.FC = () => {
           label='Email'
           rules={[
             { required: true, message: 'Введите email' },
-            { type: 'email', message: 'Некорректный формат email' },
+            { pattern: EMAIL_REGEX, message: 'Пожалуйста, введите корректный email' },
           ]}
         >
           <Input placeholder='Email' />
@@ -106,7 +106,17 @@ const LoginPage: React.FC = () => {
         <Form.Item
           name='password'
           label='Пароль'
-          rules={[{ required: true, message: 'Введите пароль' }]}
+          rules={[
+            { required: true, message: 'Введите пароль' },
+            {
+              min: MIN_PASSWORD_LENGTH,
+              message: `Пароль должен содержать минимум ${MIN_PASSWORD_LENGTH} символов`,
+            },
+            {
+              max: MAX_PASSWORD_LENGTH,
+              message: `Пароль не должен превышать ${MAX_PASSWORD_LENGTH} символов`,
+            },
+          ]}
         >
           <Input.Password placeholder='Пароль' />
         </Form.Item>

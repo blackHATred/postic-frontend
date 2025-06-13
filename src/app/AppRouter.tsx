@@ -14,6 +14,7 @@ import VkAuthCallback from '../components/pages/VkAuthCallback/VkAuthCallback';
 import HomePage from '../components/pages/HomePage/HomePage';
 import HomePageLayout from '../components/pages/Layout/HomePageLayout';
 import { useAppSelector } from '../stores/hooks';
+import ProfilePage from '../components/pages/ProfilePage/ProfilePage';
 
 export const AppRouter = () => {
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
@@ -41,6 +42,7 @@ export const AppRouter = () => {
         <Route path={routes.ticket()} element={<TicketPage />} />
         <Route path={routes.analytics()} element={<AnalyticsPage />} />
         <Route path={routes.teams()} element={<TeamsPage />} />
+        <Route path={routes.profile()} element={<ProfilePage />} />
       </Route>
     </Routes>
   );

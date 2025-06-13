@@ -419,3 +419,32 @@ export const generatePublication = async (query: string): Promise<GeneratePostRe
     return mockGeneratePostResult;
   }
 };
+
+export const GetProfile = async () => {
+  const response = await axiosInstance.get(`${config.api.baseURL}/user/profile`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const UpdateProfile = async (nickname: string, email: string) => {
+  const response = await axiosInstance.put(
+    `${config.api.baseURL}/user/update/profile`,
+    { nickname, email },
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
+
+export const UpdatePassword = async (oldPassword: string, newPassword: string) => {
+  const response = await axiosInstance.put(
+    `${config.api.baseURL}/user/update/password`,
+    { old_password: oldPassword, new_password: newPassword },
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};

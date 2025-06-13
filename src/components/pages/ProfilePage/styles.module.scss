@@ -1,0 +1,21 @@
+.profileContainer {
+  width: 100%;
+}
+
+.userInfoHeader {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.formContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .formContainer {
+    max-width: 100%;
+  }
+}

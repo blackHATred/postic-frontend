@@ -1,0 +1,102 @@
+.homeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80vh;
+  width: 100%;
+  padding: 2rem;
+}
+
+.content {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.title {
+  text-align: center;
+  font-size: 3.5rem !important;
+  font-weight: bold !important;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(
+    to right,
+    #13C2C2 20%,
+    #73D13D 30%,
+    #597EF7 70%,
+    #13C2C2 80%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  background-size: 500% auto;
+  animation: textShine 15s ease-in-out infinite alternate;
+}
+
+@keyframes textShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.description {
+  text-align: center;
+  font-size: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.featuresContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.featureCard {
+  height: 100%;
+  position: relative;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+  padding: 1.5rem;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(45deg, #13C2C2, #73D13D, #597EF7);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.featureTitle {
+  margin-bottom: 0.75rem !important;
+  color: #262626;
+}
+
+.featureParagraph {
+  color: #595959;
+  font-size: 1rem !important;
+}

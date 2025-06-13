@@ -50,5 +50,19 @@ export const validatePasswordSame = (pass1: string, pass2: string): string | nul
   if (pass1 !== pass2) {
     return 'Пароли не совпадают';
   }
+
+  if (pass1.length < 8) {
+    return 'Пароль должен содержать не менее 8 символов';
+  }
+
+  if (pass1.length > 64) {
+    return 'Пароль не должен превышать 64 символа';
+  }
+
   return null;
 };
+
+export const MIN_PASSWORD_LENGTH = 8;
+export const MAX_PASSWORD_LENGTH = 64;
+
+export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

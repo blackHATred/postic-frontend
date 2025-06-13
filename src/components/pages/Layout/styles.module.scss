@@ -49,13 +49,12 @@
 .content {
   border-radius: $border-radius;
   display: flex;
-  align-items: center;
   justify-content: center;
   flex: 1;
   min-width: 0;
   height: 100%;
   flex: 1;
-  padding: 16px;
+  padding: 20px;
   overflow-x: hidden;
   overflow-y: auto;
 }
