@@ -205,6 +205,10 @@ const ProfilePage: React.FC = () => {
           <div className={styles.userInfoHeader}>
             <Text strong>{userProfile.nickname}</Text>
             <Text type='secondary'>{userProfile.email}</Text>
+            <Text>
+              {' '}
+              ID пользователя: <Text copyable={true}>{userProfile.id}</Text>
+            </Text>
           </div>
         )}
       </div>

@@ -15,6 +15,7 @@ import {
   setTeams,
 } from '../../../stores/teamSlice';
 import { Kick, MyTeams, Platforms } from '../../../api/teamApi';
+import { Me } from '../../../api/api';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 import { clearAllComms } from '../../../stores/commentSlice';
 import TeamMenu from './TeamMenu';
@@ -25,6 +26,11 @@ interface TeamCardProps {
   teamcard: Team;
 }
 
+// Словарь для хранения никнеймов пользователей по их ID
+interface UserNicknames {
+  [userId: number]: string;
+}
+
 const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const dispatch = useAppDispatch();
   const { id, name: team_name, users: team_members } = teamcard;
@@ -32,6 +38,8 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
   const currentUserId = useAppSelector((state) => state.teams.currentUserId);
   const [linkedPlatforms, setLinkedPlatforms] = useState<PlatformsRequest | null>(null);
   const refer = useRef<HTMLDivElement>(null);
+  // Состояние для хранения никнеймов пользователей
+  const [userNicknames, setUserNicknames] = useState<UserNicknames>({});
 
   useEffect(() => {
     if (currentUserId !== null) {
@@ -120,9 +128,48 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     dispatch(setPlatformsDialog(true));
   };
 
+  // Функция для получения никнейма пользователя по ID
+  const getNicknameForUser = async (userId: number): Promise<string> => {
+    // В реальном приложении здесь должен быть API-запрос для получения никнейма
+    // Но так как такого метода нет, делаем временное решение
+    try {
+      // Проверяем, совпадает ли ID с текущим пользователем
+      if (userId === currentUserId) {
+        // Для текущего пользователя получаем никнейм через Me()
+        const userData = await Me();
+        if (userData && userData.nickname) {
+          return userData.nickname;
+        }
+      }
+
+      // Для других пользователей генерируем временный никнейм
+      return `Пользователь ${userId}`;
+    } catch (error) {
+      console.error('Ошибка при получении никнейма пользователя:', error);
+      return `Пользователь ${userId}`;
+    }
+  };
+
+  // Загружаем никнеймы пользователей при монтировании компонента
+  useEffect(() => {
+    const loadUserNicknames = async () => {
+      const nicknames: UserNicknames = {};
+
+      // Получаем никнеймы для всех пользователей в команде
+      for (const member of team_members) {
+        const nickname = await getNicknameForUser(member.user_id);
+        nicknames[member.user_id] = nickname;
+      }
+
+      setUserNicknames(nicknames);
+    };
+
+    loadUserNicknames();
+  }, [team_members, currentUserId]);
+
   const tableData: DataType[] = team_members.map((member) => ({
     key: member.user_id,
-    member: member.user_id.toString(),
+    member: userNicknames[member.user_id] || `Загрузка...`, // Используем никнейм из состояния или временную метку
     id: member.user_id,
     access: member.roles,
   }));

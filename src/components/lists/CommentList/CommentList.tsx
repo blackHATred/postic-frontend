@@ -137,7 +137,7 @@ const CommentList: React.FC<{
       if (divRef.current) divRef.current.scrollTop = 0;
       loadComment();
     }
-  }, [activeFilter]);
+  }, [activeFilter, teamId]);
 
   const loadComment = () => {
     loadComments(true, frame_size * 3)
