@@ -1,4 +1,5 @@
 @import '../../../styles/variables';
+@import '../../../styles/mixins';
 
 .sidebar-right {
   margin-left: 10px;
@@ -11,10 +12,28 @@
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: $border-radius;
   z-index: 10;
+
+  @include mobile {
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+}
+
+.sidebar-right-mobile {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  width: 100%;
+  background-color: transparent;
+  border-radius: $border-radius;
 }
 
 .menu {
   border-radius: $border-radius;
+}
+
+.mobile-menu {
+  width: 100%;
 }
 
 .active {
@@ -84,6 +103,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  @include mobile {
+    padding: 10px 16px;
+  }
 }
 
 .date-picker-label {
@@ -102,6 +125,10 @@
     :global(.ant-picker-input) {
       input {
         font-size: 11px;
+
+        @include mobile {
+          font-size: 13px;
+        }
       }
 
       :global(.ant-picker-suffix) {
@@ -111,6 +138,11 @@
         svg {
           width: 12px;
           height: 12px;
+
+          @include mobile {
+            width: 14px;
+            height: 14px;
+          }
         }
       }
     }

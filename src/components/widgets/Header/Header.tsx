@@ -6,6 +6,7 @@ import {
   LogoutOutlined,
   TeamOutlined,
   UserOutlined,
+  MenuOutlined,
 } from '@ant-design/icons';
 import styles from './styles.module.scss';
 import { Select, Dropdown, MenuProps, Button, Image } from 'antd';
@@ -26,15 +27,21 @@ import { setPosts } from '../../../stores/postsSlice';
 import { Logout } from '../../../api/api';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
+import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
 
-const ButtonHeader: React.FC = () => {
+interface ButtonHeaderProps {
+  onMenuClick?: () => void;
+}
+
+const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const teams = useAppSelector(getTeamsFromStore);
   const [selectedTeam, setSelectedTeam] = useState<string | undefined>(undefined);
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const items: MenuProps['items'] =
     isAuthorized == 'not_authorized'
@@ -194,6 +201,8 @@ const ButtonHeader: React.FC = () => {
     loadPlatformsForTeam(teamId);
   };
 
+  const buttonSize = isMobile ? 'large' : 'middle';
+
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
@@ -230,19 +239,32 @@ const ButtonHeader: React.FC = () => {
                   onChange={(option) => handleChange(option.value)}
                   options={teamOptions}
                   showSearch={false}
+                  className={styles['team-selector']}
+                  size={buttonSize}
                 />
               </div>
               <ClickableButton
                 className={styles['icon']}
                 icon={<BellOutlined />}
                 type='default'
+                size={buttonSize}
                 onButtonClick={() => {}}
               />
             </>
           )}
           <Dropdown menu={menuProps} placement='bottom'>
-            <Button className={styles['icon']} icon={<UserOutlined />} />
+            <Button className={styles['icon']} icon={<UserOutlined />} size={buttonSize} />
           </Dropdown>
+
+          {/* меню-гамбургер (воппер - для ценителей) */}
+          {isAuthorized === 'authorized' && onMenuClick && (
+            <Button
+              className={`${styles['icon']} ${styles['hamburger-icon']}`}
+              icon={<MenuOutlined />}
+              size={buttonSize}
+              onClick={onMenuClick}
+            />
+          )}
         </div>
       </div>
     </div>

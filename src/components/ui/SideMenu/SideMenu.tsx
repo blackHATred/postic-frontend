@@ -18,7 +18,11 @@ import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 
-const SideMenu: React.FC = () => {
+interface SideMenuProps {
+  isMobile?: boolean;
+}
+
+const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -74,9 +78,11 @@ const SideMenu: React.FC = () => {
     return false;
   };
 
+  const menuClass = isMobile ? `${styles['menu']} ${styles['mobile-menu']}` : styles['menu'];
+
   return (
-    <div className={styles['sidebar-right']}>
-      <Menu className={styles['menu']} mode='vertical' selectable={false}>
+    <div className={isMobile ? styles['sidebar-right-mobile'] : styles['sidebar-right']}>
+      <Menu className={menuClass} mode='vertical' selectable={false}>
         {currentPath === routes.posts() && selectedTeam !== 0 && (
           <>
             <Menu.Item

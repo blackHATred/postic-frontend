@@ -500,6 +500,7 @@ const CreatePostDialog: FC = () => {
                     withPopover={true}
                     onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     popoverContent={'Эмодзи'}
+                    className={styles['emoji-button']}
                   />
                 </>
               ) : (

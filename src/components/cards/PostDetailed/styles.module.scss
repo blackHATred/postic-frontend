@@ -22,8 +22,7 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
-  border-bottom-left-radius: $border-radius;
-  border-bottom-right-radius: $border-radius;
+  border-radius: $border-radius;
 }
 
 .post-name {

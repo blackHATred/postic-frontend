@@ -22,12 +22,14 @@ import {
   TagOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
+import { useMediaQuery } from 'react-responsive';
 
 const HelpDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.helpDialog.isOpen);
   const [currentSection, setCurrentSection] = useState<string>('general');
   const contentContainerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const handleCloseDialog = () => {
     dispatch(setHelpDialog(false));
@@ -63,28 +65,32 @@ const HelpDialog: React.FC = () => {
     }
   };
 
+  const menuItems = [
+    { key: 'general', icon: <InfoCircleOutlined />, label: isMobile ? 'Общее' : '' },
+    { key: 'posts', icon: <MessageOutlined />, label: isMobile ? 'Посты' : '' },
+    { key: 'comments', icon: <CommentOutlined />, label: isMobile ? 'Комментарии' : '' },
+    { key: 'tickets', icon: <TagOutlined />, label: isMobile ? 'Тикеты' : '' },
+    { key: 'analytics', icon: <LineChartOutlined />, label: isMobile ? 'Аналитика' : '' },
+    { key: 'teams', icon: <TeamOutlined />, label: isMobile ? 'Команды' : '' },
+    { key: 'settings', icon: <SettingOutlined />, label: isMobile ? 'Настройки' : '' },
+  ];
+
   return (
     <DialogBox
       isOpen={isOpen}
       onCancelClick={handleCloseDialog}
       title='Руководство пользователя'
-      width='50%'
+      width={isMobile ? '95%' : '50%'}
     >
       <div className={styles.dialogBox}>
-        <Menu
-          selectedKeys={[currentSection]}
-          mode='inline'
-          style={{ width: 70, borderRight: '1px solid #f0f0f0' }}
-          onClick={handleSectionChange}
-        >
-          <Menu.Item icon={<InfoCircleOutlined />} key='general' />
-          <Menu.Item icon={<MessageOutlined />} key='posts' />
-          <Menu.Item icon={<CommentOutlined />} key='comments' />
-          <Menu.Item icon={<TagOutlined />} key='tickets' />
-          <Menu.Item icon={<LineChartOutlined />} key='analytics' />
-          <Menu.Item icon={<TeamOutlined />} key='teams' />
-          <Menu.Item icon={<SettingOutlined />} key='settings' />
-        </Menu>
+        <div className={styles.helpNavigation}>
+          <Menu
+            selectedKeys={[currentSection]}
+            mode={isMobile ? 'horizontal' : 'inline'}
+            onClick={handleSectionChange}
+            items={menuItems}
+          />
+        </div>
         <div ref={contentContainerRef} className={styles.contentContainer}>
           {renderContent()}
         </div>

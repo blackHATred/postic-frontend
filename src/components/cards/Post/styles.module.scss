@@ -1,8 +1,8 @@
 @import '../../../styles/variables';
+@import '../../../styles/mixins';
 
 .post {
   border: 1px solid $border-color;
-  border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
   background-color: $container-color;
@@ -11,11 +11,11 @@
   border-radius: $border-radius;
   margin-left: auto;
   margin-right: auto;
+
 }
 
 .postDetailed {
   border: 1px solid $border-color;
-  border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
   background-color: lighten($primary-color, 35%);
@@ -24,6 +24,13 @@
   border-radius: $border-radius;
   margin-left: auto;
   margin-right: auto;
+
+  @include mobile {
+    padding: 12px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    width: auto;
+  }
 }
 
 .post-header {
@@ -31,6 +38,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 7px;
+
 }
 
 .post-header-info {
@@ -111,6 +119,11 @@
 
 .primaryText {
   color: $primary-color;
+
+  @include mobile {
+    font-size: 14px;
+    word-break: break-all;
+  }
 }
 
 .post-author .post-time {
