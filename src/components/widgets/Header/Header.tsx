@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ClickableButton from '../../ui/Button/Button';
 import {
-  BellOutlined,
   LoginOutlined,
   LogoutOutlined,
   TeamOutlined,
@@ -199,6 +197,11 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
     dispatch(setPosts([]));
 
     loadPlatformsForTeam(teamId);
+
+    const currentPath = location.pathname;
+    if (currentPath.match(/^\/posts\/\d+$/)) {
+      navigate(routes.posts());
+    }
   };
 
   const buttonSize = isMobile ? 'large' : 'middle';
@@ -243,6 +246,8 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
                   size={buttonSize}
                 />
               </div>
+              {/*
+
               <ClickableButton
                 className={styles['icon']}
                 icon={<BellOutlined />}
@@ -250,6 +255,8 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
                 size={buttonSize}
                 onButtonClick={() => {}}
               />
+
+              */}
             </>
           )}
           <Dropdown menu={menuProps} placement='bottom'>

@@ -59,7 +59,7 @@ const TeamEditMemberDialog: React.FC = () => {
   const handleAdminChange = (checked: boolean) => {
     setIsAdmin(checked);
     if (checked) {
-      setPermissions({ analytics: false, comments: true, posts: true });
+      setPermissions({ comments: true, posts: true, analytics: true });
       setEmptyCheckbox('');
     } else {
       setPermissions({ comments: false, posts: false, analytics: false });

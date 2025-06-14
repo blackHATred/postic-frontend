@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, ConfigProvider, Spin, Typography } from 'antd';
+import { Calendar, ConfigProvider, Popover, Spin, Typography } from 'antd';
 import type { CalendarProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { Post } from '../../../models/Post/types';
@@ -35,6 +35,7 @@ const PostCalendar: React.FC = () => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
+  const helpMode = useAppSelector((state) => state.settings.helpMode);
 
   const savedSelectedDate = useAppSelector((state) => state.posts.calendarSelectedDate);
   const savedSelectedPosts = useAppSelector((state) => state.posts.calendarSelectedPosts);
@@ -148,7 +149,7 @@ const PostCalendar: React.FC = () => {
     const postsForDate = getPostsForDate(value);
     const sortedPosts = sortedPostsByTime(postsForDate);
 
-    return (
+    const content = (
       <ul className={styles.events}>
         {sortedPosts.map((post) => {
           const dateToUse = post.pub_datetime || post.created_at;
@@ -163,6 +164,28 @@ const PostCalendar: React.FC = () => {
           );
         })}
       </ul>
+    );
+
+    let tooltipText = 'Нажмите, чтобы увидеть снизу список постов на этот день';
+    if (activeFilter === 'published') {
+      tooltipText = 'Нажмите, чтобы увидеть снизу список опубликованных постов на этот день';
+    } else if (activeFilter === 'scheduled') {
+      tooltipText = 'Нажмите, чтобы увидеть снизу список запланированных постов на этот день';
+    }
+
+    return helpMode ? (
+      <Popover
+        content={<div className={styles['popover-content']}>{tooltipText}</div>}
+        trigger='hover'
+        mouseEnterDelay={0.5}
+        color={'#fff'}
+        placement='top'
+        overlayClassName={styles.calendarTooltip}
+      >
+        {content}
+      </Popover>
+    ) : (
+      content
     );
   };
 

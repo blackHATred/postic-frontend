@@ -6,7 +6,7 @@ export interface settingsSliceState {
 }
 
 const initialState: settingsSliceState = {
-  helpMode: false,
+  helpMode: true,
 };
 
 export const settingsSlice = createSlice({

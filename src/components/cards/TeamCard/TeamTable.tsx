@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Table, TableColumnsType } from 'antd';
+import { Table, TableColumnsType, Typography } from 'antd';
 import { MinusOutlined } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
+
+const { Text } = Typography;
 
 interface DataType {
   key: React.Key;
@@ -48,7 +50,7 @@ const TeamTable: React.FC<TeamTableProps> = ({
     {
       title: 'Участники',
       dataIndex: 'member',
-      render: (text: string) => <a>{text}</a>,
+      render: (text: string) => <Text>{text}</Text>,
     },
     {
       title: 'ID',

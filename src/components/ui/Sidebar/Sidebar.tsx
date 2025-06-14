@@ -150,7 +150,11 @@ const Sidebar: React.FC = () => {
       <div className={styles['sidebar-divider']}></div>
 
       <div className={styles['sidebar-option-mode']}>
-        <Switch size='default' onChange={(checked) => handleSettingsMode(checked)} />
+        <Switch
+          size='default'
+          defaultChecked={true}
+          onChange={(checked) => handleSettingsMode(checked)}
+        />
         <Typography.Text> Подсказки </Typography.Text>
       </div>
     </div>
