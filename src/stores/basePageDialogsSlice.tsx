@@ -30,6 +30,8 @@ export interface basePageDialogsSliceState {
   generatedTextDialog: {
     isOpen: boolean;
     generatedText: string;
+    generatedImages?: string[];
+    uploadedFileIds?: string[];
   };
   generatePostDialog: basicDialogState;
   scrollToTop: boolean;
@@ -126,10 +128,14 @@ export const basePageDialogsSlice = createSlice({
       action: PayloadAction<{
         isOpen: boolean;
         generatedText: string;
+        generatedImages?: string[];
+        uploadedFileIds?: string[];
       }>,
     ) => {
       state.generatedTextDialog.isOpen = action.payload.isOpen;
       state.generatedTextDialog.generatedText = action.payload.generatedText;
+      state.generatedTextDialog.generatedImages = action.payload.generatedImages;
+      state.generatedTextDialog.uploadedFileIds = action.payload.uploadedFileIds;
     },
     setGeneratePostDialog: (state, action: PayloadAction<boolean>) => {
       state.generatePostDialog.isOpen = action.payload;

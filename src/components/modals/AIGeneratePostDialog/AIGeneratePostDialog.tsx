@@ -1,5 +1,5 @@
-import React, { FC, useContext, useState } from 'react';
-import { Input, Form, Button, Typography, Spin, Image, Space, Card } from 'antd';
+import React, { FC, useContext, useState, useEffect } from 'react';
+import { Input, Form, Button, Typography, Spin, Image, Checkbox, Alert, Tooltip } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -7,8 +7,9 @@ import {
   setGeneratedTextDialog,
   setGeneratePostDialog,
 } from '../../../stores/basePageDialogsSlice';
-import { generatePublication } from '../../../api/api';
+import { generatePublication, uploadFile } from '../../../api/api';
 import { NotificationContext } from '../../../api/notification';
+import { CheckOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -20,10 +21,24 @@ const AIGeneratePostDialog: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [generationLoading, setGenerationLoading] = useState(false);
+  const [useText, setUseText] = useState(true);
+  const [selectedImages, setSelectedImages] = useState<{ [key: string]: boolean }>({});
+  const [uploadingImages, setUploadingImages] = useState<{ [key: string]: boolean }>({});
+  const [uploadedFileIds, setUploadedFileIds] = useState<{ [key: string]: string }>({});
 
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.generatePostDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
+
+  useEffect(() => {
+    const initialSelectedState: { [key: string]: boolean } = {};
+    generatedImages.forEach((_, index) => {
+      initialSelectedState[index.toString()] = false;
+    });
+    setSelectedImages(initialSelectedState);
+    setUploadingImages({});
+    setUploadedFileIds({});
+  }, [generatedImages]);
 
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
@@ -59,20 +74,142 @@ const AIGeneratePostDialog: FC = () => {
     }
   };
 
-  const onSave = () => {
-    if (!generatedText.trim()) {
-      setError('Сгенерируйте текст перед сохранением');
+  const handleImageSelect = async (index: string) => {
+    const isCurrentlySelected = selectedImages[index];
+
+    setSelectedImages((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+
+    if (!isCurrentlySelected && !uploadedFileIds[index]) {
+      await uploadImageFile(generatedImages[parseInt(index)], index);
+    }
+  };
+
+  const selectAllImages = async () => {
+    const newSelectedState: { [key: string]: boolean } = {};
+    const uploadPromises: Promise<any>[] = [];
+
+    generatedImages.forEach((imageUrl, index) => {
+      const indexStr = index.toString();
+      newSelectedState[indexStr] = true;
+
+      if (!uploadedFileIds[indexStr]) {
+        uploadPromises.push(uploadImageFile(imageUrl, indexStr));
+      }
+    });
+
+    setSelectedImages(newSelectedState);
+
+    if (uploadPromises.length > 0) {
+      await Promise.all(uploadPromises);
+    }
+  };
+
+  const deselectAllImages = () => {
+    const newSelectedState: { [key: string]: boolean } = {};
+    generatedImages.forEach((_, index) => {
+      newSelectedState[index.toString()] = false;
+    });
+    setSelectedImages(newSelectedState);
+  };
+
+  const uploadImageFile = async (imageUrl: string, index: string) => {
+    try {
+      if (uploadedFileIds[index]) {
+        return uploadedFileIds[index];
+      }
+      setUploadingImages((prev) => ({
+        ...prev,
+        [index]: true,
+      }));
+
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      const fileName = `generated_image_${Date.now()}_${index}.jpg`;
+      const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+      const uploadResult = await uploadFile(file, 'photo');
+
+      setUploadedFileIds((prev) => ({
+        ...prev,
+        [index]: uploadResult.file_id,
+      }));
+
+      setUploadingImages((prev) => ({
+        ...prev,
+        [index]: false,
+      }));
+
+      return uploadResult.file_id;
+    } catch (error) {
+      console.error('Ошибка при загрузке изображения:', error);
+      notificationManager.createNotification(
+        'error',
+        'Ошибка загрузки',
+        `Не удалось загрузить изображение ${parseInt(index) + 1}`,
+      );
+
+      setUploadingImages((prev) => ({
+        ...prev,
+        [index]: false,
+      }));
+
+      return null;
+    }
+  };
+
+  const onSave = async () => {
+    if (!generatedText.trim() && !Object.values(selectedImages).some((selected) => selected)) {
+      setError('Сгенерируйте текст или выберите изображения перед сохранением');
       return;
     }
 
-    dispatch(setGeneratedTextDialog({ isOpen: false, generatedText: generatedText }));
-    dispatch(setGeneratePostDialog(false)); // Закрываем диалог генерации поста
-    notificationManager.createNotification('success', 'Публикация готова к использованию', '');
-    resetForm();
+    setLoading(true);
+
+    try {
+      const selectedFileIds: string[] = [];
+      const selectedImageUrls: string[] = [];
+
+      for (const [index, selected] of Object.entries(selectedImages)) {
+        if (selected) {
+          const imageUrl = generatedImages[parseInt(index)];
+          selectedImageUrls.push(imageUrl);
+
+          if (uploadedFileIds[index]) {
+            selectedFileIds.push(uploadedFileIds[index]);
+          }
+        }
+      }
+
+      dispatch(
+        setGeneratedTextDialog({
+          isOpen: false,
+          generatedText: useText ? generatedText : '',
+          generatedImages: selectedImageUrls,
+          uploadedFileIds: selectedFileIds,
+        }),
+      );
+
+      dispatch(setGeneratePostDialog(false));
+      notificationManager.createNotification('success', 'Публикация готова к использованию', '');
+      resetForm();
+    } catch (error) {
+      console.error('Ошибка при сохранении публикации:', error);
+      notificationManager.createNotification(
+        'error',
+        'Ошибка сохранения',
+        'Не все элементы удалось добавить в публикацию',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onCancel = () => {
-    dispatch(setGeneratePostDialog(false)); // Закрываем диалог генерации поста
+    dispatch(setGeneratePostDialog(false));
     resetForm();
   };
 
@@ -81,7 +218,12 @@ const AIGeneratePostDialog: FC = () => {
     setGeneratedText('');
     setGeneratedImages([]);
     setError(null);
+    setUseText(true);
+    setSelectedImages({});
+    setUploadedFileIds({});
   };
+
+  const hasSelectedImages = Object.values(selectedImages).some((selected) => selected);
 
   return (
     <DialogBox
@@ -92,16 +234,17 @@ const AIGeneratePostDialog: FC = () => {
           type: 'default',
         },
         {
-          text: 'Использовать публикацию',
+          text: 'Использовать выбранное',
           onButtonClick: onSave,
           loading: loading,
-          disabled: !!error || loading || !generatedText.trim(),
+          disabled: !!error || loading || (!useText && !hasSelectedImages) || generationLoading,
         },
       ]}
       isOpen={isOpen}
       onCancelClick={onCancel}
       title='ИИ-генерация публикации'
       isCenter={true}
+      width={800}
     >
       <div className={styles.container}>
         <Form layout='vertical'>
@@ -140,40 +283,106 @@ const AIGeneratePostDialog: FC = () => {
 
           {generatedText && !generationLoading && (
             <div className={styles.resultContainer}>
-              <Card title='Результат генерации' className={styles.resultCard}>
+              <div className={styles.resultSection}>
                 <div className={styles.textResult}>
-                  <Text strong>Текст публикации:</Text>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text strong>Текст публикации:</Text>
+                    <Checkbox checked={useText} onChange={(e) => setUseText(e.target.checked)}>
+                      Использовать текст
+                    </Checkbox>
+                  </div>
                   <div className={styles.generatedText}>{generatedText}</div>
                 </div>
+              </div>
 
-                {generatedImages.length > 0 && (
+              {generatedImages.length > 0 && (
+                <div className={styles.resultSection}>
                   <div className={styles.imagesResult}>
-                    <Text strong>Изображения для публикации:</Text>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      <Text strong>Изображения для публикации:</Text>
+                      <Text type='secondary'>
+                        Выбрано: {Object.values(selectedImages).filter(Boolean).length} из{' '}
+                        {generatedImages.length}
+                      </Text>
+                    </div>
+
+                    <div className={styles.selectionControls}>
+                      <Button
+                        size='small'
+                        icon={<CheckOutlined />}
+                        onClick={selectAllImages}
+                        disabled={generatedImages.length === 0}
+                      >
+                        Выбрать все
+                      </Button>
+                      <Button
+                        size='small'
+                        icon={<CloseOutlined />}
+                        onClick={deselectAllImages}
+                        disabled={!hasSelectedImages}
+                      >
+                        Снять выбор
+                      </Button>
+                    </div>
+
                     <div className={styles.imagesGrid}>
-                      <Image.PreviewGroup>
-                        <Space size={[8, 8]} wrap>
-                          {generatedImages.slice(0, 6).map((image, index) => (
+                      {generatedImages.map((image, index) => (
+                        <div key={index} className={styles.imageItem}>
+                          <div className={styles.imageCheckbox}>
+                            <Checkbox
+                              checked={selectedImages[index.toString()]}
+                              onChange={() => handleImageSelect(index.toString())}
+                            />
+                          </div>
+                          {uploadingImages[index.toString()] && (
+                            <div className={styles.loadingOverlay}>
+                              <Spin size='small' />
+                            </div>
+                          )}
+                          <Tooltip title={`Изображение ${index + 1}`}>
                             <Image
-                              key={index}
                               src={image}
                               alt={`Сгенерированное изображение ${index + 1}`}
-                              width={100}
-                              height={100}
+                              width={120}
+                              height={120}
                               style={{ objectFit: 'cover' }}
-                              fallback='https://placehold.co/100x100/png?text=Ошибка+загрузки'
+                              fallback='https://placehold.co/120x120/png?text=Ошибка+загрузки'
                             />
-                          ))}
-                        </Space>
-                      </Image.PreviewGroup>
-                      {generatedImages.length > 6 && (
-                        <Text type='secondary'>
-                          ... и еще {generatedImages.length - 6} изображений
-                        </Text>
-                      )}
+                          </Tooltip>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
-              </Card>
+                </div>
+              )}
+
+              {useText || hasSelectedImages ? (
+                <Alert
+                  message='Выбранные элементы будут добавлены в публикацию'
+                  type='info'
+                  showIcon
+                  icon={<FileImageOutlined />}
+                />
+              ) : (
+                <Alert
+                  message='Выберите текст или изображения для добавления в публикацию'
+                  type='warning'
+                  showIcon
+                />
+              )}
             </div>
           )}
         </Form>

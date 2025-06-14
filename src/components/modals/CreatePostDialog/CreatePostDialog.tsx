@@ -6,6 +6,7 @@ import ClickableButton from '../../ui/Button/Button';
 import { EditOutlined, RobotOutlined, SmileOutlined, BookOutlined } from '@ant-design/icons';
 import PlatformSettings from './PlatformSettings';
 import FileUploader from './FileUploader';
+import GeneratedImagesViewer from './GeneratedImagesViewer';
 import { Dayjs } from 'dayjs';
 import Picker from 'emoji-picker-react';
 import { getPost, sendPostRequest } from '../../../api/api';
@@ -26,7 +27,6 @@ import { EmojiStyle } from 'emoji-picker-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
-import debounce from 'lodash/debounce';
 import { Checkbox, Button, Space, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
@@ -47,6 +47,9 @@ const buddhistLocale: typeof ru = {
 const MAX_TEXT_LENGTH = {
   vk: 16384,
   tg: 4096,
+  fb: 63206,
+  ok: 32000,
+  ig: 2200,
   withFiles: 1024,
 };
 
@@ -73,7 +76,7 @@ const emoji_config = [
   },
   {
     category: Categories.ACTIVITIES,
-    name: 'Активнсть',
+    name: 'Активность',
   },
   {
     category: Categories.OBJECTS,
@@ -81,7 +84,7 @@ const emoji_config = [
   },
   {
     category: Categories.SYMBOLS,
-    name: 'Симболы',
+    name: 'Символы',
   },
   {
     category: Categories.FLAGS,
@@ -107,77 +110,124 @@ const CreatePostDialog: FC = () => {
   const [contentError, setContentError] = useState<string | null>(null);
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
 
-  const validateTextWithDebounce = React.useRef(
-    debounce((text: string, fileCount: number, platforms: string[]) => {
-      if (text.trim() === '' && fileCount === 0) {
-        setContentError('Добавьте текст или прикрепите файл');
-        return;
-      }
-
-      const hasFiles = fileCount > 0;
-
-      for (const platform of platforms) {
-        const maxLength = hasFiles
-          ? MAX_TEXT_LENGTH.withFiles
-          : MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH];
-
-        if (text.length > maxLength) {
-          setContentError(
-            hasFiles
-              ? `При наличии файлов длина текста ограничена до ${MAX_TEXT_LENGTH.withFiles} символов`
-              : `Длина текста превышает лимит для ${platform}`,
-          );
-          return;
-        }
-      }
-      setContentError(null);
-    }, 300),
-  );
-
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
     setPostText(newText);
-    validateTextWithDebounce.current(newText, files.length, selectedPlatforms);
+
+    if (newText.trim() === '' && files.length === 0) {
+      setContentError('Добавьте текст или прикрепите файл');
+    } else {
+      setContentError(null);
+    }
   };
 
-  useEffect(() => {
-    return () => validateTextWithDebounce.current.cancel();
-  }, []);
-
-  // Эффект для обработки сгенерированного текста
   const generatedText = useAppSelector(
     (state) => state.basePageDialogs.generatedTextDialog.generatedText,
   );
+  const generatedImages = useAppSelector(
+    (state) => state.basePageDialogs.generatedTextDialog.generatedImages,
+  );
+  const uploadedFileIds = useAppSelector(
+    (state) => state.basePageDialogs.generatedTextDialog.uploadedFileIds,
+  );
+  const isGeneratedTextDialogOpen = useAppSelector(
+    (state) => state.basePageDialogs.generatedTextDialog.isOpen,
+  );
+
   const prevGeneratedTextRef = React.useRef('');
+  const generatedIdsAdded = React.useRef(false);
 
   useEffect(() => {
-    // Проверяем, что генерированный текст не пуст и отличается от предыдущего
     if (generatedText && generatedText !== prevGeneratedTextRef.current) {
       setPostText((prevText) => {
         const newText = prevText ? `${prevText}\n${generatedText}` : generatedText;
-        validateTextWithDebounce.current(newText, files.length, selectedPlatforms);
         return newText;
       });
       prevGeneratedTextRef.current = generatedText;
+
+      if (contentError === 'Добавьте текст или прикрепите файл') {
+        setContentError(null);
+      }
     }
-  }, [generatedText, files.length, selectedPlatforms]);
+  }, [generatedText, contentError]);
+
+  useEffect(() => {
+    if (
+      !generatedIdsAdded.current &&
+      !isGeneratedTextDialogOpen &&
+      uploadedFileIds &&
+      uploadedFileIds.length > 0
+    ) {
+      uploadedFileIds.forEach((fileId) => {
+        if (typeof fileId === 'object' && fileId !== null && 'file_id' in fileId) {
+          const id = String((fileId as any).file_id);
+          console.log('Добавляем file_id из объекта:', id);
+          dispatch(addFile(id));
+        } else if (
+          (typeof fileId === 'string' || typeof fileId === 'number') &&
+          !fileIds.includes(String(fileId))
+        ) {
+          const id = String(fileId);
+          console.log('Добавляем file_id как строку:', id);
+          dispatch(addFile(id));
+        }
+      });
+
+      if (contentError === 'Добавьте текст или прикрепите файл') {
+        setContentError(null);
+      }
+      generatedIdsAdded.current = true;
+      setTimeout(() => {
+        dispatch(
+          setGeneratedTextDialog({
+            isOpen: false,
+            generatedText: '',
+            generatedImages: generatedImages || [],
+            uploadedFileIds: uploadedFileIds || [],
+          }),
+        );
+      }, 100);
+    }
+  }, [
+    uploadedFileIds,
+    isGeneratedTextDialogOpen,
+    dispatch,
+    contentError,
+    fileIds,
+    generatedImages,
+  ]);
 
   const validateTextLength = (): string | null => {
-    if (!postText.trim() && files.length === 0) {
+    // наличие файлов в Redux, а не только в локальном состоянии !!!!!!!!!
+    const hasFilesInStore = fileIds.length > 0;
+
+    if (!postText.trim() && files.length === 0 && !hasFilesInStore) {
       return 'Добавьте текст или прикрепите файл';
     }
 
-    const hasFiles = files.length > 0;
+    const hasFiles = files.length > 0 || hasFilesInStore;
+    const normalizedText = postText.replace(/\r\n/g, '\n');
 
     for (const platform of selectedPlatforms) {
-      const maxLength = hasFiles
-        ? MAX_TEXT_LENGTH.withFiles
-        : MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH];
+      if (platform === 'tg' && hasFiles && normalizedText.length > 1024) {
+        return `Для Telegram с вложениями длина текста ограничена до 1024 символов (сейчас ${normalizedText.length})`;
+      }
 
-      if (postText.length > maxLength) {
-        return hasFiles
-          ? `При наличии файлов длина текста ограничена до ${MAX_TEXT_LENGTH.withFiles} символов`
-          : `Длина текста превышает максимально допустимую для ${platform}: ${MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH]} символов`;
+      if (platform === 'tg' && !hasFiles && normalizedText.length > 4096) {
+        return `Для Telegram без вложений длина текста ограничена до 4096 символов (сейчас ${normalizedText.length})`;
+      }
+
+      const maxLength = MAX_TEXT_LENGTH[platform as keyof typeof MAX_TEXT_LENGTH];
+      if (platform !== 'tg' && normalizedText.length > maxLength) {
+        const platformNames: { [key: string]: string } = {
+          vk: 'ВКонтакте',
+          fb: 'Facebook',
+          ok: 'Одноклассники',
+          ig: 'Instagram',
+        };
+
+        const platformName = platformNames[platform] || platform.toUpperCase();
+        return `Длина текста превышает максимально допустимую для ${platformName}: ${maxLength} символов (сейчас ${normalizedText.length})`;
       }
     }
 
@@ -222,15 +272,20 @@ const CreatePostDialog: FC = () => {
       }
     }
 
+    const attachmentsAsNumbers = fileIds.map((id) => parseInt(id, 10));
     const postPayload = {
       text: postText,
-      attachments: fileIds,
+      attachments: attachmentsAsNumbers,
       platforms: selectedPlatforms,
       team_id: team_id,
       pub_datetime: selectedDate ? selectedDate.format('YYYY-MM-DDTHH:mm:ss.SSSZ') : undefined,
     };
 
-    sendPostRequest(postPayload).then((data: sendPostResult) => {
+    const apiPostPayload = {
+      ...postPayload,
+    } as any;
+
+    sendPostRequest(apiPostPayload).then((data: sendPostResult) => {
       getPost(team_id, data.post_id).then((res: { post: Post }) => {
         if (res.post) {
           const isScheduledPost =
@@ -265,6 +320,16 @@ const CreatePostDialog: FC = () => {
     setShowEmojiPicker(false);
     dispatch(clearFiles());
     setFiles([]);
+    dispatch(
+      setGeneratedTextDialog({
+        isOpen: false,
+        generatedText: '',
+        generatedImages: [],
+        uploadedFileIds: [],
+      }),
+    );
+    generatedIdsAdded.current = false;
+    prevGeneratedTextRef.current = '';
   };
 
   const onCancel = async () => {
@@ -280,7 +345,9 @@ const CreatePostDialog: FC = () => {
   const addFiles = (id: string, file: any) => {
     setFiles([...files, { id: id, files: file }]);
     dispatch(addFile(id));
-    setContentError(null);
+    if (contentError === 'Добавьте текст или прикрепите файл') {
+      setContentError(null);
+    }
   };
 
   const removeFiles = (file: any) => {
@@ -295,12 +362,8 @@ const CreatePostDialog: FC = () => {
 
     setFiles(updatedFiles);
 
-    if (currentStep === 2) {
-      if (postText.trim() === '' && updatedFiles.length === 0) {
-        setContentError('Добавьте текст или прикрепите файл');
-      } else {
-        validateTextWithDebounce.current(postText, updatedFiles.length, selectedPlatforms);
-      }
+    if (currentStep === 2 && postText.trim() === '' && updatedFiles.length === 0) {
+      setContentError('Добавьте текст или прикрепите файл');
     }
   };
 
@@ -421,6 +484,7 @@ const CreatePostDialog: FC = () => {
                 withPopover={true}
                 popoverContent={'ИИ-генерация полной публикации с изображениями'}
                 onButtonClick={() => {
+                  generatedIdsAdded.current = false;
                   dispatch(setGeneratePostDialog(true));
                 }}
               />
@@ -448,6 +512,13 @@ const CreatePostDialog: FC = () => {
             />
           </div>
         )}
+
+        {generatedImages &&
+          uploadedFileIds &&
+          generatedImages.length > 0 &&
+          uploadedFileIds.length > 0 && (
+            <GeneratedImagesViewer images={generatedImages} uploadedFileIds={uploadedFileIds} />
+          )}
 
         <FileUploader
           addFiles={addFiles}
