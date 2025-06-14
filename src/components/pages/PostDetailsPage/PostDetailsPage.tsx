@@ -37,12 +37,12 @@ const PostDetailsPage: React.FC = () => {
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
 
   useEffect(() => {
-    if (id) {
+    if (id && team_id) {
       if (selectedPostId != +id) {
         dispatch(setSelectedPostId(+id));
       }
     }
-    if (!p && id) {
+    if (!p && id && team_id) {
       setIsLoading(true);
       getPost(team_id, +id)
         .then((p) => {
@@ -57,7 +57,7 @@ const PostDetailsPage: React.FC = () => {
     return () => {
       dispatch(setSelectedPostId(0));
     };
-  }, [dispatch]);
+  }, [dispatch, team_id]);
 
   return p ? (
     <div className={styles.detailsContainer}>

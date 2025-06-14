@@ -3,28 +3,12 @@
   height: 100%;
   width: 100%;
   overflow-anchor: auto;
-overflow-y: scroll;
+overflow-y: auto;
 overflow-x: hidden;
   overflow-wrap: normal;
   float: left;
   interpolate-size: allow-keywords;
   padding-right: 10px;
-
-  &::-webkit-scrollbar {
-    width: 7px;
-    padding-top: 20px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    padding-top: 20px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #c9c9c9;
-    border-radius: 3px;
-    padding-top: 20px;
-  }
 }
 
 .filterContainer {

@@ -28,8 +28,8 @@
 .team-container {
   height: 100%;
   width: 100%;
-  overflow: scroll;
-  scrollbar-width: none;
+  overflow-y: auto;
   interpolate-size: allow-keywords;
   padding-top: 20px;
+  box-sizing: border-box;
 }

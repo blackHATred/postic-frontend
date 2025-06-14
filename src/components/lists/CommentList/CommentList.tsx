@@ -84,20 +84,6 @@ const CommentList: React.FC<{
     }
   }, [scrollToTop]);
 
-  function flat(r: any, a: any) {
-    const b: any = {};
-    Object.keys(a).forEach(function (k) {
-      if (k !== 'children') {
-        b[k] = a[k];
-      }
-    });
-    r.push(b);
-    if (Array.isArray(a.children)) {
-      return a.children.reduce(flat, r);
-    }
-    return r;
-  }
-
   React.useEffect(() => {
     if (newComment) {
       if (newComment.type == 'created') {
@@ -148,11 +134,13 @@ const CommentList: React.FC<{
         }
       })
       .catch(() => {
+        console.warn('AAAAAAAAAAAA');
         setIsLoading(false);
       });
   };
 
   React.useEffect(() => {
+    console.log(comments);
     if (comments.length > 0) {
       if (commentElements.length == 0) {
         // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED
