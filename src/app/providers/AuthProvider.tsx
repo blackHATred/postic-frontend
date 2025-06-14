@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           navigate(routes.home());
         }
       });
-  }, [dispatch, navigate, location.pathname]);
+  }, [dispatch, navigate]);
 
   return <>{children}</>;
 };
