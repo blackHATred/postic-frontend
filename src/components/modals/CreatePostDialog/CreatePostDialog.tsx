@@ -3,13 +3,20 @@ import { Input, Divider, DatePicker, Form } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
-import { EditOutlined, RobotOutlined, SmileOutlined, BookOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  RobotOutlined,
+  SmileOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import PlatformSettings from './PlatformSettings';
 import FileUploader from './FileUploader';
 import GeneratedImagesViewer from './GeneratedImagesViewer';
 import { Dayjs } from 'dayjs';
 import Picker from 'emoji-picker-react';
-import { getPost, sendPostRequest } from '../../../api/api';
+import { fixPublication, getPost, sendPostRequest } from '../../../api/api';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import {
   addFile,
@@ -28,7 +35,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
 import { Checkbox, Button, Space, Typography } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 dayjs.extend(utc);
 
@@ -100,6 +106,11 @@ const CreatePostDialog: FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>();
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isFixingText, setIsFixingText] = useState(false);
+  const [fixedText, setFixedText] = useState('');
+  const [isFixLoading, setIsFixLoading] = useState(false);
+  const [showFixControls, setShowFixControls] = useState(false);
+  const [originalText, setOriginalText] = useState('');
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.createPostDialog.isOpen);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
@@ -458,44 +469,59 @@ const CreatePostDialog: FC = () => {
               onChange={handleTextChange}
             />
             <div className={styles['post-icons']}>
-              <ClickableButton
-                icon={<EditOutlined />}
-                type='default'
-                size='small'
-                withPopover={true}
-                popoverContent={
-                  'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
-                }
-              />
-              <ClickableButton
-                icon={<RobotOutlined />}
-                type='default'
-                size='small'
-                withPopover={true}
-                popoverContent={'ИИ-генерация текста поста'}
-                onButtonClick={() => {
-                  dispatch(setGeneratedTextDialog({ isOpen: true, generatedText: '' }));
-                }}
-              />
-              <ClickableButton
-                icon={<BookOutlined />}
-                type='default'
-                size='small'
-                withPopover={true}
-                popoverContent={'ИИ-генерация полной публикации с изображениями'}
-                onButtonClick={() => {
-                  generatedIdsAdded.current = false;
-                  dispatch(setGeneratePostDialog(true));
-                }}
-              />
-              <ClickableButton
-                icon={<SmileOutlined />}
-                type='default'
-                size='small'
-                withPopover={true}
-                onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                popoverContent={'Эмодзи'}
-              />
+              {!showFixControls ? (
+                <>
+                  <ClickableButton
+                    icon={isFixLoading ? <LoadingOutlined spin /> : <EditOutlined />}
+                    type='default'
+                    size='small'
+                    withPopover={true}
+                    popoverContent={
+                      'Редактор автоматически исправит грамматические, пунктуационные и другие ошибки в тексте'
+                    }
+                    onButtonClick={handleFixText}
+                    disabled={isFixLoading}
+                  />
+                  <ClickableButton
+                    icon={<RobotOutlined />}
+                    type='default'
+                    size='small'
+                    withPopover={true}
+                    popoverContent={'ИИ-генерация текста поста с изображениями'}
+                    onButtonClick={() => {
+                      generatedIdsAdded.current = false;
+                      dispatch(setGeneratePostDialog(true));
+                    }}
+                  />
+                  <ClickableButton
+                    icon={<SmileOutlined />}
+                    type='default'
+                    size='small'
+                    withPopover={true}
+                    onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    popoverContent={'Эмодзи'}
+                  />
+                </>
+              ) : (
+                <>
+                  <ClickableButton
+                    icon={<CheckOutlined />}
+                    type='primary'
+                    size='small'
+                    withPopover={true}
+                    popoverContent={'Применить исправленный текст'}
+                    onButtonClick={applyFixedText}
+                  />
+                  <ClickableButton
+                    icon={<CloseOutlined />}
+                    type='default'
+                    size='small'
+                    withPopover={true}
+                    popoverContent={'Отменить исправления'}
+                    onButtonClick={cancelFixedText}
+                  />
+                </>
+              )}
             </div>
           </div>
         </Form.Item>
@@ -626,6 +652,45 @@ const CreatePostDialog: FC = () => {
       default:
         return 'Создание поста';
     }
+  };
+
+  const handleFixText = async () => {
+    if (!postText.trim()) {
+      setContentError('Введите текст для исправления');
+      return;
+    }
+    setOriginalText(postText);
+    setIsFixLoading(true);
+
+    try {
+      const result = await fixPublication(postText);
+      if (result && result.response) {
+        setPostText(result.response);
+        setFixedText(result.response);
+        setShowFixControls(true);
+      } else {
+        setContentError('Не удалось получить исправленный текст. Попробуйте позже.');
+      }
+    } catch (error) {
+      console.error('Ошибка при исправлении текста:', error);
+      setContentError('Произошла ошибка при исправлении текста. Попробуйте позже.');
+    } finally {
+      setIsFixLoading(false);
+      setIsFixingText(true);
+    }
+  };
+
+  const applyFixedText = () => {
+    setIsFixingText(false);
+    setShowFixControls(false);
+    setFixedText('');
+  };
+
+  const cancelFixedText = () => {
+    setPostText(originalText);
+    setIsFixingText(false);
+    setShowFixControls(false);
+    setFixedText('');
   };
 
   return (

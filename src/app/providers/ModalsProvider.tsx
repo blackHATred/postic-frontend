@@ -13,7 +13,6 @@ import UserRegisterDialog from '../../components/modals/auth/UserRegisterDialog'
 import UserLoginDialog from '../../components/modals/auth/UserLoginDialog';
 import HelpDialog from '../../components/modals/HelpDialog/HelpDialog';
 import EditPostDialog from '../../components/modals/EditPostDialog/EditPostDialog';
-import AIGenerateTextDialog from '../../components/modals/AIGenerateTextDialog/AIGenerateTextDialog';
 import AIGeneratePostDialog from '../../components/modals/AIGeneratePostDialog/AIGeneratePostDialog';
 
 interface ModalsProviderProps {
@@ -38,7 +37,6 @@ export const ModalsProvider = ({ children }: ModalsProviderProps) => {
       <UserLoginDialog />
       <HelpDialog />
       <EditPostDialog />
-      <AIGenerateTextDialog />
       <AIGeneratePostDialog />
     </>
   );

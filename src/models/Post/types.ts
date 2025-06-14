@@ -58,15 +58,18 @@ export interface GenerateTextResult {
   text: string;
 }
 
-// Новые интерфейсы для генерации публикаций
-export interface GeneratePostRequest {
-  query: string;
-}
-
 export interface GeneratePostResult {
   text: string;
   images: string[];
 }
+
+export interface FixPostResult {
+  response: string;
+}
+
+export const mockFixResult: FixPostResult = {
+  response: 'Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',
+};
 
 export const mockGenerateTextResult = {
   text: 'Привет всем! Я хочу похвастаться моим милым котиком! Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',
