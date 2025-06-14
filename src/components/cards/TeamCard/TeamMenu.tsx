@@ -110,20 +110,13 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
       <div className={styles['post-header']}>
         <div className={styles['post-header-first-row']}>
           <div className={styles['post-header-left']}>
-            <Text strong>Команда: </Text>
-            <Text className={styles['teamName']} strong>
-              {' '}
-              {teamName}
-            </Text>
-            <Space className={styles['platform-icons']}>
-              {[
-                linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,
-                linkedPlatforms?.platforms?.vk_group_id ? renderPlatformIcon('vk') : null,
-              ].filter(Boolean)}
-            </Space>
-          </div>
-
-          <div className={styles['post-header-right']}>
+            <div className={styles['post-header-left-text']}>
+              <Text strong>Команда: </Text>
+              <Text className={styles['teamName']} strong>
+                {' '}
+                {teamName}
+              </Text>
+            </div>
             {isUserAdmin && (
               <ClickableButton
                 type='text'
@@ -134,6 +127,14 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
                 popoverContent='Переименовать команду'
               />
             )}
+            <Space className={styles['platform-icons']}>
+              {[
+                linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,
+                linkedPlatforms?.platforms?.vk_group_id ? renderPlatformIcon('vk') : null,
+              ].filter(Boolean)}
+            </Space>
+          </div>
+          <div className={styles['post-header-right']}>
             <div className={styles['post-header-buttons']}>
               <ClickableButton
                 text='Покинуть команду'
@@ -152,12 +153,12 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
                     color='primary'
                     onButtonClick={onAddMember}
                   />
-                  <Dropdown menu={menuProps} trigger={['hover']} placement='bottomRight'>
-                    <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
-                  </Dropdown>
                 </>
               )}
             </div>
+            <Dropdown menu={menuProps} trigger={['hover']} placement='bottomRight'>
+              <Button type='default' className={styles['icon']} icon={<SettingOutlined />} />
+            </Dropdown>
           </div>
         </div>
 
