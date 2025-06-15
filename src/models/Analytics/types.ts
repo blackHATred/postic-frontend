@@ -514,3 +514,210 @@ export const mockData: PostAnalytics[] = [
     timestamp: '2023-01-05T00:00:00',
   },
 ];
+
+// Мок-данные для аналитики за разные периоды времени
+export const mockAnalyticsData: Record<string, GetStatsResponse> = {
+  week: {
+    posts: [
+      {
+        post_union_id: 1,
+        telegram: {
+          views: 2500,
+          comments: 120,
+          reactions: 350,
+        },
+        vkontakte: {
+          views: 1800,
+          comments: 75,
+          reactions: 210,
+        },
+      },
+      {
+        post_union_id: 2,
+        telegram: {
+          views: 1900,
+          comments: 80,
+          reactions: 250,
+        },
+        vkontakte: {
+          views: 1400,
+          comments: 60,
+          reactions: 180,
+        },
+      },
+      {
+        post_union_id: 3,
+        telegram: {
+          views: 3200,
+          comments: 150,
+          reactions: 420,
+        },
+        vkontakte: {
+          views: 2100,
+          comments: 95,
+          reactions: 270,
+        },
+      },
+    ],
+  },
+
+  // Данные за две недели (14 дней)
+  twoWeeks: {
+    posts: [
+      {
+        post_union_id: 1,
+        telegram: {
+          views: 4500,
+          comments: 220,
+          reactions: 650,
+        },
+        vkontakte: {
+          views: 3200,
+          comments: 145,
+          reactions: 410,
+        },
+      },
+      {
+        post_union_id: 2,
+        telegram: {
+          views: 3800,
+          comments: 180,
+          reactions: 520,
+        },
+        vkontakte: {
+          views: 2700,
+          comments: 120,
+          reactions: 360,
+        },
+      },
+      {
+        post_union_id: 4,
+        telegram: {
+          views: 5100,
+          comments: 240,
+          reactions: 730,
+        },
+        vkontakte: {
+          views: 3800,
+          comments: 170,
+          reactions: 480,
+        },
+      },
+    ],
+  },
+
+  // Данные за месяц (30 дней)
+  month: {
+    posts: [
+      {
+        post_union_id: 1,
+        telegram: {
+          views: 8500,
+          comments: 420,
+          reactions: 1250,
+        },
+        vkontakte: {
+          views: 6200,
+          comments: 310,
+          reactions: 870,
+        },
+      },
+      {
+        post_union_id: 2,
+        telegram: {
+          views: 7300,
+          comments: 370,
+          reactions: 980,
+        },
+        vkontakte: {
+          views: 5500,
+          comments: 280,
+          reactions: 710,
+        },
+      },
+      {
+        post_union_id: 5,
+        telegram: {
+          views: 9800,
+          comments: 490,
+          reactions: 1450,
+        },
+        vkontakte: {
+          views: 7100,
+          comments: 350,
+          reactions: 920,
+        },
+      },
+    ],
+  },
+};
+
+export const createMockStatsForPeriod = (req: GetStatsReq): GetStatsResponse => {
+  const startDate = new Date(req.start);
+  const endDate = new Date(req.end);
+  const diffInDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  const postTemplates = [
+    {
+      post_union_id: 1,
+      telegram: {
+        viewsBase: 250,
+        commentsBase: 15,
+        reactionsBase: 45,
+      },
+      vkontakte: {
+        viewsBase: 180,
+        commentsBase: 10,
+        reactionsBase: 30,
+      },
+    },
+    {
+      post_union_id: 2,
+      telegram: {
+        viewsBase: 300,
+        commentsBase: 20,
+        reactionsBase: 50,
+      },
+      vkontakte: {
+        viewsBase: 220,
+        commentsBase: 12,
+        reactionsBase: 35,
+      },
+    },
+    {
+      post_union_id: 3,
+      telegram: {
+        viewsBase: 400,
+        commentsBase: 25,
+        reactionsBase: 60,
+      },
+      vkontakte: {
+        viewsBase: 250,
+        commentsBase: 15,
+        reactionsBase: 40,
+      },
+    },
+  ];
+
+  const response: GetStatsResponse = {
+    posts: postTemplates.map((template) => {
+      const multiplier = diffInDays <= 7 ? 1 : diffInDays <= 14 ? 2 : 4;
+
+      return {
+        post_union_id: template.post_union_id,
+        telegram: {
+          views: template.telegram.viewsBase * multiplier * diffInDays,
+          comments: template.telegram.commentsBase * multiplier,
+          reactions: template.telegram.reactionsBase * multiplier,
+        },
+        vkontakte: {
+          views: template.vkontakte.viewsBase * multiplier * diffInDays,
+          comments: template.vkontakte.commentsBase * multiplier,
+          reactions: template.vkontakte.reactionsBase * multiplier,
+        },
+      };
+    }),
+  };
+
+  return response;
+};

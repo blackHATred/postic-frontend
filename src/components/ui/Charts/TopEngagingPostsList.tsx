@@ -29,10 +29,8 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
   const [localLoading, setLocalLoading] = useState<boolean>(false);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
-  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
   const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
 
-  // Используем переданные пропсы или получаем значения из Redux
   const isTelegramAvailable =
     hasTelegram !== undefined
       ? hasTelegram
@@ -40,23 +38,21 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
   const isVkAvailable =
     hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
-  // Получаем уникальные ID постов из данных
   const postIds = useMemo(() => {
     const ids = new Set<number>();
     data.forEach((item) => ids.add(item.post_union_id));
     return Array.from(ids);
   }, [data]);
 
-  // Загружаем детализированную статистику для топ-постов
   const loadPostsData = async () => {
     if (postIds.length === 0) return;
 
     setLocalLoading(true);
     try {
-      // Собираем все статистические данные для постов
       const postsStats = [];
 
-      // Делаем запросы для каждого поста (можно оптимизировать, создав групповой запрос на бэкенде)
+      console.log('Запрашиваемые ID постов:', postIds);
+
       for (const postId of postIds) {
         const postStatsRequest: PostReq = {
           team_id: selectedTeamId,
@@ -65,16 +61,29 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
 
         try {
           const response = await GetPostStats(postStatsRequest);
-          if (response.resp) {
+          console.log(`Получены данные для поста ID ${postId}:`, response);
+
+          if (response?.resp) {
             postsStats.push(...response.resp);
+          } else if (Array.isArray(response)) {
+            postsStats.push(...response);
+          } else if (response && typeof response === 'object') {
+            const data = response as any;
+            if (data.team_id && data.platform) {
+              postsStats.push(data);
+            } else if (Array.isArray(data.posts)) {
+              postsStats.push(...data.posts);
+            }
           }
         } catch (err) {
           console.error(`Ошибка при загрузке статистики для поста ID ${postId}:`, err);
         }
       }
 
-      // Преобразуем данные для отображения
+      console.log('Собранные данные статистики постов:', postsStats);
+
       const transformedData = transformPostStatsToAnalytics(postsStats);
+      console.log('Преобразованные данные для отображения:', transformedData);
       setPostsData(transformedData);
     } catch (error) {
       console.error('Ошибка при загрузке статистики постов:', error);
@@ -83,29 +92,52 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
     }
   };
 
-  // Загружаем данные при первом рендере или изменении списка ID постов
   useEffect(() => {
-    loadPostsData();
-  }, [data, selectedTeamId]);
+    const allPostsHaveData = postIds.every((id) =>
+      postsData.some((post) => post.post_union_id === id),
+    );
+
+    if (postIds.length > 0 && !allPostsHaveData) {
+      loadPostsData();
+    }
+  }, [postIds, selectedTeamId]);
 
   const filteredData = useMemo(() => {
     if (platform === 'telegram') {
       return postsData.filter(
-        (post) =>
-          (post.tg_views !== undefined && post.tg_views !== null) ||
-          post.tg_reactions > 0 ||
-          post.tg_comments > 0,
+        (post) => post.tg_views > 0 || post.tg_reactions > 0 || post.tg_comments > 0,
       );
     } else if (platform === 'vk') {
       return postsData.filter(
-        (post) =>
-          (post.vk_views !== undefined && post.vk_views !== null) ||
-          post.vk_reactions > 0 ||
-          post.vk_comments > 0,
+        (post) => post.vk_views > 0 || post.vk_reactions > 0 || post.vk_comments > 0,
       );
     }
     return postsData;
   }, [postsData, platform]);
+
+  const calculateEngagementScore = (post: PostAnalytics): number => {
+    let score = 0;
+
+    if (platform === 'telegram') {
+      // комментарии (вес 3) > реакции (вес 2) > просмотры (вес 1)
+      score = post.tg_comments * 3 + post.tg_reactions * 2 + post.tg_views * 1;
+    } else if (platform === 'vk') {
+      score = post.vk_comments * 3 + post.vk_reactions * 2 + post.vk_views * 1;
+    } else {
+      score =
+        (post.tg_comments + post.vk_comments) * 3 +
+        (post.tg_reactions + post.vk_reactions) * 2 +
+        (post.tg_views + post.vk_views) * 1;
+    }
+
+    return score;
+  };
+
+  const sortedData = useMemo(() => {
+    return [...filteredData]
+      .sort((a, b) => calculateEngagementScore(b) - calculateEngagementScore(a))
+      .slice(0, 5); // топ-5 постов
+  }, [filteredData]);
 
   const columns = [
     {
@@ -234,15 +266,17 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
         />
       </div>
 
-      <ConfigProvider locale={ruRU}>
-        <Table
-          dataSource={filteredData}
-          columns={columns}
-          loading={loading || localLoading}
-          pagination={{ pageSize: 10 }}
-          rowKey='post_union_id'
-        />
-      </ConfigProvider>
+      <div className={styles.tableScrollContainer}>
+        <ConfigProvider locale={ruRU}>
+          <Table
+            dataSource={sortedData}
+            columns={columns}
+            loading={loading || localLoading}
+            pagination={{ pageSize: 10 }}
+            rowKey='post_union_id'
+          />
+        </ConfigProvider>
+      </div>
     </Card>
   );
 };

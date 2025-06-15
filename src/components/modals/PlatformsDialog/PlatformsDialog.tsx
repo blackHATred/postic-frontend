@@ -179,7 +179,7 @@ const PlatformsDialog: React.FC = () => {
           notificationManager.createNotification(
             'success',
             'Платформа привязана',
-            `Платформа "${selectedPlatform}" успешно привязана к команде`,
+            `Платформа "${selectedPlatform}" успешно привязана к команде. Пожалуйста, перезагрузите страницу.`,
           );
 
           dispatch(setPlatformsDialog(false));

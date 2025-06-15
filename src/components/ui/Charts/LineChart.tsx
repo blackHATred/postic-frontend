@@ -1,9 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { Card, Space, Spin, Tooltip } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Card, Space, Spin, Tooltip, Radio } from 'antd';
 import { Area } from '@antv/g2plot';
 import { PostAnalytics } from '../../../models/Analytics/types';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useAppSelector } from '../../../stores/hooks';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+
+dayjs.extend(isoWeek);
 
 interface LineChartProps {
   data: PostAnalytics[];
@@ -12,6 +16,7 @@ interface LineChartProps {
   colors?: string[];
   hasTelegram?: boolean;
   hasVk?: boolean;
+  showWeekSelector?: boolean;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -28,26 +33,74 @@ const LineChart: React.FC<LineChartProps> = ({
   ],
   hasTelegram,
   hasVk,
+  showWeekSelector = true,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<Area | null>(null);
 
-  // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
+  const [currentWeek, setCurrentWeek] = useState<number>(0); // 0 - текущая, -1 - предыдущая, 1 - следующая
+
+  const getWeekBoundaries = (weekOffset: number) => {
+    const today = dayjs();
+
+    const currentMonday = today.startOf('isoWeek');
+
+    const startOfWeek = currentMonday.add(weekOffset * 7, 'day');
+    const endOfWeek = startOfWeek.add(6, 'day');
+
+    return [startOfWeek, endOfWeek];
+  };
+
+  const [weekStart, weekEnd] = getWeekBoundaries(currentWeek);
+
+  const getWeekLabel = (weekOffset: number) => {
+    switch (weekOffset) {
+      case -1:
+        return 'Предыдущая неделя';
+      case 0:
+        return 'Текущая неделя';
+      case 1:
+        return 'Следующая неделя';
+      default:
+        if (weekOffset < 0) {
+          return `${Math.abs(weekOffset)} ${Math.abs(weekOffset) === 1 ? 'неделя' : 'недели'} назад`;
+        }
+        return `${weekOffset} ${weekOffset === 1 ? 'неделя' : 'недели'} вперед`;
+    }
+  };
+
+  const goToPrevWeek = () => {
+    setCurrentWeek(currentWeek - 1);
+  };
+
+  const goToNextWeek = () => {
+    setCurrentWeek(currentWeek + 1);
+  };
+
   const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
 
-  // Используем переданные пропсы или получаем значения из Redux
   const isTelegramAvailable =
     hasTelegram !== undefined
       ? hasTelegram
-      : activePlatforms.some((p) => p.platform === 'telegram' && p.isLinked);
+      : activePlatforms.some((p) => p.platform === 'tg' && p.isLinked);
   const isVkAvailable =
     hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
-      const sortedData = [...data].sort(
+      let sortedData = [...data].sort(
         (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
       );
+
+      if (showWeekSelector) {
+        const weekStartDate = weekStart.toDate();
+        const weekEndDate = weekEnd.toDate();
+
+        sortedData = sortedData.filter((item) => {
+          const itemDate = new Date(item.timestamp);
+          return itemDate >= weekStartDate && itemDate <= weekEndDate;
+        });
+      }
 
       const aggregatedByDay = new Map<
         string,
@@ -94,7 +147,7 @@ const LineChart: React.FC<LineChartProps> = ({
       Array.from(aggregatedByDay.entries())
         .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
         .forEach(([dateStr, metrics]) => {
-          const formattedDate = new Date(dateStr).toLocaleDateString();
+          const formattedDate = new Date(dateStr).toLocaleDateString('ru-RU');
 
           // Добавляем метрики только для подключенных платформ
           if (isTelegramAvailable) {
@@ -206,18 +259,16 @@ const LineChart: React.FC<LineChartProps> = ({
       newChart.render();
       chartInstance.current = newChart;
     }
-
-    return () => {
-      if (chartInstance.current) {
-        try {
-          chartInstance.current.destroy();
-        } catch (error) {
-          console.error('Ошибка при уничтожении графика:', error);
-        }
-        chartInstance.current = null;
-      }
-    };
-  }, [loading, data, colors, isTelegramAvailable, isVkAvailable]);
+  }, [
+    data,
+    loading,
+    isTelegramAvailable,
+    isVkAvailable,
+    currentWeek,
+    weekStart,
+    weekEnd,
+    showWeekSelector,
+  ]);
 
   if (loading) {
     return (
@@ -248,8 +299,38 @@ const LineChart: React.FC<LineChartProps> = ({
           </Tooltip>
         </Space>
       }
+      extra={
+        // если проп showWeekSelector установлен в true
+        showWeekSelector ? (
+          <Space>
+            <Radio.Button onClick={goToPrevWeek}>
+              <LeftOutlined />
+            </Radio.Button>
+            <Radio.Button disabled style={{ minWidth: '150px', textAlign: 'center' }}>
+              {getWeekLabel(currentWeek)}
+            </Radio.Button>
+            <Radio.Button onClick={goToNextWeek}>
+              <RightOutlined />
+            </Radio.Button>
+          </Space>
+        ) : null
+      }
+      style={{ width: '100%' }}
     >
-      <div ref={chartRef} style={{ height }} />
+      {data.length > 0 ? (
+        <div ref={chartRef} style={{ height }} />
+      ) : (
+        <div
+          style={{
+            height,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          Нет данных для отображения
+        </div>
+      )}
     </Card>
   );
 };

@@ -109,10 +109,10 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
   const processDataForColumnChart = (sourceData: UserAnalytics[], metric: KPIMetric) => {
     return sourceData
       .map((user) => ({
-        user: `Пользователь ${user.user_id}`,
+        user: user.username || `Пользователь ${user.user_id}`,
         value: user[metric],
       }))
-      .sort((a, b) => b.value - a.value); // Сортировка по убыванию
+      .sort((a, b) => b.value - a.value);
   };
 
   if (loading) {

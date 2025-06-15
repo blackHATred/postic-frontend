@@ -32,6 +32,7 @@ import {
   GetStatsReq,
   GetStatsResponse,
   UserAnalytics,
+  createMockStatsForPeriod,
 } from '../models/Analytics/types';
 
 export const getVkAuthUrl = async (): Promise<{ auth_url: string }> => {
@@ -300,15 +301,29 @@ export const MarkAsTicket = async (req: Ticket): Promise<{ message: string }> =>
   return response.data;
 };
 
+export const getMockStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
+  console.log('Используются мок-данные для аналитики');
+
+  const mockData = createMockStatsForPeriod(req);
+
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  return mockData;
+};
+
 export const GetStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
-  const response = await axiosInstance.get<GetStatsResponse>(
-    `${config.api.baseURL}${routes.analytics()}/stats`,
-    {
-      withCredentials: true,
-      params: req,
-    },
-  );
-  return response.data;
+  // моковые данные
+  return getMockStats(req);
+
+  // исходный реквест
+  // const response = await axiosInstance.get<GetStatsResponse>(
+  //   `${config.api.baseURL}${routes.analytics()}/stats`,
+  //   {
+  //     withCredentials: true,
+  //     params: req,
+  //   },
+  // );
+  // return response.data;
 };
 
 export const GetPostStats = async (req: PostReq): Promise<{ resp: GetPostStatsResponse }> => {

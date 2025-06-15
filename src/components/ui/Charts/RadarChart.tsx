@@ -94,20 +94,24 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
       {
         item: 'Лайки',
         score: (selectedUser.reactions / maxValues.likes) * 100,
-        user: `${selectedUser.user_id}`,
+        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
       },
       {
         item: 'Просмотры',
         score: (selectedUser.views / maxValues.views) * 100,
-        user: `${selectedUser.user_id}`,
+        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
       },
       {
         item: 'Комментарии',
         score: (selectedUser.comments / maxValues.comments) * 100,
-        user: `${selectedUser.user_id}`,
+        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
       },
 
-      { item: 'Общий KPI', score: selectedUser.kpi, user: `${selectedUser.user_id}` },
+      {
+        item: 'Общий KPI',
+        score: selectedUser.kpi,
+        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
+      },
     ];
   };
 
@@ -138,7 +142,7 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
           style={{ width: '180px' }}
           options={data.map((user) => ({
             value: user.user_id,
-            label: `Пользователь ${user.user_id}`,
+            label: user.username || `Пользователь ${user.user_id}`,
           }))}
           placeholder='Выберите пользователя'
         />

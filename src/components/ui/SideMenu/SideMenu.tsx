@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu, Segmented, DatePicker } from 'antd';
 import { PlusOutlined, BarsOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setCreateTeamDialog } from '../../../stores/teamSlice';
-import { routes } from '../../../app/App.routes';
 import { setCreatePostDialog } from '../../../stores/basePageDialogsSlice';
 import { PostFilter, setActivePostFilter, setViewMode, ViewMode } from '../../../stores/postsSlice';
 import {
@@ -29,9 +28,23 @@ const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
   const activeFilter = useAppSelector((state) => state.posts.activePostFilter);
   const viewMode = useAppSelector((state) => state.posts.viewMode);
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
-  const activeAnalyticsFilter = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
+  const activeAnalyticsFilter = useAppSelector(
+    (state) => state.analytics.activeAnalyticsFilter || '',
+  );
   const ticketFilter = useAppSelector((state) => state.comments.ticketFilter);
   const analyticsPeriod = useAppSelector((state) => state.analytics.period);
+
+  const isAnalyticsPage = currentPath.includes('/analytics');
+  const isPostsPage = currentPath.includes('/posts') && !currentPath.includes('/posts/');
+  const isTeamsPage = currentPath.includes('/teams');
+  const isTicketPage = currentPath.includes('/ticket');
+
+  // чтоб сайдменю аналитики не пропадало
+  useEffect(() => {
+    if (isAnalyticsPage && activeAnalyticsFilter === undefined) {
+      dispatch(setActiveAnalyticsFilter(''));
+    }
+  }, [isAnalyticsPage, activeAnalyticsFilter, dispatch]);
 
   const handleFilterChange = (filter: PostFilter) => {
     dispatch(setActivePostFilter(filter));
@@ -83,7 +96,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
   return (
     <div className={isMobile ? styles['sidebar-right-mobile'] : styles['sidebar-right']}>
       <Menu className={menuClass} mode='vertical' selectable={false}>
-        {currentPath === routes.posts() && selectedTeam !== 0 && (
+        {isPostsPage && selectedTeam !== 0 && (
           <>
             <Menu.Item
               key='all-posts'
@@ -131,7 +144,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
           </>
         )}
 
-        {currentPath === routes.teams() && (
+        {isTeamsPage && (
           <>
             <Menu.Item
               key='add-team'
@@ -144,7 +157,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
           </>
         )}
 
-        {currentPath === routes.ticket() && (
+        {isTicketPage && (
           <>
             <Menu.Item
               key='published-posts'
@@ -156,42 +169,32 @@ const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
           </>
         )}
 
-        {currentPath === routes.analytics() && (
+        {isAnalyticsPage && (
           <>
             <Menu.Item
-              key='all-posts'
+              key='all-analytics'
               className={`${styles['sidebar-options']} ${activeAnalyticsFilter === '' ? styles['active'] : ''}`}
               onClick={() => handleFilterAnalyticsChange('')}
             >
               Общая сводка
             </Menu.Item>
             <Menu.Item
-              key='published-posts'
+              key='audience-analytics'
               className={`${styles['sidebar-options']} ${activeAnalyticsFilter === 'audience' ? styles['active'] : ''}`}
               onClick={() => handleFilterAnalyticsChange('audience')}
             >
               Вовлеченность аудитории
             </Menu.Item>
             <Menu.Item
-              key='scheduled-posts'
+              key='growth-analytics'
               className={`${styles['sidebar-options']} ${activeAnalyticsFilter === 'growth' ? styles['active'] : ''}`}
               onClick={() => handleFilterAnalyticsChange('growth')}
             >
               Рост и динамика
             </Menu.Item>
-            <div className={styles['date-picker-container']}>
-              <RangePicker
-                value={analyticsPeriod}
-                onChange={handleAnalyticsPeriodChange}
-                format='DD.MM.YYYY'
-                allowClear={false}
-                disabledDate={disabledDate}
-                className={styles['date-range-picker']}
-              />
-            </div>
             <Divider className={styles['custom-divider']} />
             <Menu.Item
-              key='scheduled-posts'
+              key='kpi-analytics'
               className={`${styles['sidebar-options']} ${activeAnalyticsFilter === 'kpi' ? styles['active'] : ''}`}
               onClick={() => handleFilterAnalyticsChange('kpi')}
             >
