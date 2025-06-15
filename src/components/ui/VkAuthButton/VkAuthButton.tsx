@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Button } from 'antd';
+import { Button, Image } from 'antd';
 import { getVkAuthUrl } from '../../../api/api';
 import { NotificationContext } from '../../../api/notification';
 import styles from './styles.module.scss';
@@ -43,6 +43,14 @@ const VkAuthButton: React.FC<VkAuthButtonProps> = ({ text, disabled = false }) =
       disabled={disabled}
       block
     >
+      <Image
+        src={`${process.env.PUBLIC_URL}/vk.png`}
+        alt='VK'
+        width={20}
+        height={20}
+        preview={false}
+        className={styles.vkIcon}
+      />
       {text}
     </Button>
   );
