@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { Typography, Input, Divider, Avatar, Button, Spin } from 'antd';
+import { Typography, Input, Divider, Avatar, Button, Spin, Result } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 
@@ -15,9 +15,10 @@ import {
   setAnswerDialog,
 } from '../../../stores/commentSlice';
 import { RightOutlined } from '@ant-design/icons';
-import { SendOutlined } from '@ant-design/icons/lib/icons';
+import { SendOutlined, ReloadOutlined } from '@ant-design/icons/lib/icons';
 import { Answ, CommentReply } from '../../../models/Comment/types';
 import { Reply, ReplyIdeas } from '../../../api/api';
+import { withTimeout } from '../../../utils/timeoutUtils';
 
 const { Text } = Typography;
 
@@ -49,7 +50,7 @@ const AnswerDialog: FC = () => {
         };
 
         try {
-          const response = await ReplyIdeas(request);
+          const response = await withTimeout(ReplyIdeas(request));
 
           if (response && typeof response === 'object' && response.ideas) {
             setAnswers([{ ideas: response.ideas }]);
@@ -71,6 +72,11 @@ const AnswerDialog: FC = () => {
         } catch (err) {
           console.error('Ошибка при получении идей ответа:', err);
           setIsLoading(false);
+
+          if (err instanceof Error && err.message === 'TIMEOUT_ERROR') {
+            console.log('Ошибка таймаута при получении быстрых ответов');
+          }
+
           setHasError(true);
           setAnswers([]);
         }
@@ -199,7 +205,55 @@ const AnswerDialog: FC = () => {
             <div>
               <Divider>Быстрый ответ</Divider>
               <div className={styles['answers']}>
-                <Text type='danger'>Не удалось загрузить варианты ответа</Text>
+                <Result
+                  status='warning'
+                  title='Не удалось загрузить варианты ответа'
+                  subTitle='Сервер сейчас перегружен или недоступен, пожалуйста, попробуйте позже'
+                  extra={
+                    <Button
+                      type='primary'
+                      icon={<ReloadOutlined />}
+                      onClick={() => {
+                        setIsLoading(true);
+                        setHasError(false);
+                        const request: Answ = {
+                          comment_id: Number(selectedComment?.id),
+                          team_id: team_id,
+                        };
+                        withTimeout(ReplyIdeas(request))
+                          .then((response) => {
+                            setIsLoading(false);
+                            if (response && typeof response === 'object' && response.ideas) {
+                              setAnswers([{ ideas: response.ideas }]);
+                            } else if (typeof response === 'string') {
+                              try {
+                                const parsedResponse = JSON.parse(response);
+                                if (parsedResponse.ideas) {
+                                  setAnswers([{ ideas: parsedResponse.ideas }]);
+                                }
+                              } catch (parseError) {
+                                const formattedAnswers = (response as string)
+                                  .split('\n')
+                                  .filter((text) => text.trim())
+                                  .map((text) => ({ ideas: [text] }));
+                                setAnswers(formattedAnswers);
+                              }
+                            }
+                          })
+                          .catch((error) => {
+                            setIsLoading(false);
+                            setHasError(true);
+                            console.error(
+                              'Ошибка при повторной попытке получения идей ответа:',
+                              error,
+                            );
+                          });
+                      }}
+                    >
+                      Попробовать снова
+                    </Button>
+                  }
+                />
               </div>
             </div>
           ) : answers.length > 0 &&

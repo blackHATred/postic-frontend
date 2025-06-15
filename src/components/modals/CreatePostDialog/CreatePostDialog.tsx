@@ -35,6 +35,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
 import { Checkbox, Button, Space, Typography } from 'antd';
+import { withTimeout } from '../../../utils/timeoutUtils';
 
 dayjs.extend(utc);
 
@@ -664,7 +665,7 @@ const CreatePostDialog: FC = () => {
     setIsFixLoading(true);
 
     try {
-      const result = await fixPublication(postText);
+      const result = await withTimeout(fixPublication(postText));
       if (result && result.response) {
         setPostText(result.response);
         setFixedText(result.response);
@@ -672,9 +673,14 @@ const CreatePostDialog: FC = () => {
       } else {
         setContentError('Не удалось получить исправленный текст. Попробуйте позже.');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Ошибка при исправлении текста:', error);
-      setContentError('Произошла ошибка при исправлении текста. Попробуйте позже.');
+
+      if (error instanceof Error && error.message === 'TIMEOUT_ERROR') {
+        setContentError('Сервер сейчас перегружен или недоступен, пожалуйста, попробуйте позже');
+      } else {
+        setContentError('Произошла ошибка при исправлении текста. Попробуйте позже.');
+      }
     } finally {
       setIsFixLoading(false);
       setIsFixingText(true);

@@ -10,54 +10,81 @@ import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 import './styles.scss';
 import ReactMarkdown from 'react-markdown';
+import { Result, Button } from 'antd';
+import { withTimeout } from '../../../utils/timeoutUtils';
 
 const DialogBoxSummary: FC = () => {
   const dispatch = useAppDispatch();
   const NotificationManager = useContext(NotificationContext);
   const [summaryText, setSummaryText] = useState('');
+  const [timeoutError, setTimeoutError] = useState(false);
   const isOpen = useAppSelector((state) => state.basePageDialogs.summaryDialog.isOpen);
   const isLoading = useAppSelector((state) => state.basePageDialogs.summaryDialog.isLoading);
   const selectedPostId = useAppSelector((state) => state.posts.selectedPostId);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {
-    dispatch(setSummaryLoading(true));
     if (isOpen) {
-      getSummarize(selectedTeamId, selectedPostId)
+      setTimeoutError(false);
+      dispatch(setSummaryLoading(true));
+
+      withTimeout(getSummarize(selectedTeamId, selectedPostId))
         .then((summary: GetSummarizeResult) => {
           setSummaryText(summary.summarize.markdown);
           dispatch(setSummaryLoading(false));
         })
-        .catch(() => {
-          NotificationManager.createNotification(
-            'error',
-            'Ошибка получения суммаризации',
-            'ошибка подключения к серверу',
-          );
+        .catch((error: unknown) => {
+          if (error instanceof Error && error.message === 'TIMEOUT_ERROR') {
+            setTimeoutError(true);
+            NotificationManager.createNotification(
+              'warning',
+              'Превышено время ожидания',
+              'Сервер перегружен, попробуйте позже',
+            );
+          } else {
+            NotificationManager.createNotification(
+              'error',
+              'Ошибка получения суммаризации',
+              'ошибка подключения к серверу',
+            );
+          }
           dispatch(setSummaryLoading(false));
         });
     }
-    //Получили id от комментария, делаем Get и потом можно async Post
   }, [selectedPostId]);
 
   const onRefresh = async () => {
     if (isOpen) {
-      Summarize(selectedPostId)
-        .then(() => {
-          // TODO: добавить АПИ на перезапрос
-        })
-        .catch(() => {
+      setTimeoutError(false);
+      dispatch(setSummaryLoading(true));
+
+      try {
+        await withTimeout(Summarize(selectedPostId));
+        // TODO: добавить АПИ на перезапрос
+        dispatch(setSummaryLoading(false));
+      } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'TIMEOUT_ERROR') {
+          setTimeoutError(true);
+          NotificationManager.createNotification(
+            'warning',
+            'Превышено время ожидания',
+            'Сервер перегружен, попробуйте позже',
+          );
+        } else {
           NotificationManager.createNotification(
             'error',
-            'Ошибка запроса суммарищации',
+            'Ошибка запроса суммаризации',
             'ошибка подключения к серверу',
           );
-        });
+        }
+        dispatch(setSummaryLoading(false));
+      }
     }
   };
 
   const onCancel = async () => {
     setSummaryText('');
+    setTimeoutError(false);
     dispatch(setSummaryDialog(false));
     dispatch(setSelectedPostId(0));
   };
@@ -87,9 +114,22 @@ const DialogBoxSummary: FC = () => {
       isCenter={true}
     >
       <BlueDashedTextBox isLoading={isLoading}>
-        <div>
-          <ReactMarkdown>{summaryText}</ReactMarkdown>
-        </div>
+        {timeoutError ? (
+          <Result
+            status='warning'
+            title='Превышено время ожидания'
+            subTitle='Сервер сейчас перегружен, пожалуйста, попробуйте позже'
+            extra={
+              <Button type='primary' onClick={onRefresh}>
+                Попробовать снова
+              </Button>
+            }
+          />
+        ) : (
+          <div>
+            <ReactMarkdown>{summaryText}</ReactMarkdown>
+          </div>
+        )}
       </BlueDashedTextBox>
     </DialogBox>
   );

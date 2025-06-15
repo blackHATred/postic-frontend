@@ -10,6 +10,7 @@ import {
 import { generatePublication, uploadFile } from '../../../api/api';
 import { NotificationContext } from '../../../api/notification';
 import { CheckOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
+import { withTimeout } from '../../../utils/timeoutUtils';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -25,6 +26,7 @@ const AIGeneratePostDialog: FC = () => {
   const [selectedImages, setSelectedImages] = useState<{ [key: string]: boolean }>({});
   const [uploadingImages, setUploadingImages] = useState<{ [key: string]: boolean }>({});
   const [uploadedFileIds, setUploadedFileIds] = useState<{ [key: string]: string }>({});
+  const [timeoutError, setTimeoutError] = useState(false);
 
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.generatePostDialog.isOpen);
@@ -56,19 +58,30 @@ const AIGeneratePostDialog: FC = () => {
     }
 
     setGenerationLoading(true);
+    setTimeoutError(false);
     try {
-      const result = await generatePublication(prompt);
+      const result = await withTimeout(generatePublication(prompt));
       setGeneratedText(result.text);
       setGeneratedImages(result.images);
       notificationManager.createNotification('success', 'Публикация успешно сгенерирована', '');
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Ошибка при генерации публикации:', err);
-      setError('Не удалось сгенерировать публикацию');
-      notificationManager.createNotification(
-        'error',
-        'Ошибка генерации публикации',
-        'Попробуйте позже',
-      );
+
+      if (err instanceof Error && err.message === 'TIMEOUT_ERROR') {
+        setTimeoutError(true);
+        notificationManager.createNotification(
+          'warning',
+          'Превышено время ожидания',
+          'Сервер перегружен, пожалуйста, попробуйте позже',
+        );
+      } else {
+        setError('Не удалось сгенерировать публикацию');
+        notificationManager.createNotification(
+          'error',
+          'Ошибка генерации публикации',
+          'Попробуйте позже',
+        );
+      }
     } finally {
       setGenerationLoading(false);
     }
@@ -211,6 +224,7 @@ const AIGeneratePostDialog: FC = () => {
   const onCancel = () => {
     dispatch(setGeneratePostDialog(false));
     resetForm();
+    setTimeoutError(false);
   };
 
   const resetForm = () => {
@@ -221,6 +235,7 @@ const AIGeneratePostDialog: FC = () => {
     setUseText(true);
     setSelectedImages({});
     setUploadedFileIds({});
+    setTimeoutError(false);
   };
 
   const hasSelectedImages = Object.values(selectedImages).some((selected) => selected);
@@ -384,6 +399,15 @@ const AIGeneratePostDialog: FC = () => {
                 />
               )}
             </div>
+          )}
+
+          {timeoutError && (
+            <Alert
+              message='Превышено время ожидания генерации публикации'
+              description='Запрос на генерацию публикации превысил время ожидания. Попробуйте снова.'
+              type='warning'
+              showIcon
+            />
           )}
         </Form>
       </div>

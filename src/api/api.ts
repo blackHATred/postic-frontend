@@ -6,9 +6,7 @@ import {
   sendPostResult,
   UploadResult,
   GeneratePostResult,
-  mockGeneratePostResult,
   FixPostResult,
-  mockFixResult,
 } from '../models/Post/types';
 import {
   Comment,
@@ -396,47 +394,29 @@ export const getKPI = async (
 };
 
 export const generatePublication = async (query: string): Promise<GeneratePostResult> => {
-  try {
-    const response = await axios.post<GeneratePostResult>(
-      'http://leave-doing.gl.at.ply.gg:31585/publication',
-      { query },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+  const response = await axios.post<GeneratePostResult>(
+    'http://leave-doing.gl.at.ply.gg:31585/publication',
+    { query },
+    {
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
-    return response.data;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      console.error('Ошибка генерации публикации:', error.response?.status, error.message);
-    } else {
-      console.error('Неизвестная ошибка генерации публикации:', error);
-    }
-    return mockGeneratePostResult;
-  }
+    },
+  );
+  return response.data;
 };
 
 export const fixPublication = async (text: string): Promise<FixPostResult> => {
-  try {
-    const response = await axios.post<FixPostResult>(
-      'http://leave-doing.gl.at.ply.gg:31585/fix',
-      { text },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+  const response = await axios.post<FixPostResult>(
+    'http://leave-doing.gl.at.ply.gg:31585/fix',
+    { text },
+    {
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
-    return response.data;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      console.error('Ошибка исправления публикации:', error.response?.status, error.message);
-    } else {
-      console.error('Неизвестная ошибка исправления публикации:', error);
-    }
-    return mockFixResult;
-  }
+    },
+  );
+  return response.data;
 };
 
 export const GetProfile = async () => {
