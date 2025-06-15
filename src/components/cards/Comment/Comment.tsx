@@ -136,10 +136,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
       const file = new Blob([data], { type: 'application/octet-stream' });
       const a = document.createElement('a');
       a.href = window.URL.createObjectURL(file);
-      a.download = attach.file_path; // Set to whatever file name you want
-      // Now just click the link you created
-      // Note that you may have to append the a element to the body somewhere
-      // for this to work in Firefox
+      a.download = attach.file_path;
       a.click();
     });
   };
@@ -168,7 +165,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
             <div>
               <Text strong>{comment.is_team_reply ? teamName : comment.full_name}</Text>
               <Text type='secondary' className={styles['comment-time']}>
-                {dayjs.utc(created_at).format('D MMMM YYYY [в] HH:mm')}
+                {dayjs(created_at).format('D MMMM YYYY [в] HH:mm')}
               </Text>
               <Space
                 size={0}

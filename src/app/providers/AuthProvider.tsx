@@ -38,7 +38,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           dispatch(setCurrentUserId(0));
           dispatch(setAuthorized('not_authorized'));
 
-          if (location.pathname === '/' || location.pathname === routes.root()) {
+          if (
+            location.pathname !== '/' &&
+            location.pathname !== routes.root() &&
+            location.pathname !== routes.login() &&
+            location.pathname !== routes.register()
+          ) {
             navigate(routes.home());
           }
         }

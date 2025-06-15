@@ -7,7 +7,6 @@ import {
   CommentOutlined,
   TagOutlined,
   LineChartOutlined,
-  HomeOutlined,
 } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -43,18 +42,6 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className={styles['sidebar']}>
-      <div
-        className={`${styles['sidebar-options']} ${location.pathname === routes.home() ? styles['active'] : ''}`}
-      >
-        <ClickableButton
-          className={styles['button']}
-          type='text'
-          text={'Главная'}
-          icon={<HomeOutlined className={styles['icon-primary']} />}
-          onButtonClick={() => handleTabChange('0', routes.home())}
-        />
-      </div>
-
       {selectedTeam !== 0 && (
         <>
           <div

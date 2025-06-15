@@ -275,7 +275,7 @@ const CreatePostDialog: FC = () => {
   const onOk = () => {
     if (selectedDate) {
       if (selectedDate <= dayjs()) {
-        setContentError('Дата должна быть позже нынешнего времени');
+        setContentError('Дата должна быть позднее текущего времени');
         return;
       }
       if (selectedDate >= dayjs().add(1, 'year')) {
@@ -588,10 +588,12 @@ const CreatePostDialog: FC = () => {
                 setSelectedDate(date);
                 if (date) {
                   if (date <= dayjs()) {
-                    setContentError('Дата должна быть позже нынешнего времени');
+                    setContentError('Дата должна быть позднее текущего времени');
                     return;
                   } else if (date >= dayjs().add(1, 'year')) {
-                    setContentError('Дата должна быть не позже чем через год от нынешнего времени');
+                    setContentError(
+                      'Дата должна быть не позднее чем через год от текущего времени',
+                    );
                     return;
                   } else {
                     setContentError('');

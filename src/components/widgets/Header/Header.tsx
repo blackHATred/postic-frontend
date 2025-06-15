@@ -209,7 +209,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
   return (
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
-        <div className={styles.logo} onClick={() => navigate(routes.home())}>
+        <div className={styles.logo} onClick={() => navigate('/home')}>
           <Image
             src={`${process.env.PUBLIC_URL}/logo.png`}
             alt={'Postic'}

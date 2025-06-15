@@ -25,17 +25,13 @@ export const AppRouter = () => {
       <Route path={routes.login()} element={<LoginPage />} />
       <Route path={routes.register()} element={<RegisterPage />} />
       <Route path={routes.vkCallback()} element={<VkAuthCallback />} />
-
-      {isAuthorized !== 'authorized' ? (
-        <Route path={routes.home()} element={<HomePageLayout />}>
-          <Route index element={<HomePage />} />
-        </Route>
-      ) : null}
+      <Route path={routes.home()} element={<HomePageLayout />}>
+        <Route index element={<HomePage />} />
+      </Route>
 
       {/* Защищенные маршруты Layout */}
       <Route path={routes.root()} element={<PageLayout />}>
         <Route index element={<Navigate to={routes.home()} replace />} />
-        {isAuthorized === 'authorized' && <Route path={routes.home()} element={<HomePage />} />}
         <Route path={routes.posts()} element={<PostsPage />} />
         <Route path={routes.post(':id')} element={<PostDetailsPage />} />
         <Route path={routes.comments()} element={<CommentsPage />} />
