@@ -24,11 +24,12 @@ const DialogBoxSummary: FC = () => {
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && selectedPostId > 0) {
       setTimeoutError(false);
       dispatch(setSummaryLoading(true));
 
-      withTimeout(getSummarize(selectedTeamId, selectedPostId))
+      const apiPromise = getSummarize(selectedTeamId, selectedPostId);
+      withTimeout(apiPromise)
         .then((summary: GetSummarizeResult) => {
           setSummaryText(summary.summarize.markdown);
           dispatch(setSummaryLoading(false));
@@ -36,22 +37,11 @@ const DialogBoxSummary: FC = () => {
         .catch((error: unknown) => {
           if (error instanceof Error && error.message === 'TIMEOUT_ERROR') {
             setTimeoutError(true);
-            NotificationManager.createNotification(
-              'warning',
-              'Превышено время ожидания',
-              'Сервер перегружен, попробуйте позже',
-            );
-          } else {
-            NotificationManager.createNotification(
-              'error',
-              'Ошибка получения суммаризации',
-              'ошибка подключения к серверу',
-            );
           }
           dispatch(setSummaryLoading(false));
         });
     }
-  }, [selectedPostId]);
+  }, [selectedPostId, isOpen, selectedTeamId]);
 
   const onRefresh = async () => {
     if (isOpen) {
@@ -65,17 +55,7 @@ const DialogBoxSummary: FC = () => {
       } catch (error: unknown) {
         if (error instanceof Error && error.message === 'TIMEOUT_ERROR') {
           setTimeoutError(true);
-          NotificationManager.createNotification(
-            'warning',
-            'Превышено время ожидания',
-            'Сервер перегружен, попробуйте позже',
-          );
-        } else {
-          NotificationManager.createNotification(
-            'error',
-            'Ошибка запроса суммаризации',
-            'ошибка подключения к серверу',
-          );
+          // Убираем уведомление, так как у нас уже есть Result
         }
         dispatch(setSummaryLoading(false));
       }

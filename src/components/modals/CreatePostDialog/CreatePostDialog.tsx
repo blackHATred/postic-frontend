@@ -175,14 +175,12 @@ const CreatePostDialog: FC = () => {
       uploadedFileIds.forEach((fileId) => {
         if (typeof fileId === 'object' && fileId !== null && 'file_id' in fileId) {
           const id = String((fileId as any).file_id);
-          console.log('Добавляем file_id из объекта:', id);
           dispatch(addFile(id));
         } else if (
           (typeof fileId === 'string' || typeof fileId === 'number') &&
           !fileIds.includes(String(fileId))
         ) {
           const id = String(fileId);
-          console.log('Добавляем file_id как строку:', id);
           dispatch(addFile(id));
         }
       });
@@ -321,7 +319,6 @@ const CreatePostDialog: FC = () => {
                 isScheduledPost ? 'Пост добавлен в расписание' : 'Пост отправлен на публикацию',
               );
             } else {
-              console.error('Ошибка получения поста:', res);
               notificationManager.createNotification(
                 'error',
                 'Ошибка публикации',
@@ -332,8 +329,6 @@ const CreatePostDialog: FC = () => {
             dispatch(setCreatePostDialog(false));
           })
           .catch((error) => {
-            console.error('Ошибка при получении созданного поста:', error);
-
             notificationManager.createNotification(
               'error',
               'Ошибка публикации',
@@ -345,8 +340,6 @@ const CreatePostDialog: FC = () => {
           });
       })
       .catch((error) => {
-        console.error('Ошибка при создании поста:', error);
-
         let errorMessage = 'Не удалось создать пост. Пожалуйста, попробуйте позже.';
 
         if (error.response) {
@@ -732,8 +725,6 @@ const CreatePostDialog: FC = () => {
         setContentError('Не удалось получить исправленный текст. Попробуйте позже.');
       }
     } catch (error: unknown) {
-      console.error('Ошибка при исправлении текста:', error);
-
       if (error instanceof Error && error.message === 'TIMEOUT_ERROR') {
         setContentError('Сервер сейчас перегружен или недоступен, пожалуйста, попробуйте позже');
       } else {

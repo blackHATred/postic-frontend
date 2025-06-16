@@ -51,8 +51,6 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
     try {
       const postsStats = [];
 
-      console.log('Запрашиваемые ID постов:', postIds);
-
       for (const postId of postIds) {
         const postStatsRequest: PostReq = {
           team_id: selectedTeamId,
@@ -61,7 +59,6 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
 
         try {
           const response = await GetPostStats(postStatsRequest);
-          console.log(`Получены данные для поста ID ${postId}:`, response);
 
           if (response?.resp) {
             postsStats.push(...response.resp);
@@ -75,18 +72,13 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
               postsStats.push(...data.posts);
             }
           }
-        } catch (err) {
-          console.error(`Ошибка при загрузке статистики для поста ID ${postId}:`, err);
-        }
+        } catch (err) {}
       }
 
-      console.log('Собранные данные статистики постов:', postsStats);
-
       const transformedData = transformPostStatsToAnalytics(postsStats);
-      console.log('Преобразованные данные для отображения:', transformedData);
       setPostsData(transformedData);
     } catch (error) {
-      console.error('Ошибка при загрузке статистики постов:', error);
+      // хмм
     } finally {
       setLocalLoading(false);
     }

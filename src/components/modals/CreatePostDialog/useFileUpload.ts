@@ -89,8 +89,6 @@ export const useFileUpload = (
   };
 
   const handleFileUpload = async (file: File) => {
-    console.log('handleFileUpload начал работу с файлом:', file.name);
-
     if (!file_types) {
       const detectedType = detectFileType(file);
       setFileTypes(detectedType);
@@ -142,16 +140,10 @@ export const useFileUpload = (
         }
 
         const uploadResult = await uploadFile(file, t);
-        console.log('Успешная загрузка файла. ID файла:', uploadResult.file_id);
-        console.log(
-          'Текущее состояние uploadedFiles:',
-          uploadedFiles.map((f) => f.name),
-        );
 
         addFiles(uploadResult.file_id, fileForPreview);
 
         setUploadedFiles((prev) => {
-          console.log('setUploadedFiles вызван с файлом:', fileForPreview.name);
           return [...prev, fileForPreview];
         });
 
@@ -253,11 +245,7 @@ export const useFileUpload = (
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const files = Array.from(e.dataTransfer.files);
-      console.log(
-        'handleDrop: перетащено файлов:',
-        files.length,
-        files.map((f) => f.name),
-      );
+
       setFileTypes(undefined);
 
       const uploadPromises: Promise<any>[] = [];

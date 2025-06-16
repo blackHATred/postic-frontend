@@ -63,24 +63,11 @@ const AIGeneratePostDialog: FC = () => {
       const result = await withTimeout(generatePublication(prompt));
       setGeneratedText(result.text);
       setGeneratedImages(result.images);
-      notificationManager.createNotification('success', 'Публикация успешно сгенерирована', '');
     } catch (err: unknown) {
-      console.error('Ошибка при генерации публикации:', err);
-
       if (err instanceof Error && err.message === 'TIMEOUT_ERROR') {
         setTimeoutError(true);
-        notificationManager.createNotification(
-          'warning',
-          'Превышено время ожидания',
-          'Сервер перегружен, пожалуйста, попробуйте позже',
-        );
       } else {
         setError('Не удалось сгенерировать публикацию');
-        notificationManager.createNotification(
-          'error',
-          'Ошибка генерации публикации',
-          'Попробуйте позже',
-        );
       }
     } finally {
       setGenerationLoading(false);
@@ -158,7 +145,6 @@ const AIGeneratePostDialog: FC = () => {
 
       return uploadResult.file_id;
     } catch (error) {
-      console.error('Ошибка при загрузке изображения:', error);
       notificationManager.createNotification(
         'error',
         'Ошибка загрузки',
@@ -210,7 +196,6 @@ const AIGeneratePostDialog: FC = () => {
       notificationManager.createNotification('success', 'Публикация готова к использованию', '');
       resetForm();
     } catch (error) {
-      console.error('Ошибка при сохранении публикации:', error);
       notificationManager.createNotification(
         'error',
         'Ошибка сохранения',

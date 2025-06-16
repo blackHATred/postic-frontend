@@ -208,7 +208,7 @@ const LineChart: React.FC<LineChartProps> = ({
           chartInstance.current.destroy();
           chartInstance.current = null;
         } catch (error) {
-          console.error('Ошибка при уничтожении графика:', error);
+          // что-то тут было, но теперь этого нет
         }
       }
 

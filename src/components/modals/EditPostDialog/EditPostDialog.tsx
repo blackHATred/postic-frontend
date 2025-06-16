@@ -33,7 +33,6 @@ const EditPostDialog: FC = () => {
           setLoading(false);
         })
         .catch((err) => {
-          console.error('Ошибка загрузки поста:', err);
           setError('Не удалось загрузить данные поста');
           setLoading(false);
         });
@@ -70,7 +69,6 @@ const EditPostDialog: FC = () => {
           }
         })
         .catch((err) => {
-          console.error('Ошибка при редактировании поста:', err);
           setError('Не удалось сохранить изменения');
         })
         .finally(() => {

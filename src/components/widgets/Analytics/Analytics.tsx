@@ -97,8 +97,8 @@ const AnalyticsComponent: React.FC = () => {
           startDate = weekStart.toISOString();
           endDate = weekEnd.toISOString();
         } else {
-          startDate = dateRange[0].toISOString();
-          endDate = dateRange[1].toISOString();
+          startDate = dateRange[0];
+          endDate = dateRange[1];
         }
 
         const statsResponse = await GetStats({
@@ -119,7 +119,6 @@ const AnalyticsComponent: React.FC = () => {
           setHasPosts(false);
         }
       } catch (error) {
-        console.error('Ошибка при загрузке аналитики:', error);
         setHasPosts(false);
       } finally {
         setLoading(false);
@@ -139,8 +138,8 @@ const AnalyticsComponent: React.FC = () => {
 
       setUsersLoading(true);
       try {
-        const startDate = dateRange[0].toISOString();
-        const endDate = dateRange[1].toISOString();
+        const startDate = dateRange[0];
+        const endDate = dateRange[1];
 
         const kpiResponse = await getKPI({
           team_id: selectedTeamId,
@@ -155,11 +154,9 @@ const AnalyticsComponent: React.FC = () => {
         } else if (kpiResponse.kpi) {
           setUsersData([kpiResponse.kpi]);
         } else {
-          console.warn('Неожиданный формат ответа KPI:', kpiResponse);
           setUsersData([]);
         }
       } catch (error) {
-        console.error('Ошибка при загрузке данных KPI:', error);
         setUsersData([]);
       } finally {
         setUsersLoading(false);
@@ -205,24 +202,15 @@ const AnalyticsComponent: React.FC = () => {
     <div className={styles.analyticsContainer}>
       {activeAnalytics !== 'growth' && activeAnalytics !== 'kpi' && (
         <div className={styles.weekSelector}>
-          <Space
-            style={{
-              marginBottom: '16px',
-              display: 'flex',
-              justifyContent: 'center',
-              width: '100%',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Space>
+            <div className={styles.weekSelectorContainer}>
               <Tooltip title='Просмотр аналитики по неделям'>
-                <InfoCircleOutlined style={{ marginRight: '8px' }} />
+                <InfoCircleOutlined className={styles.weekSelectorIcon} />
               </Tooltip>
               <Radio.Button onClick={goToPrevWeek}>
                 <LeftOutlined />
               </Radio.Button>
-              <Radio.Button disabled style={{ minWidth: '150px', textAlign: 'center' }}>
-                {getWeekLabel(currentWeek)}
-              </Radio.Button>
+              <Radio.Button disabled>{getWeekLabel(currentWeek)}</Radio.Button>
               <Radio.Button onClick={goToNextWeek}>
                 <RightOutlined />
               </Radio.Button>

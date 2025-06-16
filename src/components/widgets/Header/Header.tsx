@@ -163,25 +163,21 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
   }, [teams, dispatch]);
 
   const loadPlatformsForTeam = (teamId: number) => {
-    Platforms(teamId)
-      .then((platformsData) => {
-        const platforms: ActivePlatform[] = [
-          {
-            platform: 'vk',
-            isLinked: platformsData.platforms.vk_group_id !== 0,
-            name: 'ВКонтакте',
-          },
-          {
-            platform: 'tg',
-            isLinked: platformsData.platforms.tg_channel_id !== 0,
-            name: 'Telegram',
-          },
-        ];
-        dispatch(setGlobalActivePlatforms(platforms));
-      })
-      .catch((error) => {
-        console.error('Ошибка при получении платформ:', error);
-      });
+    Platforms(teamId).then((platformsData) => {
+      const platforms: ActivePlatform[] = [
+        {
+          platform: 'vk',
+          isLinked: platformsData.platforms.vk_group_id !== 0,
+          name: 'ВКонтакте',
+        },
+        {
+          platform: 'tg',
+          isLinked: platformsData.platforms.tg_channel_id !== 0,
+          name: 'Telegram',
+        },
+      ];
+      dispatch(setGlobalActivePlatforms(platforms));
+    });
   };
 
   const handleChange = (value: string | undefined) => {

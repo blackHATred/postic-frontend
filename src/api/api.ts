@@ -17,7 +17,7 @@ import {
   Answ,
   Ticket,
 } from '../models/Comment/types';
-import { AxiosError, isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import config from '../constants/appConfig';
 import { MeInfo, RegisterResult, RegisterRequest } from '../models/User/types';
 import { routes } from './routers/routes';
@@ -61,7 +61,6 @@ export const uploadFile = async (file: File, type: string): Promise<UploadResult
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      console.error('Ошибка загрузки файла:', (error as AxiosError).status);
       throw error;
     } else {
       throw error;
@@ -229,30 +228,21 @@ export const getComments = async (
   before = true,
   marked_as_ticket?: boolean,
 ) => {
-  try {
-    const response = await axiosInstance.get<{ comments: Comment[] }>(
-      `${config.api.baseURL}${routes.comments()}/last`,
-      {
-        withCredentials: true,
-        params: {
-          team_id: selectedteamid,
-          post_union_id: union_id,
-          limit: limit,
-          offset: offset,
-          before: before,
-          marked_as_ticket: marked_as_ticket,
-        },
+  const response = await axiosInstance.get<{ comments: Comment[] }>(
+    `${config.api.baseURL}${routes.comments()}/last`,
+    {
+      withCredentials: true,
+      params: {
+        team_id: selectedteamid,
+        post_union_id: union_id,
+        limit: limit,
+        offset: offset,
+        before: before,
+        marked_as_ticket: marked_as_ticket,
       },
-    );
-    return response.data;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      console.error('Ошибка при получении комментариев:', error.response?.data || error.message);
-    } else {
-      console.error('Неизвестная ошибка:', error);
-    }
-    throw error;
-  }
+    },
+  );
+  return response.data;
 };
 
 export const Reply = async (request: CommentReply) => {
@@ -300,8 +290,6 @@ export const MarkAsTicket = async (req: Ticket): Promise<{ message: string }> =>
 };
 
 export const getMockStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
-  console.log('Используются мок-данные для аналитики');
-
   const mockData = createMockStatsForPeriod(req);
 
   await new Promise((resolve) => setTimeout(resolve, 500));

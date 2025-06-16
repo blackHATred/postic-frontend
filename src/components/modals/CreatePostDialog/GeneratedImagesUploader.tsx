@@ -87,7 +87,6 @@ const GeneratedImagesUploader: React.FC<GeneratedImagesUploaderProps> = ({
 
       return uploadResult.file_id;
     } catch (error) {
-      console.error('Ошибка при загрузке изображения:', error);
       notificationManager.createNotification(
         'error',
         'Ошибка загрузки',
@@ -130,7 +129,11 @@ const GeneratedImagesUploader: React.FC<GeneratedImagesUploaderProps> = ({
 
       onUploadComplete();
     } catch (error) {
-      console.error('Ошибка при загрузке изображений:', error);
+      notificationManager.createNotification(
+        'error',
+        'Ошибка загрузки',
+        'Произошла ошибка при загрузке изображений',
+      );
     } finally {
       setIsUploading(false);
     }

@@ -78,7 +78,6 @@ const CommentList: React.FC<{
 
   React.useEffect(() => {
     if (scrollToTop && divRef.current) {
-      console.log(scrollToTop);
       divRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       dispatch(setScrollToTop(false));
     }
@@ -93,11 +92,10 @@ const CommentList: React.FC<{
               dispatch(add_func(data.comment));
             })
             .catch(() => {
-              console.error('Ошибка при получении нового комментария');
+              // хмм
             });
       } else if (newComment.type == 'deleted') {
         getComment(teamId, newComment.comment_id).then((data) => {
-          console.log(data);
           dispatch(replace_func({ id: newComment.comment_id, ch: data.comment }));
         });
       }
@@ -134,13 +132,11 @@ const CommentList: React.FC<{
         }
       })
       .catch(() => {
-        console.warn('AAAAAAAAAAAA');
         setIsLoading(false);
       });
   };
 
   React.useEffect(() => {
-    console.log(comments);
     if (comments.length > 0) {
       if (commentElements.length == 0) {
         // NOTE: EITHER LOADED FIRST DATA OR HAD DATA LOADED

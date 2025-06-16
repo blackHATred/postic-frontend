@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { Typography, Input, Divider, Avatar, Button, Spin, Result } from 'antd';
+import { Typography, Input, Divider, Avatar, Button, Spin, Result, Space } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 
@@ -14,13 +14,15 @@ import {
   removeFileComm,
   setAnswerDialog,
 } from '../../../stores/commentSlice';
-import { RightOutlined } from '@ant-design/icons';
+import { RightOutlined, TeamOutlined } from '@ant-design/icons';
 import { SendOutlined, ReloadOutlined } from '@ant-design/icons/lib/icons';
 import { Answ, CommentReply } from '../../../models/Comment/types';
 import { Reply, ReplyIdeas } from '../../../api/api';
 import { withTimeout } from '../../../utils/timeoutUtils';
+import config from '../../../constants/appConfig';
+import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/lia';
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 const AnswerDialog: FC = () => {
   const [replyText, setReplyText] = useState('');
@@ -70,12 +72,7 @@ const AnswerDialog: FC = () => {
           }
           setIsLoading(false);
         } catch (err) {
-          console.error('Ошибка при получении идей ответа:', err);
           setIsLoading(false);
-
-          if (err instanceof Error && err.message === 'TIMEOUT_ERROR') {
-            console.log('Ошибка таймаута при получении быстрых ответов');
-          }
 
           setHasError(true);
           setAnswers([]);
@@ -154,6 +151,18 @@ const AnswerDialog: FC = () => {
     );
   };
 
+  const getIcon = (platform: string) => {
+    switch (platform) {
+      case 'vk':
+        return <LiaVk className={styles.icon} />;
+      case 'tg':
+        return <LiaTelegram className={styles.icon} />;
+      case 'twitter':
+        return <LiaTwitter className={styles.icon} />;
+    }
+    return <LiaQuestionCircle className={styles.icon} />;
+  };
+
   return (
     <DialogBox
       bottomButtons={[
@@ -168,47 +177,65 @@ const AnswerDialog: FC = () => {
       title={'Ответ на комментарий'}
       isCenter={true}
     >
-      <div className={styles['comment-header']}>
-        <Avatar
-          src={null}
-          onError={() => {
-            return true;
-          }}
-        />
-        <div className={styles['comment-author']}>
-          <Text strong>
-            {selectedComment?.username ? selectedComment?.username : selectedComment?.id}
-          </Text>
-          <Text type='secondary' className={styles['comment-time']}>
-            {selectedComment?.created_at
-              ? dayjs(selectedComment?.created_at).format('DD.MM.YYYY HH:mm')
-              : 'Дата не указана'}{' '}
-            | tg
-          </Text>
+      <div className={styles['comment']}>
+        <div className={styles['comment-header']}>
+          <Avatar
+            src={
+              selectedComment?.avatar_mediafile &&
+              config.api.baseURL + '/upload/get/' + selectedComment.avatar_mediafile.id
+            }
+            onError={() => {
+              return true;
+            }}
+            icon={<TeamOutlined />}
+            className={selectedComment?.is_team_reply ? styles['team-avatar'] : ''}
+          />
+          <div className={styles['comment-header-text']}>
+            <div className={styles['comment-author']}>
+              <div>
+                <Text strong>
+                  {selectedComment?.username ? selectedComment?.username : selectedComment?.id}
+                </Text>
+                <Text type='secondary' className={styles['comment-time']}>
+                  {selectedComment?.created_at
+                    ? dayjs(selectedComment?.created_at).format('D MMMM YYYY [в] HH:mm')
+                    : 'Дата не указана'}
+                </Text>
+                <Space
+                  size={0}
+                  split={<Divider type='vertical' />}
+                  className={styles['platform-icons']}
+                >
+                  {selectedComment?.platform && getIcon(selectedComment.platform)}
+                </Space>
+              </div>
+              <div>
+                <Text className={styles['comment-full-name']}>{selectedComment?.full_name}</Text>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={styles['comment-content']}>
+          <Paragraph>{selectedComment?.text}</Paragraph>
         </div>
       </div>
-      <Text>{selectedComment?.text}</Text>
 
       {selectedComment?.text && (
         <>
           {isLoading ? (
             <div>
               <Divider>Быстрый ответ</Divider>
-              <div
-                className={styles['answers']}
-                style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}
-              >
+              <div className={styles['loading-spinner']}>
                 <Spin />
               </div>
             </div>
           ) : hasError ? (
             <div>
               <Divider>Быстрый ответ</Divider>
-              <div className={styles['answers']}>
+              <div className={styles['compact-error']}>
                 <Result
-                  status='warning'
                   title='Не удалось загрузить варианты ответа'
-                  subTitle='Сервер сейчас перегружен или недоступен, пожалуйста, попробуйте позже'
+                  className={styles['compact-result']}
                   extra={
                     <Button
                       type='primary'
@@ -243,10 +270,6 @@ const AnswerDialog: FC = () => {
                           .catch((error) => {
                             setIsLoading(false);
                             setHasError(true);
-                            console.error(
-                              'Ошибка при повторной попытке получения идей ответа:',
-                              error,
-                            );
                           });
                       }}
                     >

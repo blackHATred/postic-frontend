@@ -51,7 +51,7 @@ const BarChart: React.FC<BarChartProps> = ({
           chartInstance.current.destroy();
           chartInstance.current = null;
         } catch (error) {
-          console.error('Ошибка при уничтожении графика:', error);
+          // хмм
         }
       }
 
@@ -97,7 +97,7 @@ const BarChart: React.FC<BarChartProps> = ({
         try {
           chartInstance.current.destroy();
         } catch (error) {
-          console.error('Ошибка при уничтожении графика:', error);
+          // что-то тут было, но теперь этого нет
         }
         chartInstance.current = null;
       }

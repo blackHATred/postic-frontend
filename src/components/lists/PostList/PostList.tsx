@@ -45,7 +45,6 @@ const PostList: React.FC = () => {
 
   React.useEffect(() => {
     if (scrollToTop && divRef.current) {
-      console.log(scrollToTop);
       divRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       dispatch(setScrollToTop(false));
     }
@@ -100,7 +99,7 @@ const PostList: React.FC = () => {
         dispatch(setPosts([]));
       }
     } catch (error) {
-      console.error('Ошибка при загрузке постов для календаря:', error);
+      // ъ
     } finally {
       setIsLoading(false);
     }

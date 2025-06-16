@@ -50,7 +50,6 @@ const VkAuthCallback: React.FC = () => {
           navigate(routes.login());
         }
       } catch (error) {
-        console.error('Ошибка обработки авторизации ВК:', error);
         dispatch(setAuthorized('not_authorized'));
         notificationManager.createNotification(
           'error',

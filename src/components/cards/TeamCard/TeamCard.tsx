@@ -57,9 +57,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       try {
         const platforms = await Platforms(id);
         setLinkedPlatforms(platforms);
-      } catch (error) {
-        console.error('Ошибка при получении привязанных платформ:', error);
-      }
+      } catch (error) {}
     };
 
     fetchPlatforms();
@@ -76,10 +74,8 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
           dispatch(clearAllComms());
         }
       } catch (error) {
-        console.error('Ошибка при выходе из команды:', error);
+        // хмм
       }
-    } else {
-      console.error('ID пользователя отсутствует. Невозможно выйти из команды.');
     }
   };
 
@@ -88,8 +84,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
       Kick({ kicked_user_id: userId, team_id: id }).then(() => {
         updateTeamList();
       });
-    } else {
-      console.error('Current user ID is null. Cannot kick user.');
     }
   };
 
@@ -137,7 +131,6 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
       return `Пользователь ${userId}`;
     } catch (error) {
-      console.error('Ошибка при получении никнейма пользователя:', error);
       return `Пользователь ${userId}`;
     }
   };

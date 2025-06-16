@@ -23,9 +23,6 @@ const GeneratedImagesViewer: React.FC<GeneratedImagesViewerProps> = ({
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
 
-  console.log('GeneratedImagesViewer - received uploadedFileIds:', uploadedFileIds);
-  console.log('GeneratedImagesViewer - received images:', images);
-
   useEffect(() => {
     if (images && images.length > 0 && uploadedFileIds && uploadedFileIds.length > 0) {
       const newImageMap: Record<string, string> = {};
@@ -35,7 +32,6 @@ const GeneratedImagesViewer: React.FC<GeneratedImagesViewerProps> = ({
         if (fileIdObj && fileIdObj.file_id) {
           const fileId = String(fileIdObj.file_id);
           newImageMap[fileId] = images[0];
-          console.log('Обработан объект с file_id:', fileId);
         }
       } else {
         uploadedFileIds.forEach((fileId, index) => {
@@ -46,7 +42,6 @@ const GeneratedImagesViewer: React.FC<GeneratedImagesViewerProps> = ({
         });
       }
 
-      console.log('Созданная карта соответствия ID-URL:', newImageMap);
       setImageMap(newImageMap);
     }
   }, [images, uploadedFileIds]);

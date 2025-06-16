@@ -77,7 +77,7 @@ const PostCalendar: React.FC = () => {
           dispatch(setPosts([]));
         }
       } catch (error) {
-        console.error('Ошибка при загрузке постов для календаря:', error);
+        // ъ
       } finally {
         setIsLoading(false);
       }
