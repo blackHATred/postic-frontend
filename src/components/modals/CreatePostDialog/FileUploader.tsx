@@ -58,7 +58,17 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
     if (props.files.length == 0) {
       setID(Math.random());
     }
-    setUploadedFiles(props.files);
+
+    const filesWithPreview = props.files.map((file) => {
+      if (!file.url && file.originFileObj) {
+        if (file.type && file.type.startsWith('image/')) {
+          file.url = URL.createObjectURL(file.originFileObj);
+        }
+      }
+      return file;
+    });
+
+    setUploadedFiles(filesWithPreview);
   }, [props.files]);
 
   useEffect(() => {}, [props.files]);
@@ -148,9 +158,22 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
           return 'Размер фото превышает 10мб';
         }
         const uploadResult = await uploadFile(file, t);
-        props.addFiles(uploadResult.file_id, file);
 
-        setUploadedFiles((prev) => [...prev, file]);
+        const fileWithPreview = file;
+        if (file.type && file.type.startsWith('image/')) {
+          const fileUrl = URL.createObjectURL(file);
+          Object.assign(fileWithPreview, { url: fileUrl });
+        }
+
+        props.addFiles(uploadResult.file_id, fileWithPreview);
+
+        setUploadedFiles((prev) => [
+          ...prev,
+          Object.assign({}, file, {
+            url:
+              file.type && file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+          }),
+        ]);
 
         return '';
       } catch (error: any) {
@@ -261,6 +284,12 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
 
   useEffect(() => {
     return () => {
+      uploadedFiles.forEach((file) => {
+        if (file.url && typeof file.url === 'string' && file.url.startsWith('blob:')) {
+          URL.revokeObjectURL(file.url);
+        }
+      });
+
       dragPreviewFiles.forEach((item) => {
         if (
           item &&
@@ -272,7 +301,7 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
         }
       });
     };
-  }, [dragPreviewFiles]);
+  }, [uploadedFiles, dragPreviewFiles]);
 
   return (
     <div
@@ -301,7 +330,15 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
           accept={file_types}
           openFileDialogOnClick={open_da}
           customRequest={(obj: any) => {
-            handleFileUpload(obj.file).then((f: string) => {
+            const file = obj.file;
+
+            if (file.type && file.type.startsWith('image/')) {
+              const fileUrl = URL.createObjectURL(file);
+              file.url = fileUrl;
+              file.thumbUrl = fileUrl;
+            }
+
+            handleFileUpload(file).then((f: string) => {
               if (!f) {
                 obj.response = 'Успех';
                 obj.onSuccess();
@@ -310,7 +347,11 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
               }
             });
           }}
-          onPreview={() => {}}
+          onPreview={(file) => {
+            if (file.url) {
+              window.open(file.url, '_blank');
+            }
+          }}
         >
           <div style={{ textAlign: 'center', margin: '16px 0' }}>
             <Dropdown menu={menuProps}>
@@ -336,9 +377,17 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
           maxCount={10}
           accept='*/*'
           customRequest={(obj: any) => {
-            setFileTypes(detectFileType(obj.file));
+            const file = obj.file;
 
-            handleFileUpload(obj.file).then((f: string) => {
+            setFileTypes(detectFileType(file));
+
+            if (file.type && file.type.startsWith('image/')) {
+              const fileUrl = URL.createObjectURL(file);
+              file.url = fileUrl;
+              file.thumbUrl = fileUrl;
+            }
+
+            handleFileUpload(file).then((f: string) => {
               if (!f) {
                 obj.response = 'Успех';
                 obj.onSuccess();
@@ -347,6 +396,11 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
                 obj.onError(null, f, obj.file);
               }
             });
+          }}
+          onPreview={(file) => {
+            if (file.url) {
+              window.open(file.url, '_blank');
+            }
           }}
           className={styles['file-dragger']}
         >
