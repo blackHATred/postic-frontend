@@ -1,6 +1,6 @@
 import React from 'react';
 import { ConfigProvider, theme } from 'antd';
-import './App.css';
+import './App.scss';
 import NotificationManager from '../api/notification';
 import { CookiesProvider } from 'react-cookie';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

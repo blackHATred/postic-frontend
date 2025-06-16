@@ -1,4 +1,3 @@
-// HelpContentComponents.tsx
 import React, { useRef } from 'react';
 import { Typography, Space, Image, Divider, Anchor } from 'antd';
 import styles from './styles.module.scss';
@@ -60,11 +59,7 @@ export const PostHelpContent: React.FC = () => (
               </li>
               <li>Вид отображения постов можно переключать между списком и календарем.</li>
             </ol>
-            <Image
-              src={`${process.env.PUBLIC_URL}/post/post_menu.png`}
-              alt='Меню поста'
-              className={styles.screenshot}
-            />
+            <Image src={'/post/post_menu.png'} alt='Меню поста' className={styles.screenshot} />
           </div>
         ),
       },
@@ -94,11 +89,7 @@ export const PostHelpContent: React.FC = () => (
                 </ul>
               </li>
             </ul>
-            <Image
-              src={`${process.env.PUBLIC_URL}/post/post_card.png`}
-              alt='Карточка поста'
-              className={styles.screenshot}
-            />
+            <Image src={'/post/post_card.png'} alt='Карточка поста' className={styles.screenshot} />
           </Paragraph>
         ),
       },
@@ -107,11 +98,7 @@ export const PostHelpContent: React.FC = () => (
         content: (
           <div>
             <Paragraph>На странице поста вы можете увидеть комментарии к посту.</Paragraph>
-            <Image
-              src={`${process.env.PUBLIC_URL}/post/post_id.png`}
-              alt='Страница поста'
-              className={styles.screenshot}
-            />
+            <Image src={'/post/post_id.png'} alt='Страница поста' className={styles.screenshot} />
             <Paragraph>
               Кнопка "Анализ комментариев" делает анализ комментариев под постом и предоставляет их
               краткое содержание, учитывая их тональность и частоту упоминания ключевых слов.
@@ -134,7 +121,7 @@ export const PostHelpContent: React.FC = () => (
               опубликованных или отложенных на этот день.
             </Paragraph>
             <Image
-              src={`${process.env.PUBLIC_URL}/post/post_calendar.png`}
+              src={'/post/post_calendar.png'}
               alt='Создание поста'
               className={styles.screenshot}
             />
@@ -145,7 +132,6 @@ export const PostHelpContent: React.FC = () => (
   />
 );
 
-// Компонент справки по работе с комментариями
 export const CommentsHelpContent: React.FC = () => (
   <HelpContentBase
     title='Комментарии'
@@ -188,7 +174,7 @@ export const CommentsHelpContent: React.FC = () => (
               </li>
             </ul>
             <Image
-              src={`${process.env.PUBLIC_URL}/comment/comment.png`}
+              src={'/comment/comment.png'}
               alt='Карточка поста'
               className={styles.screenshot}
             />
@@ -199,7 +185,6 @@ export const CommentsHelpContent: React.FC = () => (
   />
 );
 
-// Компонент справки по работе с тикетами
 export const TicketsHelpContent: React.FC = () => (
   <HelpContentBase
     title='Тикеты'
@@ -211,11 +196,7 @@ export const TicketsHelpContent: React.FC = () => (
           <Paragraph>
             Для решения тикета нужно нажать на кнопку в правом нижнем углу в карточке тикета. Он
             автоматически удалится из списка тикетов.
-            <Image
-              src={`${process.env.PUBLIC_URL}/comment/ticket.png`}
-              alt='Карточка поста'
-              className={styles.screenshot}
-            />
+            <Image src={'/comment/ticket.png'} alt='Карточка поста' className={styles.screenshot} />
           </Paragraph>
         ),
       },
@@ -223,7 +204,6 @@ export const TicketsHelpContent: React.FC = () => (
   />
 );
 
-// Компонент справки по аналитике
 export const AnalyticsHelpContent: React.FC = () => (
   <HelpContentBase
     title='Аналитика'
@@ -238,7 +218,7 @@ export const AnalyticsHelpContent: React.FC = () => (
             вашей команды и динамику роста аудитории.
             <div></div>
             <Image
-              src={`${process.env.PUBLIC_URL}/analytics/analytics_menu.png`}
+              src={'/analytics/analytics_menu.png'}
               alt='Обзор статистики'
               className={styles.screenshot}
             />
@@ -291,7 +271,7 @@ export const TeamHelpContent: React.FC = () => (
           <Paragraph>
             После создания команды вы увидите её карточку.
             <Image
-              src={`${process.env.PUBLIC_URL}/team/team_card.png`}
+              src={'/team/team_card.png'}
               alt='Создание команды'
               className={styles.screenshot}
             />
@@ -302,7 +282,7 @@ export const TeamHelpContent: React.FC = () => (
               <li>Кнопка с карандашом для редактирования названия команды</li>
             </ul>
             <Image
-              src={`${process.env.PUBLIC_URL}/team/team_card_info.png`}
+              src={'/team/team_card_info.png'}
               alt='Создание команды'
               className={styles.screenshot}
             />
@@ -315,13 +295,13 @@ export const TeamHelpContent: React.FC = () => (
               </li>
             </ul>
             <Image
-              src={`${process.env.PUBLIC_URL}/team/team_card_buttons.png`}
+              src={'/team/team_card_buttons.png'}
               alt='Создание команды'
               className={styles.screenshot}
             />
             Внизу карточки команды отображается список участников с их ролями:
             <Image
-              src={`${process.env.PUBLIC_URL}/team/team_card_table.png`}
+              src={'/team/team_card_table.png'}
               alt='Создание команды'
               className={styles.screenshot}
             />
@@ -406,7 +386,6 @@ export const TeamHelpContent: React.FC = () => (
   />
 );
 
-// Компонент справки по настройкам
 export const SettingsHelpContent: React.FC = () => (
   <HelpContentBase
     title='Настройки'
@@ -425,7 +404,6 @@ export const SettingsHelpContent: React.FC = () => (
   />
 );
 
-// Компонент общей справки
 export const GeneralHelpContent: React.FC = () => (
   <HelpContentBase
     title='Общая информация'

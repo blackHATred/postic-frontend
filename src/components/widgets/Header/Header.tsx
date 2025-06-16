@@ -206,13 +206,7 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
     <div className={styles.headerContainer}>
       <div className={styles.headerComponents}>
         <div className={styles.logo} onClick={() => navigate('/home')}>
-          <Image
-            src={`${process.env.PUBLIC_URL}/logo.png`}
-            alt={'Postic'}
-            width={40}
-            height={40}
-            preview={false}
-          />
+          <Image src={'/logo.png'} alt={'Postic'} width={40} height={40} preview={false} />
         </div>
 
         <div className={styles.headerIcons}>

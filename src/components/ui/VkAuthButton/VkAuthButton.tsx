@@ -44,7 +44,7 @@ const VkAuthButton: React.FC<VkAuthButtonProps> = ({ text, disabled = false }) =
       block
     >
       <Image
-        src={`${process.env.PUBLIC_URL}/vk.png`}
+        src={'/vk.png'}
         alt='VK'
         width={20}
         height={20}

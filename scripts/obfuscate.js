@@ -13,10 +13,15 @@ const obfuscatorConfig = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../obfuscator.config.json'), 'utf8'),
 );
 
-const jsFiles = globModule.glob.sync('build/static/js/main.*.js');
+const jsFiles = [
+  // для react-scripts
+  ...globModule.glob.sync('build/static/js/main.*.js'),
+  // для Vite
+  ...globModule.glob.sync('build/assets/*.js'),
+];
 
 if (jsFiles.length === 0) {
-  console.error('JS файлы не найдены в директории build/static/js!');
+  console.error('JS файлы не найдены в директории build!');
   // eslint-disable-next-line no-undef
   process.exit(1);
 }

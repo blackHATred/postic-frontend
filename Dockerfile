@@ -13,11 +13,11 @@ RUN npm install
 # Copy the remaining application files to the working directory
 COPY . .
 
-# Build the application
-RUN npm run build:prod
+# Build the application with Vite
+RUN npm run build:vite:prod
 
 # Expose port 3000 for the application
 EXPOSE 3000
 
-# Start the application
-CMD [ "npm", "run", "start" ]
+# Start the application using Vite preview mode
+CMD [ "npm", "run", "preview" ]
