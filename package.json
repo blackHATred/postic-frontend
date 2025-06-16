@@ -2,6 +2,7 @@
   "name": "postic-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
     "@antv/g2plot": "^2.4.33",
@@ -33,11 +34,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "react-scripts build && npm run obfuscate",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "obfuscate": "uglifyjs build/static/js/main.*.js -o build/static/js/bundle.min.js -c -m"
+    "obfuscate": "node scripts/obfuscate.js"
   },
   "browserslist": {
     "production": [
@@ -59,8 +61,11 @@
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "glob": "^11.0.3",
+    "javascript-obfuscator": "^4.1.1",
     "sass": "^1.85.1",
-    "sass-resources-loader": "^2.2.5"
+    "sass-resources-loader": "^2.2.5",
+    "terser": "^5.42.0"
   },
   "resolutions": {
     "react": "^19.0.0",

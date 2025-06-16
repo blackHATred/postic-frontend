@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState, useContext } from 'react';
 import { Input, Divider, DatePicker, Form } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
@@ -36,6 +36,7 @@ import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
 import { Checkbox, Button, Space, Typography } from 'antd';
 import { withTimeout } from '../../../utils/timeoutUtils';
+import { NotificationContext } from '../../../api/notification';
 
 dayjs.extend(utc);
 
@@ -117,6 +118,7 @@ const CreatePostDialog: FC = () => {
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
   const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files);
   const [files, setFiles] = useState<{ id: string; files: any }[]>([]);
+  const notificationManager = useContext(NotificationContext);
 
   const [platformError, setPlatformError] = useState<string | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
@@ -297,27 +299,79 @@ const CreatePostDialog: FC = () => {
       ...postPayload,
     } as any;
 
-    sendPostRequest(apiPostPayload).then((data: sendPostResult) => {
-      getPost(team_id, data.post_id).then((res: { post: Post }) => {
-        if (res.post) {
-          const isScheduledPost =
-            res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date();
+    sendPostRequest(apiPostPayload)
+      .then((data: sendPostResult) => {
+        getPost(team_id, data.post_id)
+          .then((res: { post: Post }) => {
+            if (res.post) {
+              const isScheduledPost =
+                res.post.pub_datetime && new Date(res.post.pub_datetime) > new Date();
 
-          if (isScheduledPost) {
-            if (activeFilter != 'published') dispatch(addPost(res.post));
-          } else {
-            if (activeFilter != 'scheduled') dispatch(addPost(res.post));
-            dispatch(setPostStatusDialog(true));
+              if (isScheduledPost) {
+                if (activeFilter != 'published') dispatch(addPost(res.post));
+              } else {
+                if (activeFilter != 'scheduled') dispatch(addPost(res.post));
+                dispatch(setPostStatusDialog(true));
+              }
+              dispatch(setSelectedPostId(data.post_id));
+
+              notificationManager.createNotification(
+                'success',
+                'Пост успешно создан',
+                isScheduledPost ? 'Пост добавлен в расписание' : 'Пост отправлен на публикацию',
+              );
+            } else {
+              console.error('Ошибка получения поста:', res);
+              notificationManager.createNotification(
+                'error',
+                'Ошибка публикации',
+                'Не удалось получить информацию о созданном посте',
+              );
+            }
+            clearFields();
+            dispatch(setCreatePostDialog(false));
+          })
+          .catch((error) => {
+            console.error('Ошибка при получении созданного поста:', error);
+
+            notificationManager.createNotification(
+              'error',
+              'Ошибка публикации',
+              'Не удалось получить информацию о созданном посте. Пожалуйста, проверьте раздел постов позже.',
+            );
+
+            clearFields();
+            dispatch(setCreatePostDialog(false));
+          });
+      })
+      .catch((error) => {
+        console.error('Ошибка при создании поста:', error);
+
+        let errorMessage = 'Не удалось создать пост. Пожалуйста, попробуйте позже.';
+
+        if (error.response) {
+          const status = error.response.status;
+
+          if (status === 400) {
+            errorMessage =
+              'Некорректные данные в форме. Пожалуйста, проверьте введенную информацию.';
+          } else if (status === 401) {
+            errorMessage = 'Необходима авторизация. Пожалуйста, войдите в систему снова.';
+          } else if (status === 403) {
+            errorMessage = 'У вас нет прав для создания поста в выбранных платформах.';
+          } else if (status === 413) {
+            errorMessage =
+              'Слишком большой размер вложений. Пожалуйста, уменьшите размер или количество файлов.';
+          } else if (status === 429) {
+            errorMessage = 'Превышен лимит запросов. Пожалуйста, попробуйте позже.';
           }
-          dispatch(setSelectedPostId(data.post_id));
-        } else {
-          console.error('Ошибка получения поста:', res);
         }
-        clearFields();
-      });
-    });
 
-    dispatch(setCreatePostDialog(false));
+        notificationManager.createNotification('error', 'Ошибка создания поста', errorMessage);
+
+        clearFields();
+        dispatch(setCreatePostDialog(false));
+      });
   };
 
   const clearFields = () => {
@@ -404,26 +458,28 @@ const CreatePostDialog: FC = () => {
               <>
                 {linkedPlatforms.length > 1 && (
                   <div className={styles['platforms-list-buttons']}>
-                    <Button
-                      icon={<CheckOutlined />}
-                      size='small'
-                      variant='text'
-                      color='geekblue'
-                      onClick={selectAll}
-                      disabled={linkedPlatforms.length === 0}
-                    >
-                      Выбрать все
-                    </Button>
-                    <Button
-                      icon={<CloseOutlined />}
-                      size='small'
-                      variant='text'
-                      color='default'
-                      onClick={clearAll}
-                      disabled={selectedPlatforms.length === 0}
-                    >
-                      Очистить выбор
-                    </Button>
+                    {selectedPlatforms.length === 0 ? (
+                      <Button
+                        icon={<CheckOutlined />}
+                        size='small'
+                        variant='text'
+                        color='geekblue'
+                        onClick={selectAll}
+                        disabled={linkedPlatforms.length === 0}
+                      >
+                        Выбрать все
+                      </Button>
+                    ) : (
+                      <Button
+                        icon={<CloseOutlined />}
+                        size='small'
+                        variant='text'
+                        color='default'
+                        onClick={clearAll}
+                      >
+                        Очистить все
+                      </Button>
+                    )}
                   </div>
                 )}
                 <div>
