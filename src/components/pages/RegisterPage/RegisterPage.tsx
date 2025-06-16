@@ -19,6 +19,7 @@ import {
 import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 import { saveAuthToken } from '../../../utils/tokenStorage';
 import { HomeOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const { Text } = Typography;
 
@@ -45,33 +46,70 @@ const RegisterPage: React.FC = () => {
         password: values.password,
       };
 
-      const result = await RegisterWithUserData(userData);
+      try {
+        const result = await RegisterWithUserData(userData);
 
-      if (result && result.user_id) {
-        if (result.token) {
-          saveAuthToken(result.token);
+        if (result && result.user_id) {
+          if (result.token) {
+            saveAuthToken(result.token);
+          }
+
+          dispatch(setCurrentUserId(result.user_id));
+
+          const teamsResult = await MyTeams();
+          if (teamsResult.teams) {
+            dispatch(setTeams(teamsResult.teams));
+          }
+
+          dispatch(setAuthorized('authorized'));
+          notificationManager.createNotification(
+            'success',
+            'Регистрация успешна',
+            'Ваш аккаунт создан',
+          );
+          navigate(routes.teams());
         }
-
-        dispatch(setCurrentUserId(result.user_id));
-
-        const teamsResult = await MyTeams();
-        if (teamsResult.teams) {
-          dispatch(setTeams(teamsResult.teams));
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorResponse = error.response?.data;
+          if (errorResponse && errorResponse.error) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка регистрации',
+              errorResponse.error,
+            );
+          } else if (error.response?.status === 409) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка регистрации',
+              'Пользователь с таким email уже существует',
+            );
+          } else if (error.response?.status === 400) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка регистрации',
+              'Email, пароль и имя пользователя обязательны для заполнения',
+            );
+          } else {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка регистрации',
+              'Произошла непредвиденная ошибка',
+            );
+          }
+        } else {
+          notificationManager.createNotification(
+            'error',
+            'Ошибка регистрации',
+            'Произошла непредвиденная ошибка',
+          );
         }
-
-        dispatch(setAuthorized('authorized'));
-        notificationManager.createNotification(
-          'success',
-          'Регистрация успешна',
-          'Ваш аккаунт создан',
-        );
-        navigate(routes.teams());
       }
     } catch (error) {
       notificationManager.createNotification(
         'error',
         'Ошибка регистрации',
-        (error as Error).message || '',
+        'Пожалуйста, заполните все обязательные поля корректно',
       );
     } finally {
       setLoading(false);

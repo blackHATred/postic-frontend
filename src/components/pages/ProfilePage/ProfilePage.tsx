@@ -6,6 +6,7 @@ import ClickableButton from '../../ui/Button/Button';
 import styles from './styles.module.scss';
 import { GetProfile, UpdatePassword, UpdateProfile } from '../../../api/api';
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../../../utils/validation';
+import axios from 'axios';
 
 const { Title, Text } = Typography;
 
@@ -52,21 +53,64 @@ const ProfilePage: React.FC = () => {
       const values = await profileForm.validateFields();
       setLoading(true);
 
-      await UpdateProfile(values.nickname, values.email);
+      try {
+        await UpdateProfile(values.nickname, values.email);
 
-      setUserProfile((prev) =>
-        prev ? { ...prev, nickname: values.nickname, email: values.email } : null,
-      );
-      notificationManager.createNotification(
-        'success',
-        'Профиль обновлен',
-        'Ваш профиль успешно обновлен',
-      );
+        setUserProfile((prev) =>
+          prev ? { ...prev, nickname: values.nickname, email: values.email } : null,
+        );
+        notificationManager.createNotification(
+          'success',
+          'Профиль обновлен',
+          'Ваш профиль успешно обновлен',
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorResponse = error.response?.data;
+          if (errorResponse && errorResponse.error) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка обновления профиля',
+              errorResponse.error,
+            );
+          } else if (error.response?.status === 401) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка авторизации',
+              'Пользователь не авторизован',
+            );
+          } else if (error.response?.status === 409) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка обновления профиля',
+              'Пользователь с таким email уже существует',
+            );
+          } else if (error.response?.status === 400) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка обновления профиля',
+              'Должно быть указано хотя бы одно поле для обновления',
+            );
+          } else {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка обновления профиля',
+              'Произошла непредвиденная ошибка',
+            );
+          }
+        } else {
+          notificationManager.createNotification(
+            'error',
+            'Ошибка обновления профиля',
+            'Произошла непредвиденная ошибка',
+          );
+        }
+      }
     } catch (error) {
       notificationManager.createNotification(
         'error',
-        'Ошибка обновления',
-        'Не удалось обновить профиль',
+        'Ошибка валидации',
+        'Пожалуйста, заполните все обязательные поля корректно',
       );
     } finally {
       setLoading(false);
@@ -78,19 +122,65 @@ const ProfilePage: React.FC = () => {
       const values = await passwordForm.validateFields();
       setLoading(true);
 
-      await UpdatePassword(values.oldPassword, values.newPassword);
+      try {
+        await UpdatePassword(values.oldPassword, values.newPassword);
 
-      passwordForm.resetFields();
-      notificationManager.createNotification(
-        'success',
-        'Пароль обновлен',
-        'Ваш пароль успешно изменен',
-      );
+        passwordForm.resetFields();
+        notificationManager.createNotification(
+          'success',
+          'Пароль обновлен',
+          'Ваш пароль успешно изменен',
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorResponse = error.response?.data;
+          if (errorResponse && errorResponse.error) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка смены пароля',
+              errorResponse.error,
+            );
+          } else if (
+            error.response?.status === 401 &&
+            error.response?.data?.error === 'Неверный старый пароль'
+          ) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка смены пароля',
+              'Неверный старый пароль',
+            );
+          } else if (error.response?.status === 401) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка авторизации',
+              'Пользователь не авторизован',
+            );
+          } else if (error.response?.status === 400) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка смены пароля',
+              'Старый и новый пароли обязательны для заполнения',
+            );
+          } else {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка смены пароля',
+              'Произошла непредвиденная ошибка',
+            );
+          }
+        } else {
+          notificationManager.createNotification(
+            'error',
+            'Ошибка смены пароля',
+            'Произошла непредвиденная ошибка',
+          );
+        }
+      }
     } catch (error) {
       notificationManager.createNotification(
         'error',
-        'Ошибка обновления',
-        'Не удалось обновить пароль',
+        'Ошибка валидации',
+        'Пожалуйста, заполните все обязательные поля корректно',
       );
     } finally {
       setLoading(false);

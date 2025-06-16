@@ -13,6 +13,7 @@ import VkAuthButton from '../../ui/VkAuthButton/VkAuthButton';
 import { saveAuthToken } from '../../../utils/tokenStorage';
 import { HomeOutlined } from '@ant-design/icons';
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../../../utils/validation';
+import axios from 'axios';
 
 const { Text } = Typography;
 
@@ -62,17 +63,43 @@ const LoginPage: React.FC = () => {
         }
       } catch (error) {
         dispatch(setAuthorized('not_authorized'));
-        notificationManager.createNotification(
-          'error',
-          'Ошибка входа',
-          (error as Error).message || '',
-        );
+
+        if (axios.isAxiosError(error)) {
+          const errorResponse = error.response?.data;
+          if (errorResponse && errorResponse.error) {
+            notificationManager.createNotification('error', 'Ошибка входа', errorResponse.error);
+          } else if (error.response?.status === 401) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка входа',
+              'Неверный email или пароль',
+            );
+          } else if (error.response?.status === 400) {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка входа',
+              'Email и пароль обязательны для заполнения',
+            );
+          } else {
+            notificationManager.createNotification(
+              'error',
+              'Ошибка входа',
+              'Произошла непредвиденная ошибка',
+            );
+          }
+        } else {
+          notificationManager.createNotification(
+            'error',
+            'Ошибка входа',
+            'Произошла непредвиденная ошибка',
+          );
+        }
       }
     } catch (error) {
       notificationManager.createNotification(
         'error',
         'Ошибка входа',
-        (error as Error).message || '',
+        'Пожалуйста, заполните все обязательные поля корректно',
       );
     } finally {
       setLoading(false);

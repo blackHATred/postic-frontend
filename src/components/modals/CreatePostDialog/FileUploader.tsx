@@ -1,307 +1,75 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Upload, Typography, MenuProps, Dropdown, Space, Button } from 'antd';
-import {
-  DownOutlined,
-  FileImageOutlined,
-  PaperClipOutlined,
-  VideoCameraAddOutlined,
-  InboxOutlined,
-} from '@ant-design/icons';
-import { isFileAlreadyAdded } from '../../../utils/validation';
-import { uploadFile } from '../../../api/api';
-import { NotificationContext } from '../../../api/notification';
-import { isAxiosError } from 'axios';
-import styles from './styles.module.scss';
+import React, { useState } from 'react';
+import { Typography } from 'antd';
 import { useAppSelector } from '../../../stores/hooks';
+import { FileUploaderProps, MAX_FILES } from './types';
+import { useFileUpload } from './useFileUpload';
+import { StandardUploader, DragUploader } from './Uploaders';
+import DragPreview from './DragPreview';
+import { detectFileType } from './fileUtils';
+import styles from './styles.module.scss';
 
 const { Text } = Typography;
-const { Dragger } = Upload;
 
-const items: MenuProps['items'] = [
-  {
-    label: 'Фото',
-    key: '1',
-    icon: <FileImageOutlined />,
-  },
-  {
-    label: 'Видео',
-    key: '2',
-    icon: <VideoCameraAddOutlined />,
-  },
-];
+/**
+ * Компонент для загрузки файлов в пост
+ */
+const FileUploader: React.FC<FileUploaderProps> = (props) => {
+  const [localIsDragging, setLocalIsDragging] = useState(false);
+  const [localFileTypes, setLocalFileTypes] = useState<string>();
 
-interface fileUploaderProps {
-  addFiles: (id: string, file: any) => void;
-  removeFile: (file: any) => any;
-  files: any[];
-}
-
-const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => {
+  // Получаем список ID файлов из состояния Redux
   const fileIds = useAppSelector((state) => state.basePageDialogs.createPostDialog.files).map(
-    (file) => {
-      return file;
-    },
+    (file) => file,
   );
 
-  const NotificationManager = useContext(NotificationContext);
-  const maxFiles = 10;
-  const [id, setID] = useState(0);
-  const ref_upload = useRef<HTMLDivElement>(null);
-  const [open_da, setOpenDia] = useState(false);
-  const [file_types, setFileTypes] = useState<string>();
-  const [isDragging, setIsDragging] = useState(false);
-  const dragCountRef = useRef(0);
-  const [dragPreviewFiles, setDragPreviewFiles] = useState<{ file: File; preview: string }[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const {
+    id,
+    ref_upload,
+    open_da,
+    file_types,
+    isDragging,
+    dragPreviewFiles,
+    uploadedFiles,
+    setUploadedFiles,
+    handleMenuClick,
+    handleFileUpload,
+    handleFileRemove,
+    handleDragEnter,
+    handleDragLeave,
+    handleDragOver,
+    handleDrop,
+    getCustomRequestHandler,
+    handlePreview,
+  } = useFileUpload(props.addFiles, props.removeFile, props.files);
 
-  useEffect(() => {
-    if (props.files.length == 0) {
-      setID(Math.random());
-    }
+  const customRequestHandler = (obj: any) => {
+    const file = obj.file;
 
-    const filesWithPreview = props.files.map((file) => {
-      if (!file.url && file.originFileObj) {
-        if (file.type && file.type.startsWith('image/')) {
-          file.url = URL.createObjectURL(file.originFileObj);
-        }
+    getCustomRequestHandler(file).then((f: string) => {
+      if (!f) {
+        obj.response = 'Успех';
+        obj.onSuccess();
+      } else {
+        obj.onError(null, f, obj.file);
       }
-      return file;
     });
+  };
 
-    setUploadedFiles(filesWithPreview);
-  }, [props.files]);
+  const dragCustomRequestHandler = (obj: any) => {
+    const file = obj.file;
 
-  useEffect(() => {}, [props.files]);
+    setLocalFileTypes(detectFileType(file));
 
-  const handleMenuClick: MenuProps['onClick'] = (e) => {
-    setOpenDia(true);
-    switch (e.key) {
-      case '1': {
-        setFileTypes('.png,.jpg,.jpeg');
-        break;
+    getCustomRequestHandler(file).then((f: string) => {
+      if (!f) {
+        obj.response = 'Успех';
+        obj.onSuccess();
+        setLocalIsDragging(false);
+      } else {
+        obj.onError(null, f, obj.file);
       }
-      case '2': {
-        setFileTypes('.mp4,.gif');
-        break;
-      }
-      case '3': {
-        setFileTypes('.');
-        break;
-      }
-    }
-
-    setTimeout(() => {
-      ref_upload.current?.click();
-      setOpenDia(false);
-    }, 100);
+    });
   };
-
-  const detectFileType = (file: File): string => {
-    const fileName = file.name.toLowerCase();
-    const extension = fileName.substring(fileName.lastIndexOf('.'));
-
-    if (['.png', '.jpg', '.jpeg'].some((ext) => extension === ext)) {
-      return '.png,.jpg,.jpeg';
-    } else if (['.mp4', '.gif'].some((ext) => extension === ext)) {
-      return '.mp4,.gif';
-    } else {
-      return '.';
-    }
-  };
-
-  const menuProps = {
-    items,
-    onClick: handleMenuClick,
-  };
-
-  const handleFileUpload = async (file: File) => {
-    // Автоматический тип файла, если тип не задан (при drag-and-drop)
-    if (!file_types) {
-      const detectedType = detectFileType(file);
-      setFileTypes(detectedType);
-    }
-
-    if (!isFileAlreadyAdded(props.files, file)) {
-      const sizeMb = file.size / 1024 / 1024;
-      if (sizeMb > 20) {
-        NotificationManager.createNotification(
-          'error',
-          `Файл ${file.name} не загружен.`,
-          'Размер файла превышает 20мб.',
-        );
-        return 'Размер файла превышает 20мб';
-      }
-
-      try {
-        let t = '';
-        const currentFileType = file_types || detectFileType(file);
-
-        switch (currentFileType) {
-          case '.png,.jpg,.jpeg': {
-            t = 'photo';
-            break;
-          }
-          case '.mp4,.gif': {
-            t = 'video';
-            break;
-          }
-          case '.': {
-            t = 'raw';
-          }
-        }
-        if (sizeMb > 10 && t == 'photo') {
-          NotificationManager.createNotification(
-            'error',
-            `Файл ${file.name} не загружен.`,
-            'Размер фото превышает 10мб',
-          );
-          return 'Размер фото превышает 10мб';
-        }
-        const uploadResult = await uploadFile(file, t);
-
-        const fileWithPreview = file;
-        if (file.type && file.type.startsWith('image/')) {
-          const fileUrl = URL.createObjectURL(file);
-          Object.assign(fileWithPreview, { url: fileUrl });
-        }
-
-        props.addFiles(uploadResult.file_id, fileWithPreview);
-
-        setUploadedFiles((prev) => [
-          ...prev,
-          Object.assign({}, file, {
-            url:
-              file.type && file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
-          }),
-        ]);
-
-        return '';
-      } catch (error: any) {
-        if (isAxiosError(error)) {
-          NotificationManager.createNotification(
-            'error',
-            `Файл ${file.name} не загружен.`,
-            'Ошибка подключения сети',
-          );
-        } else {
-          NotificationManager.createNotification(
-            'error',
-            `Файл ${file.name} не загружен.`,
-            'Ошибка обработки файла',
-          );
-        }
-        return 'Ошибка загрузки ресурса';
-      }
-    } else {
-      NotificationManager.createNotification(
-        'error',
-        `Файл ${file.name} не загружен.`,
-        'Дубликаты файлов не разрешены',
-      );
-      return 'Дубликаты не разрешены';
-    }
-  };
-
-  const handleFileRemove = (file: any) => {
-    try {
-      props.removeFile(file);
-      setUploadedFiles((prev) => prev.filter((f) => f.uid !== file.uid));
-    } catch {}
-  };
-
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCountRef.current += 1;
-    setIsDragging(true);
-
-    setDragPreviewFiles([]);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCountRef.current -= 1;
-    if (dragCountRef.current === 0) {
-      setIsDragging(false);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      const fileItems = Array.from(e.dataTransfer.items);
-
-      const imageItems = fileItems.filter(
-        (item) => item.kind === 'file' && item.type.startsWith('image/'),
-      );
-
-      if (imageItems.length > 0 && dragPreviewFiles.length === 0) {
-        const newPreviewFiles: { file: File; preview: string }[] = [];
-
-        imageItems.forEach((item) => {
-          const file = item.getAsFile();
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              if (e.target && e.target.result) {
-                newPreviewFiles.push({
-                  file,
-                  preview: e.target.result as string,
-                });
-
-                if (newPreviewFiles.length === imageItems.length) {
-                  setDragPreviewFiles(newPreviewFiles);
-                }
-              }
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-      }
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCountRef.current = 0;
-    setIsDragging(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const files = Array.from(e.dataTransfer.files);
-      setFileTypes(undefined);
-
-      files.forEach((file) => {
-        handleFileUpload(file);
-      });
-
-      setDragPreviewFiles([]);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      uploadedFiles.forEach((file) => {
-        if (file.url && typeof file.url === 'string' && file.url.startsWith('blob:')) {
-          URL.revokeObjectURL(file.url);
-        }
-      });
-
-      dragPreviewFiles.forEach((item) => {
-        if (
-          item &&
-          item.preview &&
-          typeof item.preview === 'string' &&
-          item.preview.startsWith('blob:')
-        ) {
-          URL.revokeObjectURL(item.preview);
-        }
-      });
-    };
-  }, [uploadedFiles, dragPreviewFiles]);
 
   return (
     <div
@@ -312,124 +80,38 @@ const FileUploader: React.FC<fileUploaderProps> = (props: fileUploaderProps) => 
       onDrop={handleDrop}
     >
       <Text type='secondary'>
-        Поддерживается загрузка одного или нескольких файлов (максимум {maxFiles}
-        ). Загружено: {uploadedFiles.length}/{maxFiles}
+        Поддерживается загрузка одного или нескольких файлов (максимум {MAX_FILES}
+        ). Загружено: {uploadedFiles.length}/{MAX_FILES}
       </Text>
 
       {!isDragging ? (
-        <Upload
-          key={id}
-          listType='picture'
-          multiple={true}
-          fileList={uploadedFiles}
+        <StandardUploader
+          id={id}
+          uploadedFiles={uploadedFiles}
+          fileTypes={file_types || localFileTypes}
           onRemove={(file) => {
             handleFileRemove(file);
             setUploadedFiles((prev) => prev.filter((f) => f.uid !== file.uid));
           }}
-          maxCount={10}
-          accept={file_types}
-          openFileDialogOnClick={open_da}
-          customRequest={(obj: any) => {
-            const file = obj.file;
-
-            if (file.type && file.type.startsWith('image/')) {
-              const fileUrl = URL.createObjectURL(file);
-              file.url = fileUrl;
-              file.thumbUrl = fileUrl;
-            }
-
-            handleFileUpload(file).then((f: string) => {
-              if (!f) {
-                obj.response = 'Успех';
-                obj.onSuccess();
-              } else {
-                obj.onError(null, f, obj.file);
-              }
-            });
-          }}
-          onPreview={(file) => {
-            if (file.url) {
-              window.open(file.url, '_blank');
-            }
-          }}
-        >
-          <div style={{ textAlign: 'center', margin: '16px 0' }}>
-            <Dropdown menu={menuProps}>
-              <Space ref={ref_upload}>
-                <Button icon={<PaperClipOutlined />} type='dashed'>
-                  Загрузить
-                  <DownOutlined />
-                </Button>
-              </Space>
-            </Dropdown>
-          </div>
-        </Upload>
+          onOpen={open_da}
+          customRequest={customRequestHandler}
+          onPreview={handlePreview}
+          uploaderRef={ref_upload}
+          menuClickHandler={handleMenuClick}
+        />
       ) : (
-        <Dragger
-          key={`dragger-${id}`}
-          listType='picture'
-          multiple={true}
-          fileList={uploadedFiles}
+        <DragUploader
+          id={id}
+          uploadedFiles={uploadedFiles}
           onRemove={(file) => {
             handleFileRemove(file);
             setUploadedFiles((prev) => prev.filter((f) => f.uid !== file.uid));
           }}
-          maxCount={10}
-          accept='*/*'
-          customRequest={(obj: any) => {
-            const file = obj.file;
-
-            setFileTypes(detectFileType(file));
-
-            if (file.type && file.type.startsWith('image/')) {
-              const fileUrl = URL.createObjectURL(file);
-              file.url = fileUrl;
-              file.thumbUrl = fileUrl;
-            }
-
-            handleFileUpload(file).then((f: string) => {
-              if (!f) {
-                obj.response = 'Успех';
-                obj.onSuccess();
-                setIsDragging(false);
-              } else {
-                obj.onError(null, f, obj.file);
-              }
-            });
-          }}
-          onPreview={(file) => {
-            if (file.url) {
-              window.open(file.url, '_blank');
-            }
-          }}
-          className={styles['file-dragger']}
+          customRequest={dragCustomRequestHandler}
+          onPreview={handlePreview}
         >
-          {dragPreviewFiles.length > 0 ? (
-            <div className={styles['preview-container']}>
-              {dragPreviewFiles.map((item, index) => (
-                <div key={index} className={styles['preview-item']}>
-                  <img
-                    src={item.preview}
-                    alt={`Preview ${index}`}
-                    className={styles['preview-image']}
-                  />
-                  <p className={styles['preview-filename']}>{item.file.name}</p>
-                </div>
-              ))}
-              <p className='ant-upload-text'>
-                Отпустите {dragPreviewFiles.length > 1 ? 'файлы' : 'файл'} для загрузки
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className='ant-upload-drag-icon'>
-                <InboxOutlined />
-              </p>
-              <p className='ant-upload-text'>Перетащите файлы сюда для загрузки</p>
-              <p className='ant-upload-hint'>Поддерживается одиночная или массовая загрузка</p>
-            </>
-          )}
-        </Dragger>
+          <DragPreview previewFiles={dragPreviewFiles} />
+        </DragUploader>
       )}
     </div>
   );
