@@ -35,15 +35,16 @@
 .post-header-left {
   display: flex;
   align-items: center;
-  white-space: nowrap;
+  flex-wrap: wrap;
 }
-.post-header-left-text{
-    display: flex;
+
+.post-header-left-text {
+  display: flex;
   align-items: center;
   white-space: nowrap;
 }
 
-.post-header-right{
+.post-header-right {
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -87,11 +88,10 @@
   .post-header-buttons {
     flex-direction: column;
   }
-  .post-header-left-text{
+  .post-header-left-text {
     flex-direction: column;
   }
 }
-
 
 .post-time {
   font-size: 12px;
@@ -144,4 +144,46 @@
 
 .teamName {
   color: $primary-color;
+}
+
+.teamTableContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+    background-color: $light-gray;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $medium-gray;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $light-gray;
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .post-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .platform-icons {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+
+  .post-header-buttons {
+    flex-direction: column;
+  }
+
+  .post-header-left-text {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

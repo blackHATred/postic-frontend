@@ -1,23 +1,29 @@
 @import '../../../styles/variables';
 
 .comment {
-  //border: 1px solid #f0f0f0;
   border-radius: $border-radius;
   padding: 16px;
   margin-bottom: 16px;
   background-color: $container-color;
   margin-left: auto;
   margin-right: auto;
+  border: 1px solid $border-color;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  color: $calendar-item-text;
 }
 
 .post {
-  //border: 1px solid #f0f0f0;
   border-radius: $border-radius;
   padding: 16px;
   margin-bottom: 16px;
   background-color: lighten($primary-color, 35%);
   margin-left: auto;
   margin-right: auto;
+  border: 1px solid $border-color;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  color: $calendar-item-text;
 }
 
 .image {
@@ -27,13 +33,54 @@
   justify-content: center;
 }
 
+.carousel-wrapper {
+  width: 100%;
+  height: 250px;
+  position: relative;
+
+  :global {
+    .ant-carousel {
+      width: 100%;
+      height: 100%;
+    }
+
+    .slick-prev,
+    .slick-next {
+      z-index: 10;
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      color: $gray;
+    }
+
+    .slick-prev {
+      left: 0;
+      top: 50%;
+      align-content: center;
+      align-items: center;
+    }
+
+    .slick-next {
+      right: 0;
+      top: 50%;
+    }
+  }
+}
+
+.image-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+}
+
 .video {
   padding: 0 25px;
 }
 
 .team-avatar {
-  background-color: #1890ff;
-  color: #fff;
+  background-color: $primary-color;
+  color: $white;
 }
 
 .comment-header {
@@ -48,7 +95,7 @@
   align-items: center;
   margin-bottom: 12px;
   padding: 7px;
-  background-color: #fffbe6;
+  background-color: $ticket-yellow;
   border-radius: $border-radius;
 }
 

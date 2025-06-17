@@ -1,0 +1,623 @@
+@import './variables.scss';
+
+/* Стили для темной темы */
+body.dark-theme {
+  background-color: $dark-background-color;
+  color: $dark-white;
+
+  /* Общие стили для темной темы */
+  .ant-layout {
+    background-color: $dark-background-color;
+  }
+
+  /* Карточки, контейнеры и модальные окна */
+  .ant-card,
+  .ant-modal-content,
+  .ant-drawer-content,
+  .post,
+  .postDetailed,
+  .comment,
+  .deleted,
+  .ant-card-head,
+  [class*="post_"],
+  [class*="postDetailed_"],
+  [class*="comment_"],
+  [class*="deleted_"] {
+    background-color: $dark-container-color;
+    color: $dark-white;
+    border-color: $dark-border-color;
+  }
+
+  /* Стили для сайдбара */
+  .sidebar-right,
+  [class*="sidebar-right_"] {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+    color: $dark-white;
+  }
+
+  .sidebar,
+  .sidebar-right-mobile,
+  [class*="sidebar_"]:not([class*="sidebar-right_"]),
+  [class*="sidebar-right-mobile_"] {
+    border-color: $dark-border-color;
+    color: $dark-white;
+  }
+
+  .right-sidebar,
+  [class*="right-sidebar_"] {
+    background-color: transparent !important;
+    border-color: $dark-border-color;
+    color: $dark-white;
+    box-shadow: none !important;
+  }
+
+  /* Стили для хедера приложения */
+  .header,
+  .headerContainer,
+  [class*="headerContainer_"] {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  [class*="header_"]:not([class*="post-header_"]):not([class*="comment-header_"]) {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  [class*="post-header_"],
+  [class*="comment-header_"],
+  .post-header,
+  .comment-header {
+    box-shadow: none !important;
+    background: none !important;
+  }
+
+  /* Текст, заголовки и параграфы */
+  h1, h2, h3, h4, h5, h6, p, span,
+  [class*="title_"],
+  [class*="subTitle_"],
+  [class*="post-name_"],
+  [class*="post-time_"],
+  [class*="comment-author_"],
+  [class*="comment-time_"] {
+    text-shadow: none !important;
+    background: none !important;
+  }
+
+  /* Стили для активных элементов в сайдбаре */
+  .sidebar-options,
+  [class*="sidebar-options_"] {
+    &:hover {
+      background-color: $dark-white-04;
+    }
+    &.active,
+    &[class*="active_"] {
+      background-color: rgba($dark-primary-color, 0.1);
+    }
+  }
+
+  /* Текст и типография */
+  .ant-typography {
+    color: $dark-white;
+
+    &.ant-typography-secondary {
+      color: $dark-secondary-color;
+    }
+  }
+
+  /* Формы ввода */
+  .ant-input,
+  .ant-input-number,
+  .ant-select-selector,
+  .ant-textarea,
+  .ant-input-affix-wrapper {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+    color: $dark-white;
+
+    &:hover, &:focus {
+      border-color: $dark-primary-color;
+    }
+
+    input {
+      background-color: transparent;
+      color: $dark-white;
+    }
+  }
+
+  /* Таблицы */
+  .ant-table {
+    background-color: $dark-container-color;
+    color: $dark-white;
+
+    .ant-table-thead > tr > th {
+      background-color: $dark-container-color;
+      color: $dark-white;
+      border-color: $dark-border-color;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-color: $dark-border-color;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background-color: $dark-white-04;
+    }
+  }
+
+  /* Заголовки модальных окон */
+  .ant-modal-header {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+  }
+
+  .ant-modal-title {
+    color: $dark-white;
+  }
+
+  .ant-modal-footer {
+    border-color: $dark-border-color;
+  }
+
+  /* Элементы списков */
+  .ant-list-item {
+    border-color: $dark-border-color;
+  }
+
+  /* Кнопки */
+  .ant-btn {
+    &.ant-btn-default {
+      background-color: $dark-container-color;
+      border-color: $dark-border-color;
+      color: $dark-white;
+
+      &:hover {
+        border-color: $dark-primary-color;
+      }
+    }
+
+    &.ant-btn-primary {
+      background-color: $dark-primary-color;
+      border-color: $dark-primary-color;
+    }
+    
+    /* стили для всех вариантов кнопок */
+    &.ant-btn-link {
+      color: $light-blue;
+      
+      &:hover, &:focus {
+        color: lighten($light-blue, 10%);
+      }
+    }
+    
+    &.ant-btn-text {
+      color: $dark-white;
+      
+      &:hover, &:focus {
+        background-color: $dark-white-04;
+        color: $dark-white;
+      }
+    }
+    
+    /* обработка для outlined кнопок */
+    &.ant-btn-outlined,
+    &[variant="outlined"] {
+      background-color: $dark-container-color !important;
+      border-color: $dark-border-color !important;
+      color: $dark-white !important;
+      
+      &:hover, &:focus {
+        background-color: $dark-container-color !important;
+        border-color: $dark-primary-color !important;
+      }
+      
+      &[color="primary"] {
+        border-color: $dark-border-color !important;
+        
+        &:hover, &:focus, &:active {
+          color: $light-blue !important;
+          border-color: $light-blue !important;
+          background-color: rgba($light-blue, 0.1) !important;
+        }
+      }
+      
+      &[color="danger"] {
+        border-color: $dark-border-color !important;
+        
+        &:hover, &:focus, &:active {
+          color: #ff7875 !important;
+          border-color: #ff7875 !important;
+          background-color: rgba(255, 120, 117, 0.1) !important;
+        }
+      }
+    }
+    
+    /* Кнопки в карточках постов и комментариев */
+    &[color="primary"] {
+      &.ant-btn-link, &[type="link"] {
+        color: $light-blue !important;
+        
+        &:hover, &:focus {
+          color: lighten($light-blue, 10%) !important;
+        }
+      }
+    }
+    
+    &[color="danger"] {
+      &.ant-btn-link, &[type="link"] {
+        color: #ff7875 !important;
+        
+        &:hover, &:focus {
+          color: lighten(#ff7875, 10%) !important;
+        }
+      }
+    }
+  }
+
+  /* Чекбоксы */
+  .ant-switch {
+    background-color: rgba(255, 255, 255, 0.2);
+
+    &.ant-switch-checked {
+      background-color: $dark-primary-color;
+    }
+  }
+
+  /* Меню */
+  .ant-menu,
+  .menu,
+  [class*="menu_"] {
+    background-color: $dark-container-color;
+    color: $dark-white;
+    border-color: $dark-border-color;
+
+    .ant-menu-item:hover {
+      background-color: $dark-white-04;
+    }
+
+    .ant-menu-item-selected {
+      background-color: rgba($dark-primary-color, 0.1);
+    }
+  }
+
+  /* Уведы */
+  .ant-notification-notice {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+
+    .ant-notification-notice-message,
+    .ant-notification-notice-description {
+      color: $dark-white;
+    }
+  }
+
+  /* Тикеты */
+  .ticket-header,
+  [class*="ticket-header_"] {
+    background-color: #5c4f00 !important;
+    color: #f5dc8b !important;
+  }
+
+  /* Календарь */
+  .ant-picker-panel {
+    background-color: $dark-container-color;
+
+    .ant-picker-panel-container,
+    .ant-picker-content,
+    .ant-picker-header {
+      background-color: $dark-container-color;
+      color: $dark-white;
+      border-color: $dark-border-color;
+    }
+
+    .ant-picker-cell {
+      color: rgba(255, 255, 255, 0.7);
+
+      &-in-view {
+        color: $dark-white;
+      }
+
+      &-selected .ant-picker-cell-inner {
+        background-color: $dark-primary-color;
+      }
+    }
+  }
+
+  /* Подсказки */
+  .ant-tooltip {
+    .ant-tooltip-inner {
+      color: $dark-white;
+    }
+
+  }
+
+  /* Скроллбары */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: $dark-background-color;
+    border-radius: 4px;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: $dark-medium-gray;
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: $dark-gray;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: $dark-background-color;
+  }
+
+  /* чтоб не были белые границы у скроллбаров в контейнерах */
+  .content,
+  .post,
+  .comment,
+  .postDetailed,
+  [class*="content_"],
+  [class*="post_"],
+  [class*="comment_"],
+  [class*="postDetailed_"] {
+    ::-webkit-scrollbar {
+      background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: $dark-container-color;
+      margin: 0;
+      border: none;
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: $dark-container-color;
+    }
+  }
+
+  /* Фиксация для скроллбаров в lists */
+  [class*="ant-list-"],
+  .ant-list,
+  .ant-modal-body,
+  .ant-drawer-body {
+    &::-webkit-scrollbar {
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $dark-container-color;
+      margin: 0;
+      border: none;
+    }
+
+    &::-webkit-scrollbar-corner {
+      background: $dark-container-color;
+    }
+  }
+
+  /* дивайдеры */
+  .ant-divider,
+  .customDivider,
+  [class*="customDivider_"] {
+    border-color: $dark-border-color;
+  }
+
+  /* прочие цветные элементы */
+  .primaryText,
+  .clip,
+  [class*="primaryText_"],
+  [class*="clip_"] {
+    color: $dark-primary-color;
+  }
+
+  /* Карусель */
+  .carousel-wrapper,
+  [class*="carousel-wrapper_"] {
+    :global {
+      .slick-prev,
+      .slick-next {
+        color: $dark-gray;
+      }
+    }
+  }
+
+  /* Calendar */
+  .calendarTitle,
+  [class*="calendarTitle_"] {
+    color: $dark-calendar-primary;
+  }
+
+  .calendarContainer,
+  [class*="calendarContainer_"] {
+    background: $dark-container-color;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .eventTime,
+  [class*="eventTime_"] {
+    background-color: $dark-calendar-highlight;
+    color: $dark-calendar-primary;
+  }
+
+  .tooltip,
+  [class*="tooltip_"] {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+  }
+
+  .tooltipTime,
+  [class*="tooltipTime_"] {
+    color: $dark-calendar-primary;
+  }
+
+  .tooltipPlatforms,
+  [class*="tooltipPlatforms_"] {
+    color: $dark-calendar-secondary-text;
+  }
+
+  .tooltipText,
+  [class*="tooltipText_"] {
+    color: $dark-calendar-item-text;
+  }
+
+  .noPostsMessage,
+  [class*="noPostsMessage_"] {
+    background: $dark-calendar-empty-bg;
+    color: $dark-secondary-color;
+  }
+
+  /* Стили для страниц входа и регистрации */
+  .loginContainer,
+  .registerContainer,
+  [class*="loginContainer_"],
+  [class*="registerContainer_"] {
+    background-color: $dark-background-color;
+  }
+
+  .title,
+  [class*="title_"] {
+    color: $dark-white;
+  }
+
+  .form,
+  [class*="form_"] {
+    background-color: $dark-container-color;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .linkContainer a,
+  [class*="linkContainer_"] a {
+    color: $dark-calendar-primary;
+  }
+
+  /* Стили для VK компонентов */
+  .vkAuthButton,
+  .vkBtn,
+  [class*="vkAuthButton_"],
+  [class*="vkBtn_"] {
+    background-color: $dark-vk-blue !important;
+    border-color: $dark-vk-blue !important;
+
+    &:hover {
+      background-color: $dark-vk-blue-dark !important;
+      border-color: $dark-vk-blue-dark !important;
+    }
+  }
+
+  /* Стили для карточек постов и комментариев */
+  .post,
+  .postDetailed,
+  .comment,
+  [class*="post_"],
+  [class*="postDetailed_"],
+  [class*="comment_"] {
+    background-color: $dark-container-color;
+    border: 1px solid $dark-border-color;
+    color: $dark-white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .post-header-buttons,
+  [class*="post-header-buttons_"] {
+    button[type="link"] {
+      color: $light-blue !important;
+
+      &:hover {
+        color: lighten($light-blue, 10%) !important;
+      }
+    }
+  }
+
+  /* Кнопки в карточках постов и комментариев */
+  /* Общий стиль для всех outlined кнопок в темной теме */
+  .ant-btn-outlined,
+  .ant-btn[variant="outlined"] {
+    background-color: $dark-container-color !important;
+    border-color: $dark-border-color !important;
+    color: $dark-white !important;
+
+    &:hover, &:focus {
+      background-color: $dark-container-color !important;
+    }
+  }
+
+  /* Стиль для primary кнопок (редактировать/ответить) */
+  .ant-btn[color="primary"],
+  [class*="post-content-buttons_"] button[color="primary"],
+  [class*="comment-buttons_"] button[color="primary"] {
+    color: $dark-white !important;
+    border-color: $dark-border-color !important;
+    background-color: $dark-container-color !important;
+
+    &:hover, &:focus {
+      color: $light-blue !important;
+      border-color: $light-blue !important;
+      background-color: rgba($light-blue, 0.1) !important;
+    }
+  }
+
+  /* Стиль для danger кнопок (удалить) */
+  .ant-btn[color="danger"],
+  [class*="post-content-buttons_"] button[color="danger"],
+  [class*="comment-buttons_"] button[color="danger"] {
+    color: $dark-white !important;
+    border-color: $dark-border-color !important;
+    background-color: $dark-container-color !important;
+
+    &:hover, &:focus {
+      color: #ff7875 !important;
+      border-color: #ff7875 !important;
+      background-color: rgba(255, 120, 117, 0.1) !important;
+    }
+  }
+
+  /* Элементы мейна */
+  .main-page,
+  .main-container,
+  .layout,
+  [class*="main-page_"],
+  [class*="main-container_"],
+  [class*="layout_"] {
+    background-color: $dark-background-color;
+  }
+
+  .content:not([class*="post-content"]):not([class*="comment-content"]):not([class*="_content_59c2r_"]),
+  [class*="content_"]:not([class*="post-content_"]):not([class*="comment-content_"]):not([class*="_content_59c2r_"]) {
+    background-color: $dark-background-color;
+  }
+
+  [class*="post-content_"],
+  [class*="comment-content_"],
+  .post-content,
+  .comment-content {
+    background-color: transparent !important;
+  }
+
+  /* Мобильная навигация */
+  .mobile-bottom-nav,
+  [class*="mobile-bottom-nav_"] {
+    background-color: $dark-container-color;
+    border-top: 1px solid $dark-border-color;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .hamburger-menu,
+  [class*="hamburger-menu_"] {
+    background-color: $dark-container-color;
+    border-color: $dark-border-color;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+}

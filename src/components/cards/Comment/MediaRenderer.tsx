@@ -28,40 +28,43 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
 
   if (props.attach_images.length > 1) {
     return (
-      <Carousel arrows className={styles['image']}>
-        {props.attach_images.map((preview) => (
-          <div key={preview.id} className={styles['video']}>
-            {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
-              <Suspense
-                fallback={
-                  <div className={styles['video']}>
-                    <Spin />
-                  </div>
-                }
-              >
-                <LazyVideo
-                  controls
-                  light
-                  url={getUploadUrl(preview.id)}
-                  height={250}
-                  width={'100%'}
-                />
-              </Suspense>
-            ) : (
-              <Image
-                className={styles['image']}
-                width={'100%'}
-                style={{ objectFit: 'contain' }}
-                height={250}
-                src={getUploadUrl(preview.id)}
-                preview={{
-                  mask: <Text style={{ color: 'white' }}>Подробнее</Text>,
-                }}
-              />
-            )}
-          </div>
-        ))}
-      </Carousel>
+      <div className={styles['carousel-wrapper']}>
+        <Carousel arrows infinite={false}>
+          {props.attach_images.map((preview) => (
+            <div key={preview.id}>
+              {preview.file_path.endsWith('.webm') || preview.file_path.endsWith('.mp4') ? (
+                <Suspense
+                  fallback={
+                    <div className={styles['video']}>
+                      <Spin />
+                    </div>
+                  }
+                >
+                  <LazyVideo
+                    controls
+                    light
+                    url={getUploadUrl(preview.id)}
+                    height={250}
+                    width={'100%'}
+                  />
+                </Suspense>
+              ) : (
+                <div className={styles['image-slide']}>
+                  <Image
+                    style={{ objectFit: 'contain' }}
+                    height={250}
+                    width={'100%'}
+                    src={getUploadUrl(preview.id)}
+                    preview={{
+                      mask: <Text style={{ color: 'white' }}>Подробнее</Text>,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </Carousel>
+      </div>
     );
   }
   if (props.attach_images[0].file_type == 'sticker') {

@@ -116,17 +116,17 @@ const TeamMenu: React.FC<TeamMenuProps> = ({
                 {' '}
                 {teamName}
               </Text>
+              {isUserAdmin && (
+                <ClickableButton
+                  type='text'
+                  size='small'
+                  icon={<EditOutlined />}
+                  onButtonClick={onRename}
+                  withPopover={true}
+                  popoverContent='Переименовать команду'
+                />
+              )}
             </div>
-            {isUserAdmin && (
-              <ClickableButton
-                type='text'
-                size='small'
-                icon={<EditOutlined />}
-                onButtonClick={onRename}
-                withPopover={true}
-                popoverContent='Переименовать команду'
-              />
-            )}
             <Space className={styles['platform-icons']}>
               {[
                 linkedPlatforms?.platforms?.tg_channel_id ? renderPlatformIcon('tg') : null,

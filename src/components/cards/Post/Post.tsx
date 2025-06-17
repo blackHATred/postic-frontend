@@ -33,13 +33,13 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   const getIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
-        return <LiaVk className={styles.icon} />;
+        return <LiaVk className={styles['icon']} />;
       case 'tg':
-        return <LiaTelegram className={styles.icon} />;
+        return <LiaTelegram className={styles['icon']} />;
       case 'twitter':
-        return <LiaTwitter className={styles.icon} />;
+        return <LiaTwitter className={styles['icon']} />;
     }
-    return <LiaQuestionCircle className={styles.icon} />;
+    return <LiaQuestionCircle className={styles['icon']} />;
   };
   const [ellipsis] = useState(true);
 
@@ -78,7 +78,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
   return (
     <div
       ref={refer}
-      {...(isDetailed ? { className: styles.postDetailed } : { className: styles.post })}
+      {...(isDetailed ? { className: styles['postDetailed'] } : { className: styles['post'] })}
       id={String(post.id)}
     >
       {/* хедер*/}

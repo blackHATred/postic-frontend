@@ -1,10 +1,69 @@
-// цвета
+// Базовые цвета для светлой темы
 $primary-color: #1890ff;
 $secondary-color: #8c8c8c;
 $background-color: #f4f4f4;
 $container-color: #ffffff;
 $border-color: #f0f0f0;
 $upload-empty-spaces: #e6f4ff;
-// угол
+
+// Оттенки белого и серого для светлой темы
+$white: #fff;
+$white-transparent-04: rgba(255, 255, 255, 0.04);
+$light-gray: #f5f5f5;
+$light-gray-alt: #f9f9f9;
+$form-background: #f5f7fa;
+$calendar-highlight: #f0f5ff;
+$gray: gray;
+$medium-gray: #c1c1c1;
+$dark-gray: rgba(0, 0, 0, 0.7);
+$transparent-black-01: rgba(0, 0, 0, 0.1);
+$ticket-yellow: #fffbe6;
+
+// Цвета для социальных сетей
+$vk-blue: #2786f3;
+$vk-blue-dark: #3d6898;
+$vk-blue-primary: #4a76a8;
+
+// Цвета для градиентов
+$turquoise: #13C2C2;
+$green: #73D13D;
+$blue: #597EF7;
+$light-turquoise: #36CFC9;
+$light-blue: #85A5FF;
+$dark-turquoise: #08979C;
+
+// Цвета компонентов
+$calendar-primary: #1677ff;
+$calendar-item-text: #333;
+$calendar-secondary-text: #666;
+$calendar-empty-bg: #f5f5f5;
+
+// Цвета для темной темы
+$dark-primary-color: #1890ff;
+$dark-secondary-color: #a0a0a0;
+$dark-background-color: #26262C;
+$dark-container-color: #40404A;
+$dark-border-color: #4e4e56;
+$dark-upload-empty-spaces: #2a3c50;
+$dark-white: #ffffff;
+$dark-white-04: rgba(255, 255, 255, 0.04);
+$dark-light-gray: #555;
+$dark-gray: #aaa;
+$dark-medium-gray: #888;
+$dark-ticket-yellow: #5c4f00;
+$dark-calendar-highlight: #1f2d40;
+$dark-form-background: #353540;
+$dark-transparent-white-01: rgba(255, 255, 255, 0.1);
+
+// Цвета для компонентов в темной теме
+$dark-calendar-primary: #1890ff;
+$dark-calendar-item-text: #e0e0e0;
+$dark-calendar-secondary-text: #a0a0a0;
+$dark-calendar-empty-bg: #333340;
+$dark-vk-blue: #3b76c5;
+$dark-vk-blue-dark: #2d5982;
+$dark-vk-blue-primary: #3a6497;
+
+// Размеры
 $border-radius: 8px;
 $header-height: 75px;

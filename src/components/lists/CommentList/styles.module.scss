@@ -9,6 +9,21 @@ overflow-x: hidden;
   float: left;
   interpolate-size: allow-keywords;
   padding-right: 10px;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    background-color: #f5f5f5;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
 }
 
 .filterContainer {

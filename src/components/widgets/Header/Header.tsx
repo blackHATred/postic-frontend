@@ -203,13 +203,13 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
   const buttonSize = isMobile ? 'large' : 'middle';
 
   return (
-    <div className={styles.headerContainer}>
-      <div className={styles.headerComponents}>
-        <div className={styles.logo} onClick={() => navigate('/home')}>
+    <div className={styles['headerContainer']}>
+      <div className={styles['headerComponents']}>
+        <div className={styles['logo']} onClick={() => navigate('/home')}>
           <Image src={'/logo.png'} alt={'Postic'} width={40} height={40} preview={false} />
         </div>
 
-        <div className={styles.headerIcons}>
+        <div className={styles['headerIcons']}>
           {isAuthorized == 'authorized' && (
             <>
               <div style={{ display: 'flex', alignItems: 'center' }}>

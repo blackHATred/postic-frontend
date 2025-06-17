@@ -60,6 +60,21 @@
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+    background-color: $light-gray;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $medium-gray;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $light-gray;
+    border-radius: 4px;
+  }
 }
 
 @media (max-width: 768px) {

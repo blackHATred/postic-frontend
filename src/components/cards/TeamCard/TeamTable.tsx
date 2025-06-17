@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table, TableColumnsType, Typography } from 'antd';
 import { MinusOutlined } from '@ant-design/icons';
 import ClickableButton from '../../ui/Button/Button';
+import styles from './styles.module.scss';
 
 const { Text } = Typography;
 
@@ -20,20 +21,6 @@ interface TeamTableProps {
   onKickMember: (userId: number) => void;
 }
 
-const roleTranslations: Record<string, string> = {
-  admin: 'администратор',
-  comments: 'комментарии',
-  posts: 'посты',
-  analytics: 'аналитика',
-};
-
-const formatRoles = (roles: string[]): string => {
-  if (roles.includes('admin')) {
-    return roleTranslations['admin'];
-  }
-  return roles.map((role) => roleTranslations[role] || role).join(', ');
-};
-
 const TeamTable: React.FC<TeamTableProps> = ({
   members,
   isUserAdmin,
@@ -41,6 +28,20 @@ const TeamTable: React.FC<TeamTableProps> = ({
   onEditMember,
   onKickMember,
 }) => {
+  const roleTranslations: Record<string, string> = {
+    admin: 'администратор',
+    comments: 'комментарии',
+    posts: 'посты',
+    analytics: 'аналитика',
+  };
+
+  const formatRoles = (roles: string[]): string => {
+    if (roles.includes('admin')) {
+      return roleTranslations['admin'];
+    }
+    return roles.map((role) => roleTranslations[role] || role).join(', ');
+  };
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -102,21 +103,23 @@ const TeamTable: React.FC<TeamTableProps> = ({
   const paginatedData = members.slice(startIndex, endIndex);
 
   return (
-    <Table<DataType>
-      columns={columns}
-      dataSource={paginatedData}
-      pagination={{
-        ...pagination,
-        total: members.length,
-      }}
-      onChange={handleTableChange}
-      rowClassName={(record) => (record.id === currentUserId ? 'current-user-row' : '')}
-      onRow={(record) => ({
-        style: record.id === currentUserId ? { backgroundColor: 'rgba(24,144,255,0.07)' } : {},
-      })}
-    />
+    <div className={styles.teamTableContainer}>
+      <Table<DataType>
+        columns={columns}
+        dataSource={paginatedData}
+        pagination={{
+          ...pagination,
+          total: members.length,
+        }}
+        onChange={handleTableChange}
+        rowClassName={(record) => (record.id === currentUserId ? 'current-user-row' : '')}
+        onRow={(record) => ({
+          style: record.id === currentUserId ? { backgroundColor: 'rgba(24,144,255,0.07)' } : {},
+        })}
+      />
+    </div>
   );
 };
 
-export { formatRoles, roleTranslations, type DataType };
+export type { DataType };
 export default TeamTable;

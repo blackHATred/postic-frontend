@@ -11,7 +11,8 @@
   border-radius: $border-radius;
   margin-left: auto;
   margin-right: auto;
-
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  color: $calendar-item-text;
 }
 
 .postDetailed {
@@ -24,6 +25,8 @@
   border-radius: $border-radius;
   margin-left: auto;
   margin-right: auto;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  color: $calendar-item-text;
 
   @include mobile {
     padding: 12px;
@@ -132,4 +135,33 @@
 
 .customDivider {
   margin: 10px 0;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  &.edit-button, &.delete-button {
+    background-color: $light-gray;
+    color: $dark-gray;
+    border-color: $light-gray;
+
+    &:hover {
+      background-color: darken($light-gray, 5%);
+      border-color: darken($light-gray, 5%);
+    }
+  }
+
+  &.comments-button {
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+    border-color: rgba($primary-color, 0.1);
+
+    &:hover {
+      background-color: rgba($primary-color, 0.2);
+      border-color: rgba($primary-color, 0.2);
+    }
+  }
 }

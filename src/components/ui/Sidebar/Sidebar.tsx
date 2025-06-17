@@ -11,7 +11,7 @@ import {
 import ClickableButton from '../../ui/Button/Button';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Switch, Typography } from 'antd';
-import { setHelpMode } from '../../../stores/settingsSlice';
+import { setDarkMode, setHelpMode } from '../../../stores/settingsSlice';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { routes } from '../../../app/App.routes';
 import { setSelectedPostId } from '../../../stores/postsSlice';
@@ -22,6 +22,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const selectedTeam = useAppSelector((state) => state.teams.globalActiveTeamId);
   const selectedUser = useAppSelector((state) => state.teams.currentUserId);
+  const isDarkMode = useAppSelector((state) => state.settings.darkMode);
   const roles = useAppSelector((state) => state.teams.teams)
     .find((team) => {
       return team.id == selectedTeam;
@@ -38,6 +39,10 @@ const Sidebar: React.FC = () => {
 
   const handleSettingsMode = (checked: boolean) => {
     dispatch(setHelpMode(checked));
+  };
+
+  const handleDarkMode = (checked: boolean) => {
+    dispatch(setDarkMode(checked));
   };
 
   return (
@@ -139,11 +144,22 @@ const Sidebar: React.FC = () => {
       <div className={styles['sidebar-option-mode']}>
         <Switch
           size='default'
-          defaultChecked={true}
+          checked={useAppSelector((state) => state.settings.helpMode)}
           onChange={(checked) => handleSettingsMode(checked)}
         />
         <Typography.Text> Подсказки </Typography.Text>
       </div>
+
+      {/*
+      <div className={styles['sidebar-option-mode']}>
+        <Switch
+          size='default'
+          checked={isDarkMode}
+          onChange={(checked) => handleDarkMode(checked)}
+        />
+        <Typography.Text> Темная тема </Typography.Text>
+      </div>
+      */}
     </div>
   );
 };
