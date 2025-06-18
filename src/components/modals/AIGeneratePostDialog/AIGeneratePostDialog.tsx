@@ -1,18 +1,46 @@
 import React, { FC, useContext, useState, useEffect } from 'react';
-import { Input, Form, Button, Typography, Spin, Image, Checkbox, Alert, Tooltip } from 'antd';
+import {
+  Input,
+  Form,
+  Button,
+  Typography,
+  Spin,
+  Image,
+  Checkbox,
+  Alert,
+  Tooltip,
+  Skeleton,
+  Space,
+  Tag,
+  Row,
+  Col,
+} from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import {
-  setGeneratedTextDialog,
-  setGeneratePostDialog,
-} from '../../../stores/basePageDialogsSlice';
-import { generatePublication, uploadFile } from '../../../api/api';
-import { NotificationContext } from '../../../api/notification';
-import { CheckOutlined, CloseOutlined, FileImageOutlined } from '@ant-design/icons';
-import { withTimeout } from '../../../utils/timeoutUtils';
 
-const { Text } = Typography;
+import { uploadFile } from '../../../api/api';
+import { NotificationContext } from '../../../api/notification';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  FileImageOutlined,
+  SearchOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined,
+  RobotOutlined,
+  LoadingOutlined,
+  SendOutlined,
+} from '@ant-design/icons';
+import { remark } from 'remark';
+import strip from 'strip-markdown';
+import {
+  setGeneratePostDialog,
+  setGeneratedTextDialog,
+} from '../../../stores/basePageDialogsSlice';
+import { StreamMessageData, useGenerationSSE } from '../../../api/generationSSE';
+
+const { Text, Paragraph, Title } = Typography;
 const { TextArea } = Input;
 
 const AIGeneratePostDialog: FC = () => {
@@ -21,12 +49,62 @@ const AIGeneratePostDialog: FC = () => {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [generationLoading, setGenerationLoading] = useState(false);
   const [useText, setUseText] = useState(true);
   const [selectedImages, setSelectedImages] = useState<{ [key: string]: boolean }>({});
   const [uploadingImages, setUploadingImages] = useState<{ [key: string]: boolean }>({});
   const [uploadedFileIds, setUploadedFileIds] = useState<{ [key: string]: string }>({});
   const [timeoutError, setTimeoutError] = useState(false);
+
+  const [isStreamGenerating, setIsStreamGenerating] = useState(false);
+  const [streamMessages, setStreamMessages] = useState<StreamMessageData[]>([]);
+  const [currentGeneratedText, setCurrentGeneratedText] = useState('');
+  const [streamQueries, setStreamQueries] = useState<string[]>([]);
+  const [streamStatus, setStreamStatus] = useState<string>('');
+  const [streamComplete, setStreamComplete] = useState(false);
+
+  // для SSE
+  const { isConnected, startGeneration, stopGeneration } = useGenerationSSE({
+    onMessage: async (data: StreamMessageData) => {
+      // сообщение в список для отображения процесса
+      setStreamMessages((prev) => [...prev, data]);
+
+      switch (data.type) {
+        case 'status':
+          setStreamStatus(data.message || '');
+          break;
+        case 'queries':
+          if (data.queries) {
+            setStreamQueries(data.queries);
+          }
+          break;
+        case 'content':
+          if (data.text || (data.final && data.full_text)) {
+            await processContent(data.text || '', !!data.final, data.full_text);
+
+            if (data.final && data.images && data.images.length > 0) {
+              setGeneratedImages(data.images);
+            }
+          }
+          break;
+        case 'generation':
+          if (data.images) {
+            setGeneratedImages(data.images);
+          }
+          break;
+        case 'complete':
+          setStreamComplete(true);
+          setIsStreamGenerating(false);
+          break;
+      }
+    },
+    onError: (error) => {
+      console.error('SSE соединение закрыто с ошибкой', error);
+      setIsStreamGenerating(false);
+      if (!streamComplete) {
+        setError('Произошла ошибка при генерации публикации');
+      }
+    },
+  });
 
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.generatePostDialog.isOpen);
@@ -42,35 +120,35 @@ const AIGeneratePostDialog: FC = () => {
     setUploadedFileIds({});
   }, [generatedImages]);
 
+  // для прокрутки
+  useEffect(() => {
+    const messagesContainer = document.querySelector(`.${styles.streamMessagesContainer}`);
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }, [streamMessages]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsStreamGenerating(false);
+      setStreamComplete(false);
+      setGeneratedText('');
+      setCurrentGeneratedText('');
+      setGeneratedImages([]);
+      setStreamMessages([]);
+      setStreamQueries([]);
+      setStreamStatus('');
+      setTimeoutError(false);
+      setError(null);
+    }
+  }, [isOpen]);
+
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
     if (e.target.value.trim() === '') {
       setError('Запрос не может быть пустым');
     } else {
       setError(null);
-    }
-  };
-
-  const generatePost = async () => {
-    if (!prompt.trim()) {
-      setError('Запрос не может быть пустым');
-      return;
-    }
-
-    setGenerationLoading(true);
-    setTimeoutError(false);
-    try {
-      const result = await withTimeout(generatePublication(prompt));
-      setGeneratedText(result.text);
-      setGeneratedImages(result.images);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.message === 'TIMEOUT_ERROR') {
-        setTimeoutError(true);
-      } else {
-        setError('Не удалось сгенерировать публикацию');
-      }
-    } finally {
-      setGenerationLoading(false);
     }
   };
 
@@ -160,6 +238,36 @@ const AIGeneratePostDialog: FC = () => {
     }
   };
 
+  const processContent = async (text: string, isFinal: boolean, fullText?: string) => {
+    try {
+      if (isFinal && fullText) {
+        const plainText = await customMarkdownToPlainText(fullText);
+        setGeneratedText(plainText);
+        setCurrentGeneratedText(plainText);
+      } else if (text) {
+        setCurrentGeneratedText((prev) => prev + text);
+      }
+    } catch (error) {
+      console.error('Ошибка при обработке текстового контента:', error);
+      if (text) {
+        setCurrentGeneratedText((prev) => prev + text);
+      }
+      if (isFinal && fullText) {
+        setGeneratedText(fullText);
+      }
+    }
+  };
+
+  const customMarkdownToPlainText = async (markdown: string): Promise<string> => {
+    try {
+      const file = await remark().use(strip).process(markdown);
+      return String(file);
+    } catch (error) {
+      console.error('Ошибка при преобразовании Markdown в текст:', error);
+      return markdown;
+    }
+  };
+
   const onSave = async () => {
     if (!generatedText.trim() && !Object.values(selectedImages).some((selected) => selected)) {
       setError('Сгенерируйте текст или выберите изображения перед сохранением');
@@ -172,21 +280,30 @@ const AIGeneratePostDialog: FC = () => {
       const selectedFileIds: string[] = [];
       const selectedImageUrls: string[] = [];
 
-      for (const [index, selected] of Object.entries(selectedImages)) {
-        if (selected) {
-          const imageUrl = generatedImages[parseInt(index)];
-          selectedImageUrls.push(imageUrl);
+      if (hasSelectedImages) {
+        for (const [index, selected] of Object.entries(selectedImages)) {
+          if (selected) {
+            const imageUrl = generatedImages[parseInt(index)];
+            selectedImageUrls.push(imageUrl);
 
-          if (uploadedFileIds[index]) {
-            selectedFileIds.push(uploadedFileIds[index]);
+            if (uploadedFileIds[index]) {
+              selectedFileIds.push(uploadedFileIds[index]);
+            } else {
+              const fileId = await uploadImageFile(generatedImages[parseInt(index)], index);
+              if (fileId) {
+                selectedFileIds.push(fileId);
+              }
+            }
           }
         }
       }
 
+      const plainText = useText ? await customMarkdownToPlainText(generatedText) : '';
+
       dispatch(
         setGeneratedTextDialog({
           isOpen: false,
-          generatedText: useText ? generatedText : '',
+          generatedText: plainText,
           generatedImages: selectedImageUrls,
           uploadedFileIds: selectedFileIds,
         }),
@@ -196,6 +313,7 @@ const AIGeneratePostDialog: FC = () => {
       notificationManager.createNotification('success', 'Публикация готова к использованию', '');
       resetForm();
     } catch (error) {
+      console.error('Ошибка при сохранении публикации:', error);
       notificationManager.createNotification(
         'error',
         'Ошибка сохранения',
@@ -206,10 +324,32 @@ const AIGeneratePostDialog: FC = () => {
     }
   };
 
-  const onCancel = () => {
-    dispatch(setGeneratePostDialog(false));
-    resetForm();
+  const generatePostStream = () => {
+    if (!prompt.trim()) {
+      setError('Запрос не может быть пустым');
+      return;
+    }
+    setIsStreamGenerating(true);
+    setStreamMessages([]);
+    setCurrentGeneratedText('');
+    setStreamQueries([]);
+    setStreamStatus('');
+    setStreamComplete(false);
+    setGeneratedText('');
+    setGeneratedImages([]);
     setTimeoutError(false);
+    setError(null);
+
+    startGeneration(prompt);
+  };
+
+  const handleGenerateClick = () => {
+    if (isStreamGenerating) {
+      stopGeneration();
+      setIsStreamGenerating(false);
+    } else {
+      generatePostStream();
+    }
   };
 
   const resetForm = () => {
@@ -223,26 +363,86 @@ const AIGeneratePostDialog: FC = () => {
     setTimeoutError(false);
   };
 
+  const onCancel = () => {
+    dispatch(setGeneratePostDialog(false));
+    resetForm();
+    setTimeoutError(false);
+  };
+
   const hasSelectedImages = Object.values(selectedImages).some((selected) => selected);
+
+  const getMessageIcon = (type: string) => {
+    switch (type) {
+      case 'status':
+        return <ClockCircleOutlined />;
+      case 'context':
+        return <ClockCircleOutlined />;
+      case 'queries':
+        return <SearchOutlined />;
+      case 'search':
+        return <SearchOutlined />;
+      case 'search_result':
+        return <FileTextOutlined />;
+      case 'processing':
+        return <RobotOutlined />;
+      case 'generation':
+        return <FileTextOutlined />;
+      case 'content':
+        return <FileTextOutlined />;
+      case 'complete':
+        return <CheckOutlined />;
+      default:
+        return <LoadingOutlined />;
+    }
+  };
+
+  const getActionName = (type: string) => {
+    switch (type) {
+      case 'status':
+        return 'Статус:';
+      case 'context':
+        return 'Контекст:';
+      case 'queries':
+        return 'Запросы:';
+      case 'search':
+        return 'Поиск:';
+      case 'search_result':
+        return 'Результаты:';
+      case 'processing':
+        return 'Обработка:';
+      case 'generation':
+        return 'Генерация:';
+      case 'content':
+        return 'Текст:';
+      case 'complete':
+        return 'Готово:';
+      default:
+        return 'Процесс:';
+    }
+  };
 
   return (
     <DialogBox
-      bottomButtons={[
-        {
-          text: 'Отмена',
-          onButtonClick: onCancel,
-          type: 'default',
-        },
-        {
-          text: 'Использовать выбранное',
-          onButtonClick: onSave,
-          loading: loading,
-          disabled: !!error || loading || (!useText && !hasSelectedImages) || generationLoading,
-        },
-      ]}
+      bottomButtons={
+        !isStreamGenerating && (streamComplete || generatedText)
+          ? [
+              {
+                text: 'Отмена',
+                onButtonClick: onCancel,
+                type: 'default',
+              },
+              {
+                text: 'Использовать выбранное',
+                onButtonClick: onSave,
+                loading: loading,
+                disabled: !!error || loading || (!useText && !hasSelectedImages),
+              },
+            ]
+          : []
+      }
       isOpen={isOpen}
       onCancelClick={onCancel}
-      title='ИИ-генерация публикации'
+      title='Генерация публикации'
       isCenter={true}
       width={800}
     >
@@ -253,35 +453,48 @@ const AIGeneratePostDialog: FC = () => {
             validateStatus={error && !generatedText ? 'error' : ''}
             help={error && !generatedText ? error : ''}
           >
-            <TextArea
-              rows={4}
-              placeholder='Опишите, какую публикацию вы хотите сгенерировать. Например: "составь пост про то, как необходимо готовить пельмени"'
-              value={prompt}
-              onChange={handlePromptChange}
-              disabled={generationLoading}
+            <Row gutter={8} align='middle'>
+              <Col flex='auto'>
+                <TextArea
+                  rows={2}
+                  placeholder='Например: "составь пост про то, как необходимо готовить пельмени"'
+                  value={prompt}
+                  onChange={handlePromptChange}
+                  disabled={isStreamGenerating}
+                  style={{ resize: 'none' }}
+                />
+              </Col>
+              <Col>
+                <Button
+                  type='primary'
+                  danger={isStreamGenerating}
+                  onClick={handleGenerateClick}
+                  disabled={!prompt.trim()}
+                  icon={isStreamGenerating ? <CloseOutlined /> : <SendOutlined />}
+                  size='large'
+                  style={{
+                    height: '40px',
+                    width: '54px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                />
+              </Col>
+            </Row>
+          </Form.Item>
+
+          {timeoutError && (
+            <Alert
+              message='Превышено время ожидания генерации публикации'
+              description='Запрос на генерацию публикации превысил время ожидания. Попробуйте снова.'
+              type='warning'
+              showIcon
             />
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type='primary'
-              onClick={generatePost}
-              loading={generationLoading}
-              disabled={!prompt.trim()}
-              block
-            >
-              Сгенерировать публикацию
-            </Button>
-          </Form.Item>
-
-          {generationLoading && (
-            <div className={styles.spinnerContainer}>
-              <Spin size='large' />
-              <Text type='secondary'>Генерируем публикацию...</Text>
-            </div>
           )}
 
-          {generatedText && !generationLoading && (
+          {generatedText && !isStreamGenerating && (
             <div className={styles.resultContainer}>
               <div className={styles.resultSection}>
                 <div className={styles.textResult}>
@@ -322,19 +535,12 @@ const AIGeneratePostDialog: FC = () => {
                     <div className={styles.selectionControls}>
                       <Button
                         size='small'
-                        icon={<CheckOutlined />}
-                        onClick={selectAllImages}
+                        icon={hasSelectedImages ? <CloseOutlined /> : <CheckOutlined />}
+                        onClick={hasSelectedImages ? deselectAllImages : selectAllImages}
                         disabled={generatedImages.length === 0}
+                        type={hasSelectedImages ? 'default' : 'primary'}
                       >
-                        Выбрать все
-                      </Button>
-                      <Button
-                        size='small'
-                        icon={<CloseOutlined />}
-                        onClick={deselectAllImages}
-                        disabled={!hasSelectedImages}
-                      >
-                        Снять выбор
+                        {hasSelectedImages ? 'Очистить выбор' : 'Выбрать все'}
                       </Button>
                     </div>
 
@@ -393,6 +599,93 @@ const AIGeneratePostDialog: FC = () => {
               type='warning'
               showIcon
             />
+          )}
+
+          {isStreamGenerating && (
+            <div className={styles.streamStatus}>
+              <div className={styles.streamStatusHeader}>
+                <Space>
+                  <LoadingOutlined spin />
+                  <Text strong>Процесс генерации</Text>
+                </Space>
+                <Text type='secondary'>{streamStatus}</Text>
+              </div>
+
+              <div className={styles.streamMessagesContainer}>
+                {streamMessages.map((msg, index) => {
+                  if (msg.type === 'content') return null;
+
+                  return (
+                    <div key={index} className={styles.streamMessage}>
+                      <Space>
+                        {getMessageIcon(msg.type)}
+                        <Text type='secondary'>{getActionName(msg.type)}</Text>
+                        <Text>{msg.message}</Text>
+                      </Space>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {streamQueries.length > 0 && (
+                <div className={styles.queryTags}>
+                  <Text type='secondary'>Поисковые запросы:</Text>
+                  <div style={{ marginTop: '8px' }}>
+                    {streamQueries.map((query, idx) => (
+                      <Tag
+                        key={idx}
+                        icon={<SearchOutlined />}
+                        color='blue'
+                        style={{ marginBottom: '4px' }}
+                      >
+                        {query}
+                      </Tag>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.streamTextOutput}>
+                {!streamComplete && currentGeneratedText && (
+                  <div className={styles.typingEffect}>
+                    <LoadingOutlined spin style={{ marginRight: '8px' }} />
+                    <Text type='secondary'>Генерируется текст...</Text>
+                  </div>
+                )}
+
+                {currentGeneratedText && (
+                  <div className={styles.generatedText}>{currentGeneratedText}</div>
+                )}
+
+                {isStreamGenerating && !streamComplete && (
+                  <div className={styles.generatedTextSkeleton}>
+                    <Skeleton active paragraph={{ rows: 2 }} />
+                  </div>
+                )}
+              </div>
+
+              {generatedImages.length > 0 && (
+                <div className={styles.streamGeneratedImages}>
+                  <Text strong style={{ marginBottom: '8px', display: 'block' }}>
+                    Сгенерированные изображения:
+                  </Text>
+                  <div className={styles.imagesGrid}>
+                    {generatedImages.map((image, index) => (
+                      <div key={index} className={styles.imageItem}>
+                        <Image
+                          src={image}
+                          alt={`Сгенерированное изображение ${index + 1}`}
+                          width={100}
+                          height={100}
+                          style={{ objectFit: 'cover' }}
+                          fallback='/img.png'
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </Form>
       </div>

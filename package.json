@@ -16,6 +16,7 @@
     "dayjs": "^1.11.13",
     "deep-equal": "^2.2.3",
     "emoji-picker-react": "^4.12.2",
+    "event-source-polyfill": "^1.0.31",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
     "postcss": "^8.5.3",
@@ -30,7 +31,9 @@
     "react-responsive": "^10.0.1",
     "react-router-dom": "^7.5.1",
     "react-scripts": "^5.0.1",
-    "slick-carousel": "^1.8.1"
+    "remark": "^15.0.1",
+    "slick-carousel": "^1.8.1",
+    "strip-markdown": "^6.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -60,6 +63,7 @@
     ]
   },
   "devDependencies": {
+    "@types/event-source-polyfill": "^1.0.5",
     "@types/lodash": "^4.17.16",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",

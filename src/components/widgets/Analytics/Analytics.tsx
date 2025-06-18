@@ -17,12 +17,17 @@ import { setActiveAnalyticsFilter } from '../../../stores/analyticsSlice';
 import { LeftOutlined, RightOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
+// Подключаем плагины
 dayjs.extend(isoWeek);
+dayjs.extend(isSameOrBefore);
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
+  const [lineChartLoading, setLineChartLoading] = useState<boolean>(true);
   const [analyticsData, setAnalyticsData] = useState<PostAnalytics[]>([]);
+  const [dailyAnalyticsData, setDailyAnalyticsData] = useState<PostAnalytics[]>([]);
   const activeAnalytics = useAppSelector((state) => state.analytics.activeAnalyticsFilter);
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
@@ -166,6 +171,92 @@ const AnalyticsComponent: React.FC = () => {
     fetchUsersData();
   }, [selectedTeamId, activeAnalytics, dateRange]);
 
+  const [growthDataLoading, setGrowthDataLoading] = useState<boolean>(true);
+  const [growthData, setGrowthData] = useState<{
+    currentPeriod: PostAnalytics[];
+    previousPeriod: PostAnalytics[];
+  }>({
+    currentPeriod: [],
+    previousPeriod: [],
+  });
+  const [periodType, setPeriodType] = useState<'week' | 'month'>('week');
+
+  useEffect(() => {
+    const fetchGrowthData = async () => {
+      if (selectedTeamId === 0 || activeAnalytics !== 'growth') {
+        return;
+      }
+
+      setGrowthDataLoading(true);
+      try {
+        const today = dayjs();
+
+        let currentPeriodStart, currentPeriodEnd, previousPeriodStart, previousPeriodEnd;
+
+        if (periodType === 'week') {
+          currentPeriodStart = today.startOf('isoWeek');
+          currentPeriodEnd = today.endOf('isoWeek');
+          previousPeriodStart = currentPeriodStart.clone().subtract(1, 'week');
+          previousPeriodEnd = currentPeriodEnd.clone().subtract(1, 'week');
+        } else {
+          currentPeriodStart = today.startOf('month');
+          currentPeriodEnd = today.endOf('month');
+          previousPeriodStart = currentPeriodStart.clone().subtract(1, 'month');
+          previousPeriodEnd = currentPeriodEnd.clone().subtract(1, 'month');
+        }
+
+        const currentPeriodResponse = await GetStats({
+          team_id: selectedTeamId,
+          start: currentPeriodStart.toISOString(),
+          end: currentPeriodEnd.toISOString(),
+        });
+
+        const previousPeriodResponse = await GetStats({
+          team_id: selectedTeamId,
+          start: previousPeriodStart.toISOString(),
+          end: previousPeriodEnd.toISOString(),
+        });
+
+        const hasCurrentData =
+          currentPeriodResponse.posts && currentPeriodResponse.posts.length > 0;
+        const hasPreviousData =
+          previousPeriodResponse.posts && previousPeriodResponse.posts.length > 0;
+
+        const currentPeriodData = hasCurrentData
+          ? transformStatsToAnalytics(
+              currentPeriodResponse,
+              currentPeriodStart.toDate(),
+              currentPeriodEnd.toDate(),
+            )
+          : [];
+
+        const previousPeriodData = hasPreviousData
+          ? transformStatsToAnalytics(
+              previousPeriodResponse,
+              previousPeriodStart.toDate(),
+              previousPeriodEnd.toDate(),
+            )
+          : [];
+
+        setGrowthData({
+          currentPeriod: currentPeriodData,
+          previousPeriod: previousPeriodData,
+        });
+
+        setHasPosts(hasCurrentData || hasPreviousData);
+      } catch (error) {
+        console.error('Ошибка при получении данных для графика сравнения периодов:', error);
+        setHasPosts(false);
+      } finally {
+        setGrowthDataLoading(false);
+      }
+    };
+
+    if (selectedTeamId !== 0 && activeAnalytics === 'growth') {
+      fetchGrowthData();
+    }
+  }, [selectedTeamId, activeAnalytics, periodType]);
+
   if (selectedTeamId === 0) {
     return (
       <div className={styles.analyticsContainer}>
@@ -180,6 +271,25 @@ const AnalyticsComponent: React.FC = () => {
   if (!hasPosts) {
     return (
       <div className={styles.analyticsContainer}>
+        {activeAnalytics !== 'growth' && activeAnalytics !== 'kpi' && (
+          <div className={styles.weekSelector}>
+            <Space>
+              <div className={styles.weekSelectorContainer}>
+                <Tooltip title='Просмотр аналитики по неделям'>
+                  <InfoCircleOutlined className={styles.weekSelectorIcon} />
+                </Tooltip>
+                <Radio.Button onClick={goToPrevWeek}>
+                  <LeftOutlined />
+                </Radio.Button>
+                <Radio.Button disabled>{getWeekLabel(currentWeek)}</Radio.Button>
+                <Radio.Button onClick={goToNextWeek}>
+                  <RightOutlined />
+                </Radio.Button>
+              </div>
+            </Space>
+          </div>
+        )}
+
         {activeAnalytics === 'kpi' && (
           <div className={styles['spacer']}>
             <KPIRadarChart data={usersData} loading={usersLoading} height={400} />
@@ -256,11 +366,14 @@ const AnalyticsComponent: React.FC = () => {
       {activeAnalytics === 'growth' && (
         <div className={styles['spacer']}>
           <PeriodComparisonChart1
-            data={analyticsData}
-            loading={loading}
+            currentPeriodData={growthData.currentPeriod}
+            previousPeriodData={growthData.previousPeriod}
+            loading={growthDataLoading}
             height={400}
             hasTelegram={hasTelegram}
             hasVk={hasVk}
+            periodType={periodType}
+            onPeriodTypeChange={setPeriodType}
           />
         </div>
       )}

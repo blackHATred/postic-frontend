@@ -33,8 +33,30 @@ export const transformStatsToAnalytics = (
 
   // Для каждого поста создаем записи по дням
   for (const postData of data.posts) {
-    const totalDays = days.length;
+    for (let i = 0; i < days.length; i++) {
+      const day = days[i];
 
+      // Равномерно распределяем значения по дням (баг, а не фича)
+      const totalDays = days.length;
+      const dayRatio = 1 / totalDays;
+
+      const analytics: PostAnalytics = {
+        post_union_id: postData.post_union_id,
+        tg_views: Math.round((postData.telegram?.views || 0) * dayRatio),
+        tg_comments: Math.round((postData.telegram?.comments || 0) * dayRatio),
+        tg_reactions: Math.round((postData.telegram?.reactions || 0) * dayRatio),
+        vk_views: Math.round((postData.vkontakte?.views || 0) * dayRatio),
+        vk_comments: Math.round((postData.vkontakte?.comments || 0) * dayRatio),
+        vk_reactions: Math.round((postData.vkontakte?.reactions || 0) * dayRatio),
+        user_id: 0,
+        timestamp: day.toISOString(),
+      };
+
+      result.push(analytics);
+    }
+
+    /*
+    // для работы с моками
     for (let i = 0; i < days.length; i++) {
       const day = days[i];
       const randomFactor = 0.8 + Math.random() * 0.4;
@@ -73,6 +95,7 @@ export const transformStatsToAnalytics = (
 
       result.push(analytics);
     }
+    */
   }
 
   return result;

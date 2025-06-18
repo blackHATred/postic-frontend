@@ -14,14 +14,16 @@ import { useAppSelector } from '../../../stores/hooks';
 const { Text } = Typography;
 
 interface PeriodComparisonChartProps {
-  data: PostAnalytics[];
+  currentPeriodData: PostAnalytics[];
+  previousPeriodData: PostAnalytics[];
   loading: boolean;
   height?: number;
   hasTelegram?: boolean;
   hasVk?: boolean;
+  periodType: 'week' | 'month';
+  onPeriodTypeChange: (type: 'week' | 'month') => void;
 }
 
-type PeriodType = 'week' | 'month';
 type MetricType = 'reactions' | 'views' | 'comments';
 
 interface PeriodData {
@@ -34,15 +36,17 @@ interface PeriodData {
 }
 
 const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
-  data,
+  currentPeriodData,
+  previousPeriodData,
   loading,
   height = 400,
   hasTelegram,
   hasVk,
+  periodType,
+  onPeriodTypeChange,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<any>(null);
-  const [periodType, setPeriodType] = useState<PeriodType>('week');
   const [metricType, setMetricType] = useState<MetricType>('reactions');
   const [comparisonData, setComparisonData] = useState<PeriodData[]>([]);
 
@@ -56,148 +60,188 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
     hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   useEffect(() => {
-    if (!loading && data.length > 0) {
-      const currentDate = new Date();
+    if (!loading && (currentPeriodData.length > 0 || previousPeriodData.length > 0)) {
+      const currentTgMetrics = aggregateMetricsByPlatform(currentPeriodData, 'tg');
+      const currentVkMetrics = aggregateMetricsByPlatform(currentPeriodData, 'vk');
+      const previousTgMetrics = aggregateMetricsByPlatform(previousPeriodData, 'tg');
+      const previousVkMetrics = aggregateMetricsByPlatform(previousPeriodData, 'vk');
 
-      let currentPeriodStart: Date, currentPeriodEnd: Date;
-      let previousPeriodStart: Date, previousPeriodEnd: Date;
+      const tgViews = {
+        current: currentTgMetrics.views,
+        previous: previousTgMetrics.views,
+        change: currentTgMetrics.views - previousTgMetrics.views,
+        changePercent:
+          previousTgMetrics.views === 0
+            ? currentTgMetrics.views > 0
+              ? 100
+              : 0
+            : ((currentTgMetrics.views - previousTgMetrics.views) / previousTgMetrics.views) * 100,
+      };
 
-      if (periodType === 'week') {
-        const dayOfWeek = currentDate.getDay();
-        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const tgReactions = {
+        current: currentTgMetrics.reactions,
+        previous: previousTgMetrics.reactions,
+        change: currentTgMetrics.reactions - previousTgMetrics.reactions,
+        changePercent:
+          previousTgMetrics.reactions === 0
+            ? currentTgMetrics.reactions > 0
+              ? 100
+              : 0
+            : ((currentTgMetrics.reactions - previousTgMetrics.reactions) /
+                previousTgMetrics.reactions) *
+              100,
+      };
 
-        currentPeriodEnd = new Date(currentDate);
-        currentPeriodEnd.setDate(currentDate.getDate() + (7 - daysFromMonday - 1));
-        currentPeriodEnd.setHours(23, 59, 59, 999);
+      const tgComments = {
+        current: currentTgMetrics.comments,
+        previous: previousTgMetrics.comments,
+        change: currentTgMetrics.comments - previousTgMetrics.comments,
+        changePercent:
+          previousTgMetrics.comments === 0
+            ? currentTgMetrics.comments > 0
+              ? 100
+              : 0
+            : ((currentTgMetrics.comments - previousTgMetrics.comments) /
+                previousTgMetrics.comments) *
+              100,
+      };
 
-        currentPeriodStart = new Date(currentPeriodEnd);
-        currentPeriodStart.setDate(currentPeriodEnd.getDate() - 6);
-        currentPeriodStart.setHours(0, 0, 0, 0);
+      const vkViews = {
+        current: currentVkMetrics.views,
+        previous: previousVkMetrics.views,
+        change: currentVkMetrics.views - previousVkMetrics.views,
+        changePercent:
+          previousVkMetrics.views === 0
+            ? currentVkMetrics.views > 0
+              ? 100
+              : 0
+            : ((currentVkMetrics.views - previousVkMetrics.views) / previousVkMetrics.views) * 100,
+      };
 
-        previousPeriodEnd = new Date(currentPeriodStart);
-        previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1);
-        previousPeriodEnd.setHours(23, 59, 59, 999);
+      const vkReactions = {
+        current: currentVkMetrics.reactions,
+        previous: previousVkMetrics.reactions,
+        change: currentVkMetrics.reactions - previousVkMetrics.reactions,
+        changePercent:
+          previousVkMetrics.reactions === 0
+            ? currentVkMetrics.reactions > 0
+              ? 100
+              : 0
+            : ((currentVkMetrics.reactions - previousVkMetrics.reactions) /
+                previousVkMetrics.reactions) *
+              100,
+      };
 
-        previousPeriodStart = new Date(previousPeriodEnd);
-        previousPeriodStart.setDate(previousPeriodEnd.getDate() - 6);
-        previousPeriodStart.setHours(0, 0, 0, 0);
-      } else {
-        currentPeriodStart = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          1,
-          0,
-          0,
-          0,
-          0,
-        );
+      const vkComments = {
+        current: currentVkMetrics.comments,
+        previous: previousVkMetrics.comments,
+        change: currentVkMetrics.comments - previousVkMetrics.comments,
+        changePercent:
+          previousVkMetrics.comments === 0
+            ? currentVkMetrics.comments > 0
+              ? 100
+              : 0
+            : ((currentVkMetrics.comments - previousVkMetrics.comments) /
+                previousVkMetrics.comments) *
+              100,
+      };
 
-        currentPeriodEnd = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth() + 1,
-          0,
-          23,
-          59,
-          59,
-          999,
-        );
+      const data: PeriodData[] = [];
 
-        previousPeriodStart = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth() - 1,
-          1,
-          0,
-          0,
-          0,
-          0,
-        );
-
-        previousPeriodEnd = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          0,
-          23,
-          59,
-          59,
-          999,
-        );
+      if (isTelegramAvailable) {
+        data.push({
+          platform: 'Telegram',
+          metric: getMetricTitle(metricType),
+          currentValue:
+            metricType === 'views'
+              ? tgViews.current
+              : metricType === 'reactions'
+                ? tgReactions.current
+                : tgComments.current,
+          previousValue:
+            metricType === 'views'
+              ? tgViews.previous
+              : metricType === 'reactions'
+                ? tgReactions.previous
+                : tgComments.previous,
+          change:
+            metricType === 'views'
+              ? tgViews.change
+              : metricType === 'reactions'
+                ? tgReactions.change
+                : tgComments.change,
+          changePercent:
+            metricType === 'views'
+              ? tgViews.changePercent
+              : metricType === 'reactions'
+                ? tgReactions.changePercent
+                : tgComments.changePercent,
+        });
       }
 
-      const currentPeriodData = data.filter((item) => {
-        const itemDate = new Date(item.timestamp);
-        return itemDate >= currentPeriodStart && itemDate <= currentPeriodEnd;
-      });
+      if (isVkAvailable) {
+        data.push({
+          platform: 'ВКонтакте',
+          metric: getMetricTitle(metricType),
+          currentValue:
+            metricType === 'views'
+              ? vkViews.current
+              : metricType === 'reactions'
+                ? vkReactions.current
+                : vkComments.current,
+          previousValue:
+            metricType === 'views'
+              ? vkViews.previous
+              : metricType === 'reactions'
+                ? vkReactions.previous
+                : vkComments.previous,
+          change:
+            metricType === 'views'
+              ? vkViews.change
+              : metricType === 'reactions'
+                ? vkReactions.change
+                : vkComments.change,
+          changePercent:
+            metricType === 'views'
+              ? vkViews.changePercent
+              : metricType === 'reactions'
+                ? vkReactions.changePercent
+                : vkComments.changePercent,
+        });
+      }
 
-      const previousPeriodData = data.filter((item) => {
-        const itemDate = new Date(item.timestamp);
-        return itemDate >= previousPeriodStart && itemDate <= previousPeriodEnd;
-      });
-
-      const aggregatedData: PeriodData[] = [];
-
-      const tgCurrentMetric = calculateMetricSum(currentPeriodData, 'tg', metricType);
-      const tgPreviousMetric = calculateMetricSum(previousPeriodData, 'tg', metricType);
-      const tgChange = tgCurrentMetric - tgPreviousMetric;
-      const tgChangePercent =
-        tgPreviousMetric === 0 && tgCurrentMetric > 0
-          ? 100
-          : tgPreviousMetric === 0
-            ? 0
-            : (tgChange / tgPreviousMetric) * 100;
-
-      const vkCurrentMetric = calculateMetricSum(currentPeriodData, 'vk', metricType);
-      const vkPreviousMetric = calculateMetricSum(previousPeriodData, 'vk', metricType);
-      const vkChange = vkCurrentMetric - vkPreviousMetric;
-      const vkChangePercent =
-        vkPreviousMetric === 0 && vkCurrentMetric > 0
-          ? 100
-          : vkPreviousMetric === 0
-            ? 0
-            : (vkChange / vkPreviousMetric) * 100;
-
-      aggregatedData.push({
-        platform: 'Telegram',
-        metric: getMetricTitle(metricType),
-        currentValue: tgCurrentMetric,
-        previousValue: tgPreviousMetric,
-        change: tgChange,
-        changePercent: tgChangePercent,
-      });
-
-      aggregatedData.push({
-        platform: 'ВКонтакте',
-        metric: getMetricTitle(metricType),
-        currentValue: vkCurrentMetric,
-        previousValue: vkPreviousMetric,
-        change: vkChange,
-        changePercent: vkChangePercent,
-      });
-
-      setComparisonData(aggregatedData);
-      renderChart(aggregatedData);
+      setComparisonData(data);
+      renderChart(data);
     }
-  }, [data, loading, periodType, metricType]);
+  }, [
+    currentPeriodData,
+    previousPeriodData,
+    loading,
+    metricType,
+    isTelegramAvailable,
+    isVkAvailable,
+  ]);
 
-  const calculateMetricSum = (
-    periodData: PostAnalytics[],
-    platform: string,
-    metricType: MetricType,
-  ): number => {
-    let sum = 0;
+  const aggregateMetricsByPlatform = (data: PostAnalytics[], platform: 'tg' | 'vk') => {
+    const metrics = {
+      views: 0,
+      reactions: 0,
+      comments: 0,
+    };
 
-    periodData.forEach((item) => {
+    data.forEach((item) => {
       if (platform === 'tg') {
-        if (metricType === 'reactions') sum += item.tg_reactions;
-        else if (metricType === 'views') sum += item.tg_views;
-        else if (metricType === 'comments') sum += item.tg_comments;
+        metrics.views += item.tg_views;
+        metrics.reactions += item.tg_reactions;
+        metrics.comments += item.tg_comments;
       } else if (platform === 'vk') {
-        if (metricType === 'reactions') sum += item.vk_reactions;
-        else if (metricType === 'views') sum += item.vk_views;
-        else if (metricType === 'comments') sum += item.vk_comments;
+        metrics.views += item.vk_views;
+        metrics.reactions += item.vk_reactions;
+        metrics.comments += item.vk_comments;
       }
     });
 
-    return sum;
+    return metrics;
   };
 
   const getMetricTitle = (metric: MetricType): string => {
@@ -344,36 +388,41 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
     );
   }
 
+  const metricTypeOptions = [
+    { value: 'reactions', label: 'Реакции' },
+    { value: 'views', label: 'Просмотры' },
+    { value: 'comments', label: 'Комментарии' },
+  ];
+
+  const getPeriodTitle = () => {
+    return 'Сравнение текущей недели с предыдущей';
+  };
+
   return (
     <Card
       className={styles.analyticsCard}
       title={
         <Space>
-          Сравнение активности по периодам
-          <Tooltip title='Сравнивает показатели текущего и предыдущего периодов с расчетом процентного изменения'>
+          {getPeriodTitle()}
+          <Tooltip title='Сравнивает показатели текущей недели с предыдущей с расчетом процентного изменения'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>
       }
       extra={
         <Space>
+          {/*
           <Select
             value={periodType}
-            onChange={setPeriodType}
-            options={[
-              { value: 'week', label: 'Неделя' },
-              { value: 'month', label: 'Месяц' },
-            ]}
+            onChange={onPeriodTypeChange}
+            options={periodTypeOptions}
             style={{ width: 100 }}
           />
+          */}
           <Select
             value={metricType}
             onChange={setMetricType}
-            options={[
-              { value: 'reactions', label: 'Реакции' },
-              { value: 'views', label: 'Просмотры' },
-              { value: 'comments', label: 'Комментарии' },
-            ]}
+            options={metricTypeOptions}
             style={{ width: 120 }}
           />
         </Space>

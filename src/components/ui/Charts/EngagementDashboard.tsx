@@ -75,19 +75,18 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
     });
 
     const result = Array.from(dateMap.values()).map((item) => {
+      const safeViewsTg = item.tg_views === 0 ? 1 : item.tg_views;
+      const safeViewsVk = item.vk_views === 0 ? 1 : item.vk_views;
+
       const tg_er =
-        item.tg_views > 0
-          ? metricType === 'reactions'
-            ? (item.tg_reactions / item.tg_views) * 100
-            : (item.tg_comments / item.tg_views) * 100
-          : 0;
+        metricType === 'reactions'
+          ? (item.tg_reactions / safeViewsTg) * 100
+          : (item.tg_comments / safeViewsTg) * 100;
 
       const vk_er =
-        item.vk_views > 0
-          ? metricType === 'reactions'
-            ? (item.vk_reactions / item.vk_views) * 100
-            : (item.vk_comments / item.vk_views) * 100
-          : 0;
+        metricType === 'reactions'
+          ? (item.vk_reactions / safeViewsVk) * 100
+          : (item.vk_comments / safeViewsVk) * 100;
 
       return {
         ...item,

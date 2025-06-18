@@ -32,7 +32,6 @@ import {
   UserAnalytics,
   createMockStatsForPeriod,
 } from '../models/Analytics/types';
-
 export const getVkAuthUrl = async (): Promise<{ auth_url: string }> => {
   const response = await axiosInstance.get<{ auth_url: string }>(
     `${config.api.baseURL}/user/vk/auth`,
@@ -298,18 +297,17 @@ export const getMockStats = async (req: GetStatsReq): Promise<GetStatsResponse> 
 };
 
 export const GetStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
-  // моковые данные
-  return getMockStats(req);
+  const response = await axiosInstance.get<GetStatsResponse>(
+    `${config.api.baseURL}${routes.analytics()}/stats`,
+    {
+      withCredentials: true,
+      params: req,
+    },
+  );
+  return response.data;
 
-  // исходный реквест
-  // const response = await axiosInstance.get<GetStatsResponse>(
-  //   `${config.api.baseURL}${routes.analytics()}/stats`,
-  //   {
-  //     withCredentials: true,
-  //     params: req,
-  //   },
-  // );
-  // return response.data;
+  // Моковые данные
+  // return getMockStats(req);
 };
 
 export const GetPostStats = async (req: PostReq): Promise<{ resp: GetPostStatsResponse }> => {
