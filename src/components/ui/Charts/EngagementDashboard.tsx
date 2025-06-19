@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Radio, Space, Tooltip } from 'antd';
+import { Card, Radio, Space, Tooltip, Alert } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
 import { PostAnalytics } from '../../../models/Analytics/types';
@@ -35,77 +35,71 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
     hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
   const chartData = useMemo(() => {
-    const dateMap = new Map<
-      string,
-      {
-        date: string;
-        tg_views: number;
-        tg_reactions: number;
-        tg_comments: number;
-        vk_views: number;
-        vk_reactions: number;
-        vk_comments: number;
-        timestamp: string;
-      }
-    >();
+    if (!data || data.length === 0) {
+      return [];
+    }
 
-    data.forEach((item) => {
-      const date = new Date(item.timestamp).toISOString().split('T')[0];
+    const sortedData = [...data].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
 
-      if (!dateMap.has(date)) {
-        dateMap.set(date, {
-          date,
-          tg_views: 0,
-          tg_reactions: 0,
-          tg_comments: 0,
-          vk_views: 0,
-          vk_reactions: 0,
-          vk_comments: 0,
-          timestamp: item.timestamp,
-        });
-      }
+    const lastTenPosts = sortedData.slice(0, 10);
 
-      const dateData = dateMap.get(date)!;
-      dateData.tg_views += item.tg_views;
-      dateData.tg_reactions += item.tg_reactions;
-      dateData.tg_comments += item.tg_comments;
-      dateData.vk_views += item.vk_views;
-      dateData.vk_reactions += item.vk_reactions;
-      dateData.vk_comments += item.vk_comments;
-    });
-
-    const result = Array.from(dateMap.values()).map((item) => {
-      const safeViewsTg = item.tg_views === 0 ? 1 : item.tg_views;
-      const safeViewsVk = item.vk_views === 0 ? 1 : item.vk_views;
-
-      const tg_er =
-        metricType === 'reactions'
-          ? (item.tg_reactions / safeViewsTg) * 100
-          : (item.tg_comments / safeViewsTg) * 100;
-
-      const vk_er =
-        metricType === 'reactions'
-          ? (item.vk_reactions / safeViewsVk) * 100
-          : (item.vk_comments / safeViewsVk) * 100;
+    const result = lastTenPosts.map((post) => {
+      const postId = `Пост ${post.post_union_id}`;
 
       return {
-        ...item,
-        tg_er,
-        vk_er,
+        post_union_id: post.post_union_id,
+        postId: postId,
+        tg_views: post.tg_views || 0,
+        tg_reactions: post.tg_reactions || 0,
+        tg_comments: post.tg_comments || 0,
+        vk_views: post.vk_views || 0,
+        vk_reactions: post.vk_reactions || 0,
+        vk_comments: post.vk_comments || 0,
+        timestamp: post.timestamp,
       };
     });
 
-    return result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [data, metricType]);
+    return result.reverse();
+  }, [data]);
+
+  const hasZeroMetrics = useMemo(() => {
+    if (!data || data.length === 0) return false;
+
+    let hasZeroTgMetrics = true;
+    let hasZeroVkMetrics = true;
+
+    const sortedData = [...data].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
+    const lastTenPosts = sortedData.slice(0, 10);
+
+    for (const item of lastTenPosts) {
+      if (metricType === 'reactions') {
+        if (item.tg_reactions > 0 && item.tg_views > 0) hasZeroTgMetrics = false;
+        if (item.vk_reactions > 0 && item.vk_views > 0) hasZeroVkMetrics = false;
+      } else {
+        if (item.tg_comments > 0 && item.tg_views > 0) hasZeroTgMetrics = false;
+        if (item.vk_comments > 0 && item.vk_views > 0) hasZeroVkMetrics = false;
+      }
+    }
+
+    return {
+      telegram: hasZeroTgMetrics && isTelegramAvailable,
+      vkontakte: hasZeroVkMetrics && isVkAvailable,
+    };
+  }, [data, metricType, isTelegramAvailable, isVkAvailable]);
 
   const metricInfo = {
     reactions: {
-      title: 'Engagement Rate (отношение реакций к просмотрам)',
-      description: 'Показывает процент пользователей, которые оставили реакции за выбранный период',
+      title: 'Engagement Rate по постам (отношение реакций к просмотрам)',
+      description:
+        'Показывает процент пользователей, которые оставили реакции на 10 последних постах',
     },
     comments: {
-      title: 'Discussion Rate (отношение комментариев к просмотрам)',
-      description: 'Показывает уровень обсуждения контента пользователями за выбранный период',
+      title: 'Discussion Rate по постам (отношение комментариев к просмотрам)',
+      description: 'Показывает уровень обсуждения 10 последних постов пользователями',
     },
   };
 
@@ -133,11 +127,41 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
         </Radio.Group>
       </div>
 
+      {chartData.length === 0 && !loading && (
+        <Alert
+          message='Недостаточно данных для отображения'
+          type='info'
+          showIcon
+          style={{ marginBottom: '20px' }}
+        />
+      )}
+
+      {typeof hasZeroMetrics !== 'boolean' && hasZeroMetrics.telegram && (
+        <Alert
+          message='Нет доступных данных по реакциям/комментариям в Telegram'
+          type='info'
+          showIcon
+          style={{ marginBottom: '20px' }}
+        />
+      )}
+
+      {typeof hasZeroMetrics !== 'boolean' && hasZeroMetrics.vkontakte && (
+        <Alert
+          message='Нет доступных данных по реакциям/комментариям во ВКонтакте'
+          type='info'
+          showIcon
+          style={{ marginBottom: '20px' }}
+        />
+      )}
+
       <BarChart
         data={chartData as unknown as PostAnalytics[]}
         loading={loading}
         height={400}
         colors={metricType === 'reactions' ? ['#4096ff', '#f759ab'] : ['#5cdbd3', '#b37feb']}
+        xField='postId'
+        xAxisTitle='ID поста'
+        metricType={metricType}
       />
     </Card>
   );

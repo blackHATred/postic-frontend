@@ -229,6 +229,10 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
       comments: 0,
     };
 
+    if (!data || data.length === 0) {
+      return metrics;
+    }
+
     data.forEach((item) => {
       if (platform === 'tg') {
         metrics.views += item.tg_views;

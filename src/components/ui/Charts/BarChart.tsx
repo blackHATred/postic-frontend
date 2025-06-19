@@ -9,6 +9,9 @@ interface BarChartProps {
   loading?: boolean;
   height?: number;
   colors?: string[];
+  xField?: string;
+  xAxisTitle?: string;
+  metricType?: 'reactions' | 'comments';
 }
 
 const BarChart: React.FC<BarChartProps> = ({
@@ -16,6 +19,9 @@ const BarChart: React.FC<BarChartProps> = ({
   loading = false,
   height = 400,
   colors = ['#4096ff', '#f759ab'],
+  xField = 'date',
+  xAxisTitle = 'Дата',
+  metricType = 'reactions',
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<Column | null>(null);
@@ -25,23 +31,30 @@ const BarChart: React.FC<BarChartProps> = ({
       const transformedData: any[] = [];
 
       data.forEach((item) => {
-        const date = new Date(item.timestamp).toLocaleDateString();
+        const xValue =
+          item[xField as keyof PostAnalytics] || new Date(item.timestamp).toLocaleDateString();
 
-        const tgER =
-          item.tg_views > 0 ? ((item.tg_reactions / item.tg_views) * 100).toFixed(2) : '0';
+        const safeViewsTg = item.tg_views || 0;
+        const safeViewsVk = item.vk_views || 0;
 
-        const vkER =
-          item.vk_views > 0 ? ((item.vk_reactions / item.vk_views) * 100).toFixed(2) : '0';
+        const tgMetric =
+          metricType === 'reactions' ? item.tg_reactions || 0 : item.tg_comments || 0;
+        const vkMetric =
+          metricType === 'reactions' ? item.vk_reactions || 0 : item.vk_comments || 0;
+
+        const tgER = safeViewsTg > 0 ? parseFloat(((tgMetric / safeViewsTg) * 100).toFixed(2)) : 0;
+
+        const vkER = safeViewsVk > 0 ? parseFloat(((vkMetric / safeViewsVk) * 100).toFixed(2)) : 0;
 
         transformedData.push({
-          date,
-          value: parseFloat(tgER),
+          [xField]: xValue,
+          value: tgER,
           platform: 'Telegram',
         });
 
         transformedData.push({
-          date,
-          value: parseFloat(vkER),
+          [xField]: xValue,
+          value: vkER,
           platform: 'ВКонтакте',
         });
       });
@@ -57,7 +70,7 @@ const BarChart: React.FC<BarChartProps> = ({
 
       const newChart = new Column(chartRef.current, {
         data: transformedData,
-        xField: 'date',
+        xField: xField,
         yField: 'value',
         seriesField: 'platform',
         isGroup: true,
@@ -71,7 +84,7 @@ const BarChart: React.FC<BarChartProps> = ({
           min: 0,
         },
         xAxis: {
-          title: { text: 'Дата' },
+          title: { text: xAxisTitle },
         },
         tooltip: {
           showMarkers: false,
@@ -99,20 +112,16 @@ const BarChart: React.FC<BarChartProps> = ({
         } catch (error) {
           // что-то тут было, но теперь этого нет
         }
-        chartInstance.current = null;
       }
     };
-  }, [loading, data, colors]);
+  }, [data, loading, height, colors, xField, xAxisTitle]);
 
-  if (loading) {
-    return (
-      <div className={styles.analyticsCard}>
-        <Spin size='large' />
-      </div>
-    );
-  }
-
-  return <div ref={chartRef} style={{ height }} />;
+  return (
+    <div className={styles.chartContainer} style={{ height }}>
+      {loading ? <Spin size='large' className={styles.spinner} /> : null}
+      <div ref={chartRef} className={styles.chart} />
+    </div>
+  );
 };
 
 export default BarChart;

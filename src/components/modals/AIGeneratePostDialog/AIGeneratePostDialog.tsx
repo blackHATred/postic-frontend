@@ -109,6 +109,7 @@ const AIGeneratePostDialog: FC = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.basePageDialogs.generatePostDialog.isOpen);
   const notificationManager = useContext(NotificationContext);
+  const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
 
   useEffect(() => {
     const initialSelectedState: { [key: string]: boolean } = {};
@@ -340,7 +341,14 @@ const AIGeneratePostDialog: FC = () => {
     setTimeoutError(false);
     setError(null);
 
-    startGeneration(prompt);
+    // Создаем объект запроса с team_id из Redux
+    const generatePostReq = {
+      query: prompt,
+      team_id: team_id,
+    };
+
+    // Передаем объект запроса в функцию startGeneration
+    startGeneration(generatePostReq);
   };
 
   const handleGenerateClick = () => {

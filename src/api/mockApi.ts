@@ -401,3 +401,55 @@ export const getMockComments = async (
 
   return roots;
 };
+
+export const getMockAnalyticsStats = async (params: {
+  team_id: number;
+  start: string;
+  end: string;
+}) => {
+  await new Promise((resolve) => setTimeout(resolve, 300 + Math.random() * 500));
+
+  return {
+    posts: [
+      {
+        post_union_id: 1,
+        telegram: {
+          views: Math.floor(Math.random() * 500) + 100,
+          comments: Math.floor(Math.random() * 20) + 1,
+          reactions: 0,
+        },
+        vkontakte: {
+          views: Math.floor(Math.random() * 300) + 50,
+          comments: Math.floor(Math.random() * 15) + 1,
+          reactions: 0,
+        },
+      },
+      {
+        post_union_id: 2,
+        telegram: {
+          views: Math.floor(Math.random() * 400) + 80,
+          comments: Math.floor(Math.random() * 10) + 1,
+          reactions: Math.floor(Math.random() * 40) + 5,
+        },
+        vkontakte: {
+          views: Math.floor(Math.random() * 250) + 40,
+          comments: Math.floor(Math.random() * 12) + 1,
+          reactions: Math.floor(Math.random() * 25) + 3,
+        },
+      },
+      {
+        post_union_id: 3,
+        telegram: {
+          views: Math.floor(Math.random() * 450) + 90,
+          comments: Math.floor(Math.random() * 15) + 2,
+          reactions: Math.floor(Math.random() * 35) + 8,
+        },
+        vkontakte: {
+          views: Math.floor(Math.random() * 280) + 45,
+          comments: Math.floor(Math.random() * 14) + 2,
+          reactions: Math.floor(Math.random() * 28) + 4,
+        },
+      },
+    ],
+  };
+};

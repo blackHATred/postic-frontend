@@ -5,8 +5,8 @@ import {
   sendPost,
   sendPostResult,
   UploadResult,
-  GeneratePostResult,
   FixPostResult,
+  FixPostReq,
 } from '../models/Post/types';
 import {
   Comment,
@@ -23,7 +23,6 @@ import { MeInfo, RegisterResult, RegisterRequest } from '../models/User/types';
 import { routes } from './routers/routes';
 
 import axiosInstance from './axiosConfig';
-import axios from 'axios';
 import {
   PostReq,
   GetPostStatsResponse,
@@ -379,27 +378,12 @@ export const getKPI = async (
   return response.data;
 };
 
-export const generatePublication = async (query: string): Promise<GeneratePostResult> => {
-  const response = await axios.post<GeneratePostResult>(
-    'http://leave-doing.gl.at.ply.gg:31585/publication',
-    { query },
+export const fixPublication = async (req: FixPostReq): Promise<FixPostResult> => {
+  const response = await axiosInstance.post<FixPostResult>(
+    `${config.api.baseURL}${routes.posts()}/fix`,
+    req,
     {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-  return response.data;
-};
-
-export const fixPublication = async (text: string): Promise<FixPostResult> => {
-  const response = await axios.post<FixPostResult>(
-    'http://leave-doing.gl.at.ply.gg:31585/fix',
-    { text },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      withCredentials: true,
     },
   );
   return response.data;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.scss';
-import { PostAnalytics, UserAnalytics } from '../../../models/Analytics/types';
+import { GetStatsResponse, PostAnalytics, UserAnalytics } from '../../../models/Analytics/types';
 import LineChart from '../../ui/Charts/LineChart';
 import { useAppSelector, useAppDispatch } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
@@ -222,9 +222,25 @@ const AnalyticsComponent: React.FC = () => {
         const hasPreviousData =
           previousPeriodResponse.posts && previousPeriodResponse.posts.length > 0;
 
+        const addMissingVkData = (response: GetStatsResponse): GetStatsResponse => {
+          if (!response || !response.posts) return response;
+
+          return {
+            ...response,
+            posts: response.posts.map((post) => ({
+              ...post,
+              vkontakte: post.vkontakte || {
+                views: 0,
+                comments: 0,
+                reactions: 0,
+              },
+            })),
+          };
+        };
+
         const currentPeriodData = hasCurrentData
           ? transformStatsToAnalytics(
-              currentPeriodResponse,
+              addMissingVkData(currentPeriodResponse),
               currentPeriodStart.toDate(),
               currentPeriodEnd.toDate(),
             )
@@ -232,7 +248,7 @@ const AnalyticsComponent: React.FC = () => {
 
         const previousPeriodData = hasPreviousData
           ? transformStatsToAnalytics(
-              previousPeriodResponse,
+              addMissingVkData(previousPeriodResponse),
               previousPeriodStart.toDate(),
               previousPeriodEnd.toDate(),
             )

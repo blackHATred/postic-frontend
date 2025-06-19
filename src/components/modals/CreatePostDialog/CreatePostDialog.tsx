@@ -716,7 +716,11 @@ const CreatePostDialog: FC = () => {
     setIsFixLoading(true);
 
     try {
-      const result = await withTimeout(fixPublication(postText));
+      const fixPostReq = {
+        text: postText,
+        team_id: team_id,
+      };
+      const result = await withTimeout(fixPublication(fixPostReq));
       if (result && result.response) {
         setPostText(result.response);
         setFixedText(result.response);

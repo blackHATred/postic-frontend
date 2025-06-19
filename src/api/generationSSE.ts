@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import config from '../constants/appConfig';
 
 import { EventSourcePolyfill as EventSourcePolyfillType } from 'event-source-polyfill';
+import { routes } from './routers/routes';
+import { GeneratePostReq } from '../models/Post/types';
 const EventSourcePolyfill: typeof EventSourcePolyfillType = EventSourcePolyfillType;
 
 // true - моки, false - реальные данные с бэкенда
@@ -201,7 +203,7 @@ export function useGenerationSSE(options: {
     }
   };
 
-  const startGeneration = (query: string) => {
+  const startGeneration = (req: GeneratePostReq) => {
     stopGeneration();
 
     if (USE_MOCK_GENERATION) {
@@ -210,16 +212,20 @@ export function useGenerationSSE(options: {
       mockTimerRef.current = setTimeout(sendNextMockMessage, 200);
     } else {
       try {
-        const queryParams = encodeURIComponent(query);
-        const eventSourceUrl = `${config.api.baseURL}/publication/stream?query=${queryParams}`;
+        const queryParams = new URLSearchParams({
+          team_id: req.team_id.toString(),
+          query: req.query,
+        }).toString();
 
-        const eventSource = new EventSourcePolyfill(eventSourceUrl, {
-          headers: {
-            'Content-Type': 'application/json',
+        const eventSource = new EventSourcePolyfill(
+          `${config.api.baseURL}${routes.posts()}/generate?${queryParams}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
           },
-          heartbeatTimeout: 120000,
-          withCredentials: true,
-        });
+        );
 
         eventSourceRef.current = eventSource;
 

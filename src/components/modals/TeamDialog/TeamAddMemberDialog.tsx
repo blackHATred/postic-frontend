@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Input, Divider, Form } from 'antd';
+import { Input, Divider, Form, notification } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
@@ -98,15 +98,51 @@ const TeamAddMemberDialog: React.FC = () => {
       roles.push('analytics');
     }
 
-    await Invite({
-      user_id: Number(inviteUserId),
-      team_id: teamId,
-      roles,
-    });
-    dispatch(setAddMemberDialog(false));
-    updateTeamList();
+    try {
+      const result = await Invite({
+        user_id: Number(inviteUserId),
+        team_id: teamId,
+        roles,
+      });
 
-    resetForm();
+      // Проверяем, содержит ли результат сообщение об ошибке
+      if (result && result.includes('Пользователь не найден')) {
+        notification.error({
+          message: 'Ошибка',
+          description: 'Пользователь не найден. Проверьте правильность ID.',
+          placement: 'topRight',
+        });
+        return;
+      }
+
+      // Если ошибки нет, значит операция успешна
+      dispatch(setAddMemberDialog(false));
+      updateTeamList();
+      resetForm();
+
+      notification.success({
+        message: 'Успешно',
+        description: 'Участник успешно добавлен в команду',
+        placement: 'topRight',
+      });
+    } catch (error: any) {
+      if (
+        error.response?.data?.error === 'Пользователь не найден' ||
+        error.message === 'Пользователь не найден'
+      ) {
+        notification.error({
+          message: 'Ошибка',
+          description: 'Пользователь не найден. Проверьте правильность ID.',
+          placement: 'topRight',
+        });
+      } else {
+        notification.error({
+          message: 'Ошибка',
+          description: 'Не удалось добавить участника. Попробуйте позже.',
+          placement: 'topRight',
+        });
+      }
+    }
   };
 
   const renderStep1 = () => (

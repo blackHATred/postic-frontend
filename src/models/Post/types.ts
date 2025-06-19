@@ -63,6 +63,16 @@ export interface GeneratePostResult {
   images: string[];
 }
 
+export interface FixPostReq {
+  team_id: number;
+  text: string;
+}
+
+export interface GeneratePostReq {
+  team_id: number;
+  query: string;
+}
+
 export interface FixPostResult {
   response: string;
 }
