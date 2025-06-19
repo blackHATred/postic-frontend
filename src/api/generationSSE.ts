@@ -5,7 +5,7 @@ import { EventSourcePolyfill as EventSourcePolyfillType } from 'event-source-pol
 const EventSourcePolyfill: typeof EventSourcePolyfillType = EventSourcePolyfillType;
 
 // true - моки, false - реальные данные с бэкенда
-export const USE_MOCK_GENERATION = true;
+export const USE_MOCK_GENERATION = false;
 
 export interface StreamMessageData {
   type:
