@@ -212,8 +212,12 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
         <div className={styles['headerIcons']}>
           {isAuthorized == 'authorized' && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <TeamOutlined style={{ color: '#1890ff' }} />{' '}
+              <div style={{ display: 'flex', alignItems: 'center', minWidth: '0px' }}>
+                <TeamOutlined
+                  style={{
+                    color: '#1890ff',
+                  }}
+                />{' '}
                 <Select
                   labelInValue
                   value={{
@@ -249,19 +253,21 @@ const ButtonHeader: React.FC<ButtonHeaderProps> = ({ onMenuClick }) => {
               */}
             </>
           )}
-          <Dropdown menu={menuProps} placement='bottom'>
-            <Button className={styles['icon']} icon={<UserOutlined />} size={buttonSize} />
-          </Dropdown>
+          <div className={styles['headerButtons']}>
+            <Dropdown menu={menuProps} placement='bottom'>
+              <Button className={styles['icon']} icon={<UserOutlined />} size={buttonSize} />
+            </Dropdown>
 
-          {/* меню-гамбургер (воппер - для ценителей) */}
-          {isAuthorized === 'authorized' && onMenuClick && (
-            <Button
-              className={`${styles['icon']} ${styles['hamburger-icon']}`}
-              icon={<MenuOutlined />}
-              size={buttonSize}
-              onClick={onMenuClick}
-            />
-          )}
+            {/* меню-гамбургер (воппер - для ценителей) */}
+            {isAuthorized === 'authorized' && onMenuClick && (
+              <Button
+                className={`${styles['icon']} ${styles['hamburger-icon']}`}
+                icon={<MenuOutlined />}
+                size={buttonSize}
+                onClick={onMenuClick}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

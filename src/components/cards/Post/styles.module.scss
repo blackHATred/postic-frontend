@@ -11,7 +11,10 @@
   border-radius: $border-radius;
   margin-left: auto;
   margin-right: auto;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   color: $calendar-item-text;
 }
 
@@ -25,7 +28,10 @@
   border-radius: $border-radius;
   margin-left: auto;
   margin-right: auto;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   color: $calendar-item-text;
 
   @include mobile {
@@ -41,7 +47,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 7px;
-
+  @media (max-width: 500px) {
+    flex-direction: column;
+    float: left;
+    align-items: start;
+  }
 }
 
 .post-header-info {
@@ -99,6 +109,12 @@
 
 .post-content-buttons {
   display: flex;
+  @media (max-width: 500px) {
+    flex-direction: column;
+    float: left;
+    align-items: start;
+    min-width: 0px;
+  }
 }
 
 .post-content-attachments {
@@ -143,7 +159,8 @@
   justify-content: center;
   gap: 4px;
 
-  &.edit-button, &.delete-button {
+  &.edit-button,
+  &.delete-button {
     background-color: $light-gray;
     color: $dark-gray;
     border-color: $light-gray;

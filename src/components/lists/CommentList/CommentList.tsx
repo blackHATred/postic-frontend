@@ -12,7 +12,7 @@ import { getSseUrl } from '../../../constants/appConfig';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
 import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
 
-const frame_size = 3;
+const frame_size = 20;
 const { Text } = Typography;
 
 const CommentList: React.FC<{

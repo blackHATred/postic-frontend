@@ -11,7 +11,7 @@ import PostCalendar from '../../ui/Calendar/PostCalendar';
 import { Max_POSTS } from '../../../constants/appConfig';
 import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
 
-const frame_size = 3;
+const frame_size = 10;
 const { Text } = Typography;
 
 const PostList: React.FC = () => {

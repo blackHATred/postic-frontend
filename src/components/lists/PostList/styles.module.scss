@@ -2,27 +2,20 @@
 .postListContainer {
   height: 100%;
   width: 100%;
-  overflow-y: auto;
   overflow-anchor: auto;
-  padding-right: 10px;
-
-
+  overflow-y: auto;
+  overflow-x: hidden;
   overflow-wrap: normal;
   float: left;
   interpolate-size: allow-keywords;
+  padding-right: 10px;
 
   &::-webkit-scrollbar {
     width: 8px;
-    background-color: #f5f5f5;
   }
 
   &::-webkit-scrollbar-thumb {
     background-color: #c1c1c1;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: #f5f5f5;
     border-radius: 4px;
   }
 }
@@ -49,5 +42,11 @@
 }
 
 .empty {
-  padding-top: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  width: 100%;
+  flex-direction: column;
+  box-sizing: border-box;
 }
