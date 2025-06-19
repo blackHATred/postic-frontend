@@ -26,6 +26,7 @@ export default defineConfig({
     port: 3000,
     host: true,
     strictPort: true,
+    allowedHosts: ['postic.io', 'localhost'],
   },
   define: {
     // eslint-disable-next-line no-undef
