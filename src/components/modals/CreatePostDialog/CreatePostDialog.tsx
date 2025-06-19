@@ -721,9 +721,9 @@ const CreatePostDialog: FC = () => {
         team_id: team_id,
       };
       const result = await withTimeout(fixPublication(fixPostReq));
-      if (result && result.response) {
-        setPostText(result.response);
-        setFixedText(result.response);
+      if (result && result.text) {
+        setPostText(result.text);
+        setFixedText(result.text);
         setShowFixControls(true);
       } else {
         setContentError('Не удалось получить исправленный текст. Попробуйте позже.');

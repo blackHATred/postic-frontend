@@ -472,7 +472,7 @@ const AIGeneratePostDialog: FC = () => {
               <Col flex='auto'>
                 <TextArea
                   rows={2}
-                  placeholder='Например: "составь пост про то, как необходимо готовит�� пельмени"'
+                  placeholder='Например: "составь пост про то, как необходимо готовить  пельмени"'
                   value={prompt}
                   onChange={handlePromptChange}
                   disabled={isStreamGenerating}
@@ -576,7 +576,7 @@ const AIGeneratePostDialog: FC = () => {
                           <Tooltip title={`Изображение ${index + 1}`}>
                             <Image
                               src={image}
-                              alt={`Сгенерированное изображен��е ${index + 1}`}
+                              alt={`Сгенерированное изображение ${index + 1}`}
                               width={120}
                               height={120}
                               style={{ objectFit: 'cover' }}
@@ -610,7 +610,7 @@ const AIGeneratePostDialog: FC = () => {
           {timeoutError && (
             <Alert
               message='Превышено время ожидания генерации публикации'
-              description='Запрос на генерацию публикации превысил время ожидания. П��пробуйте снова.'
+              description='Запрос на генерацию публикации превысил время ожидания. Попробуйте снова.'
               type='warning'
               showIcon
             />
@@ -621,7 +621,7 @@ const AIGeneratePostDialog: FC = () => {
               <div className={styles.streamStatusHeader}>
                 <Space>
                   <LoadingOutlined spin />
-                  <Text strong>Процес�� генерации</Text>
+                  <Text strong>Процесс генерации</Text>
                 </Space>
                 <Text type='secondary'>{streamStatus}</Text>
               </div>

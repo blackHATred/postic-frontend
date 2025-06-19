@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { GeneratePostReq } from '../models/Post/types';
 import config from '../constants/appConfig';
-
+import { backendMockMessages, formatAsBackendSSE } from '../models/Post/tmp';
 // true - моки, false - реальные данные с бэкенда
 export const USE_MOCK_GENERATION = false;
 
@@ -15,9 +15,9 @@ export interface StreamMessageData {
     | 'processing'
     | 'generation'
     | 'content'
-    | 'complete'
     | 'warning'
-    | 'error';
+    | 'error'
+    | 'complete';
   message?: string;
   text?: string;
   final?: boolean;
@@ -28,7 +28,7 @@ export interface StreamMessageData {
   images?: string[] | null;
 }
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 function debugLog(...args: any[]) {
   if (DEBUG_MODE) {
     console.log('[SSE Debug]', ...args);
@@ -41,152 +41,223 @@ export function useImprovedGenerationSSE(options: {
 }) {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const mockTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const mockIndexRef = useRef<number>(0);
 
-  const parseSSEMessage = (text: string): StreamMessageData | null => {
-    try {
-      if (text.startsWith('data: data:')) {
-        const jsonStart = text.indexOf('{');
-        const jsonEnd = text.lastIndexOf('}');
+  const extractJsonFromSSEData = (chunk: string): StreamMessageData | null => {
+    const lines = chunk.split('\n').map((line) => line.trim());
+    let jsonString: string | null = null;
 
-        if (jsonStart !== -1 && jsonEnd !== -1) {
-          const jsonString = text.substring(jsonStart, jsonEnd + 1);
-          debugLog('Извлеченный JSON из data: data:', jsonString);
-          return JSON.parse(jsonString);
+    for (const line of lines) {
+      if (line.startsWith('data: data:')) {
+        const potentialJson = line.substring('data: data:'.length).trim();
+        if (potentialJson.startsWith('{') && potentialJson.endsWith('}')) {
+          jsonString = potentialJson;
+          break;
         }
-      } else if (text.startsWith('data:')) {
-        const jsonString = text.substring(5).trim();
-        debugLog('Извлеченный JSON из data:', jsonString);
-        return JSON.parse(jsonString);
-      } else if (text.trim().startsWith('{') && text.trim().endsWith('}')) {
-        debugLog('Прямой JSON:', text.trim());
-        return JSON.parse(text.trim());
+      } else if (line.startsWith('data:')) {
+        const potentialJson = line.substring('data:'.length).trim();
+        if (potentialJson.startsWith('{') && potentialJson.endsWith('}')) {
+          jsonString = potentialJson;
+          break;
+        }
       }
-      return null;
-    } catch (error) {
-      debugLog('Ошибка парсинга:', error, 'Текст:', text);
-      return null;
     }
-  };
 
-  const sendNextMockMessage = () => {
-    setIsConnected(false);
+    if (jsonString) {
+      try {
+        debugLog('Attempting to parse JSON string:', jsonString);
+        return JSON.parse(jsonString);
+      } catch (error) {
+        debugLog('Ошибка парсинга JSON:', error, 'Raw JSON string:', jsonString);
+        return null;
+      }
+    }
+    debugLog('JSON data not found or invalid in chunk:', chunk);
+    return null;
   };
 
   const startGeneration = async (req: GeneratePostReq) => {
     stopGeneration();
 
-    if (USE_MOCK_GENERATION) {
-      setIsConnected(true);
-      mockIndexRef.current = 0;
-      mockTimerRef.current = setTimeout(sendNextMockMessage, 200);
-      return;
-    }
+    setIsConnected(true);
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     try {
-      setIsConnected(true);
-      abortControllerRef.current = new AbortController();
-      const signal = abortControllerRef.current.signal;
+      if (USE_MOCK_GENERATION) {
+        debugLog('Использование МОКОВ БЭКЕНДА');
+        const encoder = new TextEncoder();
+        const currentMockIndex = 0;
 
-      debugLog('Отправка запроса на генерацию:', req);
-      debugLog('URL:', `${config.api.baseURL}/posts/generate`);
-
-      const response = await fetch(`${config.api.baseURL}/posts/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          team_id: req.team_id,
-          query: req.query,
-        }),
-        signal: signal,
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ошибка! Статус: ${response.status}`);
-      }
-
-      if (!response.body) {
-        throw new Error('Тело ответа пустое');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        if (signal.aborted) {
-          debugLog('Поток прерван пользователем');
-          break;
-        }
-
-        const { value, done } = await reader.read();
-
-        if (done) {
-          debugLog('Поток завершен');
-          break;
-        }
-
-        buffer += decoder.decode(value, { stream: true });
-        debugLog('Получены данные:', buffer);
-
-        let eventEnd = 0;
-        while ((eventEnd = buffer.indexOf('\n\n')) !== -1) {
-          const eventData = buffer.substring(0, eventEnd).trim();
-          buffer = buffer.substring(eventEnd + 2);
-
-          debugLog('Обрабатываем событие:', eventData);
-
-          if (!eventData) continue;
-
-          const data = parseSSEMessage(eventData);
-          if (data) {
-            debugLog('Распаршенные данные:', data);
-            options.onMessage(data);
-
-            if (data.type === 'complete') {
-              debugLog('Получен сигнал завершения. Закрываем поток.');
-              reader.cancel();
-              setIsConnected(false);
-              abortControllerRef.current = null;
-              return;
+        const mockStreamGenerator = (async function* () {
+          for (const messageData of backendMockMessages) {
+            if (signal.aborted) {
+              debugLog('Mock stream aborted by user.');
+              break;
             }
+
+            const formattedMessage = formatAsBackendSSE(messageData);
+            debugLog('Mock sending formatted message chunk:', formattedMessage.trim());
+
+            yield encoder.encode(formattedMessage);
+
+            let delay = 100;
+            if (messageData.type === 'content' && !messageData.final) {
+              delay = 10;
+            } else if (messageData.type === 'generation' || messageData.type === 'search') {
+              delay = 300;
+            }
+            await new Promise((resolve) => setTimeout(resolve, delay));
           }
-        }
+        })();
 
-        if (buffer.trim()) {
-          const lines = buffer.split('\n');
-          let processedUpTo = 0;
+        // Имитируем response.body.getReader()
+        const reader: ReadableStreamDefaultReader<Uint8Array> = {
+          read: async () => {
+            const { value, done } = await mockStreamGenerator.next();
+            if (done) {
+              return { value: undefined, done: true };
+            }
+            return { value, done: false };
+          },
+          releaseLock: () => {},
+          cancel: async () => {
+            debugLog('Mock reader cancelled.');
+          },
+          closed: Promise.resolve(undefined),
+        };
 
-          for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (trimmedLine) {
-              const data = parseSSEMessage(trimmedLine);
-              if (data) {
-                debugLog('Обработан JSON напрямую:', data);
-                options.onMessage(data);
-                processedUpTo += line.length + 1; // +1 для '\n'
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
 
-                if (data.type === 'complete') {
-                  debugLog('Получен сигнал завершения (прямой JSON). Закрываем поток.');
-                  reader.cancel();
-                  setIsConnected(false);
-                  abortControllerRef.current = null;
-                  return;
-                }
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          if (signal.aborted) {
+            debugLog('Поток прерван пользователем (в моке)');
+            break;
+          }
+
+          const { value, done } = await reader.read();
+
+          if (done) {
+            debugLog('Поток завершен (в моке)');
+            if (buffer.trim().length > 0) {
+              const remainingData = extractJsonFromSSEData(buffer);
+              if (remainingData) {
+                options.onMessage(remainingData);
               }
             }
+            break;
           }
 
-          if (processedUpTo > 0) {
-            buffer = buffer.substring(processedUpTo);
+          buffer += decoder.decode(value, { stream: true });
+          debugLog('Получены данные (из мока), буфер:', buffer);
+
+          let eventEnd = 0;
+          while ((eventEnd = buffer.indexOf('\n\n')) !== -1) {
+            const eventData = buffer.substring(0, eventEnd).trim();
+            buffer = buffer.substring(eventEnd + 2); // +2 for \n\n
+
+            debugLog('Обрабатываем полный блок события (из мока):', eventData);
+
+            if (!eventData) continue;
+
+            const data = extractJsonFromSSEData(eventData);
+            if (data) {
+              debugLog('Распаршенные данные (из мока):', data);
+              options.onMessage(data);
+
+              if (data.type === 'complete') {
+                debugLog('Получен сигнал завершения (из мока). Закрываем поток.');
+                reader.cancel(); // Завершаем имитацию потока
+                setIsConnected(false);
+                abortControllerRef.current = null;
+                return;
+              }
+            } else {
+              debugLog('Не удалось распарсить данные из блока (из мока):', eventData);
+            }
           }
         }
-      }
+      } else {
+        debugLog('Отправка запроса на генерацию (реальный бэкенд):', req);
+        debugLog('URL:', `${config.api.baseURL}/posts/generate`);
+
+        const response = await fetch(`${config.api.baseURL}/posts/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            team_id: req.team_id,
+            query: req.query,
+          }),
+          signal: signal,
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ошибка! Статус: ${response.status}. Ответ сервера: ${errorText}`);
+        }
+
+        if (!response.body) {
+          throw new Error('Тело ответа пустое');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          if (signal.aborted) {
+            debugLog('Поток прерван пользователем');
+            break;
+          }
+
+          const { value, done } = await reader.read();
+
+          if (done) {
+            debugLog('Поток завершен');
+            if (buffer.trim().length > 0) {
+              const remainingData = extractJsonFromSSEData(buffer);
+              if (remainingData) {
+                options.onMessage(remainingData);
+              }
+            }
+            break;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          debugLog('Получены данные:', buffer);
+
+          let eventEnd = 0;
+          while ((eventEnd = buffer.indexOf('\n\n')) !== -1) {
+            const eventData = buffer.substring(0, eventEnd).trim();
+            buffer = buffer.substring(eventEnd + 2);
+
+            debugLog('Обрабатываем событие:', eventData);
+
+            if (!eventData) continue;
+
+            const data = extractJsonFromSSEData(eventData); // Используем extractJsonFromSSEData
+            if (data) {
+              debugLog('Распаршенные данные:', data);
+              options.onMessage(data);
+
+              if (data.type === 'complete') {
+                debugLog('Получен сигнал завершения. Закрываем поток.');
+                reader.cancel();
+                setIsConnected(false);
+                abortControllerRef.current = null;
+                return;
+              }
+            } else {
+              debugLog('Не удалось распарсить данные из блока:', eventData);
+            }
+          }
+        }
+      } // End of USE_MOCK_GENERATION else block
     } catch (err: any) {
       debugLog('Ошибка при работе с потоком:', err);
       if (err.name === 'AbortError') {
@@ -206,21 +277,14 @@ export function useImprovedGenerationSSE(options: {
   };
 
   const stopGeneration = () => {
-    if (USE_MOCK_GENERATION) {
-      if (mockTimerRef.current) {
-        clearTimeout(mockTimerRef.current);
-        mockTimerRef.current = null;
-      }
-    } else {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
+    // Логика остановки остается прежней
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
     setIsConnected(false);
   };
 
-  // Очистка соединения при размонтировании компонента
   useEffect(() => {
     return () => {
       stopGeneration();

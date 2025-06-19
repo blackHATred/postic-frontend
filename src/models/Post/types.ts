@@ -78,9 +78,7 @@ export interface FixPostResult {
   status?: string;
 }
 
-export const mockFixResult: FixPostResult = {
-  text: 'Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',
-};
+export const mockFixResult: FixPostResult = { status: 'ok', text: 'Текст текст к' };
 
 export const mockGenerateTextResult = {
   text: 'Привет всем! Я хочу похвастаться моим милым котиком! Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',

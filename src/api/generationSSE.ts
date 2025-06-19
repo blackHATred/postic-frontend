@@ -16,6 +16,8 @@ export interface StreamMessageData {
     | 'processing'
     | 'generation'
     | 'content'
+    | 'warning'
+    | 'error'
     | 'complete';
   message?: string;
   text?: string;
