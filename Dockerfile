@@ -1,23 +1,27 @@
-# Use an official Node runtime as a parent image
-FROM node:18
+FROM node:18 AS frontend_builder
 
-# Set the working directory to /app
 WORKDIR /app
 
-# Copy the package.json and package-lock.json to the working directory
-COPY ./package*.json ./
+COPY package*.json ./
 
-# Install the dependencies
-RUN npm install
+RUN npm install --production=false
 
-# Copy the remaining application files to the working directory
 COPY . .
 
-# Build the application with Vite
 RUN npm run build:vite:prod
 
-# Expose port 3000 for the application
+FROM node:18-slim
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install --only=production
+
+COPY server.js ./
+
+COPY --from=frontend_builder /app/build ./build
+
 EXPOSE 3000
 
-# Start the application using Vite preview mode
-CMD [ "npm", "run", "preview" ]
+CMD ["node", "server.js"]

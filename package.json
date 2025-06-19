@@ -17,6 +17,7 @@
     "deep-equal": "^2.2.3",
     "emoji-picker-react": "^4.12.2",
     "event-source-polyfill": "^1.0.31",
+    "express": "^4.18.2",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
     "postcss": "^8.5.3",
@@ -48,7 +49,8 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "obfuscate": "node scripts/obfuscate.js",
-    "serve:build": "http-server ./build -p 3000 --fallback /index.html"
+    "serve:build": "http-server ./build -p 3000 --fallback /index.html",
+    "start:express": "npm run build:vite:prod && node server.js"
   },
   "browserslist": {
     "production": [
