@@ -214,7 +214,7 @@ export function useGenerationSSE(options: {
       const signal = abortControllerRef.current.signal;
 
       try {
-        const response = await fetch(`${config.api.baseURL}/publication/stream`, {
+        const response = await fetch(`${config.api.baseURL}/posts/generate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
