@@ -75,6 +75,7 @@ export interface GeneratePostReq {
 
 export interface FixPostResult {
   text: string;
+  status?: string;
 }
 
 export const mockFixResult: FixPostResult = {
