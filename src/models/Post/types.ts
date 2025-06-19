@@ -74,11 +74,11 @@ export interface GeneratePostReq {
 }
 
 export interface FixPostResult {
-  response: string;
+  text: string;
 }
 
 export const mockFixResult: FixPostResult = {
-  response: 'Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',
+  text: 'Он такой очаровашка, прям как мои любимые подписчики! 🐱❤️',
 };
 
 export const mockGenerateTextResult = {

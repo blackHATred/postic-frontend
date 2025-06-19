@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import config from '../constants/appConfig';
 
-import { EventSourcePolyfill as EventSourcePolyfillType } from 'event-source-polyfill';
-import { routes } from './routers/routes';
 import { GeneratePostReq } from '../models/Post/types';
-const EventSourcePolyfill: typeof EventSourcePolyfillType = EventSourcePolyfillType;
+import config from '../constants/appConfig'; // Убедитесь, что ваш config импортируется
 
 // true - моки, false - реальные данные с бэкенда
 export const USE_MOCK_GENERATION = false;
@@ -171,14 +168,14 @@ export const mockMessages: StreamMessageData[] = [
 ];
 
 /**
- * Хук для использования SSE для генерации текста
+ * Хук для использования потоковой генерации текста (SSE-подобный подход через Fetch API POST)
  */
 export function useGenerationSSE(options: {
   onMessage: (data: StreamMessageData) => void;
-  onError?: (error: Event) => void;
+  onError?: (error: Event | Error) => void; // Изменили тип ошибки
 }) {
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const eventSourceRef = useRef<EventSourcePolyfillType | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null); // Для отмены Fetch запроса
   const mockTimerRef = useRef<NodeJS.Timeout | null>(null);
   const mockIndexRef = useRef<number>(0);
 
@@ -203,7 +200,8 @@ export function useGenerationSSE(options: {
     }
   };
 
-  const startGeneration = (req: GeneratePostReq) => {
+  const startGeneration = async (req: GeneratePostReq) => {
+    // Сделали функцию асинхронной
     stopGeneration();
 
     if (USE_MOCK_GENERATION) {
@@ -211,55 +209,94 @@ export function useGenerationSSE(options: {
       mockIndexRef.current = 0;
       mockTimerRef.current = setTimeout(sendNextMockMessage, 200);
     } else {
+      setIsConnected(true);
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
+
       try {
-        const queryParams = new URLSearchParams({
-          team_id: req.team_id.toString(),
-          query: req.query,
-        }).toString();
-
-        const eventSource = new EventSourcePolyfill(
-          `${config.api.baseURL}${routes.posts()}/generate?${queryParams}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            withCredentials: true,
+        const response = await fetch(`${config.api.baseURL}/publication/stream`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        );
-
-        eventSourceRef.current = eventSource;
-
-        eventSource.onopen = () => {
-          setIsConnected(true);
-        };
-
-        eventSource.addEventListener('message', (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            options.onMessage(data);
-
-            if (data.type === 'complete') {
-              eventSource.close();
-              eventSourceRef.current = null;
-              setIsConnected(false);
-            }
-          } catch (err) {
-            console.error('Ошибка при обработке сообщения SSE', err);
-          }
+          body: JSON.stringify({
+            team_id: req.team_id,
+            query: req.query,
+          }),
+          signal: signal, // AbortController
+          credentials: 'include',
         });
 
-        eventSource.onerror = function (this: EventSource, ev: Event) {
-          console.error('SSE ошибка:', ev);
-          setIsConnected(false);
-          if (options.onError) {
-            options.onError(ev);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        if (!response.body) {
+          throw new Error('Response body is null');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          if (signal.aborted) {
+            console.log('SSE-like stream aborted.');
+            break;
           }
-          eventSource.close();
-          eventSourceRef.current = null;
-        };
-      } catch (err) {
-        console.error('Ошибка при создании SSE соединения', err);
-        setIsConnected(false);
+
+          const { value, done } = await reader.read();
+          if (done) {
+            console.log('SSE-like stream complete.');
+            break;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+
+          let lineEnd;
+          while ((lineEnd = buffer.indexOf('\n\n')) !== -1) {
+            const messageChunk = buffer.substring(0, lineEnd);
+            buffer = buffer.substring(lineEnd + 2); // +2 для '\n\n'
+
+            if (messageChunk.startsWith('data:')) {
+              const jsonString = messageChunk.substring(5).trim();
+              try {
+                const data: StreamMessageData = JSON.parse(jsonString);
+                options.onMessage(data);
+
+                if (data.type === 'complete') {
+                  console.log('Received complete signal. Closing stream.');
+                  reader.cancel();
+                  setIsConnected(false);
+                  abortControllerRef.current = null;
+                  return;
+                }
+              } catch (parseError) {
+                console.error(
+                  'Ошибка парсинга JSON из потока:',
+                  parseError,
+                  'Raw data:',
+                  jsonString,
+                );
+              }
+            }
+          }
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          console.warn('Fetch aborted by user.');
+        } else {
+          console.error('Ошибка при создании или чтении SSE-подобного соединения:', err);
+          if (options.onError) {
+            options.onError(err);
+          }
+        }
+      } finally {
+        if (isConnected) {
+          setIsConnected(false);
+        }
+        abortControllerRef.current = null;
       }
     }
   };
@@ -271,10 +308,9 @@ export function useGenerationSSE(options: {
         mockTimerRef.current = null;
       }
     } else {
-      if (eventSourceRef.current) {
-        // закрытие
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
       }
     }
     setIsConnected(false);
