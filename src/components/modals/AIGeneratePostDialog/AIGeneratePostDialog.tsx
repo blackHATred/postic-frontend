@@ -38,7 +38,7 @@ import {
   setGeneratePostDialog,
   setGeneratedTextDialog,
 } from '../../../stores/basePageDialogsSlice';
-import { StreamMessageData, useGenerationSSE } from '../../../api/generationSSE';
+import { StreamMessageData, useImprovedGenerationSSE } from '../../../api/improvedGenerationSSE';
 
 const { Text, Paragraph, Title } = Typography;
 const { TextArea } = Input;
@@ -63,7 +63,7 @@ const AIGeneratePostDialog: FC = () => {
   const [streamComplete, setStreamComplete] = useState(false);
 
   // для SSE
-  const { isConnected, startGeneration, stopGeneration } = useGenerationSSE({
+  const { isConnected, startGeneration, stopGeneration } = useImprovedGenerationSSE({
     onMessage: async (data: StreamMessageData) => {
       // сообщение в список для отображения процесса
       setStreamMessages((prev) => [...prev, data]);
@@ -90,6 +90,13 @@ const AIGeneratePostDialog: FC = () => {
           if (data.images) {
             setGeneratedImages(data.images);
           }
+          break;
+        case 'warning':
+          console.warn('SSE Warning:', data.message);
+          break;
+        case 'error':
+          console.error('SSE Error:', data.message);
+          setError(data.message || 'Ошибка при генерации');
           break;
         case 'complete':
           setStreamComplete(true);
@@ -465,7 +472,7 @@ const AIGeneratePostDialog: FC = () => {
               <Col flex='auto'>
                 <TextArea
                   rows={2}
-                  placeholder='Например: "составь пост про то, как необходимо готовить пельмени"'
+                  placeholder='Например: "составь пост про то, как необходимо готовит�� пельмени"'
                   value={prompt}
                   onChange={handlePromptChange}
                   disabled={isStreamGenerating}
@@ -569,7 +576,7 @@ const AIGeneratePostDialog: FC = () => {
                           <Tooltip title={`Изображение ${index + 1}`}>
                             <Image
                               src={image}
-                              alt={`Сгенерированное изображение ${index + 1}`}
+                              alt={`Сгенерированное изображен��е ${index + 1}`}
                               width={120}
                               height={120}
                               style={{ objectFit: 'cover' }}
@@ -603,7 +610,7 @@ const AIGeneratePostDialog: FC = () => {
           {timeoutError && (
             <Alert
               message='Превышено время ожидания генерации публикации'
-              description='Запрос на генерацию публикации превысил время ожидания. Попробуйте снова.'
+              description='Запрос на генерацию публикации превысил время ожидания. П��пробуйте снова.'
               type='warning'
               showIcon
             />
@@ -614,7 +621,7 @@ const AIGeneratePostDialog: FC = () => {
               <div className={styles.streamStatusHeader}>
                 <Space>
                   <LoadingOutlined spin />
-                  <Text strong>Процесс генерации</Text>
+                  <Text strong>Процес�� генерации</Text>
                 </Space>
                 <Text type='secondary'>{streamStatus}</Text>
               </div>

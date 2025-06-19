@@ -378,15 +378,20 @@ export const getKPI = async (
   return response.data;
 };
 
-export const fixPublication = async (req: FixPostReq): Promise<FixPostResult> => {
-  const response = await axiosInstance.post<FixPostResult>(
-    `${config.api.baseURL}${routes.posts()}/fix`,
-    req,
-    {
+export const fixPublication = async (data: FixPostReq): Promise<FixPostResult> => {
+  try {
+    const response = await axiosInstance.post(`${config.api.baseURL}/posts/fix`, data, {
       withCredentials: true,
-    },
-  );
-  return response.data;
+    });
+
+    return {
+      text: response.data.text,
+      status: response.data.status,
+    };
+  } catch (error) {
+    console.error('Ошибка при исправлении текста:', error);
+    throw error;
+  }
 };
 
 export const GetProfile = async () => {
