@@ -114,7 +114,7 @@ const BarChart: React.FC<BarChartProps> = ({
         }
       }
     };
-  }, [data, loading, height, colors, xField, xAxisTitle]);
+  }, [data, loading, height, colors, xField, xAxisTitle, metricType]);
 
   return (
     <div className={styles.chartContainer} style={{ height }}>

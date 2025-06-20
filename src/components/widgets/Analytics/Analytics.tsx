@@ -113,13 +113,15 @@ const AnalyticsComponent: React.FC = () => {
         });
 
         if (statsResponse.posts && statsResponse.posts.length > 0) {
-          setHasPosts(true);
-          const transformedData = transformStatsToAnalytics(
+          transformStatsToAnalytics(
+            selectedTeamId,
             statsResponse,
             new Date(startDate),
             new Date(endDate),
-          );
-          setAnalyticsData(transformedData);
+          ).then((data) => {
+            setHasPosts(true);
+            setAnalyticsData(data);
+          });
         } else {
           setHasPosts(false);
         }
@@ -217,11 +219,6 @@ const AnalyticsComponent: React.FC = () => {
           end: previousPeriodEnd.toISOString(),
         });
 
-        const hasCurrentData =
-          currentPeriodResponse.posts && currentPeriodResponse.posts.length > 0;
-        const hasPreviousData =
-          previousPeriodResponse.posts && previousPeriodResponse.posts.length > 0;
-
         const addMissingVkData = (response: GetStatsResponse): GetStatsResponse => {
           if (!response || !response.posts) return response;
 
@@ -238,28 +235,31 @@ const AnalyticsComponent: React.FC = () => {
           };
         };
 
-        const currentPeriodData = hasCurrentData
-          ? transformStatsToAnalytics(
-              addMissingVkData(currentPeriodResponse),
-              currentPeriodStart.toDate(),
-              currentPeriodEnd.toDate(),
-            )
-          : [];
+        Promise.all([
+          transformStatsToAnalytics(
+            selectedTeamId,
+            addMissingVkData(previousPeriodResponse),
+            previousPeriodStart.toDate(),
+            previousPeriodEnd.toDate(),
+          ),
+          transformStatsToAnalytics(
+            selectedTeamId,
+            addMissingVkData(currentPeriodResponse),
+            currentPeriodStart.toDate(),
+            currentPeriodEnd.toDate(),
+          ),
+        ]).then((value) => {
+          console.log(value);
+          const currentPeriodData = value[1];
 
-        const previousPeriodData = hasPreviousData
-          ? transformStatsToAnalytics(
-              addMissingVkData(previousPeriodResponse),
-              previousPeriodStart.toDate(),
-              previousPeriodEnd.toDate(),
-            )
-          : [];
+          const previousPeriodData = value[0];
+          setGrowthData({
+            currentPeriod: currentPeriodData,
+            previousPeriod: previousPeriodData,
+          });
 
-        setGrowthData({
-          currentPeriod: currentPeriodData,
-          previousPeriod: previousPeriodData,
+          setHasPosts(currentPeriodData.length > 0 || previousPeriodData.length > 0);
         });
-
-        setHasPosts(hasCurrentData || hasPreviousData);
       } catch (error) {
         console.error('Ошибка при получении данных для графика сравнения периодов:', error);
         setHasPosts(false);
@@ -396,7 +396,7 @@ const AnalyticsComponent: React.FC = () => {
       {activeAnalytics === 'kpi' && (
         <div className={styles['spacer']}>
           <KPIRadarChart data={usersData} loading={usersLoading} height={400} />
-          <KPIColumnChart data={usersData} loading={usersLoading} height={400} />
+          <KPIColumnChart data={usersData} loading={usersLoading} height={500} />
         </div>
       )}
     </div>

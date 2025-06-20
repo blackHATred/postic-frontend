@@ -49,6 +49,7 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
             alias: getMetricTitle(selectedMetric),
           },
         },
+        appendPadding: 40,
         annotations: [
           {
             type: 'line',
@@ -62,9 +63,9 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
             text: {
               content: `Среднее: ${averageValue.toFixed(2)}`,
               position: 'end',
-              offsetY: -2,
+              offsetY: -25,
               style: {
-                textAlign: 'end',
+                textAlign: 'center',
                 fill: '#ff4d4f',
                 fontSize: 12,
               },

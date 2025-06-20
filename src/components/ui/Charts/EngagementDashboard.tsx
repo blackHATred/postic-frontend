@@ -58,6 +58,7 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
         vk_reactions: post.vk_reactions || 0,
         vk_comments: post.vk_comments || 0,
         timestamp: post.timestamp,
+        user_id: 0,
       };
     });
 
@@ -155,7 +156,7 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
       )}
 
       <BarChart
-        data={chartData as unknown as PostAnalytics[]}
+        data={chartData}
         loading={loading}
         height={400}
         colors={metricType === 'reactions' ? ['#4096ff', '#f759ab'] : ['#5cdbd3', '#b37feb']}
