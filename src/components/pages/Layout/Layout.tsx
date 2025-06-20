@@ -158,13 +158,6 @@ const PageLayout: React.FC = () => {
             location.pathname !== routes.login() &&
             location.pathname !== routes.register() && (
               <div className={styles['mobile-bottom-nav']}>
-                <Button
-                  type='text'
-                  icon={<HomeOutlined />}
-                  onClick={() => navigateTo(routes.home())}
-                  className={isRouteActive(routes.home()) ? styles['nav-button-active'] : ''}
-                />
-
                 {selectedTeam !== 0 && (
                   <>
                     <Button
@@ -185,14 +178,6 @@ const PageLayout: React.FC = () => {
                     />
                   </>
                 )}
-
-                <Button
-                  type='text'
-                  icon={<TeamOutlined />}
-                  onClick={() => navigateTo(routes.teams())}
-                  className={isRouteActive(routes.teams()) ? styles['nav-button-active'] : ''}
-                />
-
                 {selectedTeam !== 0 && (
                   <>
                     <Button
@@ -213,6 +198,13 @@ const PageLayout: React.FC = () => {
                     />
                   </>
                 )}
+
+                <Button
+                  type='text'
+                  icon={<TeamOutlined />}
+                  onClick={() => navigateTo(routes.teams())}
+                  className={isRouteActive(routes.teams()) ? styles['nav-button-active'] : ''}
+                />
               </div>
             )}
 

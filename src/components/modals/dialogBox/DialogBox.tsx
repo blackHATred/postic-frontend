@@ -43,9 +43,12 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
         <div
           style={{
             justifyContent: 'space-between',
-            display: 'flex',
+            display: 'block',
             marginRight: 35,
             height: 32,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           <Title level={3} style={{ marginTop: 'auto', marginBottom: 'auto' }}>

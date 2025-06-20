@@ -73,10 +73,7 @@ export function useAuthenticatedSSE({
   };
 
   useEffect(() => {
-    setupSSE();
-  }, []);
-
-  useEffect(() => {
+    console.log(url);
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
     }

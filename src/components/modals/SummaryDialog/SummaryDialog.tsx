@@ -66,7 +66,6 @@ const DialogBoxSummary: FC = () => {
     setSummaryText('');
     setTimeoutError(false);
     dispatch(setSummaryDialog(false));
-    dispatch(setSelectedPostId(0));
   };
 
   const onHeaderClick = async () => {

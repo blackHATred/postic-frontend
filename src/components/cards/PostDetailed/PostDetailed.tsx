@@ -30,7 +30,6 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
 
   const onSummaryClick = async () => {
     dispatch(setSummaryDialog(true));
-    dispatch(setSelectedPostId(props.id));
   };
 
   return (
