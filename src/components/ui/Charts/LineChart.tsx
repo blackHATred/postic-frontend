@@ -292,7 +292,7 @@ const LineChart: React.FC<LineChartProps> = ({
   return (
     <Card
       title={
-        <Space>
+        <Space style={{ whiteSpace: 'pre-wrap' }}>
           <span>Динамика активности</span>
           <Tooltip title='График показывает динамику метрик за выбранный период'>
             <InfoCircleOutlined />

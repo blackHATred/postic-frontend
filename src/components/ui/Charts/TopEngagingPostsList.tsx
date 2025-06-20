@@ -231,7 +231,7 @@ const TopEngagingPostsList: React.FC<TopEngagingPostsListProps> = ({
     <Card
       className={styles.analyticsCard}
       title={
-        <Space>
+        <Space style={{ whiteSpace: 'wrap', paddingRight: '10px' }}>
           Топ вовлекающих постов
           <Tooltip title='Посты, отсортированные по метрикам вовлеченности'>
             <InfoCircleOutlined />

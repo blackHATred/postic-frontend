@@ -43,7 +43,9 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
             nice: true,
           },
         },
+        autoFit: true,
         xAxis: {
+          label: { offset: -5 },
           line: null,
           tickLine: null,
         },
@@ -127,7 +129,7 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
     <Card
       className={styles.analyticsCard}
       title={
-        <Space>
+        <Space style={{ whiteSpace: 'pre-wrap' }}>
           Показатели KPI пользователя
           <Tooltip title='Отображает различные метрики KPI выбранного пользователя'>
             <InfoCircleOutlined />

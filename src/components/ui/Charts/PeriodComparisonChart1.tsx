@@ -398,16 +398,12 @@ const PeriodComparisonChart1: React.FC<PeriodComparisonChartProps> = ({
     { value: 'comments', label: 'Комментарии' },
   ];
 
-  const getPeriodTitle = () => {
-    return 'Сравнение текущей недели с предыдущей';
-  };
-
   return (
     <Card
       className={styles.analyticsCard}
       title={
         <Space>
-          {getPeriodTitle()}
+          <div style={{ whiteSpace: 'pre-wrap' }}>{'Сравнение текущей недели с предыдущей'}</div>
           <Tooltip title='Сравнивает показатели текущей недели с предыдущей с расчетом процентного изменения'>
             <InfoCircleOutlined />
           </Tooltip>

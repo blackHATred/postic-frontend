@@ -108,7 +108,7 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
     <Card
       className={styles.analyticsCard}
       title={
-        <Space>
+        <Space style={{ whiteSpace: 'pre-wrap' }}>
           {metricInfo[metricType].title}
           <Tooltip title={metricInfo[metricType].description}>
             <InfoCircleOutlined />

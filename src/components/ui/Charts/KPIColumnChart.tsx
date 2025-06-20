@@ -128,7 +128,7 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
     <Card
       className={styles.analyticsCard}
       title={
-        <Space>
+        <Space style={{ whiteSpace: 'pre-wrap' }}>
           Показатели KPI пользователей
           <Tooltip title='Отображает метрики KPI всех пользователей'>
             <InfoCircleOutlined />
@@ -155,7 +155,7 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
             { value: 'comments', label: 'Комментарии' },
           ]}
         />
-        <Space direction='vertical' align='end'>
+        <Space direction='vertical' align='end' style={{ alignItems: 'start' }}>
           <Text strong>Суммарно: {totalValue}</Text>
           <Text strong>Среднее значение: {averageValue.toFixed(2)}</Text>
         </Space>

@@ -185,7 +185,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
         />
       </div>
 
-      <div ref={chartRef} style={{ height: height - 60 }} />
+      <div ref={chartRef} style={{ height: height - 60 }} className={styles.chart} />
     </Card>
   );
 };
