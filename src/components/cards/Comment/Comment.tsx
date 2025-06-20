@@ -9,6 +9,7 @@ import Icon, {
   DeleteOutlined,
   DisconnectOutlined,
   DoubleRightOutlined,
+  LoadingOutlined,
   PaperClipOutlined,
   TagOutlined,
   TeamOutlined,
@@ -23,6 +24,7 @@ import config from '../../../constants/appConfig';
 import MediaRenderer from './MediaRenderer';
 import { Team } from '../../../models/Team/types';
 import { NotificationContext } from '../../../api/notification';
+import { createRoot } from 'react-dom/client';
 
 const { Paragraph, Text } = Typography;
 
@@ -37,6 +39,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const teams = useAppSelector((state) => state.teams.teams);
   const [ellipsis] = useState(true);
   const notificationManager = useContext(NotificationContext);
+  const [isLoad, setIsLoad] = useState(false);
 
   const openAnswerDialog = () => {
     dispatch(setSelectedComment?.(comment));
@@ -91,14 +94,15 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
       post_comment_id: Number(comment.id),
       ban_user: false,
     };
-    document.body.style.cursor = 'wait';
-
+    setIsLoad(true);
     Delete(res)
       .then(() => {
+        setIsLoad(false);
         document.body.style.cursor = 'default';
         notificationManager.createNotification('success', `Комментарий успещно удален`, '');
       })
       .catch(() => {
+        setIsLoad(false);
         document.body.style.cursor = 'default';
         notificationManager.createNotification('error', `Ошибка удаления коментария`, '');
       });
@@ -180,6 +184,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
             </div>
           </div>
         </div>
+        {isLoad && <LoadingOutlined />}
       </div>
 
       <div className={styles['comment-content']}>

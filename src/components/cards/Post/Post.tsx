@@ -179,7 +179,7 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
                 if (data.status == 'ok') {
                   if (refer.current) refer.current.className += ' ' + 'animation';
                   setTimeout(() => dispatch(removePost(post)), 350);
-                  notificationManager.createNotification('success', 'Пост успешно изменен', '');
+                  notificationManager.createNotification('success', 'Пост успешно удален', '');
                 }
               });
             }}
