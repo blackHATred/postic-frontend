@@ -4,7 +4,7 @@ import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { NotificationContext } from '../../../api/notification';
 import ClickableButton from '../../ui/Button/Button';
 import styles from './styles.module.scss';
-import { GetProfile, UpdatePassword, UpdateProfile } from '../../../api/api';
+import { Me, UpdatePassword, UpdateProfile } from '../../../api/api';
 import { EMAIL_REGEX, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../../../utils/validation';
 import axios from 'axios';
 
@@ -30,7 +30,7 @@ const ProfilePage: React.FC = () => {
   const fetchUserProfile = async () => {
     setLoading(true);
     try {
-      const response = await GetProfile();
+      const response = await Me();
       setUserProfile(response);
 
       profileForm.setFieldsValue({

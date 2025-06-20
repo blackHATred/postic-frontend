@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Button, Image } from 'antd';
 import { LeftOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
@@ -9,13 +9,31 @@ import ClickableButton from '../../ui/Button/Button';
 import { useAppDispatch } from '../../../stores/hooks';
 import { setSummaryDialog } from '../../../stores/basePageDialogsSlice';
 import { setSelectedPostId } from '../../../stores/postsSlice';
-import { getUploadUrl } from '../../../api/api';
+import { getUploadUrl, GetProfile } from '../../../api/api';
 
 const { Text } = Typography;
 
 const PostDetailed: React.FC<Post> = (props: Post) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserNickname = async () => {
+      try {
+        if (props.user_id) {
+          const response = await GetProfile(props.user_id.toString());
+          if (response && response.nickname) {
+            setUserNickname(response.nickname);
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при получении информации о пользователе:', error);
+      }
+    };
+
+    fetchUserNickname();
+  }, [props.user_id]);
 
   const attach_files = props.attachments
     ? props.attachments.filter(
@@ -58,7 +76,7 @@ const PostDetailed: React.FC<Post> = (props: Post) => {
       )}
       <div className={styles['content']}>
         <Text type='secondary' className={styles['post-name']}>
-          Модератор {props.user_id}
+          {userNickname ? userNickname : `Модератор ${props.user_id}`}
         </Text>
         {props.text && <Text className={styles['ellipsis']}>{props.text}</Text>}
 

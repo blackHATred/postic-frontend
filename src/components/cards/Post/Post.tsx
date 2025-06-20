@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Post } from '../../../models/Post/types';
@@ -15,7 +15,7 @@ import { LiaQuestionCircle, LiaTelegram, LiaTwitter, LiaVk } from 'react-icons/l
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../../app/App.routes';
 import MediaRenderer from '../Comment/MediaRenderer';
-import { DeletePost } from '../../../api/api';
+import { DeletePost, GetProfile } from '../../../api/api';
 import { PostReq } from '../../../models/Analytics/types';
 import { setEditPostDialog } from '../../../stores/basePageDialogsSlice';
 import './selected_style.css';
@@ -30,6 +30,25 @@ interface PostProps {
 }
 
 const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserNickname = async () => {
+      try {
+        if (post.user_id) {
+          const response = await GetProfile(post.user_id.toString());
+          if (response && response.nickname) {
+            setUserNickname(response.nickname);
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при получении информации о пользователе:', error);
+      }
+    };
+
+    fetchUserNickname();
+  }, [post.user_id]);
+
   const getIcon = (platform: string) => {
     switch (platform) {
       case 'vk':
@@ -85,9 +104,8 @@ const PostComponent: React.FC<PostProps> = ({ post, isDetailed }) => {
       <div className={styles['post-header']}>
         <div className={styles['post-header-info']}>
           <div className={styles['post-header-info-text']}>
-            {/* NOTE: заменить потом на информацию пользователя */}
             <Text strong className={styles['post-name']}>
-              Модератор {post.user_id}
+              {userNickname ? userNickname : `Модератор ${post.user_id}`}
             </Text>
             {post.pub_datetime && new Date(post.pub_datetime) > new Date() ? (
               <Text type='secondary' className={styles['post-name']}></Text>

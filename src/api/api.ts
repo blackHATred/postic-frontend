@@ -394,9 +394,10 @@ export const fixPublication = async (data: FixPostReq): Promise<FixPostResult> =
   }
 };
 
-export const GetProfile = async () => {
+export const GetProfile = async (user_id?: string) => {
   const response = await axiosInstance.get(`${config.api.baseURL}/user/profile`, {
     withCredentials: true,
+    params: { user_id },
   });
   return response.data;
 };

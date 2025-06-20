@@ -11,6 +11,7 @@ interface DataType {
   member: string;
   id: number;
   access: string[];
+  nickname?: string;
 }
 
 interface TeamTableProps {
@@ -51,7 +52,7 @@ const TeamTable: React.FC<TeamTableProps> = ({
     {
       title: 'Участники',
       dataIndex: 'member',
-      render: (text: string) => <Text>{text}</Text>,
+      render: (text: string, row: DataType) => <Text>{row.nickname || text}</Text>,
     },
     {
       title: 'ID',

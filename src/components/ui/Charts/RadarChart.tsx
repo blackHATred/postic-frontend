@@ -4,6 +4,7 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { Radar } from '@antv/g2plot';
 import { UserAnalytics } from '../../../models/Analytics/types';
 import styles from './styles.module.scss';
+import { GetProfile } from '../../../api/api';
 
 interface RadarChartProps {
   data: UserAnalytics[];
@@ -11,12 +12,37 @@ interface RadarChartProps {
   height?: number;
 }
 
+interface UserNicknames {
+  [userId: number]: string;
+}
+
 const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 }) => {
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined);
+  const [userNicknames, setUserNicknames] = useState<UserNicknames>({});
 
   useEffect(() => {
     if (data.length > 0) {
       setSelectedUserId(data[0].user_id);
+
+      // Загружаем никнеймы пользователей
+      const loadUserNicknames = async () => {
+        const nicknames: UserNicknames = {};
+
+        for (const user of data) {
+          try {
+            const response = await GetProfile(user.user_id.toString());
+            if (response && response.nickname) {
+              nicknames[user.user_id] = response.nickname;
+            }
+          } catch (error) {
+            console.error(`Ошибка при получении никнейма для пользователя ${user.user_id}:`, error);
+          }
+        }
+
+        setUserNicknames(nicknames);
+      };
+
+      loadUserNicknames();
     }
   }, [data]);
 
@@ -74,7 +100,15 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
         chartInstance.current = null;
       }
     };
-  }, [data, loading, selectedUserId]);
+  }, [data, loading, selectedUserId, userNicknames]);
+
+  const getUserDisplayName = (userId: number): string => {
+    return (
+      userNicknames[userId] ||
+      data.find((user) => user.user_id === userId)?.username ||
+      `Пользователь ${userId}`
+    );
+  };
 
   const processDataForRadarChart = (sourceData: UserAnalytics[], userId: number) => {
     const selectedUser = sourceData.find((user) => user.user_id === userId);
@@ -90,27 +124,28 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
       comments: Math.max(...sourceData.map((u) => u.comments), 1),
     };
 
+    const userDisplayName = getUserDisplayName(selectedUser.user_id);
+
     return [
       {
         item: 'Лайки',
         score: (selectedUser.reactions / maxValues.likes) * 100,
-        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
+        user: userDisplayName,
       },
       {
         item: 'Просмотры',
         score: (selectedUser.views / maxValues.views) * 100,
-        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
+        user: userDisplayName,
       },
       {
         item: 'Комментарии',
         score: (selectedUser.comments / maxValues.comments) * 100,
-        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
+        user: userDisplayName,
       },
-
       {
         item: 'Общий KPI',
         score: selectedUser.kpi,
-        user: selectedUser.username || `Пользователь ${selectedUser.user_id}`,
+        user: userDisplayName,
       },
     ];
   };
@@ -142,7 +177,7 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
           style={{ width: '180px' }}
           options={data.map((user) => ({
             value: user.user_id,
-            label: user.username || `Пользователь ${user.user_id}`,
+            label: getUserDisplayName(user.user_id),
           }))}
           placeholder='Выберите пользователя'
         />

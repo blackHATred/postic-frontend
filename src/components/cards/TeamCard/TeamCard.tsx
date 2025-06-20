@@ -15,7 +15,7 @@ import {
   setTeams,
 } from '../../../stores/teamSlice';
 import { Kick, MyTeams, Platforms } from '../../../api/teamApi';
-import { Me } from '../../../api/api';
+import { GetProfile } from '../../../api/api';
 import { setPersonalInfoDialog } from '../../../stores/basePageDialogsSlice';
 import { clearAllComms } from '../../../stores/commentSlice';
 import TeamMenu from './TeamMenu';
@@ -122,15 +122,14 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
 
   const getNicknameForUser = async (userId: number): Promise<string> => {
     try {
-      if (userId === currentUserId) {
-        const userData = await Me();
-        if (userData && userData.nickname) {
-          return userData.nickname;
-        }
+      const userData = await GetProfile(userId.toString());
+      if (userData && userData.nickname) {
+        return userData.nickname;
       }
 
       return `Пользователь ${userId}`;
     } catch (error) {
+      console.error(`Ошибка при получении никнейма для пользователя ${userId}:`, error);
       return `Пользователь ${userId}`;
     }
   };
@@ -155,6 +154,7 @@ const TeamCard: React.FC<TeamCardProps> = ({ teamcard }) => {
     member: userNicknames[member.user_id] || `Загрузка...`,
     id: member.user_id,
     access: member.roles,
+    nickname: userNicknames[member.user_id] || undefined,
   }));
 
   return (

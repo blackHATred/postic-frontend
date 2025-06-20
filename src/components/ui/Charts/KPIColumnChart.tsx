@@ -4,6 +4,7 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { Column } from '@antv/g2plot';
 import { UserAnalytics } from '../../../models/Analytics/types';
 import styles from './styles.module.scss';
+import { GetProfile } from '../../../api/api';
 
 const { Text } = Typography;
 
@@ -13,15 +14,43 @@ interface KPIRadarChartProps {
   height?: number;
 }
 
+interface UserNicknames {
+  [userId: number]: string;
+}
+
 type KPIMetric = 'reactions' | 'views' | 'comments' | 'kpi';
 
 const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 400 }) => {
   const [selectedMetric, setSelectedMetric] = useState<KPIMetric>('reactions');
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<any>(null);
+  const [userNicknames, setUserNicknames] = useState<UserNicknames>({});
 
   const totalValue = data.reduce((sum, user) => sum + user[selectedMetric], 0);
   const averageValue = data.length > 0 ? totalValue / data.length : 0;
+
+  useEffect(() => {
+    if (data.length > 0) {
+      const loadUserNicknames = async () => {
+        const nicknames: UserNicknames = {};
+
+        for (const user of data) {
+          try {
+            const response = await GetProfile(user.user_id.toString());
+            if (response && response.nickname) {
+              nicknames[user.user_id] = response.nickname;
+            }
+          } catch (error) {
+            console.error(`Ошибка при получении никнейма для пользователя ${user.user_id}:`, error);
+          }
+        }
+
+        setUserNicknames(nicknames);
+      };
+
+      loadUserNicknames();
+    }
+  }, [data]);
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {
@@ -91,7 +120,7 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
         chartInstance.current = null;
       }
     };
-  }, [data, loading, selectedMetric, averageValue]);
+  }, [data, loading, selectedMetric, averageValue, userNicknames]);
 
   const getMetricTitle = (metric: KPIMetric): string => {
     switch (metric) {
@@ -106,11 +135,20 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
     }
   };
 
+  const getUserDisplayName = (userId: number): string => {
+    return (
+      userNicknames[userId] ||
+      data.find((user) => user.user_id === userId)?.username ||
+      `Пользователь ${userId}`
+    );
+  };
+
   const processDataForColumnChart = (sourceData: UserAnalytics[], metric: KPIMetric) => {
     return sourceData
       .map((user) => ({
-        user: user.username || `Пользователь ${user.user_id}`,
+        user: getUserDisplayName(user.user_id),
         value: user[metric],
+        userId: user.user_id,
       }))
       .sort((a, b) => b.value - a.value);
   };
