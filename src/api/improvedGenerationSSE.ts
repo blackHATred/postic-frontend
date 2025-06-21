@@ -3,7 +3,7 @@ import { GeneratePostReq } from '../models/Post/types';
 import config from '../constants/appConfig';
 import { backendMockMessages, formatAsBackendSSE } from '../models/Post/tmp';
 // true - моки, false - реальные данные с бэкенда
-export const USE_MOCK_GENERATION = false;
+export const USE_MOCK_GENERATION = true;
 
 export interface StreamMessageData {
   type:

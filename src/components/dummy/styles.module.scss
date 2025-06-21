@@ -1,5 +1,53 @@
-.checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.animatedCheckbox {
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.checkboxPreAnimation {
+  animation: checkboxHover 0.5s ease-in-out;
+}
+
+.checkboxPostAnimation {
+  animation: checkboxPulse 0.7s ease-in-out;
+}
+
+/* Анимация наведения на чекбокс перед выбором */
+@keyframes checkboxHover {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.2);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 5px rgba(24, 144, 255, 0.1);
+  }
+}
+
+/* Анимация после выбора чекбокса */
+@keyframes checkboxPulse {
+  0% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 5px rgba(24, 144, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

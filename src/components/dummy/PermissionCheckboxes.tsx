@@ -1,26 +1,20 @@
-import { Typography, Checkbox, Tooltip } from 'antd';
+import React, { useRef } from 'react';
+import { Checkbox, Form, Alert } from 'antd';
 import styles from './styles.module.scss';
-import { useAppSelector } from '../../stores/hooks';
 
-const { Text } = Typography;
-
-const roleDescriptions = {
-  admin: 'Полный доступ ко всем функциям',
-  posts: 'Может создавать, редактировать и удалять посты',
-  comments: 'Может просматривать, отвечать на комментарии и отправлять их в тикет-систему',
-  analytics: 'Имеет доступ к просмотру аналитики',
-};
+interface PermissionsProps {
+  comments: boolean;
+  posts: boolean;
+  analytics: boolean;
+}
 
 interface PermissionCheckboxesProps {
-  permissions: {
-    comments: boolean;
-    posts: boolean;
-    analytics: boolean;
-  };
+  permissions: PermissionsProps;
   isAdmin: boolean;
   empty_checkbox: string;
   handlePermissionChange: (key: 'comments' | 'posts' | 'analytics', checked: boolean) => void;
   handleAdminChange: (checked: boolean) => void;
+  demoMode?: boolean;
 }
 
 const PermissionCheckboxes: React.FC<PermissionCheckboxesProps> = ({
@@ -29,115 +23,59 @@ const PermissionCheckboxes: React.FC<PermissionCheckboxesProps> = ({
   empty_checkbox,
   handlePermissionChange,
   handleAdminChange,
+  demoMode = false,
 }) => {
-  const helpMode = useAppSelector((state) => state.settings.helpMode);
+  // Рефы для доступа к DOM-элементам чекбоксов
+  const postsCheckboxRef = useRef<HTMLInputElement>(null);
+  const commentsCheckboxRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className={styles['checkboxes']}>
-      <Text strong>Права доступа</Text>
-
-      {helpMode ? (
-        <Tooltip
-          title={roleDescriptions.comments}
-          placement='left'
-          color='#fff'
-          overlayInnerStyle={{ color: 'rgba(0, 0, 0, 0.85)' }}
-        >
-          <div>
-            <Checkbox
-              checked={permissions.comments}
-              disabled={isAdmin}
-              onChange={(e) => handlePermissionChange('comments', e.target.checked)}
-            >
-              Комментарии
-            </Checkbox>
-          </div>
-        </Tooltip>
-      ) : (
+    <Form layout='vertical'>
+      <Form.Item label='Права доступа'>
         <Checkbox
-          checked={permissions.comments}
-          disabled={isAdmin}
-          onChange={(e) => handlePermissionChange('comments', e.target.checked)}
+          checked={isAdmin}
+          onChange={(e) => handleAdminChange(e.target.checked)}
+          className={demoMode ? styles.animatedCheckbox : ''}
         >
-          Комментарии
-        </Checkbox>
-      )}
-
-      {helpMode ? (
-        <Tooltip
-          title={roleDescriptions.posts}
-          placement='left'
-          color='#fff'
-          overlayInnerStyle={{ color: 'rgba(0, 0, 0, 0.85)' }}
-        >
-          <div>
-            <Checkbox
-              checked={permissions.posts}
-              disabled={isAdmin}
-              onChange={(e) => handlePermissionChange('posts', e.target.checked)}
-            >
-              Посты
-            </Checkbox>
-          </div>
-        </Tooltip>
-      ) : (
-        <Checkbox
-          checked={permissions.posts}
-          disabled={isAdmin}
-          onChange={(e) => handlePermissionChange('posts', e.target.checked)}
-        >
-          Посты
-        </Checkbox>
-      )}
-
-      {helpMode ? (
-        <Tooltip
-          title={roleDescriptions.analytics}
-          placement='left'
-          color='#fff'
-          overlayInnerStyle={{ color: 'rgba(0, 0, 0, 0.85)' }}
-        >
-          <div>
-            <Checkbox
-              checked={permissions.analytics}
-              disabled={isAdmin}
-              onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
-            >
-              Аналитика
-            </Checkbox>
-          </div>
-        </Tooltip>
-      ) : (
-        <Checkbox
-          checked={permissions.analytics}
-          disabled={isAdmin}
-          onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
-        >
-          Аналитика
-        </Checkbox>
-      )}
-
-      {helpMode ? (
-        <Tooltip
-          title={roleDescriptions.admin}
-          placement='left'
-          color='#fff'
-          overlayInnerStyle={{ color: 'rgba(0, 0, 0, 0.85)' }}
-        >
-          <div>
-            <Checkbox checked={isAdmin} onChange={(e) => handleAdminChange(e.target.checked)}>
-              Администратор
-            </Checkbox>
-          </div>
-        </Tooltip>
-      ) : (
-        <Checkbox checked={isAdmin} onChange={(e) => handleAdminChange(e.target.checked)}>
           Администратор
         </Checkbox>
-      )}
+        <br />
+        <Checkbox
+          ref={postsCheckboxRef}
+          checked={permissions.posts}
+          onChange={(e) => handlePermissionChange('posts', e.target.checked)}
+          disabled={isAdmin}
+          className={demoMode ? styles.animatedCheckbox : ''}
+        >
+          Управление постами
+        </Checkbox>
+        <br />
+        <Checkbox
+          ref={commentsCheckboxRef}
+          checked={permissions.comments}
+          onChange={(e) => handlePermissionChange('comments', e.target.checked)}
+          disabled={isAdmin}
+          className={demoMode ? styles.animatedCheckbox : ''}
+        >
+          Работа с комментариями
+        </Checkbox>
+        <br />
+        <Checkbox
+          checked={permissions.analytics}
+          onChange={(e) => handlePermissionChange('analytics', e.target.checked)}
+          disabled={isAdmin}
+          className={demoMode ? styles.animatedCheckbox : ''}
+        >
+          Просмотр аналитики
+        </Checkbox>
+      </Form.Item>
 
-      {empty_checkbox && <Text type='danger'>{empty_checkbox}</Text>}
-    </div>
+      {empty_checkbox && (
+        <Form.Item>
+          <Alert message={empty_checkbox} type='error' showIcon />
+        </Form.Item>
+      )}
+    </Form>
   );
 };
 

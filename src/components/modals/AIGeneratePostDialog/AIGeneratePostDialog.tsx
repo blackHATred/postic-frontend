@@ -628,7 +628,14 @@ const AIGeneratePostDialog: FC = () => {
 
               <div className={styles.streamMessagesContainer}>
                 {streamMessages.map((msg, index) => {
-                  if (msg.type === 'content') return null;
+                  // Не отображаем сообщения с типом content и search-related
+                  if (
+                    msg.type === 'content' ||
+                    msg.type === 'search' ||
+                    msg.type === 'search_result' ||
+                    msg.type === 'queries'
+                  )
+                    return null;
 
                   return (
                     <div key={index} className={styles.streamMessage}>

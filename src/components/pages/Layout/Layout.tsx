@@ -18,6 +18,7 @@ import {
   LineChartOutlined,
   TagOutlined,
   CloseOutlined,
+  PlayCircleOutlined,
 } from '@ant-design/icons';
 import { setHelpDialog, setScrollToTop } from '../../../stores/basePageDialogsSlice';
 
@@ -89,6 +90,11 @@ const PageLayout: React.FC = () => {
 
   const isRouteActive = (route: string) => {
     return location.pathname === route;
+  };
+
+  // Перейти к демо-режиму
+  const goToDemo = () => {
+    navigate('/teams-demo');
   };
 
   return (
@@ -243,6 +249,19 @@ const PageLayout: React.FC = () => {
               withPopover={true}
               popoverContent='Открыть руководство пользователя'
             />
+
+            {isAuthorized === 'authorized' && (
+              <ClickableButton
+                icon={<PlayCircleOutlined />}
+                shape='circle'
+                type='default'
+                size='large'
+                className={styles['help-button']}
+                onButtonClick={goToDemo}
+                withPopover={true}
+                popoverContent='Запустить демонстрацию'
+              />
+            )}
           </div>
         </div>
       </div>

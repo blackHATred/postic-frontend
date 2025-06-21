@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import CommentsPage from '../components/pages/CommentsPage/CommentsPage';
 import PostsPage from '../components/pages/PostsPage/PostsPage';
-import TeamsPage from '../components/pages/TeamsPage/TeamsPage';
 import { routes } from './App.routes';
 import PageLayout from '../components/pages/Layout/Layout';
 import PostDetailsPage from '../components/pages/PostDetailsPage/PostDetailsPage';
@@ -15,6 +14,8 @@ import HomePage from '../components/pages/HomePage/HomePage';
 import HomePageLayout from '../components/pages/Layout/HomePageLayout';
 import { useAppSelector } from '../stores/hooks';
 import ProfilePage from '../components/pages/ProfilePage/ProfilePage';
+import TeamDemo from '../components/pages/TeamDemo/TeamDemo';
+import TeamsPage from '../components/pages/TeamsPage/TeamsPage';
 
 export const AppRouter = () => {
   const isAuthorized = useAppSelector((state) => state.teams.authorize_status);
@@ -38,6 +39,7 @@ export const AppRouter = () => {
         <Route path={routes.ticket()} element={<TicketPage />} />
         <Route path={routes.analytics()} element={<AnalyticsPage />} />
         <Route path={routes.teams()} element={<TeamsPage />} />
+        <Route path='/teams-demo' element={<TeamDemo />} />
         <Route path={routes.profile()} element={<ProfilePage />} />
       </Route>
     </Routes>

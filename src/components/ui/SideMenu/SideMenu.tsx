@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './styles.module.scss';
 import { Divider, Menu, Segmented, DatePicker } from 'antd';
@@ -33,6 +33,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isMobile = false }) => {
   );
   const ticketFilter = useAppSelector((state) => state.comments.ticketFilter);
   const analyticsPeriod = useAppSelector((state) => state.analytics.period);
+  // Добавляем состояние для автоматического переключения режима просмотра
+  const [autoToggleViewMode, setAutoToggleViewMode] = useState(false);
 
   const isAnalyticsPage = currentPath.includes('/analytics');
   const isPostsPage = currentPath.includes('/posts') && !currentPath.includes('/posts/');

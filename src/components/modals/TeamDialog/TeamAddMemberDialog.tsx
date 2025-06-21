@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input, Divider, Form, notification } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
@@ -8,7 +8,15 @@ import { Invite, MyTeams } from '../../../api/teamApi';
 import { Team } from '../../../models/Team/types';
 import PermissionCheckboxes from '../../dummy/PermissionCheckboxes';
 
-const TeamAddMemberDialog: React.FC = () => {
+interface TeamAddMemberDialogProps {
+  demoMode?: boolean;
+  currentDemoStep?: number;
+}
+
+const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
+  demoMode = false,
+  currentDemoStep = 0,
+}) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAdmin, setIsAdmin] = useState(false);
   const dispatch = useAppDispatch();
@@ -22,7 +30,9 @@ const TeamAddMemberDialog: React.FC = () => {
   const [inviteUserId, setInviteUserId] = useState('');
   const [empty_checkbox, setEmptyCheckbox] = useState('');
   const [idError, setIdError] = useState('');
+  const [submitTimer, setSubmitTimer] = useState<NodeJS.Timeout | null>(null);
 
+  // Сброс формы
   const resetForm = () => {
     setCurrentStep(1);
     setIsAdmin(false);
@@ -34,7 +44,51 @@ const TeamAddMemberDialog: React.FC = () => {
     setInviteUserId('');
     setEmptyCheckbox('');
     setIdError('');
+
+    if (submitTimer) {
+      clearTimeout(submitTimer);
+    }
   };
+
+  // Для демо-режима: если открыто модальное окно и это второй шаг,
+  // автоматически запускаем таймер для отправки формы после анимации чекбоксов
+  useEffect(() => {
+    if (demoMode && isOpen && currentStep === 2) {
+      console.log('Демо-режим: шаг выбора прав доступа');
+
+      // Таймер для автоматической отправки формы после анимации чекбоксов (примерно 4 секунды)
+      const timer = setTimeout(() => {
+        console.log('Демо-режим: автоматическая отправка формы');
+        onSubmit();
+      }, 4000);
+
+      setSubmitTimer(timer);
+
+      return () => {
+        if (submitTimer) {
+          clearTimeout(submitTimer);
+        }
+      };
+    }
+  }, [demoMode, isOpen, currentStep]);
+
+  // Эффект для автоматического перехода на второй шаг в демо-режиме
+  useEffect(() => {
+    if (demoMode && isOpen && currentStep === 1) {
+      // Устанавливаем ID пользователя
+      setInviteUserId('555');
+
+      // Через 1 секунду переходим ко второму шагу
+      const timer = setTimeout(() => {
+        setCurrentStep(2);
+        console.log('Демо-режим: переход к шагу 2 (выбор прав)');
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [demoMode, isOpen, currentStep]);
 
   const updateTeamList = () => {
     MyTeams()
@@ -98,6 +152,25 @@ const TeamAddMemberDialog: React.FC = () => {
       roles.push('analytics');
     }
 
+    if (demoMode) {
+      // Создаем событие для сигнализации о добавлении участника
+      const event = new Event('demo-member-added');
+      document.dispatchEvent(event);
+
+      // В демо-режиме закрываем диалог
+      dispatch(setAddMemberDialog(false));
+
+      // Показываем уведомление
+      notification.success({
+        message: 'Успешно',
+        description: 'Участник успешно добавлен в команду',
+        placement: 'topRight',
+      });
+
+      resetForm();
+      return;
+    }
+
     try {
       const result = await Invite({
         user_id: Number(inviteUserId),
@@ -158,11 +231,13 @@ const TeamAddMemberDialog: React.FC = () => {
             placeholder='Введите ID участника'
             value={inviteUserId}
             onChange={(e) => setInviteUserId(e.target.value)}
+            className={`${demoMode ? styles.animatedInput : ''} ${inviteUserId ? styles.activeInput : ''}`}
           />
         </Form.Item>
       </Form>
     </>
   );
+
   const renderStep2 = () => (
     <PermissionCheckboxes
       permissions={permissions}
@@ -170,14 +245,17 @@ const TeamAddMemberDialog: React.FC = () => {
       empty_checkbox={empty_checkbox}
       handlePermissionChange={handlePermissionChange}
       handleAdminChange={handleAdminChange}
+      demoMode={demoMode}
     />
   );
+
   const getButtonsForCurrentStep = () => {
     if (currentStep === 1) {
       return [
         {
           text: 'Далее',
           onButtonClick: goToNextStep,
+          className: demoMode ? styles.animatedButton : '',
         },
       ];
     } else {
@@ -186,10 +264,12 @@ const TeamAddMemberDialog: React.FC = () => {
           text: 'Назад',
           onButtonClick: goToPreviousStep,
           type: 'default' as const,
+          className: demoMode ? styles.animatedSecondaryButton : '',
         },
         {
           text: 'Добавить',
           onButtonClick: onSubmit,
+          className: demoMode ? styles.animatedButton : '',
         },
       ];
     }
