@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: postic
+data:
+  EXTEND_ESLINT: "true"
+  VITE_REACT_APP_API_BASE_URL: "https://postic.io/api"
+  VITE_REACT_APP_SOCKET_URL: "https://postic.io/api/comment/ws"
+  NODE_ENV: "production"
+  AUTH_TOKEN_KEY: "postic"
+  GENERATE_SOURCEMAP: "false"
+  VITE_ALLOWED_HOSTS: "postic.io,localhost,127.0.0.1"
