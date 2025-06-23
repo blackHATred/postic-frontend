@@ -1,6 +1,6 @@
 const config = {
   api: {
-    baseURL: import.meta.env.VITE_REACT_APP_API_BASE_URL || 'http://localhost/api',
+    baseURL: import.meta.env.VITE_REACT_APP_API_BASE_URL || 'https://postic.io/api',
     socketUrl: import.meta.env.VITE_REACT_APP_SOCKET_URL || 'https://postic.io/api/comment/ws',
     useMock: process.env.NODE_ENV === 'development' || process.env.REACT_APP_USE_MOCK === 'true',
   },
