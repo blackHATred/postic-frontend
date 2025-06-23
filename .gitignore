@@ -31,3 +31,7 @@ yarn-error.log*
 .vscode/
 *.swp
 *.swo
+
+kubeconfig
+cert.pem
+privkey.pem
