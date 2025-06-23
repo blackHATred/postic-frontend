@@ -244,13 +244,11 @@ export function useGenerationSSE(options: {
         // eslint-disable-next-line no-constant-condition
         while (true) {
           if (signal.aborted) {
-            console.log('SSE-like stream aborted.');
             break;
           }
 
           const { value, done } = await reader.read();
           if (done) {
-            console.log('SSE-like stream complete.');
             break;
           }
 
@@ -268,7 +266,6 @@ export function useGenerationSSE(options: {
                 options.onMessage(data);
 
                 if (data.type === 'complete') {
-                  console.log('Received complete signal. Closing stream.');
                   reader.cancel();
                   setIsConnected(false);
                   abortControllerRef.current = null;

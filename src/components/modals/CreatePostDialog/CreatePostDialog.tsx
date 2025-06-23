@@ -544,12 +544,12 @@ const CreatePostDialog: FC = () => {
                     }}
                   />
                   <ClickableButton
-                    icon={<SmileOutlined />}
+                    icon={showEmojiPicker ? <CloseOutlined /> : <SmileOutlined />}
                     type='default'
                     size='small'
                     withPopover={true}
                     onButtonClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    popoverContent={'Эмодзи'}
+                    popoverContent={showEmojiPicker ? 'Закрыть эмодзи' : 'Эмодзи'}
                     className={styles['emoji-button']}
                   />
                 </>
@@ -752,6 +752,30 @@ const CreatePostDialog: FC = () => {
     setShowFixControls(false);
     setFixedText('');
   };
+
+  useEffect(() => {
+    if (!showEmojiPicker) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const emojiPickerElement = document.querySelector(`.${styles.emojiPicker}`);
+      const emojiButtonElement = document.querySelector(`.${styles['emoji-button']}`);
+
+      if (
+        emojiPickerElement &&
+        emojiButtonElement &&
+        !emojiPickerElement.contains(event.target as Node) &&
+        !emojiButtonElement.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   return (
     <DialogBox

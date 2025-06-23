@@ -3,7 +3,7 @@ import { GeneratePostReq } from '../models/Post/types';
 import config from '../constants/appConfig';
 import { backendMockMessages, formatAsBackendSSE } from '../models/Post/tmp';
 // true - моки, false - реальные данные с бэкенда
-export const USE_MOCK_GENERATION = true;
+export const USE_MOCK_GENERATION = false;
 
 export interface StreamMessageData {
   type:
@@ -31,7 +31,7 @@ export interface StreamMessageData {
 const DEBUG_MODE = true;
 function debugLog(...args: any[]) {
   if (DEBUG_MODE) {
-    console.log('[SSE Debug]', ...args);
+    // тык
   }
 }
 
@@ -100,11 +100,11 @@ export function useImprovedGenerationSSE(options: {
 
             yield encoder.encode(formattedMessage);
 
-            let delay = 100;
+            let delay = 30;
             if (messageData.type === 'content' && !messageData.final) {
               delay = 10;
             } else if (messageData.type === 'generation' || messageData.type === 'search') {
-              delay = 300;
+              delay = 30;
             }
             await new Promise((resolve) => setTimeout(resolve, delay));
           }

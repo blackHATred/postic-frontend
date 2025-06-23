@@ -71,8 +71,14 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
     if (props.attach_images[0].file_path.endsWith('.json')) {
       return (
         <div className={styles['image']}>
-          {sticker ? (
-            <Lottie animationData={sticker} loop={true} />
+          {sticker && typeof sticker === 'object' && true ? (
+            <Lottie
+              animationData={sticker}
+              loop={true}
+              onError={() => {
+                console.error('Ошибка загрузки Lottie анимации');
+              }}
+            />
           ) : (
             <div className={styles['video']}>
               <Spin />

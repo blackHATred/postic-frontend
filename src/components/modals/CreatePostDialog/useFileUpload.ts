@@ -19,6 +19,7 @@ export const useFileUpload = (
   addFiles: (id: string, file: any) => void,
   removeFile: (file: any) => any,
   files: any[],
+  maxCount?: number,
 ) => {
   const NotificationManager = useContext(NotificationContext);
   const [id, setID] = useState(0);
@@ -92,6 +93,15 @@ export const useFileUpload = (
     if (!file_types) {
       const detectedType = detectFileType(file);
       setFileTypes(detectedType);
+    }
+
+    if (maxCount !== undefined && uploadedFiles.length >= maxCount) {
+      NotificationManager.createNotification(
+        'error',
+        `Файл ${file.name} не загружен.`,
+        'Достигнуто максимальное количество файлов',
+      );
+      return 'Достигнуто максимальное количество файлов';
     }
 
     if (!isFileAlreadyAdded(files, file)) {
@@ -350,6 +360,7 @@ export const useFileUpload = (
     id,
     ref_upload,
     open_da,
+    setOpenDia,
     file_types,
     isDragging,
     dragPreviewFiles,

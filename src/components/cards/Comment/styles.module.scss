@@ -186,3 +186,14 @@
   margin-right: auto;
   opacity: 50%;
 }
+
+
+.inlineReplyWrapper {
+  margin-top: 15px;
+  padding: 16px;
+  border: 1px solid $border-color;
+  background-color: $white;
+  border-radius: $border-radius;
+  margin-bottom: 16px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+}

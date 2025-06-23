@@ -39,6 +39,7 @@ import {
   setGeneratedTextDialog,
 } from '../../../stores/basePageDialogsSlice';
 import { StreamMessageData, useImprovedGenerationSSE } from '../../../api/improvedGenerationSSE';
+import { MAX_FILES } from '../CreatePostDialog/types';
 
 const { Text, Paragraph, Title } = Typography;
 const { TextArea } = Input;
@@ -134,7 +135,27 @@ const AIGeneratePostDialog: FC = () => {
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-  }, [streamMessages]);
+
+    const textContainer = document.querySelector(`.${styles.streamTextOutput}`);
+    if (textContainer && currentGeneratedText) {
+      textContainer.scrollTop = textContainer.scrollHeight;
+    }
+  }, [streamMessages, currentGeneratedText]);
+
+  const selectedImagesCount = Object.values(selectedImages).filter(Boolean).length;
+  const tooManyImagesSelected = selectedImagesCount > MAX_FILES;
+
+  useEffect(() => {
+    if (tooManyImagesSelected) {
+      setError(`Выбрано слишком много изображений. Максимум: ${MAX_FILES}`);
+    } else if (
+      error === `Выбрано слишком много изображений. Максимум: ${MAX_FILES}` ||
+      error === `Выбрано максимальное количество изображений (${MAX_FILES})` ||
+      error === `Выбрано ${MAX_FILES} изображений. Это максимально допустимое количество.`
+    ) {
+      setError(null);
+    }
+  }, [selectedImagesCount, tooManyImagesSelected, error]);
 
   useEffect(() => {
     if (isOpen) {
@@ -163,6 +184,11 @@ const AIGeneratePostDialog: FC = () => {
   const handleImageSelect = async (index: string) => {
     const isCurrentlySelected = selectedImages[index];
 
+    if (!isCurrentlySelected && selectedImagesCount >= MAX_FILES) {
+      setError(`Выбрано максимальное количество изображений (${MAX_FILES})`);
+      return;
+    }
+
     setSelectedImages((prev) => ({
       ...prev,
       [index]: !prev[index],
@@ -177,7 +203,9 @@ const AIGeneratePostDialog: FC = () => {
     const newSelectedState: { [key: string]: boolean } = {};
     const uploadPromises: Promise<any>[] = [];
 
-    generatedImages.forEach((imageUrl, index) => {
+    const imagesToSelect = Math.min(generatedImages.length, MAX_FILES);
+
+    generatedImages.slice(0, imagesToSelect).forEach((imageUrl, index) => {
       const indexStr = index.toString();
       newSelectedState[indexStr] = true;
 
@@ -186,7 +214,15 @@ const AIGeneratePostDialog: FC = () => {
       }
     });
 
+    for (let i = imagesToSelect; i < generatedImages.length; i++) {
+      newSelectedState[i.toString()] = false;
+    }
+
     setSelectedImages(newSelectedState);
+
+    if (generatedImages.length > MAX_FILES) {
+      setError(`Выбрано ${MAX_FILES} изображений. Это максимально допустимое количество.`);
+    }
 
     if (uploadPromises.length > 0) {
       await Promise.all(uploadPromises);
@@ -475,6 +511,12 @@ const AIGeneratePostDialog: FC = () => {
                   placeholder='Например: "составь пост про то, как необходимо готовить  пельмени"'
                   value={prompt}
                   onChange={handlePromptChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && prompt.trim() && !isStreamGenerating) {
+                      e.preventDefault();
+                      generatePostStream();
+                    }
+                  }}
                   disabled={isStreamGenerating}
                   style={{ resize: 'none' }}
                 />
@@ -625,16 +667,9 @@ const AIGeneratePostDialog: FC = () => {
                 </Space>
                 <Text type='secondary'>{streamStatus}</Text>
               </div>
-
               <div className={styles.streamMessagesContainer}>
                 {streamMessages.map((msg, index) => {
-                  // Не отображаем сообщения с типом content и search-related
-                  if (
-                    msg.type === 'content' ||
-                    msg.type === 'search' ||
-                    msg.type === 'search_result' ||
-                    msg.type === 'queries'
-                  )
+                  if (msg.type === 'content' || msg.type === 'search' || msg.type === 'queries')
                     return null;
 
                   return (
@@ -679,7 +714,7 @@ const AIGeneratePostDialog: FC = () => {
                   <div className={styles.generatedText}>{currentGeneratedText}</div>
                 )}
 
-                {isStreamGenerating && !streamComplete && (
+                {isStreamGenerating && !streamComplete && !currentGeneratedText && (
                   <div className={styles.generatedTextSkeleton}>
                     <Skeleton active paragraph={{ rows: 2 }} />
                   </div>

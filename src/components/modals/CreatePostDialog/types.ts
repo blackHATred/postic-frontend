@@ -13,6 +13,7 @@ export interface FileUploaderProps {
   addFiles: (id: string, file: any) => void;
   removeFile: (file: any) => any;
   files: any[];
+  inlineMode?: boolean;
 }
 
 export interface DragPreviewItem {

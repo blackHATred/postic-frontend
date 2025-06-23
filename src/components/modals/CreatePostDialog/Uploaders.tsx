@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 const { Dragger } = Upload;
 
-const itemsWithIcons = menuItems
+export const itemsWithIcons = menuItems
   ? [
       {
         ...menuItems[0],
@@ -35,6 +35,7 @@ interface StandardUploaderProps {
   onPreview: (file: any) => void;
   uploaderRef: React.RefObject<HTMLDivElement | null>;
   menuClickHandler: MenuProps['onClick'];
+  maxCount?: number;
 }
 
 export const StandardUploader: React.FC<StandardUploaderProps> = ({
@@ -47,6 +48,7 @@ export const StandardUploader: React.FC<StandardUploaderProps> = ({
   onPreview,
   uploaderRef,
   menuClickHandler,
+  maxCount = 10,
 }) => {
   const menuProps = {
     items: itemsWithIcons,
@@ -60,7 +62,7 @@ export const StandardUploader: React.FC<StandardUploaderProps> = ({
       multiple={true}
       fileList={uploadedFiles as UploadFile[]}
       onRemove={onRemove}
-      maxCount={10}
+      maxCount={maxCount}
       accept={fileTypes}
       openFileDialogOnClick={onOpen}
       customRequest={customRequest}
@@ -90,6 +92,7 @@ interface DragUploaderProps {
   customRequest: (obj: any) => void;
   onPreview: (file: any) => void;
   children: React.ReactNode;
+  maxCount?: number;
 }
 
 export const DragUploader: React.FC<DragUploaderProps> = ({
@@ -99,6 +102,7 @@ export const DragUploader: React.FC<DragUploaderProps> = ({
   customRequest,
   onPreview,
   children,
+  maxCount = 10,
 }) => {
   return (
     <Dragger
@@ -107,7 +111,7 @@ export const DragUploader: React.FC<DragUploaderProps> = ({
       multiple={true}
       fileList={uploadedFiles as UploadFile[]}
       onRemove={onRemove}
-      maxCount={10}
+      maxCount={maxCount}
       accept='*/*'
       customRequest={customRequest}
       onPreview={onPreview}

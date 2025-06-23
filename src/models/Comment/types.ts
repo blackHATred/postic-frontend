@@ -43,6 +43,20 @@ export interface GetSummarizeMarkdownResponse {
   post_union_id: number;
 }
 
+export const mockSummarizeResult: GetSummarizeResult = {
+  status: 'success',
+  summarize: {
+    markdown: `
+### Ключевые моменты:
+- Спрашивают другие датасеты для машинного обучения.
+- Вопросы о бесплатных альтернативах и сравнении возможностей.
+- Практическое применение: бизнес, соцсети, презентации.
+- Споры о будущем профессий и этике использования ИИ.
+- Советы по интеграции (AI + Word, многоязычные тексты).`,
+    post_union_id: 1,
+  },
+};
+
 export interface CommentReply {
   team_id: number;
   comment_id: number;
@@ -64,6 +78,18 @@ export interface Answ {
   team_id: number;
   comment_id: number;
 }
+
+export interface QuickReplyIdeas {
+  ideas: string[];
+}
+
+export const mockQuickReplies: QuickReplyIdeas = {
+  ideas: [
+    'Да, существуют отличные альтернативы Kaggle: DataDriven и AIcrowd, где тоже проводятся соревнования по анализу данных с хорошими призами.',
+    'Мини мани ответик.',
+    'Рекомендую обратить внимание на DrivenData, Tianchi (от Alibaba) и Topcoder - все они предлагают соревнования с реальными задачами от компаний.',
+  ],
+};
 
 export interface Ticket {
   team_id: number;

@@ -32,7 +32,6 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
   const [idError, setIdError] = useState('');
   const [submitTimer, setSubmitTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Сброс формы
   const resetForm = () => {
     setCurrentStep(1);
     setIsAdmin(false);
@@ -50,15 +49,9 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
     }
   };
 
-  // Для демо-режима: если открыто модальное окно и это второй шаг,
-  // автоматически запускаем таймер для отправки формы после анимации чекбоксов
   useEffect(() => {
     if (demoMode && isOpen && currentStep === 2) {
-      console.log('Демо-режим: шаг выбора прав доступа');
-
-      // Таймер для автоматической отправки формы после анимации чекбоксов (примерно 4 секунды)
       const timer = setTimeout(() => {
-        console.log('Демо-режим: автоматическая отправка формы');
         onSubmit();
       }, 4000);
 
@@ -72,16 +65,12 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
     }
   }, [demoMode, isOpen, currentStep]);
 
-  // Эффект для автоматического перехода на второй шаг в демо-режиме
   useEffect(() => {
     if (demoMode && isOpen && currentStep === 1) {
-      // Устанавливаем ID пользователя
       setInviteUserId('555');
 
-      // Через 1 секунду переходим ко второму шагу
       const timer = setTimeout(() => {
         setCurrentStep(2);
-        console.log('Демо-режим: переход к шагу 2 (выбор прав)');
       }, 1000);
 
       return () => {
@@ -153,14 +142,9 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
     }
 
     if (demoMode) {
-      // Создаем событие для сигнализации о добавлении участника
       const event = new Event('demo-member-added');
       document.dispatchEvent(event);
-
-      // В демо-режиме закрываем диалог
       dispatch(setAddMemberDialog(false));
-
-      // Показываем уведомление
       notification.success({
         message: 'Успешно',
         description: 'Участник успешно добавлен в команду',
@@ -178,7 +162,6 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
         roles,
       });
 
-      // Проверяем, содержит ли результат сообщение об ошибке
       if (result && result.includes('Пользователь не найден')) {
         notification.error({
           message: 'Ошибка',
@@ -188,7 +171,6 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
         return;
       }
 
-      // Если ошибки нет, значит операция успешна
       dispatch(setAddMemberDialog(false));
       updateTeamList();
       resetForm();

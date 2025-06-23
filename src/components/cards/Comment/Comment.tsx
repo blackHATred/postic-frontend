@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Divider, Space, Typography } from 'antd';
 import styles from './styles.module.scss';
 import { Comment, CommentAttachments, DeleteComment, Ticket } from '../../../models/Comment/types';
@@ -14,7 +14,6 @@ import Icon, {
   TeamOutlined,
 } from '@ant-design/icons';
 import { message } from 'antd';
-import { setAnswerDialog, setSelectedComment } from '../../../stores/commentSlice';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
 import { setActiveTab } from '../../../stores/basePageDialogsSlice';
@@ -23,6 +22,7 @@ import config from '../../../constants/appConfig';
 import MediaRenderer from './MediaRenderer';
 import { Team } from '../../../models/Team/types';
 import { NotificationContext } from '../../../api/notification';
+import InlineReplyForm from './InlineReplyForm';
 
 const { Paragraph, Text } = Typography;
 
@@ -37,11 +37,35 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const teams = useAppSelector((state) => state.teams.teams);
   const [ellipsis] = useState(true);
   const notificationManager = useContext(NotificationContext);
+  const [showInlineReply, setShowInlineReply] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const openAnswerDialog = () => {
-    dispatch(setSelectedComment?.(comment));
-    dispatch(setAnswerDialog(true));
+    // проверка на мобильное устройство
+    // if (isMobile) {
+    setShowInlineReply(true);
+    // } else {
+    // На десктопе модальное окно
+    // dispatch(setSelectedComment?.(comment));
+    // dispatch(setAnswerDialog(true));
+    // }
   };
+
+  const closeInlineReply = () => {
+    setShowInlineReply(false);
+  };
+
   const [isTicket, setIsTicket] = useState(comment.marked_as_ticket);
 
   const getIcon = (platform: string) => {
@@ -216,9 +240,9 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
               type='default'
               variant='outlined'
               color='blue'
-              text='Ответить'
-              icon={<DoubleRightOutlined />}
-              onButtonClick={openAnswerDialog}
+              text={showInlineReply ? 'Свернуть' : 'Ответить'}
+              icon={showInlineReply ? <DoubleRightOutlined rotate={90} /> : <DoubleRightOutlined />}
+              onButtonClick={showInlineReply ? closeInlineReply : openAnswerDialog}
             />
 
             <ClickableButton
@@ -247,6 +271,12 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
         </div>
       ) : (
         <Text type='warning'>Комментарий был удален</Text>
+      )}
+
+      {showInlineReply && (
+        <div className={styles.inlineReplyWrapper}>
+          <InlineReplyForm comment={comment} onCancel={closeInlineReply} />
+        </div>
       )}
     </div>
   );

@@ -4,7 +4,6 @@ import { Navigate, RouteObject } from 'react-router-dom';
 // Lazily loaded components
 const App = lazy(() => import('./App'));
 const TeamsPage = lazy(() => import('../components/pages/TeamsPage/TeamsPage'));
-const TeamDemo = lazy(() => import('../components/pages/TeamDemo/TeamDemo'));
 
 class Routes {
   root = () => '/' as const;
@@ -54,10 +53,6 @@ const appRoutes: RouteObject[] = [
       {
         path: '/teams/:id',
         element: <TeamsPage />,
-      },
-      {
-        path: '/teams-demo',
-        element: <TeamDemo />,
       },
       {
         path: '/ticket',

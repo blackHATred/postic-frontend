@@ -11,6 +11,7 @@ import { routes } from '../../../app/App.routes';
 import { getSseUrl } from '../../../constants/appConfig';
 import { useAuthenticatedSSE } from '../../../api/newSSE';
 import { setScrollToTop } from '../../../stores/basePageDialogsSlice';
+import classNames from 'classnames';
 
 const frame_size = 3;
 const { Text } = Typography;
@@ -62,6 +63,7 @@ const CommentList: React.FC<{
   const url = getSseUrl(teamId, selectedPostId || 0);
 
   const [newComment, setNewComment] = React.useState<any>();
+  const [animatedCommentIds, setAnimatedCommentIds] = useState<number[]>([]);
 
   const onNewComment = (data: any) => {
     setNewComment(data);
@@ -89,6 +91,11 @@ const CommentList: React.FC<{
         if (!hasMoreTop)
           getComment(teamId, newComment.comment_id)
             .then((data) => {
+              setAnimatedCommentIds((prev) => [...prev, data.comment.id]);
+              setTimeout(() => {
+                setAnimatedCommentIds((prev) => prev.filter((id) => id !== data.comment.id));
+              }, 800);
+
               dispatch(add_func(data.comment));
             })
             .catch(() => {
@@ -170,7 +177,15 @@ const CommentList: React.FC<{
         comments.map((comment: any) => {
           return {
             id: comment.id,
-            element: <CommentTreeItem comment={comment} level={0} />,
+            element: (
+              <div
+                className={classNames({
+                  [styles.commentAppear]: animatedCommentIds.includes(comment.id),
+                })}
+              >
+                <CommentTreeItem comment={comment} level={0} />
+              </div>
+            ),
           };
         }),
       );
