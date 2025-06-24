@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, useContext } from 'react';
-import { Input, Divider, DatePicker, Form } from 'antd';
+import { Input, Divider, DatePicker, Form, Button } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import ClickableButton from '../../ui/Button/Button';
@@ -34,7 +34,7 @@ import { EmojiStyle } from 'emoji-picker-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Categories } from 'emoji-picker-react';
-import { Checkbox, Button, Space, Typography } from 'antd';
+import { Checkbox, Space, Typography } from 'antd';
 import { withTimeout } from '../../../utils/timeoutUtils';
 import { NotificationContext } from '../../../api/notification';
 

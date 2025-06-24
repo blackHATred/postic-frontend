@@ -15,12 +15,24 @@ interface MediaRenderer {
 
 const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
   const [sticker, setSticker] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (props.attach_images[0].file_path.endsWith('.json')) {
-      getUpload(props.attach_images[0].id).then((data: any) => {
-        setSticker(data);
-      });
+      setIsLoading(true);
+      setError(null);
+
+      getUpload(props.attach_images[0].id)
+        .then((data: any) => {
+          setSticker(data);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error('Ошибка загрузки стикера:', err);
+          setError('Ошибка загрузки стикера');
+          setIsLoading(false);
+        });
     }
   }, [props.attach_images]);
 
@@ -71,17 +83,26 @@ const MediaRenderer: React.FC<MediaRenderer> = (props: MediaRenderer) => {
     if (props.attach_images[0].file_path.endsWith('.json')) {
       return (
         <div className={styles['image']}>
-          {sticker && typeof sticker === 'object' && true ? (
+          {isLoading ? (
+            <div className={styles['video']}>
+              <Spin tip='Загрузка стикера...' />
+            </div>
+          ) : error ? (
+            <div className={styles['error']}>
+              <Text type='danger'>{error}</Text>
+            </div>
+          ) : sticker && typeof sticker === 'object' ? (
             <Lottie
               animationData={sticker}
               loop={true}
-              onError={() => {
-                console.error('Ошибка загрузки Lottie анимации');
+              onError={(err) => {
+                console.error('Ошибка отображения Lottie анимации:', err);
+                setError('Ошибка отображения стикера');
               }}
             />
           ) : (
-            <div className={styles['video']}>
-              <Spin />
+            <div className={styles['error']}>
+              <Text type='warning'>Некорректный формат стикера</Text>
             </div>
           )}
         </div>

@@ -10,19 +10,21 @@ import Icon, {
   DisconnectOutlined,
   DoubleRightOutlined,
   PaperClipOutlined,
+  RightOutlined,
   TagOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { message } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { Delete, getUpload, MarkAsTicket } from '../../../api/api';
-import { setActiveTab } from '../../../stores/basePageDialogsSlice';
 import { setSelectedPostId } from '../../../stores/postsSlice';
 import config from '../../../constants/appConfig';
 import MediaRenderer from './MediaRenderer';
 import { Team } from '../../../models/Team/types';
 import { NotificationContext } from '../../../api/notification';
 import InlineReplyForm from './InlineReplyForm';
+import { routes } from '../../../app/App.routes';
+import { useNavigate } from 'react-router-dom';
 
 const { Paragraph, Text } = Typography;
 
@@ -33,6 +35,7 @@ interface CommentProps {
 const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   const { created_at = dayjs('0000-00-00 00:00:00') } = comment;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const selectedTeamId = useAppSelector((state) => state.teams.globalActiveTeamId);
   const teams = useAppSelector((state) => state.teams.teams);
   const [ellipsis] = useState(true);
@@ -128,9 +131,16 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
       });
   };
   const handlePostClick = () => {
-    dispatch(setActiveTab('1'));
-    //dispatch(setScrollToPost(comment.post_union_id));
+    if (!comment.post_union_id) {
+      notificationManager.createNotification(
+        'error',
+        'Ошибка перехода',
+        'Не удалось найти пост для перехода',
+      );
+      return;
+    }
     dispatch(setSelectedPostId(comment.post_union_id));
+    navigate(routes.post(comment.post_union_id));
   };
 
   const handleMarkTicket = (isTicket: boolean) => {
@@ -203,6 +213,17 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
               <Text className={styles['comment-full-name']}>{comment.username}</Text>
             </div>
           </div>
+          {!comment.is_deleted &&
+            (String(location.pathname) === String(routes.ticket()) ||
+              String(location.pathname) === String(routes.comments())) && (
+              <ClickableButton
+                type='link'
+                color='blue'
+                text='К посту'
+                icon={<RightOutlined />}
+                onButtonClick={handlePostClick}
+              />
+            )}
         </div>
       </div>
 

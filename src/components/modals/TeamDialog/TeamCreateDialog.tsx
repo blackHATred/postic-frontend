@@ -1,106 +1,70 @@
-import React, { useEffect, useState } from 'react';
-import { Input, Divider, Form, notification } from 'antd';
-import DialogBox from '../dialogBox/DialogBox';
+import { useState, useContext } from 'react';
+import { Input, Divider, Form } from 'antd';
+import DialogBox, { DialogBoxProps } from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
-import { setCreateTeamDialog } from '../../../stores/teamSlice';
-import { TeamCreate } from '../../../api/teamApi';
+import { setCreateTeamDialog, setTeams } from '../../../stores/teamSlice';
+import { MyTeams, TeamCreate } from '../../../api/teamApi';
+import { Team, TeamCreateRequest } from '../../../models/Team/types';
+import { NotificationContext } from '../../../api/notification';
 
-interface TeamCreateDialogProps {
-  demoMode?: boolean;
-  currentDemoStep?: number;
+export interface TeamCreateDialogProps extends Omit<DialogBoxProps, 'onCancelClick'> {
+  setOpen: (value: boolean) => void;
 }
 
-const TeamCreateDialog: React.FC<TeamCreateDialogProps> = ({
-  demoMode = false,
-  currentDemoStep = 0,
-}) => {
+const TeamCreateDialog: React.FC = () => {
+  const [form] = Form.useForm();
   const [teamName, setTeamName] = useState('');
-  const [error, setError] = useState('');
   const dispatch = useAppDispatch();
-  // Исправляем доступ к isOpen, учитывая структуру в Redux-сторе
   const isOpen = useAppSelector((state) => state.teams.createTeamDialog.isOpen);
+  const notificationManager = useContext(NotificationContext);
 
-  // Для демо-режима: автоматически заполняем имя команды с эффектом печати
-  useEffect(() => {
-    if (demoMode && isOpen && currentDemoStep === 2) {
-      // Очистить предыдущее имя команды
-      setTeamName('');
-
-      // Симулируем ввод имени "Киберкотлетки" с эффектом печати
-      const targetName = 'Киберкотлетки';
-      let currentIndex = 0;
-
-      const typingInterval = setInterval(() => {
-        if (currentIndex <= targetName.length) {
-          setTeamName(targetName.substring(0, currentIndex));
-          currentIndex++;
-        } else {
-          clearInterval(typingInterval);
-
-          // Имитируем задержку перед отправкой формы
-          setTimeout(() => {
-            if (demoMode && isOpen) {
-              handleCreateTeam();
-            }
-          }, 1000);
-        }
-      }, 150); // задержка между символами
-
-      return () => clearInterval(typingInterval);
-    }
-  }, [demoMode, isOpen, currentDemoStep]);
-
-  const validate = () => {
-    if (!teamName.trim()) {
-      setError('Введите название команды');
-      return false;
-    }
-    setError('');
-    return true;
+  const updateTeamList = (created_team: Team) => {
+    MyTeams().then((res: { teams: Team[] }) => {
+      if (res.teams) {
+        if (!res.teams.includes(created_team)) dispatch(setTeams(res.teams));
+      }
+    });
   };
 
-  const handleCreateTeam = async () => {
-    if (!validate()) {
+  const onOk = () => {
+    if (!teamName.trim()) {
+      form.validateFields();
       return;
     }
 
-    if (demoMode) {
-      // Создаём событие для сигнализации о создании команды
-      const event = new Event('demo-team-created');
-      document.dispatchEvent(event);
+    const newTeam: TeamCreateRequest = {
+      team_name: teamName,
+    };
+    TeamCreate(newTeam)
+      .then((response) => {
+        const createdTeam: Team = {
+          ...newTeam,
+          id: response.team_id,
+          name: teamName,
+          users: [],
+          created_at: new Date().toISOString(),
+        };
+        updateTeamList(createdTeam);
 
-      // В демо-режиме просто закрываем диалог
-      dispatch(setCreateTeamDialog(false));
+        notificationManager.createNotification(
+          'success',
+          'Команда создана',
+          `Команда "${teamName}" успешно создана`,
+        );
 
-      // Уведомление о создании команды
-      notification.success({
-        message: 'Успешно',
-        description: `Команда "${teamName}" успешно создана`,
-        placement: 'topRight',
-      });
-
-      return;
-    }
-
-    try {
-      const response = await TeamCreate({ team_name: teamName });
-      if (response) {
-        notification.success({
-          message: 'Успешно',
-          description: `Команда "${teamName}" успешно создана`,
-          placement: 'topRight',
-        });
         dispatch(setCreateTeamDialog(false));
+
+        form.resetFields();
         setTeamName('');
-      }
-    } catch (error) {
-      notification.error({
-        message: 'Ошибка',
-        description: 'Не удалось создать команду',
-        placement: 'topRight',
+      })
+      .catch((error) => {
+        notificationManager.createNotification(
+          'error',
+          'Ошибка создания команды',
+          error.message || 'Не удалось создать команду',
+        );
       });
-    }
   };
 
   return (
@@ -108,31 +72,37 @@ const TeamCreateDialog: React.FC<TeamCreateDialogProps> = ({
       bottomButtons={[
         {
           text: 'Создать',
-          onButtonClick: handleCreateTeam,
-          className: demoMode ? styles.animatedButton : '',
+          onButtonClick: onOk,
         },
       ]}
       isOpen={isOpen}
-      onCancelClick={() => {
-        dispatch(setCreateTeamDialog(false));
+      onCancelClick={async () => {
+        form.resetFields();
         setTeamName('');
-        setError('');
+        dispatch(setCreateTeamDialog(false));
       }}
-      title='Создание команды'
+      title={'Создание команды'}
       isCenter={true}
     >
       <Divider />
 
-      <div className={styles.form}>
-        <Form layout='vertical'>
-          <Form.Item label='Название команды' validateStatus={error ? 'error' : ''} help={error}>
+      <div className={styles['form']}>
+        <Form form={form}>
+          <Form.Item
+            label='Название команды'
+            name='teamName'
+            rules={[
+              {
+                required: true,
+                message: 'Пожалуйста, введите название команды',
+              },
+            ]}
+            labelCol={{ span: 24 }}
+          >
             <Input
               placeholder='Введите название команды'
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
-              className={`${demoMode ? styles.animatedInput : ''} ${
-                teamName ? styles.activeInput : ''
-              }`}
             />
           </Form.Item>
         </Form>

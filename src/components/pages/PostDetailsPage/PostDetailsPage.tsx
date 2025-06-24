@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Empty, Spin } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../stores/hooks';
 import { setSelectedPostId } from '../../../stores/postsSlice';
@@ -17,9 +17,11 @@ import {
 
 const PostDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const team_id = useAppSelector((state) => state.teams.globalActiveTeamId);
+  const teams = useAppSelector((state) => state.teams.teams);
   const [p, setP] = useState<Post | undefined>(posts.find((post) => post.id === Number(id)));
   const post: Post = p
     ? p

@@ -20,11 +20,21 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined);
   const [userNicknames, setUserNicknames] = useState<UserNicknames>({});
 
+  const isMockMode = typeof window !== 'undefined' && (window as any).MOCK_ANALYTICS === true;
+
   useEffect(() => {
     if (data.length > 0) {
       setSelectedUserId(data[0].user_id);
 
-      // Загружаем никнеймы пользователей
+      if (isMockMode) {
+        const nicknames: UserNicknames = {};
+        for (const user of data) {
+          nicknames[user.user_id] = user.nickname || `Пользователь ${user.user_id}`;
+        }
+        setUserNicknames(nicknames);
+        return;
+      }
+
       const loadUserNicknames = async () => {
         const nicknames: UserNicknames = {};
 
@@ -44,7 +54,7 @@ const KPIRadarChart: React.FC<RadarChartProps> = ({ data, loading, height = 400 
 
       loadUserNicknames();
     }
-  }, [data]);
+  }, [data, isMockMode]);
 
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<any>(null);

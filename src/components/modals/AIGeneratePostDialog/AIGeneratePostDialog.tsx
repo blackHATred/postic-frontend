@@ -78,12 +78,29 @@ const AIGeneratePostDialog: FC = () => {
             setStreamQueries(data.queries);
           }
           break;
+        case 'cache':
+          setStreamStatus('Найден кешированный результат');
+
+          if (data.text || data.full_text) {
+            processContent(data.text || '', true, data.full_text);
+          }
+
+          if (data.images && data.images.length > 0) {
+            setGeneratedImages(data.images);
+          }
+          break;
         case 'content':
           if (data.text || (data.final && data.full_text)) {
             await processContent(data.text || '', !!data.final, data.full_text);
 
             if (data.final && data.images && data.images.length > 0) {
               setGeneratedImages(data.images);
+
+              const lastMessage = streamMessages[streamMessages.length - 2];
+              if (lastMessage && lastMessage.type === 'cache') {
+                setStreamComplete(true);
+                setIsStreamGenerating(false);
+              }
             }
           }
           break;
@@ -442,6 +459,8 @@ const AIGeneratePostDialog: FC = () => {
         return <FileTextOutlined />;
       case 'complete':
         return <CheckOutlined />;
+      case 'cache':
+        return <FileImageOutlined />;
       default:
         return <LoadingOutlined />;
     }
@@ -467,6 +486,8 @@ const AIGeneratePostDialog: FC = () => {
         return 'Текст:';
       case 'complete':
         return 'Готово:';
+      case 'cache':
+        return 'Кеш:';
       default:
         return 'Процесс:';
     }
@@ -669,7 +690,12 @@ const AIGeneratePostDialog: FC = () => {
               </div>
               <div className={styles.streamMessagesContainer}>
                 {streamMessages.map((msg, index) => {
-                  if (msg.type === 'content' || msg.type === 'search' || msg.type === 'queries')
+                  if (
+                    msg.type === 'content' ||
+                    msg.type === 'search' ||
+                    msg.type === 'queries' ||
+                    msg.type === 'image_queries'
+                  )
                     return null;
 
                   return (
@@ -687,7 +713,7 @@ const AIGeneratePostDialog: FC = () => {
               {streamQueries.length > 0 && (
                 <div className={styles.queryTags}>
                   <Text type='secondary'>Поисковые запросы:</Text>
-                  <div style={{ marginTop: '8px' }}>
+                  <div>
                     {streamQueries.map((query, idx) => (
                       <Tag
                         key={idx}

@@ -26,11 +26,33 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
   const chartInstance = useRef<any>(null);
   const [userNicknames, setUserNicknames] = useState<UserNicknames>({});
 
-  const totalValue = data.reduce((sum, user) => sum + user[selectedMetric], 0);
+  const isMockMode = typeof window !== 'undefined' && (window as any).MOCK_ANALYTICS === true;
+
+  const safeCalculateTotalValue = () => {
+    let total = 0;
+    for (const user of data) {
+      const value = user[selectedMetric];
+      if (typeof value === 'number' && !isNaN(value)) {
+        total += value;
+      }
+    }
+    return total;
+  };
+
+  const totalValue = safeCalculateTotalValue();
   const averageValue = data.length > 0 ? totalValue / data.length : 0;
 
   useEffect(() => {
     if (data.length > 0) {
+      if (isMockMode) {
+        const nicknames: UserNicknames = {};
+        for (const user of data) {
+          nicknames[user.user_id] = user.nickname || `Пользователь ${user.user_id}`;
+        }
+        setUserNicknames(nicknames);
+        return;
+      }
+
       const loadUserNicknames = async () => {
         const nicknames: UserNicknames = {};
 
@@ -50,7 +72,7 @@ const KPIColumnChart: React.FC<KPIRadarChartProps> = ({ data, loading, height = 
 
       loadUserNicknames();
     }
-  }, [data]);
+  }, [data, isMockMode]);
 
   useEffect(() => {
     if (!loading && chartRef.current && data.length > 0) {

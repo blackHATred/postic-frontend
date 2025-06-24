@@ -17,7 +17,9 @@ export interface StreamMessageData {
     | 'content'
     | 'warning'
     | 'error'
-    | 'complete';
+    | 'complete'
+    | 'image_queries'
+    | 'cache';
   message?: string;
   text?: string;
   final?: boolean;
@@ -100,7 +102,7 @@ export function useImprovedGenerationSSE(options: {
 
             yield encoder.encode(formattedMessage);
 
-            let delay = 30;
+            let delay = 10;
             if (messageData.type === 'content' && !messageData.final) {
               delay = 10;
             } else if (messageData.type === 'generation' || messageData.type === 'search') {
@@ -110,7 +112,6 @@ export function useImprovedGenerationSSE(options: {
           }
         })();
 
-        // Имитируем response.body.getReader()
         const reader: ReadableStreamDefaultReader<Uint8Array> = {
           read: async () => {
             const { value, done } = await mockStreamGenerator.next();
@@ -168,7 +169,7 @@ export function useImprovedGenerationSSE(options: {
 
               if (data.type === 'complete') {
                 debugLog('Получен сигнал завершения (из мока). Закрываем поток.');
-                reader.cancel(); // Завершаем имитацию потока
+                reader.cancel();
                 setIsConnected(false);
                 abortControllerRef.current = null;
                 return;
@@ -240,7 +241,7 @@ export function useImprovedGenerationSSE(options: {
 
             if (!eventData) continue;
 
-            const data = extractJsonFromSSEData(eventData); // Используем extractJsonFromSSEData
+            const data = extractJsonFromSSEData(eventData);
             if (data) {
               debugLog('Распаршенные данные:', data);
               options.onMessage(data);
@@ -277,7 +278,6 @@ export function useImprovedGenerationSSE(options: {
   };
 
   const stopGeneration = () => {
-    // Логика остановки остается прежней
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;

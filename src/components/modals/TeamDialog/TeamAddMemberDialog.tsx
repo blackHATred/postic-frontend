@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Input, Divider, Form, notification } from 'antd';
 import DialogBox from '../dialogBox/DialogBox';
 import styles from './styles.module.scss';
@@ -8,15 +8,7 @@ import { Invite, MyTeams } from '../../../api/teamApi';
 import { Team } from '../../../models/Team/types';
 import PermissionCheckboxes from '../../dummy/PermissionCheckboxes';
 
-interface TeamAddMemberDialogProps {
-  demoMode?: boolean;
-  currentDemoStep?: number;
-}
-
-const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
-  demoMode = false,
-  currentDemoStep = 0,
-}) => {
+const TeamAddMemberDialog: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isAdmin, setIsAdmin] = useState(false);
   const dispatch = useAppDispatch();
@@ -30,7 +22,6 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
   const [inviteUserId, setInviteUserId] = useState('');
   const [empty_checkbox, setEmptyCheckbox] = useState('');
   const [idError, setIdError] = useState('');
-  const [submitTimer, setSubmitTimer] = useState<NodeJS.Timeout | null>(null);
 
   const resetForm = () => {
     setCurrentStep(1);
@@ -43,41 +34,7 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
     setInviteUserId('');
     setEmptyCheckbox('');
     setIdError('');
-
-    if (submitTimer) {
-      clearTimeout(submitTimer);
-    }
   };
-
-  useEffect(() => {
-    if (demoMode && isOpen && currentStep === 2) {
-      const timer = setTimeout(() => {
-        onSubmit();
-      }, 4000);
-
-      setSubmitTimer(timer);
-
-      return () => {
-        if (submitTimer) {
-          clearTimeout(submitTimer);
-        }
-      };
-    }
-  }, [demoMode, isOpen, currentStep]);
-
-  useEffect(() => {
-    if (demoMode && isOpen && currentStep === 1) {
-      setInviteUserId('555');
-
-      const timer = setTimeout(() => {
-        setCurrentStep(2);
-      }, 1000);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [demoMode, isOpen, currentStep]);
 
   const updateTeamList = () => {
     MyTeams()
@@ -141,20 +98,6 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
       roles.push('analytics');
     }
 
-    if (demoMode) {
-      const event = new Event('demo-member-added');
-      document.dispatchEvent(event);
-      dispatch(setAddMemberDialog(false));
-      notification.success({
-        message: 'Успешно',
-        description: 'Участник успешно добавлен в команду',
-        placement: 'topRight',
-      });
-
-      resetForm();
-      return;
-    }
-
     try {
       const result = await Invite({
         user_id: Number(inviteUserId),
@@ -213,13 +156,11 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
             placeholder='Введите ID участника'
             value={inviteUserId}
             onChange={(e) => setInviteUserId(e.target.value)}
-            className={`${demoMode ? styles.animatedInput : ''} ${inviteUserId ? styles.activeInput : ''}`}
           />
         </Form.Item>
       </Form>
     </>
   );
-
   const renderStep2 = () => (
     <PermissionCheckboxes
       permissions={permissions}
@@ -227,17 +168,14 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
       empty_checkbox={empty_checkbox}
       handlePermissionChange={handlePermissionChange}
       handleAdminChange={handleAdminChange}
-      demoMode={demoMode}
     />
   );
-
   const getButtonsForCurrentStep = () => {
     if (currentStep === 1) {
       return [
         {
           text: 'Далее',
           onButtonClick: goToNextStep,
-          className: demoMode ? styles.animatedButton : '',
         },
       ];
     } else {
@@ -246,12 +184,10 @@ const TeamAddMemberDialog: React.FC<TeamAddMemberDialogProps> = ({
           text: 'Назад',
           onButtonClick: goToPreviousStep,
           type: 'default' as const,
-          className: demoMode ? styles.animatedSecondaryButton : '',
         },
         {
           text: 'Добавить',
           onButtonClick: onSubmit,
-          className: demoMode ? styles.animatedButton : '',
         },
       ];
     }

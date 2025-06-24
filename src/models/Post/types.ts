@@ -80,7 +80,7 @@ export interface FixPostResult {
 
 export const mockFixResult: FixPostResult = {
   status: 'ok',
-  text: 'Нейросети для генерации текста',
+  text: 'Сегодня я хочу поделиться своими чертежами будущего дома',
 };
 
 export const mockGenerateTextResult = {

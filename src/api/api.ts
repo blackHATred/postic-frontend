@@ -296,6 +296,10 @@ export const getMockStats = async (req: GetStatsReq): Promise<GetStatsResponse> 
 };
 
 export const GetStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
+  if (config.api.MOCK_MODE) {
+    return getMockStats(req);
+  }
+
   const response = await axiosInstance.get<GetStatsResponse>(
     `${config.api.baseURL}${routes.analytics()}/stats`,
     {
@@ -304,9 +308,6 @@ export const GetStats = async (req: GetStatsReq): Promise<GetStatsResponse> => {
     },
   );
   return response.data;
-
-  // Моковые данные
-  // return getMockStats(req);
 };
 
 export const GetPostStats = async (req: PostReq): Promise<{ resp: GetPostStatsResponse }> => {
@@ -368,6 +369,17 @@ export const RegisterWithUserData = async (userData: RegisterRequest): Promise<R
 export const getKPI = async (
   req: GetStatsReq,
 ): Promise<{ kpi?: UserAnalytics | UserAnalytics[]; users?: UserAnalytics[] }> => {
+  const isMockMode =
+    (typeof window !== 'undefined' && (window as any).MOCK_ANALYTICS === true) ||
+    config.api.MOCK_MODE;
+
+  if (isMockMode) {
+    console.log('Используются моковые данные для KPI');
+    const { generateMockUserAnalytics } = await import('../utils/transformData');
+    const mockUsers = generateMockUserAnalytics(5);
+    return { users: mockUsers };
+  }
+
   const response = await axiosInstance.get<{
     kpi?: UserAnalytics | UserAnalytics[];
     users?: UserAnalytics[];

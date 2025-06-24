@@ -6,7 +6,11 @@ import { useAppSelector, useAppDispatch } from '../../../stores/hooks';
 import EngagementDashboard from '../../ui/Charts/EngagementDashboard';
 import TopEngagingPostsList from '../../ui/Charts/TopEngagingPostsList';
 import CircularChart from '../../ui/Charts/CircularChart';
-import { transformStatsToAnalytics } from '../../../utils/transformData';
+import {
+  generateMockAnalyticsData,
+  generateMockPeriodComparisonData,
+  transformStatsToAnalytics,
+} from '../../../utils/transformData';
 import { useLocation } from 'react-router-dom';
 import KPIRadarChart from '../../ui/Charts/RadarChart';
 import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
@@ -19,9 +23,15 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
-// Подключаем плагины
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrBefore);
+
+const MOCK_ANALYTICS = false;
+
+// для использования в API
+if (typeof window !== 'undefined') {
+  (window as any).MOCK_ANALYTICS = MOCK_ANALYTICS;
+}
 
 const AnalyticsComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,7 +48,6 @@ const AnalyticsComponent: React.FC = () => {
   const [hasPosts, setHasPosts] = useState<boolean>(true);
   const dateRange = useAppSelector((state) => state.analytics.period);
   const dispatch = useAppDispatch();
-
   const [currentWeek, setCurrentWeek] = useState<number>(0); // 0 - текущая, -1 - предыдущая, 1 - следующая
 
   const getWeekBoundaries = (weekOffset: number) => {
@@ -106,6 +115,15 @@ const AnalyticsComponent: React.FC = () => {
           endDate = dateRange[1];
         }
 
+        if (MOCK_ANALYTICS) {
+          const days = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
+          const mockData = generateMockAnalyticsData(days, hasTelegram, hasVk);
+          setAnalyticsData(mockData);
+          setHasPosts(true);
+          setLoading(false);
+          return;
+        }
+
         const statsResponse = await GetStats({
           team_id: selectedTeamId,
           start: startDate,
@@ -133,7 +151,7 @@ const AnalyticsComponent: React.FC = () => {
     if (selectedTeamId !== 0) {
       fetchAnalyticsData();
     }
-  }, [selectedTeamId, currentPath, activeAnalytics, currentWeek]);
+  }, [selectedTeamId, currentPath, activeAnalytics]);
 
   useEffect(() => {
     const fetchUsersData = async () => {
@@ -203,6 +221,14 @@ const AnalyticsComponent: React.FC = () => {
           currentPeriodEnd = today.endOf('month');
           previousPeriodStart = currentPeriodStart.clone().subtract(1, 'month');
           previousPeriodEnd = currentPeriodEnd.clone().subtract(1, 'month');
+        }
+
+        if (MOCK_ANALYTICS) {
+          const mockGrowthData = generateMockPeriodComparisonData(hasTelegram, hasVk);
+          setGrowthData(mockGrowthData);
+          setHasPosts(true);
+          setGrowthDataLoading(false);
+          return;
         }
 
         const currentPeriodResponse = await GetStats({
@@ -326,22 +352,28 @@ const AnalyticsComponent: React.FC = () => {
 
   return (
     <div className={styles.analyticsContainer}>
-      {activeAnalytics !== 'growth' && activeAnalytics !== 'kpi' && (
-        <div className={styles.weekSelector}>
-          <Space>
-            <div className={styles.weekSelectorContainer}>
-              <Tooltip title='Просмотр аналитики по неделям'>
-                <InfoCircleOutlined className={styles.weekSelectorIcon} />
-              </Tooltip>
-              <Radio.Button onClick={goToPrevWeek}>
-                <LeftOutlined />
-              </Radio.Button>
-              <Radio.Button disabled>{getWeekLabel(currentWeek)}</Radio.Button>
-              <Radio.Button onClick={goToNextWeek}>
-                <RightOutlined />
-              </Radio.Button>
-            </div>
-          </Space>
+      {!MOCK_ANALYTICS && (
+        <div className={styles.analyticsHeader}>
+          <div>
+            {activeAnalytics !== 'growth' && activeAnalytics !== 'kpi' && (
+              <div className={styles.weekSelector}>
+                <Space>
+                  <div className={styles.weekSelectorContainer}>
+                    <Tooltip title='Просмотр аналитики по неделям'>
+                      <InfoCircleOutlined className={styles.weekSelectorIcon} />
+                    </Tooltip>
+                    <Radio.Button onClick={goToPrevWeek}>
+                      <LeftOutlined />
+                    </Radio.Button>
+                    <Radio.Button disabled>{getWeekLabel(currentWeek)}</Radio.Button>
+                    <Radio.Button onClick={goToNextWeek}>
+                      <RightOutlined />
+                    </Radio.Button>
+                  </div>
+                </Space>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

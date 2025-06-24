@@ -23,7 +23,6 @@ const DialogBox: FC<PropsWithChildren<DialogBoxProps>> = (
   const styles = {
     mask: {
       backdropFilter: 'blur(5px)',
-      boxShadow: `inset 0 0 15px #fff`,
     },
     content: {
       padding: '14px',

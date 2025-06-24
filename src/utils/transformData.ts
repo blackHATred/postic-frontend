@@ -163,48 +163,49 @@ export const generateMockAnalyticsData = (
   const postCount = 5;
 
   for (let postIndex = 0; postIndex < postCount; postIndex++) {
-    const baseViews = 500 + Math.floor(Math.random() * 1500); // от 500 до 2000
-    const baseComments = 10 + Math.floor(Math.random() * 90); // от 10 до 100
-    const baseReactions = 20 + Math.floor(Math.random() * 180); // от 20 до 200
+    const baseViews = 500 + Math.floor(Math.random() * 2500); // от 500 до 3000
+    const baseComments = 10 + Math.floor(Math.random() * 140); // от 10 до 150
+    const baseReactions = 20 + Math.floor(Math.random() * 280); // от 20 до 300
 
-    const viewsTrend = 0.9 + Math.random() * 0.2; // от 0.9 до 1.1
-    const commentsTrend = 0.9 + Math.random() * 0.2;
-    const reactionsTrend = 0.9 + Math.random() * 0.2;
+    const amplitude = 0.4 + Math.random() * 0.6; // Амплитуда колебаний (от 0.4 до 1.0)
+    const frequency = 1 + Math.random() * 2; // Частота колебаний (от 1 до 3)
+    const phase = Math.random() * Math.PI * 2; // Случайная фаза (0 до 2π)
+
+    const eventDay = Math.floor(Math.random() * days);
+    const eventMultiplier = 1.5 + Math.random() * 1.5; // от 1.5 до 3.0
+
+    const vkCorrelation = 0.7 + Math.random() * 0.5; // от 0.7 до 1.2
+    const vkPhaseShift = (Math.random() * Math.PI) / 2; // небольшой сдвиг фазы
 
     for (let i = 0; i < days; i++) {
       const day = new Date(baseDate);
       day.setDate(day.getDate() - (days - 1) + i);
 
-      const dayFactor = 1 + (Math.random() * 0.3 - 0.15); // от 0.85 до 1.15
+      const tgWave = Math.sin((i / days) * Math.PI * frequency * 2 + phase) * amplitude + 1;
+      const vkWave =
+        Math.sin((i / days) * Math.PI * frequency * 2 + phase + vkPhaseShift) *
+          amplitude *
+          vkCorrelation +
+        1;
 
-      const trendMultiplier = Math.pow(viewsTrend, i);
+      const tgRandom = 0.85 + Math.random() * 0.3;
+      const vkRandom = 0.85 + Math.random() * 0.3;
 
-      const tgViews = hasTelegram
-        ? Math.max(100, Math.floor(baseViews * trendMultiplier * dayFactor))
-        : 0;
-      const tgComments = hasTelegram
-        ? Math.floor(baseComments * Math.pow(commentsTrend, i) * dayFactor)
-        : 0;
-      const tgReactions = hasTelegram
-        ? Math.floor(baseReactions * Math.pow(reactionsTrend, i) * dayFactor)
-        : 0;
+      const tgEventFactor = i === eventDay ? eventMultiplier : 1;
+      const vkEventDay = Math.random() > 0.5 ? eventDay : Math.min(eventDay + 1, days - 1);
+      const vkEventFactor = i === vkEventDay ? eventMultiplier * 0.8 : 1;
 
-      const vkViews = hasVk
-        ? Math.max(
-            80,
-            Math.floor(baseViews * 0.7 * trendMultiplier * (1 + (Math.random() * 0.3 - 0.15))),
-          )
-        : 0;
-      const vkComments = hasVk
-        ? Math.floor(
-            baseComments * 0.8 * Math.pow(commentsTrend, i) * (1 + (Math.random() * 0.3 - 0.15)),
-          )
-        : 0;
-      const vkReactions = hasVk
-        ? Math.floor(
-            baseReactions * 1.2 * Math.pow(reactionsTrend, i) * (1 + (Math.random() * 0.3 - 0.15)),
-          )
-        : 0;
+      const tgFactor = tgWave * tgRandom * tgEventFactor;
+      const vkFactor = vkWave * vkRandom * vkEventFactor;
+
+      // множители к базовым значениям
+      const tgViews = hasTelegram ? Math.max(100, Math.floor(baseViews * tgFactor)) : 0;
+      const tgComments = hasTelegram ? Math.floor(baseComments * tgFactor) : 0;
+      const tgReactions = hasTelegram ? Math.floor(baseReactions * tgFactor) : 0;
+
+      const vkViews = hasVk ? Math.max(80, Math.floor(baseViews * 0.7 * vkFactor)) : 0;
+      const vkComments = hasVk ? Math.floor(baseComments * 0.8 * vkFactor) : 0;
+      const vkReactions = hasVk ? Math.floor(baseReactions * 1.2 * vkFactor) : 0;
 
       result.push({
         post_union_id: 1000 + postIndex,
@@ -231,8 +232,6 @@ export const generateMockAnalyticsData = (
 export const generateMockUserAnalytics = (userCount = 5): any[] => {
   const result = [];
 
-  const kpiCategories = ['posts', 'engagement', 'reactions', 'comments', 'views'];
-
   const userNames = [
     'Анна Петрова',
     'Сергей Иванов',
@@ -249,25 +248,27 @@ export const generateMockUserAnalytics = (userCount = 5): any[] => {
   for (let i = 0; i < userCount; i++) {
     const userName = userNames[i % userNames.length];
 
-    const user: any = {
+    const baseReactions = 30 + Math.floor(Math.random() * 70); // от 30 до 100
+    const baseViews = 200 + Math.floor(Math.random() * 800); // от 200 до 1000
+    const baseComments = 10 + Math.floor(Math.random() * 40); // от 10 до 50
+    const baseKpi = 50 + Math.floor(Math.random() * 50); // от 50 до 100
+
+    const user = {
       user_id: i + 1,
       nickname: userName,
-      kpi: {},
+      username: userName.split(' ')[0],
+      reactions: baseReactions,
+      views: baseViews,
+      comments: baseComments,
+      kpi: baseKpi,
+      kpiDetails: {
+        posts: 50 + Math.floor(Math.random() * 50),
+        engagement: 40 + Math.floor(Math.random() * 60),
+        reactions: baseReactions,
+        comments: baseComments,
+        views: baseViews,
+      },
     };
-
-    kpiCategories.forEach((category) => {
-      let baseValue = 50;
-
-      if (category === 'posts' && i % 3 === 0) {
-        baseValue = 70;
-      } else if (category === 'engagement' && i % 3 === 1) {
-        baseValue = 75;
-      } else if (category === 'views' && i % 3 === 2) {
-        baseValue = 80;
-      }
-
-      user.kpi[category] = Math.floor(baseValue + Math.random() * 30);
-    });
 
     result.push(user);
   }
