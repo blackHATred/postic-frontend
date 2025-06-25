@@ -9,16 +9,16 @@ import CircularChart from '../../ui/Charts/CircularChart';
 import {
   generateMockAnalyticsData,
   generateMockPeriodComparisonData,
+  generateMockUserAnalytics,
   transformStatsToAnalytics,
 } from '../../../utils/transformData';
 import { useLocation } from 'react-router-dom';
 import KPIRadarChart from '../../ui/Charts/RadarChart';
 import KPIColumnChart from '../../ui/Charts/KPIColumnChart';
-import { Empty, Space, Radio, Tooltip } from 'antd';
+import { Empty } from 'antd';
 import PeriodComparisonChart1 from '../../ui/Charts/PeriodComparisonChart1';
 import { GetStats, getKPI } from '../../../api/api';
 import { setActiveAnalyticsFilter } from '../../../stores/analyticsSlice';
-import { LeftOutlined, RightOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -48,44 +48,15 @@ const AnalyticsComponent: React.FC = () => {
   const [hasPosts, setHasPosts] = useState<boolean>(true);
   const dateRange = useAppSelector((state) => state.analytics.period);
   const dispatch = useAppDispatch();
-  const [currentWeek, setCurrentWeek] = useState<number>(0); // 0 - текущая, -1 - предыдущая, 1 - следующая
 
-  const getWeekBoundaries = (weekOffset: number) => {
+  const getWeekBoundaries = () => {
     const today = dayjs();
-
     const currentMonday = today.startOf('isoWeek');
-
-    const startOfWeek = currentMonday.add(weekOffset * 7, 'day');
-    const endOfWeek = startOfWeek.add(6, 'day');
-
-    return [startOfWeek, endOfWeek];
+    const endOfWeek = currentMonday.add(6, 'day');
+    return [currentMonday, endOfWeek];
   };
 
-  const [weekStart, weekEnd] = getWeekBoundaries(currentWeek);
-
-  const getWeekLabel = (weekOffset: number) => {
-    switch (weekOffset) {
-      case -1:
-        return 'Предыдущая неделя';
-      case 0:
-        return 'Текущая неделя';
-      case 1:
-        return 'Следующая неделя';
-      default:
-        if (weekOffset < 0) {
-          return `${Math.abs(weekOffset)} ${Math.abs(weekOffset) === 1 ? 'неделя' : 'недели'} назад`;
-        }
-        return `${weekOffset} ${weekOffset === 1 ? 'неделя' : 'недели'} вперед`;
-    }
-  };
-
-  const goToPrevWeek = () => {
-    setCurrentWeek(currentWeek - 1);
-  };
-
-  const goToNextWeek = () => {
-    setCurrentWeek(currentWeek + 1);
-  };
+  const [weekStart, weekEnd] = getWeekBoundaries();
 
   const hasTelegram = activePlatforms.some((p) => p.platform === 'tg' && p.isLinked);
   const hasVk = activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
@@ -100,6 +71,84 @@ const AnalyticsComponent: React.FC = () => {
       dispatch(setActiveAnalyticsFilter(''));
     }
   }, [dispatch, activeAnalytics]);
+
+  const fetchDailyData = async (date: dayjs.Dayjs): Promise<PostAnalytics[]> => {
+    try {
+      const startDate = date.startOf('day').toISOString();
+      const endDate = date.endOf('day').toISOString();
+
+      if (MOCK_ANALYTICS) {
+        const mockData = generateMockAnalyticsData(1, hasTelegram, hasVk);
+        return mockData;
+      }
+
+      const statsResponse = await GetStats({
+        team_id: selectedTeamId,
+        start: startDate,
+        end: endDate,
+      });
+
+      if (statsResponse.posts && statsResponse.posts.length > 0) {
+        const addMissingPlatformData = (response: GetStatsResponse): GetStatsResponse => {
+          if (!response || !response.posts) return response;
+
+          return {
+            ...response,
+            posts: response.posts.map((post) => ({
+              ...post,
+              telegram: post.telegram || {
+                views: 0,
+                comments: 0,
+                reactions: 0,
+              },
+              vkontakte: post.vkontakte || {
+                views: 0,
+                comments: 0,
+                reactions: 0,
+              },
+            })),
+          };
+        };
+
+        const transformedData = transformStatsToAnalytics(
+          addMissingPlatformData(statsResponse),
+          new Date(startDate),
+          new Date(endDate),
+        );
+        return transformedData;
+      }
+      return [];
+    } catch (error) {
+      console.error('Ошибка при получении данных за день:', error);
+      return [];
+    }
+  };
+
+  const fetchWeeklyDataForLineChart = async () => {
+    setLineChartLoading(true);
+    try {
+      const today = dayjs();
+      const currentMonday = today.startOf('isoWeek');
+
+      const dailyDataPromises = [];
+      for (let i = 0; i < 7; i++) {
+        const day = currentMonday.clone().add(i, 'day');
+        dailyDataPromises.push(fetchDailyData(day));
+      }
+
+      const results = await Promise.all(dailyDataPromises);
+
+      const combinedData = results.flat();
+      setDailyAnalyticsData(combinedData);
+
+      return combinedData;
+    } catch (error) {
+      console.error('Ошибка при получении данных за неделю:', error);
+      return [];
+    } finally {
+      setLineChartLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -132,12 +181,38 @@ const AnalyticsComponent: React.FC = () => {
 
         if (statsResponse.posts && statsResponse.posts.length > 0) {
           setHasPosts(true);
+
+          const addMissingPlatformData = (response: GetStatsResponse): GetStatsResponse => {
+            if (!response || !response.posts) return response;
+
+            return {
+              ...response,
+              posts: response.posts.map((post) => ({
+                ...post,
+                telegram: post.telegram || {
+                  views: 0,
+                  comments: 0,
+                  reactions: 0,
+                },
+                vkontakte: post.vkontakte || {
+                  views: 0,
+                  comments: 0,
+                  reactions: 0,
+                },
+              })),
+            };
+          };
+
           const transformedData = transformStatsToAnalytics(
-            statsResponse,
+            addMissingPlatformData(statsResponse),
             new Date(startDate),
             new Date(endDate),
           );
           setAnalyticsData(transformedData);
+
+          if (activeAnalytics === '') {
+            await fetchWeeklyDataForLineChart();
+          }
         } else {
           setHasPosts(false);
         }
@@ -154,40 +229,25 @@ const AnalyticsComponent: React.FC = () => {
   }, [selectedTeamId, currentPath, activeAnalytics]);
 
   useEffect(() => {
-    const fetchUsersData = async () => {
-      if (activeAnalytics !== 'kpi' || selectedTeamId === 0) {
+    const fetchDailyDataForEngagement = async () => {
+      if (activeAnalytics !== 'audience' || selectedTeamId === 0) {
         return;
       }
 
-      setUsersLoading(true);
+      setLineChartLoading(true);
       try {
-        const startDate = dateRange[0];
-        const endDate = dateRange[1];
-
-        const kpiResponse = await getKPI({
-          team_id: selectedTeamId,
-          start: startDate,
-          end: endDate,
-        });
-
-        if (kpiResponse.users && Array.isArray(kpiResponse.users)) {
-          setUsersData(kpiResponse.users);
-        } else if (Array.isArray(kpiResponse.kpi)) {
-          setUsersData(kpiResponse.kpi);
-        } else if (kpiResponse.kpi) {
-          setUsersData([kpiResponse.kpi]);
-        } else {
-          setUsersData([]);
-        }
-      } catch (error) {
-        setUsersData([]);
+        const dailyData = await fetchWeeklyDataForLineChart();
+        setDailyAnalyticsData(dailyData);
+        setHasPosts(dailyData.length > 0);
       } finally {
-        setUsersLoading(false);
+        setLineChartLoading(false);
       }
     };
 
-    fetchUsersData();
-  }, [selectedTeamId, activeAnalytics, dateRange]);
+    if (activeAnalytics === 'audience') {
+      fetchDailyDataForEngagement();
+    }
+  }, [activeAnalytics, selectedTeamId]);
 
   const [growthDataLoading, setGrowthDataLoading] = useState<boolean>(true);
   const [growthData, setGrowthData] = useState<{
@@ -248,13 +308,18 @@ const AnalyticsComponent: React.FC = () => {
         const hasPreviousData =
           previousPeriodResponse.posts && previousPeriodResponse.posts.length > 0;
 
-        const addMissingVkData = (response: GetStatsResponse): GetStatsResponse => {
+        const addMissingPlatformData = (response: GetStatsResponse): GetStatsResponse => {
           if (!response || !response.posts) return response;
 
           return {
             ...response,
             posts: response.posts.map((post) => ({
               ...post,
+              telegram: post.telegram || {
+                views: 0,
+                comments: 0,
+                reactions: 0,
+              },
               vkontakte: post.vkontakte || {
                 views: 0,
                 comments: 0,
@@ -266,7 +331,7 @@ const AnalyticsComponent: React.FC = () => {
 
         const currentPeriodData = hasCurrentData
           ? transformStatsToAnalytics(
-              addMissingVkData(currentPeriodResponse),
+              addMissingPlatformData(currentPeriodResponse),
               currentPeriodStart.toDate(),
               currentPeriodEnd.toDate(),
             )
@@ -274,7 +339,7 @@ const AnalyticsComponent: React.FC = () => {
 
         const previousPeriodData = hasPreviousData
           ? transformStatsToAnalytics(
-              addMissingVkData(previousPeriodResponse),
+              addMissingPlatformData(previousPeriodResponse),
               previousPeriodStart.toDate(),
               previousPeriodEnd.toDate(),
             )
@@ -299,6 +364,63 @@ const AnalyticsComponent: React.FC = () => {
     }
   }, [selectedTeamId, activeAnalytics, periodType]);
 
+  useEffect(() => {
+    const fetchKPIData = async () => {
+      if (activeAnalytics !== 'kpi' || selectedTeamId === 0) {
+        return;
+      }
+
+      setUsersLoading(true);
+      try {
+        const startDate = dateRange[0];
+        const endDate = dateRange[1];
+
+        if (MOCK_ANALYTICS) {
+          const mockUserData = generateMockUserAnalytics(5);
+          setUsersData(mockUserData);
+          setHasPosts(true);
+          setUsersLoading(false);
+          return;
+        }
+
+        const kpiResponse = await getKPI({
+          team_id: selectedTeamId,
+          start: startDate,
+          end: endDate,
+        });
+
+        if (kpiResponse) {
+          if (kpiResponse.users && Array.isArray(kpiResponse.users)) {
+            setUsersData(kpiResponse.users);
+            setHasPosts(kpiResponse.users.length > 0);
+          } else if (Array.isArray(kpiResponse.kpi)) {
+            setUsersData(kpiResponse.kpi);
+            setHasPosts(kpiResponse.kpi.length > 0);
+          } else if (kpiResponse.kpi) {
+            setUsersData([kpiResponse.kpi]);
+            setHasPosts(true);
+          } else {
+            setUsersData([]);
+            setHasPosts(false);
+          }
+        } else {
+          setUsersData([]);
+          setHasPosts(false);
+        }
+      } catch (error) {
+        console.error('Ошибка при получении данных для KPI:', error);
+        setUsersData([]);
+        setHasPosts(false);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    if (activeAnalytics === 'kpi') {
+      fetchKPIData();
+    }
+  }, [activeAnalytics, selectedTeamId, dateRange]);
+
   if (selectedTeamId === 0) {
     return (
       <div className={styles.analyticsContainer}>
@@ -313,25 +435,6 @@ const AnalyticsComponent: React.FC = () => {
   if (!hasPosts) {
     return (
       <div className={styles.analyticsContainer}>
-        {activeAnalytics !== 'growth' && activeAnalytics !== 'kpi' && (
-          <div className={styles.weekSelector}>
-            <Space>
-              <div className={styles.weekSelectorContainer}>
-                <Tooltip title='Просмотр аналитики по неделям'>
-                  <InfoCircleOutlined className={styles.weekSelectorIcon} />
-                </Tooltip>
-                <Radio.Button onClick={goToPrevWeek}>
-                  <LeftOutlined />
-                </Radio.Button>
-                <Radio.Button disabled>{getWeekLabel(currentWeek)}</Radio.Button>
-                <Radio.Button onClick={goToNextWeek}>
-                  <RightOutlined />
-                </Radio.Button>
-              </div>
-            </Space>
-          </div>
-        )}
-
         {activeAnalytics === 'kpi' && (
           <div className={styles['spacer']}>
             <KPIRadarChart data={usersData} loading={usersLoading} height={400} />
@@ -352,36 +455,11 @@ const AnalyticsComponent: React.FC = () => {
 
   return (
     <div className={styles.analyticsContainer}>
-      {!MOCK_ANALYTICS && (
-        <div className={styles.analyticsHeader}>
-          <div>
-            {activeAnalytics !== 'growth' && activeAnalytics !== 'kpi' && (
-              <div className={styles.weekSelector}>
-                <Space>
-                  <div className={styles.weekSelectorContainer}>
-                    <Tooltip title='Просмотр аналитики по неделям'>
-                      <InfoCircleOutlined className={styles.weekSelectorIcon} />
-                    </Tooltip>
-                    <Radio.Button onClick={goToPrevWeek}>
-                      <LeftOutlined />
-                    </Radio.Button>
-                    <Radio.Button disabled>{getWeekLabel(currentWeek)}</Radio.Button>
-                    <Radio.Button onClick={goToNextWeek}>
-                      <RightOutlined />
-                    </Radio.Button>
-                  </div>
-                </Space>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {activeAnalytics === '' && (
         <div className={styles['spacer']}>
           <LineChart
-            data={analyticsData}
-            loading={loading}
+            data={dailyAnalyticsData.length > 0 ? dailyAnalyticsData : analyticsData}
+            loading={lineChartLoading}
             height={400}
             hasTelegram={hasTelegram}
             hasVk={hasVk}
@@ -398,8 +476,8 @@ const AnalyticsComponent: React.FC = () => {
       {activeAnalytics === 'audience' && (
         <div className={styles['spacer']}>
           <EngagementDashboard
-            data={analyticsData}
-            loading={loading}
+            data={dailyAnalyticsData.length > 0 ? dailyAnalyticsData : analyticsData}
+            loading={lineChartLoading}
             hasTelegram={hasTelegram}
             hasVk={hasVk}
           />

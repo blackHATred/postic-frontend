@@ -34,7 +34,8 @@
     "react-scripts": "^5.0.1",
     "remark": "^15.0.1",
     "slick-carousel": "^1.8.1",
-    "strip-markdown": "^6.0.0"
+    "strip-markdown": "^6.0.0",
+    "vite-bundle-visualizer": "^1.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -89,4 +90,3 @@
     "nth-check": "^2.0.1"
   }
 }
-

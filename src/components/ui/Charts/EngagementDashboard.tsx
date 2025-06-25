@@ -1,12 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Radio, Space, Tooltip, Alert } from 'antd';
+import { Card, Radio, Space, Tooltip, Alert, Typography } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import styles from './styles.module.scss';
 import { PostAnalytics } from '../../../models/Analytics/types';
 import BarChart from '../../ui/Charts/BarChart';
 import { useAppSelector } from '../../../stores/hooks';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+
+dayjs.locale('ru');
+
+const { Title, Text } = Typography;
 
 type MetricType = 'reactions' | 'comments';
+type ViewMode = 'posts' | 'days';
 
 interface EngagementDashboardProps {
   data: PostAnalytics[];
@@ -22,6 +29,7 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
   hasVk,
 }) => {
   const [metricType, setMetricType] = useState<MetricType>('reactions');
+  const [viewMode, setViewMode] = useState<ViewMode>('days');
 
   // Если пропсы не переданы, получаем доступные платформы из Redux как запасной вариант
   const activePlatforms = useAppSelector((state) => state.teams.globalActivePlatforms);
@@ -34,7 +42,64 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
   const isVkAvailable =
     hasVk !== undefined ? hasVk : activePlatforms.some((p) => p.platform === 'vk' && p.isLinked);
 
-  const chartData = useMemo(() => {
+  const getDailyData = (data: PostAnalytics[]) => {
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    const dailyMap = new Map<
+      string,
+      {
+        date: string;
+        formattedDate: string;
+        dayOfWeek: string;
+        tg_views: number;
+        tg_reactions: number;
+        tg_comments: number;
+        vk_views: number;
+        vk_reactions: number;
+        vk_comments: number;
+      }
+    >();
+
+    const sortedData = [...data].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
+
+    sortedData.forEach((post) => {
+      const date = dayjs(post.timestamp).format('YYYY-MM-DD');
+      const formattedDate = dayjs(post.timestamp).format('DD.MM.YYYY');
+      const dayOfWeek = dayjs(post.timestamp).format('dddd');
+
+      if (!dailyMap.has(date)) {
+        dailyMap.set(date, {
+          date,
+          formattedDate,
+          dayOfWeek,
+          tg_views: 0,
+          tg_reactions: 0,
+          tg_comments: 0,
+          vk_views: 0,
+          vk_reactions: 0,
+          vk_comments: 0,
+        });
+      }
+
+      const dayData = dailyMap.get(date)!;
+      dayData.tg_views += post.tg_views || 0;
+      dayData.tg_reactions += post.tg_reactions || 0;
+      dayData.tg_comments += post.tg_comments || 0;
+      dayData.vk_views += post.vk_views || 0;
+      dayData.vk_reactions += post.vk_reactions || 0;
+      dayData.vk_comments += post.vk_comments || 0;
+    });
+
+    return Array.from(dailyMap.values()).sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+  };
+
+  const postChartData = useMemo(() => {
     if (!data || data.length === 0) {
       return [];
     }
@@ -64,18 +129,34 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
     return result.reverse();
   }, [data]);
 
+  const dailyChartData = useMemo(() => {
+    const dailyData = getDailyData(data);
+
+    return dailyData.map((day) => ({
+      post_union_id: 0,
+      postId: day.dayOfWeek,
+      formattedDate: day.formattedDate,
+      tg_views: day.tg_views,
+      tg_reactions: day.tg_reactions,
+      tg_comments: day.tg_comments,
+      vk_views: day.vk_views,
+      vk_reactions: day.vk_reactions,
+      vk_comments: day.vk_comments,
+      timestamp: day.date,
+    }));
+  }, [data]);
+
+  const chartData = viewMode === 'posts' ? postChartData : dailyChartData;
+
   const hasZeroMetrics = useMemo(() => {
-    if (!data || data.length === 0) return false;
+    const dataToCheck = viewMode === 'posts' ? postChartData : dailyChartData;
+
+    if (!dataToCheck || dataToCheck.length === 0) return false;
 
     let hasZeroTgMetrics = true;
     let hasZeroVkMetrics = true;
 
-    const sortedData = [...data].sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-    );
-    const lastTenPosts = sortedData.slice(0, 10);
-
-    for (const item of lastTenPosts) {
+    for (const item of dataToCheck) {
       if (metricType === 'reactions') {
         if (item.tg_reactions > 0 && item.tg_views > 0) hasZeroTgMetrics = false;
         if (item.vk_reactions > 0 && item.vk_views > 0) hasZeroVkMetrics = false;
@@ -89,80 +170,99 @@ const EngagementDashboard: React.FC<EngagementDashboardProps> = ({
       telegram: hasZeroTgMetrics && isTelegramAvailable,
       vkontakte: hasZeroVkMetrics && isVkAvailable,
     };
-  }, [data, metricType, isTelegramAvailable, isVkAvailable]);
+  }, [postChartData, dailyChartData, metricType, isTelegramAvailable, isVkAvailable, viewMode]);
 
   const metricInfo = {
     reactions: {
-      title: 'Engagement Rate по постам (отношение реакций к просмотрам)',
+      title: viewMode === 'posts' ? 'Engagement Rate по постам' : 'Engagement Rate по дням',
       description:
-        'Показывает процент пользователей, которые оставили реакции на 10 последних постах',
+        viewMode === 'posts'
+          ? 'Показывает процент пользователей, которые оставили реакции на 10 последних постах'
+          : 'Показывает процент пользователей, которые оставили реакции за каждый день недели',
     },
     comments: {
-      title: 'Discussion Rate по постам (отношение комментариев к просмотрам)',
-      description: 'Показывает уровень обсуждения 10 последних постов пользователями',
+      title: viewMode === 'posts' ? 'Discussion Rate по постам' : 'Discussion Rate по дням',
+      description:
+        viewMode === 'posts'
+          ? 'Показывает процент пользователей, которые оставили комментарии на 10 последних постах'
+          : 'Показывает процент пользователей, которые оставили комментарии за каждый день недели',
     },
   };
 
   return (
     <Card
-      className={styles.analyticsCard}
       title={
         <Space>
-          {metricInfo[metricType].title}
-          <Tooltip title={metricInfo[metricType].description}>
+          <span>Метрики вовлеченности</span>
+          <Tooltip title='Метрики с engagement rate вашей адитории'>
             <InfoCircleOutlined />
           </Tooltip>
         </Space>
       }
       loading={loading}
+      className={styles.analyticsCard}
     >
-      <div style={{ marginBottom: '20px' }}>
+      <div className={styles.controlsContainer}>
         <Radio.Group
           value={metricType}
           onChange={(e) => setMetricType(e.target.value)}
+          optionType='button'
           buttonStyle='solid'
         >
-          <Radio.Button value='reactions'>По реакциям</Radio.Button>
-          <Radio.Button value='comments'>По комментариям</Radio.Button>
+          <Radio.Button value='reactions'>Реакции</Radio.Button>
+          <Radio.Button value='comments'>Комментарии</Radio.Button>
+        </Radio.Group>
+
+        <Radio.Group
+          value={viewMode}
+          onChange={(e) => setViewMode(e.target.value)}
+          optionType='button'
+          buttonStyle='solid'
+        >
+          <Radio.Button value='days'>По дням</Radio.Button>
+          <Radio.Button value='posts'>По постам</Radio.Button>
         </Radio.Group>
       </div>
 
-      {chartData.length === 0 && !loading && (
-        <Alert
-          message='Недостаточно данных для отображения'
-          type='info'
-          showIcon
-          style={{ marginBottom: '20px' }}
-        />
-      )}
+      <div className={styles.chartsContainer}>
+        <div className={styles.chartTitleContainer}>
+          <Text className={styles.chartTitle}>{metricInfo[metricType].title}</Text>
+          <Tooltip title={metricInfo[metricType].description}>
+            <InfoCircleOutlined className={styles.titleInfoIcon} />
+          </Tooltip>
+        </div>
 
-      {typeof hasZeroMetrics !== 'boolean' && hasZeroMetrics.telegram && (
-        <Alert
-          message='Нет доступных данных по реакциям/комментариям в Telegram'
-          type='info'
-          showIcon
-          style={{ marginBottom: '20px' }}
-        />
-      )}
+        {hasZeroMetrics.telegram && (
+          <Alert
+            message='Нет данных для Telegram'
+            description='На графике отсутствуют метрики для Telegram, так как нет достаточно данных для расчета'
+            type='info'
+            showIcon
+            className={styles.alert}
+          />
+        )}
 
-      {typeof hasZeroMetrics !== 'boolean' && hasZeroMetrics.vkontakte && (
-        <Alert
-          message='Нет доступных данных по реакциям/комментариям во ВКонтакте'
-          type='info'
-          showIcon
-          style={{ marginBottom: '20px' }}
-        />
-      )}
+        {hasZeroMetrics.vkontakte && (
+          <Alert
+            message='Нет данных для ВКонтакте'
+            description='На графике отсутствуют метрики для ВКонтакте, так как нет достаточно данных для расчета'
+            type='info'
+            showIcon
+            className={styles.alert}
+          />
+        )}
 
-      <BarChart
-        data={chartData as unknown as PostAnalytics[]}
-        loading={loading}
-        height={400}
-        colors={metricType === 'reactions' ? ['#4096ff', '#f759ab'] : ['#5cdbd3', '#b37feb']}
-        xField='postId'
-        xAxisTitle='ID поста'
-        metricType={metricType}
-      />
+        <div className={styles.chart}>
+          <BarChart
+            data={chartData}
+            loading={loading}
+            metricType={metricType}
+            hasTelegram={isTelegramAvailable}
+            hasVk={isVkAvailable}
+            height={280}
+          />
+        </div>
+      </div>
     </Card>
   );
 };
