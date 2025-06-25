@@ -6,7 +6,7 @@ import { resolve } from 'path';
 // https://vitejs.dev/config/ дока конфигов
 export default defineConfig({
   plugins: [react(), svgr()],
-  base: './',
+  base: '/',
   build: {
     outDir: 'build', // по дефолту 'dist', но нужен 'build'
     sourcemap: false,

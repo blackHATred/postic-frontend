@@ -377,6 +377,11 @@ const CreatePostDialog: FC = () => {
     setSelectedDate(null);
     setSelectedPlatforms([]);
     setShowEmojiPicker(false);
+    setIsFixingText(false);
+    setShowFixControls(false);
+    setFixedText('');
+    setOriginalText('');
+    setIsFixLoading(false);
     dispatch(clearFiles());
     setFiles([]);
     dispatch(
@@ -394,6 +399,11 @@ const CreatePostDialog: FC = () => {
   const onCancel = async () => {
     dispatch(setCreatePostDialog(false));
     setShowEmojiPicker(false);
+    setIsFixingText(false);
+    setShowFixControls(false);
+    setFixedText('');
+    setOriginalText('');
+    setIsFixLoading(false);
     clearFields();
   };
 

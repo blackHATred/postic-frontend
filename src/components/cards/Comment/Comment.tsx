@@ -175,132 +175,150 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
     });
   };
 
-  return (
-    <div className={!comment.is_deleted ? styles.comment : styles['deleted']}>
-      <div
-        className={
-          isTicket && !comment.is_deleted ? styles['ticket-header'] : styles['comment-header']
-        }
-      >
-        <Avatar
-          src={
-            comment.avatar_mediafile &&
-            config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
+  const renderComment = () => {
+    const commentContent = (
+      <>
+        <div
+          className={
+            isTicket && !comment.is_deleted ? styles['ticket-header'] : styles['comment-header']
           }
-          onError={() => {
-            return true;
-          }}
-          icon={<TeamOutlined />}
-          className={comment.is_team_reply ? styles['team-avatar'] : ''}
-        />
-
-        <div className={styles['comment-header-text']}>
-          <div className={styles['comment-author']}>
-            <div>
-              <Text strong>{comment.is_team_reply ? teamName : comment.full_name}</Text>
-              <Text type='secondary' className={styles['comment-time']}>
-                {dayjs(created_at).format('D MMMM YYYY [в] HH:mm')}
-              </Text>
-              <Space
-                size={0}
-                split={<Divider type='vertical' />}
-                className={styles['platform-icons']}
-              >
-                {getIcon(comment.platform)}
-              </Space>
-            </div>
-            <div>
-              <Text className={styles['comment-full-name']}>{comment.username}</Text>
-            </div>
-          </div>
-          {!comment.is_deleted &&
-            (String(location.pathname) === String(routes.ticket()) ||
-              String(location.pathname) === String(routes.comments())) && (
-              <ClickableButton
-                type='link'
-                color='blue'
-                text='К посту'
-                icon={<RightOutlined />}
-                onButtonClick={handlePostClick}
-              />
-            )}
-        </div>
-      </div>
-
-      <div className={styles['comment-content']}>
-        <Paragraph
-          italic={comment.is_deleted}
-          ellipsis={ellipsis ? { rows: 4, expandable: true, symbol: 'Читать далее' } : false}
         >
-          {comment.text}
-        </Paragraph>
-      </div>
-      {attach_files.length > 0 &&
-        attach_files?.map((attachment, index) => (
-          <div
-            className={styles['post-content-attachment']}
-            key={index}
-            onClick={() => clickedFile(attachment)}
+          <Avatar
+            src={
+              comment.avatar_mediafile &&
+              config.api.baseURL + '/upload/get/' + comment.avatar_mediafile.id
+            }
+            onError={() => {
+              return true;
+            }}
+            icon={<TeamOutlined />}
+            className={comment.is_team_reply ? styles['team-avatar'] : ''}
+          />
+
+          <div className={styles['comment-header-text']}>
+            <div className={styles['comment-author']}>
+              <div>
+                <Text strong>{comment.is_team_reply ? teamName : comment.full_name}</Text>
+                <Text type='secondary' className={styles['comment-time']}>
+                  {dayjs(created_at).format('D MMMM YYYY [в] HH:mm')}
+                </Text>
+                <Space
+                  size={0}
+                  split={<Divider type='vertical' />}
+                  className={styles['platform-icons']}
+                >
+                  {getIcon(comment.platform)}
+                </Space>
+              </div>
+              <div>
+                <Text className={styles['comment-full-name']}>{comment.username}</Text>
+              </div>
+            </div>
+            {!comment.is_deleted &&
+              (String(location.pathname) === String(routes.ticket()) ||
+                String(location.pathname) === String(routes.comments())) && (
+                <ClickableButton
+                  type='link'
+                  color='blue'
+                  text='К посту'
+                  icon={<RightOutlined />}
+                  onButtonClick={handlePostClick}
+                />
+              )}
+          </div>
+        </div>
+
+        <div className={styles['comment-content']}>
+          <Paragraph
+            italic={comment.is_deleted}
+            ellipsis={ellipsis ? { rows: 4, expandable: true, symbol: 'Читать далее' } : false}
           >
-            <Icon component={PaperClipOutlined} className={styles['clip']} />
-            <Text className={styles.primaryText}>{attachment.file_path}</Text>
-          </div>
-        ))}
-
-      {attach_images.length > 0 && (
-        <div className={styles['image']}>
-          {' '}
-          <MediaRenderer attach_images={attach_images} />
+            {comment.text}
+          </Paragraph>
         </div>
-      )}
+        {attach_files.length > 0 &&
+          attach_files?.map((attachment, index) => (
+            <div
+              className={styles['post-content-attachment']}
+              key={index}
+              onClick={() => clickedFile(attachment)}
+            >
+              <Icon component={PaperClipOutlined} className={styles['clip']} />
+              <Text className={styles.primaryText}>{attachment.file_path}</Text>
+            </div>
+          ))}
 
-      {!comment.is_deleted ? (
-        <div className={styles['comment-buttons']}>
-          <div className={styles['comment-buttons-left']}>
-            <ClickableButton
-              type='default'
-              variant='outlined'
-              color='blue'
-              text={showInlineReply ? 'Свернуть' : 'Ответить'}
-              icon={showInlineReply ? <DoubleRightOutlined rotate={90} /> : <DoubleRightOutlined />}
-              onButtonClick={showInlineReply ? closeInlineReply : openAnswerDialog}
-            />
-
-            <ClickableButton
-              type='default'
-              variant='outlined'
-              color='danger'
-              text='Удалить'
-              icon={<DeleteOutlined />}
-              confirm
-              onButtonClick={deleteComment}
-            />
+        {attach_images.length > 0 && (
+          <div className={styles['image']}>
+            {' '}
+            <MediaRenderer attach_images={attach_images} />
           </div>
-          <div className={styles['comment-buttons-right']}>
-            <ClickableButton
-              type='default'
-              variant='outlined'
-              color={isTicket && !comment.is_deleted ? 'gold' : 'default'}
-              withPopover={true}
-              popoverContent={isTicket ? 'Решить тикет' : 'Отправить в тикет-систему'}
-              icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
-              onButtonClick={
-                isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
-              }
-            ></ClickableButton>
-          </div>
-        </div>
-      ) : (
-        <Text type='warning'>Комментарий был удален</Text>
-      )}
+        )}
 
-      {showInlineReply && (
-        <div className={styles.inlineReplyWrapper}>
-          <InlineReplyForm comment={comment} onCancel={closeInlineReply} />
-        </div>
-      )}
-    </div>
-  );
+        {!comment.is_deleted ? (
+          <div className={styles['comment-buttons']}>
+            <div className={styles['comment-buttons-left']}>
+              <ClickableButton
+                type='default'
+                variant='outlined'
+                color='blue'
+                text={showInlineReply ? 'Свернуть' : 'Ответить'}
+                icon={
+                  showInlineReply ? <DoubleRightOutlined rotate={90} /> : <DoubleRightOutlined />
+                }
+                onButtonClick={showInlineReply ? closeInlineReply : openAnswerDialog}
+              />
+
+              <ClickableButton
+                type='default'
+                variant='outlined'
+                color='danger'
+                text='Удалить'
+                icon={<DeleteOutlined />}
+                confirm
+                onButtonClick={deleteComment}
+              />
+            </div>
+            <div className={styles['comment-buttons-right']}>
+              <ClickableButton
+                type='default'
+                variant='outlined'
+                color={isTicket && !comment.is_deleted ? 'gold' : 'default'}
+                withPopover={true}
+                popoverContent={isTicket ? 'Решить тикет' : 'Отправить в тикет-систему'}
+                icon={isTicket ? <DisconnectOutlined /> : <TagOutlined />}
+                onButtonClick={
+                  isTicket ? () => handleMarkTicket(false) : () => handleMarkTicket(true)
+                }
+              ></ClickableButton>
+            </div>
+          </div>
+        ) : (
+          <Text type='warning'>Комментарий был удален</Text>
+        )}
+
+        {showInlineReply && (
+          <div className={styles.inlineReplyWrapper}>
+            <InlineReplyForm comment={comment} onCancel={closeInlineReply} />
+          </div>
+        )}
+      </>
+    );
+
+    if (isTicket && !comment.is_deleted) {
+      return (
+        <div className={`${styles.comment} ${styles['ticket-left-border']}`}>{commentContent}</div>
+      );
+    }
+
+    return (
+      <div className={!comment.is_deleted ? styles.comment : styles['deleted']}>
+        {commentContent}
+      </div>
+    );
+  };
+
+  return renderComment();
 };
 
 export default CommentComponent;

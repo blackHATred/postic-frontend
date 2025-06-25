@@ -1,6 +1,7 @@
 @import '../../../styles/variables';
 
 .comment {
+  position: relative;
   border-radius: $border-radius;
   padding: 16px;
   margin-bottom: 16px;
@@ -11,6 +12,12 @@
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   color: $calendar-item-text;
+  overflow: hidden;
+}
+
+.ticket-left-border {
+  border-left: 8px solid gold;
+  padding-left: 14px;
 }
 
 .post {
@@ -95,7 +102,6 @@
   align-items: center;
   margin-bottom: 12px;
   padding: 7px;
-  background-color: $ticket-yellow;
   border-radius: $border-radius;
 }
 
@@ -111,7 +117,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  //flex-grow: 1;
 }
 
 .comment-time {
@@ -128,7 +133,7 @@
   color: $secondary-color;
 
   a {
-    color: $primary-color; // Цвет ссылки
+    color: $primary-color;
     text-decoration: none;
 
     &:hover {
@@ -162,11 +167,6 @@
   margin-left: auto;
 }
 
-.comment-buttons-right {
-  display: flex;
-  align-items: center;
-}
-
 .post-content-attachment {
   padding-left: 20px;
   padding-bottom: 5px;
@@ -186,7 +186,6 @@
   margin-right: auto;
   opacity: 50%;
 }
-
 
 .inlineReplyWrapper {
   margin-top: 15px;

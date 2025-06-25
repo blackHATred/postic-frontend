@@ -374,7 +374,6 @@ export const getKPI = async (
     config.api.MOCK_MODE;
 
   if (isMockMode) {
-    console.log('Используются моковые данные для KPI');
     const { generateMockUserAnalytics } = await import('../utils/transformData');
     const mockUsers = generateMockUserAnalytics(5);
     return { users: mockUsers };
